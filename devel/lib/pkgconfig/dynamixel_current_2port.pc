@@ -1,0 +1,8 @@
+prefix=/home/woojin/dynamixel_current/dynamixel_current_2port/devel
+
+Name: dynamixel_current_2port
+Description: Description of dynamixel_current_2port
+Version: 0.0.0
+Cflags: -I/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include
+Libs: -L${prefix}/lib -ldynamixel_current_2port
+Requires: dynamixel_sdk dynamixel_workbench_msgs roscpp std_msgs
