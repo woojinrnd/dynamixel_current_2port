@@ -2,9 +2,11 @@
 #define DYNAMIXEL_H
 
 #include <ros/ros.h>
-
+#include <eigen3/Eigen/Dense>
+#include <vector>
 #include "std_msgs/String.h"
 #include "dynamixel_sdk/dynamixel_sdk.h"
+
 
 //Protocol version
 #define PROTOCOL_VERSION         2.0
@@ -15,6 +17,19 @@
 #define GOAL_CURRENT_VALUE       1000
 #define DEVICE_NAME              "/dev/ttyACM0"
 
+#define PI                       3.141592
+using Eigen::VectorXd;
+
+// Operating Mode
+enum DynamixelOperatingMode
+{
+    Current_Control_Mode = 0,
+    Velocity_Control_Mode = 1,
+    Position_Control_Mode = 3,
+    Extended_Position_Control_Mode = 4,
+    Current_based_Position_Control_Mode = 5,
+    PWM_Control_Mode = 16
+} DynamixelOperatingMode;
 
 // Control table address
 enum DynamixelStandardRegisterTable
@@ -81,10 +96,9 @@ enum DynamixelStandardRegisterTable
   DxlReg_DataPort2 = 154,
   DxlReg_DataPort3 = 156,
   DxlReg_IndirectAddress1 = 168,
-  DxlReg_IndirectData1 = 224,
-};
+  DxlReg_IndirectData1 = 224
+} DynamixelStandardRegisterTable;
 
-dynamixel::GroupSyncRead::
 
 class Dxl
 {
@@ -92,21 +106,48 @@ class Dxl
     private:
         dynamixel::PortHandler* portHandler;
         dynamixel::PacketHandler* packetHandler;
-      
-    //Member Function
-    public:
-        //기본 생성자
-        Dxl()
-        {
-            const int dxl_id[NUMBER_OF_DYNAMIXELS] = { 0 };
-            float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
-            uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };
-            uint32_t velocity[NUMBER_OF_DYNAMIXELS] = { 0 };
-            int32_t 
-        }
-    
-        
 
+        const int dxl_id[NUMBER_OF_DYNAMIXELS] = { 0 };
+        float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
+        uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };
+        uint32_t velocity[NUMBER_OF_DYNAMIXELS] = { 0 };
+        int32_t ref_torque_value[NUMBER_OF_DYNAMIXELS] = { 0 };
+        int32_t torque2value[NUMBER_OF_DYNAMIXELS] = { 0 };
+
+        VectorXd ref_th_value = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        VectorXd ref_th_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        VectorXd ref_th_dot_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        VectorXd ref_torque_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        VectorXd th_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        VectorXd th_last_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        VectorXd th_dot_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        VectorXd th_dot_est_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        VectorXd tau_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+    //Member Function
+        // virtual void syncReadTheta();
+        // virtual void initActuatorValues();
+        // virtual void syncReadThetaDot();
+        // virtual void syncWriteTheta();
+        // virtual void syncWriteTorque();
+        // virtual void getParam(int32_t data, uint8_t *param);
+        // float convertValue2Radian(int32_t value);
+        // int32_t torqueToValue(double torque, uint8_t index);
+
+
+
+    // Member Function
+    public:
+        Dxl(); //생성자
+        ~Dxl(); //소멸자
+
+        // virtual void SetTorqueRef(VectorXd);
+        // // virtual VectorXd GetTorqueAct();
+        // virtual void SetThetaRef(VectorXd);
+        // virtual VectorXd GetThetaAct();
+        // virtual VectorXd GetThetaDot();
+        // virtual VectorXd GetThetaDotEstimated();
+        // virtual void Loop(bool RxTh, bool RxThDot, bool TxTorque);
+        // virtual void CalculateEstimatedThetaDot(int);
 };
 
 
