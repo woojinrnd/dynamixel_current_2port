@@ -6,6 +6,7 @@
 #include <vector>
 #include "std_msgs/String.h"
 #include "dynamixel_sdk/dynamixel_sdk.h"
+// #include <unordered_map> //자료구조 중 더 빠른 map탐색 key:value
 
 
 //Protocol version
@@ -18,7 +19,12 @@
 #define DEVICE_NAME              "/dev/ttyACM0"
 
 #define PI                       3.141592
+#define TORQUE_TO_VALUE_MX_64    100
+#define TORQUE_TO_VALUE_MX_106   100
+#define RAD_TO_VALUE             651.8981   //1rev = 4096
+
 using Eigen::VectorXd;
+
 
 // Operating Mode
 enum DynamixelOperatingMode
@@ -124,13 +130,13 @@ class Dxl
         VectorXd th_dot_est_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd tau_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
     //Member Function
-        // virtual void syncReadTheta();
-        // virtual void initActuatorValues();
+        virtual void syncReadTheta();  // rad_pos = (count-count_initial_position) * (range/360) * (2*PI/encoder_cpr)
+        virtual void initActuatorValues();
         // virtual void syncReadThetaDot();
         // virtual void syncWriteTheta();
         // virtual void syncWriteTorque();
         // virtual void getParam(int32_t data, uint8_t *param);
-        // float convertValue2Radian(int32_t value);
+        float convertValue2Radian(int32_t value);
         // int32_t torqueToValue(double torque, uint8_t index);
 
 

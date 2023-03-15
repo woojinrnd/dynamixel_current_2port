@@ -9,6 +9,10 @@
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel_current_2port.hpp
 ros/ros.h
 -
+eigen3/Eigen/Dense
+-
+vector
+-
 std_msgs/String.h
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/std_msgs/String.h
 dynamixel_sdk/dynamixel_sdk.h

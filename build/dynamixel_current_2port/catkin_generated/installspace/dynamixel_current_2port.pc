@@ -3,6 +3,6 @@ prefix=/home/woojin/dynamixel_current/dynamixel_current_2port/install
 Name: dynamixel_current_2port
 Description: Description of dynamixel_current_2port
 Version: 0.0.0
-Cflags: -I${prefix}/include
-Libs: -L${prefix}/lib -ldynamixel_current_2port
-Requires: dynamixel_sdk dynamixel_workbench_msgs roscpp std_msgs
+Cflags: -I${prefix}/include -I/usr/local/include
+Libs: -L${prefix}/lib -ldynamixel_current_2port /usr/local/lib/libboost_system.so.1.81.0
+Requires: cmake_modules dynamixel_sdk dynamixel_workbench_msgs roscpp std_msgs sensor_msgs geometry_msgs

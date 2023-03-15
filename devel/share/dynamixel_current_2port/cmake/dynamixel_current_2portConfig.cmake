@@ -91,9 +91,9 @@ endif()
 # flag project as catkin-based to distinguish if a find_package()-ed project is a catkin project
 set(dynamixel_current_2port_FOUND_CATKIN_PROJECT TRUE)
 
-if(NOT "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include " STREQUAL " ")
+if(NOT "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include;/usr/local/include " STREQUAL " ")
   set(dynamixel_current_2port_INCLUDE_DIRS "")
-  set(_include_dirs "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include")
+  set(_include_dirs "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include;/usr/local/include")
   if(NOT " " STREQUAL " ")
     set(_report "Check the issue tracker '' and consider creating a ticket if the problem has not been reported yet.")
   elseif(NOT " " STREQUAL " ")
@@ -116,7 +116,7 @@ if(NOT "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_cur
   endforeach()
 endif()
 
-set(libraries "dynamixel_current_2port")
+set(libraries "dynamixel_current_2port;/usr/local/lib/libboost_system.so.1.81.0")
 foreach(library ${libraries})
   # keep build configuration keywords, target names and absolute libraries as-is
   if("${library}" MATCHES "^(debug|optimized|general)$")
@@ -154,7 +154,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib;/opt/ros/noetic/lib)
+    foreach(path /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib;/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib;/opt/ros/noetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
@@ -185,7 +185,7 @@ foreach(t ${dynamixel_current_2port_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "dynamixel_sdk;dynamixel_workbench_msgs;roscpp;std_msgs")
+set(depends "cmake_modules;dynamixel_sdk;dynamixel_workbench_msgs;roscpp;std_msgs;sensor_msgs;geometry_msgs")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls
