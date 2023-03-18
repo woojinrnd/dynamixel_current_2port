@@ -57,9 +57,22 @@ include dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/progress.
 # Include the compile flags for this target's objects.
 include dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/flags.make
 
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/flags.make
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o"
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o -c /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp
+
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.i"
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp > CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.i
+
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.s"
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp -o CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.s
+
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.o: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/flags.make
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_current_2port.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.o"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.o -c /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_current_2port.cpp
 
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.i: cmake_force
@@ -72,11 +85,13 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_cur
 
 # Object files for target dynamixel_current_2port
 dynamixel_current_2port_OBJECTS = \
+"CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o" \
 "CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.o"
 
 # External object files for target dynamixel_current_2port
 dynamixel_current_2port_EXTERNAL_OBJECTS =
 
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.o
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: /opt/ros/noetic/lib/libdynamixel_sdk.so
@@ -98,7 +113,7 @@ dynamixel_current_2port_EXTERNAL_OBJECTS =
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/dynamixel_current_2port.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

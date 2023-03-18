@@ -60,6 +60,7 @@ include_directories(
 
 add_executable(
   dynamixel_current_2port
+  src/main.cpp
   src/dynamixel_current_2port.cpp ${dynamixel_current_2port.hpp}
 )
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

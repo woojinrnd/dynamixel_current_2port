@@ -22,6 +22,10 @@ dynamixel_sdk/dynamixel_sdk.h
 dynamixel_current_2port.hpp
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_current_2port.hpp
 
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp
+dynamixel_current_2port.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_current_2port.hpp
+
 /opt/ros/noetic/include/dynamixel_sdk/dynamixel_sdk.h
 group_bulk_read.h
 /opt/ros/noetic/include/dynamixel_sdk/group_bulk_read.h

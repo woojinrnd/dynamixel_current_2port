@@ -15,16 +15,14 @@
 //Default setting
 #define NUMBER_OF_DYNAMIXELS     6
 #define BAUDRATE                 4500000 
-#define GOAL_CURRENT_VALUE       1000
 #define DEVICE_NAME              "/dev/ttyACM0"
 
 #define PI                       3.141592
-#define TORQUE_TO_VALUE_MX_64    100
-#define TORQUE_TO_VALUE_MX_106   100
-#define RAD_TO_VALUE             651.8981   //1rev = 4096
+#define TORQUE_TO_VALUE_MX_64    267.094     //mx-64 e-manual plot(not considering about efficiency)
+#define TORQUE_TO_VALUE_MX_106   183.7155         
+#define RAD_TO_VALUE             651.89878   //1rev = 4096 --> 4096/(2*PI)
 
 using Eigen::VectorXd;
-
 
 // Operating Mode
 enum DynamixelOperatingMode
@@ -35,7 +33,7 @@ enum DynamixelOperatingMode
     Extended_Position_Control_Mode = 4,
     Current_based_Position_Control_Mode = 5,
     PWM_Control_Mode = 16
-} DynamixelOperatingMode;
+};
 
 // Control table address
 enum DynamixelStandardRegisterTable
@@ -103,7 +101,7 @@ enum DynamixelStandardRegisterTable
   DxlReg_DataPort3 = 156,
   DxlReg_IndirectAddress1 = 168,
   DxlReg_IndirectData1 = 224
-} DynamixelStandardRegisterTable;
+};
 
 
 class Dxl
@@ -129,16 +127,26 @@ class Dxl
         VectorXd th_dot_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd th_dot_est_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd tau_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
-    //Member Function
-        virtual void syncReadTheta();  // rad_pos = (count-count_initial_position) * (range/360) * (2*PI/encoder_cpr)
-        virtual void initActuatorValues();
-        // virtual void syncReadThetaDot();
-        // virtual void syncWriteTheta();
-        // virtual void syncWriteTorque();
-        // virtual void getParam(int32_t data, uint8_t *param);
-        float convertValue2Radian(int32_t value);
-        // int32_t torqueToValue(double torque, uint8_t index);
 
+
+    //Member Function
+
+// ************************************ GETTERS ***************************************** //
+
+        virtual void syncReadTheta();  // rad_pos = (count-count_initial_position) * (range/360) * (2*PI/encoder_cpr)
+        virtual void syncReadThetaDot();
+        virtual void getParam(int32_t data, uint8_t *param);
+
+// **************************** SETTERS ******************************** //
+
+        virtual void syncWriteTheta();
+        virtual void syncWriteTorque();
+
+// **************************** Function ******************************** //
+
+        virtual void initActuatorValues();
+        float convertValue2Radian(int32_t value);
+        int32_t torqueToValue(double torque, uint8_t index);
 
 
     // Member Function
@@ -146,14 +154,21 @@ class Dxl
         Dxl(); //생성자
         ~Dxl(); //소멸자
 
-        // virtual void SetTorqueRef(VectorXd);
-        // // virtual VectorXd GetTorqueAct();
-        // virtual void SetThetaRef(VectorXd);
-        // virtual VectorXd GetThetaAct();
-        // virtual VectorXd GetThetaDot();
-        // virtual VectorXd GetThetaDotEstimated();
-        // virtual void Loop(bool RxTh, bool RxThDot, bool TxTorque);
-        // virtual void CalculateEstimatedThetaDot(int);
+// ************************************ GETTERS ***************************************** //
+
+        virtual VectorXd GetThetaAct();
+        virtual VectorXd GetThetaDot();
+        virtual VectorXd GetThetaDotEstimated();
+
+// **************************** SETTERS ******************************** //
+
+        virtual void SetTorqueRef(VectorXd);
+        virtual void SetThetaRef(VectorXd);
+
+// **************************** Function ******************************** //
+
+        virtual void Loop(bool RxTh, bool RxThDot, bool TxTorque);
+        virtual void CalculateEstimatedThetaDot(int);
 };
 
 
