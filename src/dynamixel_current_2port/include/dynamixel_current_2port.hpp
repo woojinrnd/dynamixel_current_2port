@@ -17,6 +17,7 @@
 #define BAUDRATE                 4500000 
 #define DEVICE_NAME              "/dev/ttyACM0"
 
+
 #define PI                       3.141592
 #define TORQUE_TO_VALUE_MX_64    267.094     //mx-64 e-manual plot(not considering about efficiency)
 #define TORQUE_TO_VALUE_MX_106   183.7155         
@@ -128,6 +129,8 @@ class Dxl
         VectorXd th_dot_est_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd tau_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
 
+        int16_t Mode = 0;
+
 
     //Member Function
 
@@ -148,7 +151,6 @@ class Dxl
         float convertValue2Radian(int32_t value);
         int32_t torqueToValue(double torque, uint8_t index);
 
-
     // Member Function
     public:
         Dxl(); //생성자
@@ -159,11 +161,15 @@ class Dxl
         virtual VectorXd GetThetaAct();
         virtual VectorXd GetThetaDot();
         virtual VectorXd GetThetaDotEstimated();
+        virtual VectorXd GetPIDGain();
+        virtual int16_t  GetPresentMode();
 
 // **************************** SETTERS ******************************** //
 
         virtual void SetTorqueRef(VectorXd);
         virtual void SetThetaRef(VectorXd);
+        // virtual void SetPIDGain(VectorXd);
+        virtual int16_t SetPresentMode(int16_t Mode);
 
 // **************************** Function ******************************** //
 
