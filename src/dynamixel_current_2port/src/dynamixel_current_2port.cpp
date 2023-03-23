@@ -14,15 +14,26 @@ Dxl::Dxl()
     if (!portHandler->setBaudRate(BAUDRATE))
         ROS_ERROR("Failed to set the baudrate!");
 
-    //Current Control Mode 
-    for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
+    // Current Control Mode
+    if (SetPresentMode(Mode) == Current_Control_Mode)
     {
-        dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, dxl_id[i], DxlReg_OperatingMode, Current_Control_Mode, &dxl_error); // current_mode
-        if (dxl_comm_result != COMM_SUCCESS)
-            ROS_ERROR("Failed to set torque control mode for Dynamixel ID %d", i);
+        for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
+        {
+            dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, dxl_id[i], DxlReg_OperatingMode, Current_Control_Mode, &dxl_error); // current_mode
+            if (dxl_comm_result != COMM_SUCCESS)
+                ROS_ERROR("Failed to set torque control mode for Dynamixel ID : %d", i);
+        }
     }
-
-    // for(uint8_t i=0;i<4;i++) packetHandler->write1ByteTxRx(portHandler, dx_id[i], DxlReg_OperatingMode, Position_Control_Mode, &dxl_error);   // position_mode
+    // Position_Control_Mode
+    else if (SetPresentMode(Mode) == Position_Control_Mode)
+    {
+        for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
+        {
+            dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, dxl_id[i], DxlReg_OperatingMode, Position_Control_Mode, &dxl_error); // Position_mode
+            if (dxl_comm_result != COMM_SUCCESS)
+                ROS_ERROR("Failed to set position control mode for Dynamixel ID : %d", i);
+        }
+    }
 
     //Torque Enable
     for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
@@ -47,13 +58,15 @@ Dxl::~Dxl()
     uint8_t dxl_error = 0;
     int dxl_comm_result = COMM_TX_FAIL;
 
+    //Torque Disable
     for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
     {
         dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, dxl_id[i], DxlReg_TorqueEnable, Current_Control_Mode, &dxl_error);
         if (dxl_comm_result != COMM_SUCCESS)
             ROS_ERROR("Failed to disable torque for Dynamixel ID %d", i);
     }
-
+    
+    //LED Disable
     for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
     {
         packetHandler->write1ByteTxRx(portHandler, dxl_id[i], DxlReg_LED, 0, &dxl_error);
@@ -127,6 +140,19 @@ VectorXd Dxl::GetThetaDot()
     return vel_;
 }
 
+//Getter() : PID gain getter()
+// VectorXd Dxl:: GetPIDGain()
+// {
+
+// }
+
+//Getter() : 현재 모드 getter()
+int16_t Dxl::GetPresentMode()
+{
+    return this->Mode;
+}
+
+
 // **************************** SETTERS ******************************** //
 
 //setter() : 각도 setter()
@@ -177,6 +203,19 @@ void Dxl::SetTorqueRef(VectorXd a_torque)
     for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++) ref_torque_[i] = a_torque[i];
 }
 
+//Setter() : PID gain setter()
+// void Dxl::SetPIDGain(vectorXd PID_Gain)
+// {
+
+// }
+
+//Setter() : 현재 모드 설정
+int16_t Dxl::SetPresentMode(int16_t Mode)
+{
+    if (Mode == 0) return Current_Control_Mode;
+    else if(Mode == 1) return Position_Control_Mode;
+}
+
 // **************************** Function ******************************** //
 
 //Torque2Value : 토크 -> 로우 data
@@ -193,7 +232,8 @@ float Dxl::convertValue2Radian(int32_t value)
     return radian;
 }
 
-//각도(rad), 각속도(rad/s) 읽고, torque(Nm->raw) 쓰기
+//각도(rad), 각속도(rad/s) 읽고, torque(Nm->raw) 쓰기 
+//제어 주파수(전류제어 : 300, 위치제어 : ?)
 void Dxl::Loop(bool RxTh, bool RxThDot, bool TxTorque)
 {
     if(RxTh) syncReadTheta();
