@@ -1,4 +1,4 @@
-#include "dynamixel_current_2port.hpp"
+#include "dynamixel.hpp"
 
 //Constructor
 Dxl::Dxl()
@@ -100,7 +100,7 @@ void Dxl::syncReadThetaDot()
     groupSyncReadThDot.clearParam();
 }
 
-//Getter() : 각도 getter()
+//Getter() : 각도 getter() [rad/s]
 VectorXd Dxl::GetThetaAct()
 {
     return th_;
@@ -122,13 +122,14 @@ void Dxl::CalculateEstimatedThetaDot(int dt_us)
     th_last_ = th_;
 }
 
-//Getter() : 각속도 추정계산 getter() 
+//Getter() : 각속도 추정계산 getter() [rad/s] 
 VectorXd Dxl::GetThetaDotEstimated()
 {
     return th_dot_est_;
 }
 
-//Getter() : 각속도 getter()
+//Getter() : 각속도 getter() [rad/s] 
+//0.0239868240
 VectorXd Dxl::GetThetaDot()
 {
     VectorXd vel_(NUMBER_OF_DYNAMIXELS);
@@ -163,8 +164,8 @@ void Dxl::syncWriteTheta()
 
     for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++)
     {
-        ref_th_value = ref_th_ * RAD_TO_VALUE;
-        getParam(ref_th_value[i], parameter);
+        ref_th_value_ = ref_th_ * RAD_TO_VALUE;
+        getParam(ref_th_value_[i], parameter);
         SyncWriteTh.addParam(dxl_id[i], (uint8_t *)&parameter);
     }
     SyncWriteTh.txPacket();

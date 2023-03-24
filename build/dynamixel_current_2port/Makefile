@@ -632,32 +632,59 @@ geometry_msgs_generate_messages_eus/fast:
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build.make dynamixel_current_2port/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build
 .PHONY : geometry_msgs_generate_messages_eus/fast
 
-src/dynamixel_current_2port.o: src/dynamixel_current_2port.cpp.o
+src/dynamixel.o: src/dynamixel.cpp.o
 
-.PHONY : src/dynamixel_current_2port.o
+.PHONY : src/dynamixel.o
 
 # target to build an object file
-src/dynamixel_current_2port.cpp.o:
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.o
-.PHONY : src/dynamixel_current_2port.cpp.o
+src/dynamixel.cpp.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o
+.PHONY : src/dynamixel.cpp.o
 
-src/dynamixel_current_2port.i: src/dynamixel_current_2port.cpp.i
+src/dynamixel.i: src/dynamixel.cpp.i
 
-.PHONY : src/dynamixel_current_2port.i
+.PHONY : src/dynamixel.i
 
 # target to preprocess a source file
-src/dynamixel_current_2port.cpp.i:
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.i
-.PHONY : src/dynamixel_current_2port.cpp.i
+src/dynamixel.cpp.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.i
+.PHONY : src/dynamixel.cpp.i
 
-src/dynamixel_current_2port.s: src/dynamixel_current_2port.cpp.s
+src/dynamixel.s: src/dynamixel.cpp.s
 
-.PHONY : src/dynamixel_current_2port.s
+.PHONY : src/dynamixel.s
 
 # target to generate assembly for a file
-src/dynamixel_current_2port.cpp.s:
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.s
-.PHONY : src/dynamixel_current_2port.cpp.s
+src/dynamixel.cpp.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.s
+.PHONY : src/dynamixel.cpp.s
+
+src/dynamixel_controller.o: src/dynamixel_controller.cpp.o
+
+.PHONY : src/dynamixel_controller.o
+
+# target to build an object file
+src/dynamixel_controller.cpp.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.o
+.PHONY : src/dynamixel_controller.cpp.o
+
+src/dynamixel_controller.i: src/dynamixel_controller.cpp.i
+
+.PHONY : src/dynamixel_controller.i
+
+# target to preprocess a source file
+src/dynamixel_controller.cpp.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.i
+.PHONY : src/dynamixel_controller.cpp.i
+
+src/dynamixel_controller.s: src/dynamixel_controller.cpp.s
+
+.PHONY : src/dynamixel_controller.s
+
+# target to generate assembly for a file
+src/dynamixel_controller.cpp.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.s
+.PHONY : src/dynamixel_controller.cpp.s
 
 src/main.o: src/main.cpp.o
 
@@ -730,9 +757,12 @@ help:
 	@echo "... dynamixel_workbench_msgs_generate_messages_lisp"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_eus"
-	@echo "... src/dynamixel_current_2port.o"
-	@echo "... src/dynamixel_current_2port.i"
-	@echo "... src/dynamixel_current_2port.s"
+	@echo "... src/dynamixel.o"
+	@echo "... src/dynamixel.i"
+	@echo "... src/dynamixel.s"
+	@echo "... src/dynamixel_controller.o"
+	@echo "... src/dynamixel_controller.i"
+	@echo "... src/dynamixel_controller.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

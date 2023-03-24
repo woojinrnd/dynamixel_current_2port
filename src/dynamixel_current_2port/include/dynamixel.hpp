@@ -119,7 +119,7 @@ class Dxl
         int32_t ref_torque_value[NUMBER_OF_DYNAMIXELS] = { 0 };
         int32_t torque2value[NUMBER_OF_DYNAMIXELS] = { 0 };
 
-        VectorXd ref_th_value = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        VectorXd ref_th_value_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd ref_th_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd ref_th_dot_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd ref_torque_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
@@ -127,7 +127,6 @@ class Dxl
         VectorXd th_last_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd th_dot_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd th_dot_est_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
-        VectorXd tau_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
 
         int16_t Mode = 0;
 
@@ -161,7 +160,7 @@ class Dxl
         virtual VectorXd GetThetaAct();
         virtual VectorXd GetThetaDot();
         virtual VectorXd GetThetaDotEstimated();
-        virtual VectorXd GetPIDGain();
+        // virtual VectorXd GetPIDGain();
         virtual int16_t  GetPresentMode();
 
 // **************************** SETTERS ******************************** //

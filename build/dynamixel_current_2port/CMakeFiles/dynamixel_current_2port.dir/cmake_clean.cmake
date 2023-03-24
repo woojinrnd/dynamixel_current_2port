@@ -1,7 +1,8 @@
 file(REMOVE_RECURSE
   "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port"
   "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port.pdb"
-  "CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_current_2port.cpp.o"
+  "CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o"
+  "CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.o"
   "CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o"
 )
 

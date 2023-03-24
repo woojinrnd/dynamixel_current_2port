@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel_current_2port.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
 ros/ros.h
 -
 eigen3/Eigen/Dense
@@ -18,13 +18,15 @@ std_msgs/String.h
 dynamixel_sdk/dynamixel_sdk.h
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel_sdk/dynamixel_sdk.h
 
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_current_2port.cpp
-dynamixel_current_2port.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_current_2port.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.cpp
+dynamixel.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.hpp
+
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_controller.cpp
 
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp
-dynamixel_current_2port.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_current_2port.hpp
+dynamixel.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.hpp
 
 /opt/ros/noetic/include/dynamixel_sdk/dynamixel_sdk.h
 group_bulk_read.h
