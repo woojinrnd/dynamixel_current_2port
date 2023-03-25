@@ -14,7 +14,7 @@
 
 //Default setting
 #define NUMBER_OF_DYNAMIXELS     6
-#define BAUDRATE                 4500000 
+#define BAUDRATE                 4000000 
 #define DEVICE_NAME              "/dev/ttyACM0"
 
 
@@ -112,7 +112,7 @@ class Dxl
         dynamixel::PortHandler* portHandler;
         dynamixel::PacketHandler* packetHandler;
 
-        const int dxl_id[NUMBER_OF_DYNAMIXELS] = { 0 };
+        const int dxl_id[NUMBER_OF_DYNAMIXELS] = { 0, 3, 4, 6, 9, 11 };
         float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t velocity[NUMBER_OF_DYNAMIXELS] = { 0 };
@@ -128,7 +128,7 @@ class Dxl
         VectorXd th_dot_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd th_dot_est_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
 
-        int16_t Mode = 0;
+        int16_t Mode = 1;
 
 
     //Member Function

@@ -1,6 +1,6 @@
 #include "dynamixel_controller.hpp"
 
-extern Dxl _DXL;
+Dxl _DXL;
 
 // ************************************ GETTERS ***************************************** //
 
@@ -28,7 +28,7 @@ VectorXd Dxl_Controller::GetThetaDot()
     return th_dot_cont;
 }
 
-//각도의 차이와 이동평균필터를 이용해 각속도 계산 
+//Getter() : 각도의 차이와 이동평균필터를 이용해 각속도 계산 
 VectorXd Dxl_Controller::GetThetaDotMAF()
 {
     VectorXd a_th_dot(NUMBER_OF_DYNAMIXELS);
@@ -43,17 +43,32 @@ VectorXd Dxl_Controller::GetThetaDotMAF()
     return th_dot_MovAvgFilterd;
 }
 
+//Getter() : Torque[Nm]
 VectorXd Dxl_Controller::GetTorque()
 {
-
+    VectorXd tau(NUMBER_OF_DYNAMIXELS);
+    return tau;
 }
 
 // **************************** SETTERS ******************************** //
+
+//Setter() : 목표 Torque값 설정[Nm]
 void Dxl_Controller::SetTorque(VectorXd tau)
 {
-
+    for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++) 
+    {
+        torque_cont[i] = tau[i];
+    }
+    _DXL.SetTorqueRef(torque_cont);
 }
+
+//Setter() : 목표 theta값 설정[rad]
 void Dxl_Controller::SetPosition(VectorXd theta)
 {
-
+    for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++)
+    {
+        th_cont[i] = theta[i];
+    }
+    _DXL.SetThetaRef(th_cont);
 }
+

@@ -3,7 +3,6 @@
 
 #include "dynamixel.hpp"
 
-
 #define Window_Size     2   //이동평균필터의 관심 사이즈의 행
 
 using Eigen::MatrixXd;

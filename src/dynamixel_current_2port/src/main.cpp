@@ -1,6 +1,7 @@
 #include "dynamixel.hpp"
+// #include "dynamixel_controller.hpp"
 
-Dxl dxl;
+// Dxl dxl;
 
 int main(int argc, char **argv)
 {
@@ -9,7 +10,8 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(300);
     ros::NodeHandle nh;
 
-    
+    // dxl.GetPresentMode();
+
 
     ROS_INFO("daynmixel_current_2port!");
 }
