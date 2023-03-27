@@ -128,7 +128,7 @@ class Dxl
         VectorXd th_dot_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd th_dot_est_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
 
-        int16_t Mode = 1;
+        int16_t Mode = 1; // Current = 0, Position = 1
 
 
     //Member Function

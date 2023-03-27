@@ -11,8 +11,9 @@ using Eigen::MatrixXd;
 
 class Dxl_Controller
 {
-    Dxl_Controller();
     public:
+        //Construction
+        Dxl_Controller();
         //Member Variable
         VectorXd th_cont = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd th_dot_cont = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);

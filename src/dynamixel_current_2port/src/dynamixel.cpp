@@ -42,11 +42,6 @@ Dxl::Dxl()
                 ROS_INFO("Succeeded to set position control mode for Dynmaixel ID : %d", dxl_id[i]);
         }
     }
-    // for(uint8_t i=0;i<NUMBER_OF_DYNAMIXELS;i++) 
-    // {
-    //     dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, dxl_id[i], DxlReg_OperatingMode, 3, &dxl_error);   // position_mode
-    //     if (dxl_comm_result != COMM_SUCCESS) ROS_ERROR("Failed to set Poistion Control Mode for Dynamixel ID : %d", i);
-    // }
 
     //Torque Enable
     for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
@@ -54,6 +49,8 @@ Dxl::Dxl()
         dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, dxl_id[i], DxlReg_TorqueEnable, 1, &dxl_error);
         if (dxl_comm_result != COMM_SUCCESS)
             ROS_ERROR("Failed to enable torque for Dynamixel ID %d", dxl_id[i]);
+        else
+            ROS_INFO("Succeeded to enable torque for Dynmaixel ID : %d", dxl_id[i]);
     }
 
     //LED ON
@@ -62,6 +59,8 @@ Dxl::Dxl()
         dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, dxl_id[i], DxlReg_LED, 1, &dxl_error);
         if (dxl_comm_result != COMM_SUCCESS)
             ROS_ERROR("Failed to enable LED for Dynamixel ID %d", dxl_id[i]);
+        else
+            ROS_INFO("Succeeded to enable LED for Dynmaixel ID : %d", dxl_id[i]);
     }
 }
 
@@ -77,6 +76,8 @@ Dxl::~Dxl()
         dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, dxl_id[i], DxlReg_TorqueEnable, Current_Control_Mode, &dxl_error);
         if (dxl_comm_result != COMM_SUCCESS)
             ROS_ERROR("Failed to disable torque for Dynamixel ID %d", i);
+        else
+            ROS_INFO("Succeeded to enable torque for Dynmaixel ID : %d", dxl_id[i]);
     }
     
     //LED Disable
@@ -85,6 +86,8 @@ Dxl::~Dxl()
         packetHandler->write1ByteTxRx(portHandler, dxl_id[i], DxlReg_LED, 0, &dxl_error);
         if (dxl_comm_result != COMM_SUCCESS)
             ROS_ERROR("Failed to disable LED for Dynamixel ID %d", i);
+        else
+            ROS_INFO("Succeeded to enable LED for Dynmaixel ID : %d", dxl_id[i]);
     }
 
     portHandler->closePort();
@@ -113,7 +116,7 @@ void Dxl::syncReadThetaDot()
     groupSyncReadThDot.clearParam();
 }
 
-//Getter() : 각도 getter() [rad/s]
+//Getter() : 각도 getter() [rad]
 VectorXd Dxl::GetThetaAct()
 {
     return th_;
@@ -252,7 +255,8 @@ void Dxl::Loop(bool RxTh, bool RxThDot, bool TxTorque)
 {
     if(RxTh) syncReadTheta();
     if(RxThDot) syncReadThetaDot();
-    if(TxTorque) syncWriteTorque();
+    // if(TxTorque) syncWriteTorque();
+    
 }
 
 //dxl 초기 세팅

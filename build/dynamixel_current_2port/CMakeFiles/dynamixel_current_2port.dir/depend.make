@@ -141,6 +141,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_con
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel_controller.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/dynamixel_sdk/dynamixel_sdk.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/dynamixel_sdk/group_bulk_read.h
