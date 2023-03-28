@@ -64,7 +64,7 @@ add_executable(
   dynamixel_current_2port
   src/main.cpp
   src/dynamixel.cpp ${dynamixel.hpp}
-  src/dynamixel_controller.cpp ${dynamixel_controller.hpp}
+  # src/dynamixel_controller.cpp ${dynamixel_controller.hpp}
 
 )
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

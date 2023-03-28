@@ -112,7 +112,8 @@ class Dxl
         dynamixel::PortHandler* portHandler;
         dynamixel::PacketHandler* packetHandler;
 
-        const int dxl_id[NUMBER_OF_DYNAMIXELS] = { 0, 3, 4, 6, 9, 11 };
+        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0, 3, 4, 6, 9, 11 };
+        // const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0 };
         float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t velocity[NUMBER_OF_DYNAMIXELS] = { 0 };
@@ -141,7 +142,7 @@ class Dxl
 
 // **************************** SETTERS ******************************** //
 
-        virtual void syncWriteTheta();
+        // virtual void syncWriteTheta();
         virtual void syncWriteTorque();
 
 // **************************** Function ******************************** //
@@ -169,6 +170,9 @@ class Dxl
         virtual void SetThetaRef(VectorXd);
         // virtual void SetPIDGain(VectorXd);
         virtual int16_t SetPresentMode(int16_t Mode);
+        virtual void syncWriteTheta();
+
+        
 
 // **************************** Function ******************************** //
 

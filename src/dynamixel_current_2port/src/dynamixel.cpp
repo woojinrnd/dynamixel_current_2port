@@ -106,6 +106,13 @@ void Dxl::syncReadTheta()
     for(uint8_t i=0; i < NUMBER_OF_DYNAMIXELS; i++) th_[i] = convertValue2Radian(position[i]) - PI - zero_manual_offset[i];
 }
 
+//Getter() : 각도 getter() [rad]
+VectorXd Dxl::GetThetaAct()
+{
+    syncReadTheta();
+    return th_;
+}
+
 //Getter() : velocity 읽기 (raw data)
 void Dxl::syncReadThetaDot()
 {
@@ -116,10 +123,17 @@ void Dxl::syncReadThetaDot()
     groupSyncReadThDot.clearParam();
 }
 
-//Getter() : 각도 getter() [rad]
-VectorXd Dxl::GetThetaAct()
+//Getter() : 각속도 getter() [rad/s] 
+//0.0239868240
+VectorXd Dxl::GetThetaDot()
 {
-    return th_;
+    VectorXd vel_(NUMBER_OF_DYNAMIXELS);
+    for(uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++)
+    {
+        if(velocity[i] > 4294900000) vel_[i] = (velocity[i] - 4294967295) * 0.003816667; //4,294,967,295 = 0xFFFFFFFF   // 1 = 0.229rpm   // 1 = 0.003816667
+        else vel_[i] = velocity[i] * 0.003816667;
+    }
+    return vel_;
 }
 
 //Getter() : About dynamixel packet data
@@ -144,18 +158,6 @@ VectorXd Dxl::GetThetaDotEstimated()
     return th_dot_est_;
 }
 
-//Getter() : 각속도 getter() [rad/s] 
-//0.0239868240
-VectorXd Dxl::GetThetaDot()
-{
-    VectorXd vel_(NUMBER_OF_DYNAMIXELS);
-    for(uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++)
-    {
-        if(velocity[i] > 4294900000) vel_[i] = (velocity[i] - 4294967295) * 0.003816667; //4,294,967,295 = 0xFFFFFFFF   // 1 = 0.229rpm   // 1 = 0.003816667
-        else vel_[i] = velocity[i] * 0.003816667;
-    }
-    return vel_;
-}
 
 //Getter() : PID gain getter()
 // VectorXd Dxl:: GetPIDGain()
@@ -176,16 +178,47 @@ int16_t Dxl::GetPresentMode()
 void Dxl::syncWriteTheta()
 {
     dynamixel::GroupSyncWrite SyncWriteTh(portHandler, packetHandler, DxlReg_GoalPosition, 4);
-    uint8_t parameter[NUMBER_OF_DYNAMIXELS] = {0, 0, 0, 0, 0, 0};
+    uint8_t parameter[NUMBER_OF_DYNAMIXELS][4] = {{0}};
 
-    for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++)
+
+    for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
     {
+        std::cout << "ref_th_value_ : " << ref_th_value_(i) << std::endl;
         ref_th_value_ = ref_th_ * RAD_TO_VALUE;
-        getParam(ref_th_value_[i], parameter);
-        SyncWriteTh.addParam(dxl_id[i], (uint8_t *)&parameter);
+
+        getParam(ref_th_value_(i), parameter[i]);
+        // SyncWriteTh.addParam(dxl_id[i], (uint8_t *)&parameter);
+        SyncWriteTh.addParam(dxl_id[i], parameter[i]);
     }
+
     SyncWriteTh.txPacket();
     SyncWriteTh.clearParam();
+}
+
+
+// void Dxl::syncWriteTheta()
+// {
+//   dynamixel::GroupSyncWrite gSyncWriteTh(portHandler, packetHandler, DxlReg_GoalPosition, 4);
+
+//   uint8_t parameter[NUMBER_OF_DYNAMIXELS] = {0, 0, 0, 0, 0, 0};
+
+//   for (uint8_t i=0; i < NUMBER_OF_DYNAMIXELS; i++){
+//     ref_th_value_ = ref_th_ * RAD_TO_VALUE;
+//     getParam(ref_th_value_[i], parameter);
+//     gSyncWriteTh.addParam(dxl_id[i], (uint8_t *)&parameter);
+//   }
+//   gSyncWriteTh.txPacket();
+//   gSyncWriteTh.clearParam();
+// }
+
+//Setter() : 목표 세타값 설정 [rad]
+void Dxl::SetThetaRef(VectorXd theta)
+{
+    for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS;i++) 
+    {
+        ref_th_[i] = theta[i];
+        // std::cout << ref_th_[i] << std::endl;
+    }
 }
 
 //setter() : 토크 setter() [Nm]
@@ -206,12 +239,6 @@ void Dxl::syncWriteTorque()
     }
     groupSyncWriter.txPacket();
     groupSyncWriter.clearParam();
-}
-
-//Setter() : 목표 세타값 설정 [rad]
-void Dxl::SetThetaRef(VectorXd theta)
-{
-    for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS;i++) ref_th_[i] = theta[i];
 }
 
 //Setter() : 목표 토크 설정 [Nm]

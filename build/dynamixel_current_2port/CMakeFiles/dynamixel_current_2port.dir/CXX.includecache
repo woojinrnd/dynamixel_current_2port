@@ -18,21 +18,15 @@ std_msgs/String.h
 dynamixel_sdk/dynamixel_sdk.h
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel_sdk/dynamixel_sdk.h
 
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel_controller.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.cpp
 dynamixel.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
-
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_controller.cpp
-dynamixel_controller.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_controller.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.hpp
 
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp
 iostream
 -
 dynamixel.hpp
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.hpp
-dynamixel_controller.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_controller.hpp
 
 /opt/ros/noetic/include/dynamixel_sdk/dynamixel_sdk.h
 group_bulk_read.h

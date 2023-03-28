@@ -4,12 +4,6 @@ Dxl _DXL;
 
 // ************************************ GETTERS ***************************************** //
 
-Dxl_Controller::Dxl_Controller()
-{
-    Dxl_Controller::GetJointTheta();
-}
-
-
 //Getter() : 관절각도[rad]
 VectorXd Dxl_Controller::GetJointTheta()
 {
