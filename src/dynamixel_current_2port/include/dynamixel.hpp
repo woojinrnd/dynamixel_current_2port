@@ -5,7 +5,9 @@
 #include <eigen3/Eigen/Dense>
 #include <vector>
 #include "std_msgs/String.h"
+#include <std_msgs/Float64.h> 
 #include "dynamixel_sdk/dynamixel_sdk.h"
+#include <sensor_msgs/JointState.h>
 // #include <unordered_map> //자료구조 중 더 빠른 map탐색 key:value
 
 
@@ -130,11 +132,17 @@ class Dxl
         VectorXd th_dot_est_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
 
         int16_t Mode = 1; // Current = 0, Position = 1
+        
+        //Spread Joint command
+        sensor_msgs::JointState joint_state;
+        sensor_msgs::JointState write_msg_;   ///< Stores the last message received from the write command topic
+        bool write_ready_ = false;            ///< Booleans indicating if we have received commands
+        int recv_queue_size_ = 1;             ///< Receive queue size for desired_joint_states topic
+        bool stop_motors_on_shutdown_;        ///< Indicates if the motors should be turned off when the controller stops
 
+        // Member Function
 
-    //Member Function
-
-// ************************************ GETTERS ***************************************** //
+        // ************************************ GETTERS ***************************************** //
 
         virtual void syncReadTheta();  // rad_pos = (count-count_initial_position) * (range/360) * (2*PI/encoder_cpr)
         virtual void syncReadThetaDot();
@@ -147,7 +155,7 @@ class Dxl
 
 // **************************** Function ******************************** //
 
-        virtual void initActuatorValues();
+        // virtual void initActuatorValues();
         float convertValue2Radian(int32_t value);
         int32_t torqueToValue(double torque, uint8_t index);
 
@@ -169,8 +177,10 @@ class Dxl
         virtual void SetTorqueRef(VectorXd);
         virtual void SetThetaRef(VectorXd);
         // virtual void SetPIDGain(VectorXd);
-        virtual int16_t SetPresentMode(int16_t Mode);
+        // Current = 0, Position = 1
+        virtual int16_t SetPresentMode(int16_t Mode); 
         virtual void syncWriteTheta();
+        virtual void SetJointName();
 
         
 
@@ -178,6 +188,8 @@ class Dxl
 
         virtual void Loop(bool RxTh, bool RxThDot, bool TxTorque);
         virtual void CalculateEstimatedThetaDot(int);
+        virtual void initActuatorValues();
+
 };
 
 

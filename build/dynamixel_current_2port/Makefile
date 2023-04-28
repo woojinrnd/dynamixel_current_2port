@@ -632,6 +632,33 @@ geometry_msgs_generate_messages_eus/fast:
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build.make dynamixel_current_2port/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build
 .PHONY : geometry_msgs_generate_messages_eus/fast
 
+src/callback.o: src/callback.cpp.o
+
+.PHONY : src/callback.o
+
+# target to build an object file
+src/callback.cpp.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o
+.PHONY : src/callback.cpp.o
+
+src/callback.i: src/callback.cpp.i
+
+.PHONY : src/callback.i
+
+# target to preprocess a source file
+src/callback.cpp.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.i
+.PHONY : src/callback.cpp.i
+
+src/callback.s: src/callback.cpp.s
+
+.PHONY : src/callback.s
+
+# target to generate assembly for a file
+src/callback.cpp.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.s
+.PHONY : src/callback.cpp.s
+
 src/dynamixel.o: src/dynamixel.cpp.o
 
 .PHONY : src/dynamixel.o
@@ -730,6 +757,9 @@ help:
 	@echo "... dynamixel_workbench_msgs_generate_messages_lisp"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_eus"
+	@echo "... src/callback.o"
+	@echo "... src/callback.i"
+	@echo "... src/callback.s"
 	@echo "... src/dynamixel.o"
 	@echo "... src/dynamixel.i"
 	@echo "... src/dynamixel.s"

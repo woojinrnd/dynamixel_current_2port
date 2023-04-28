@@ -6,6 +6,8 @@ add_compile_options(-std=c++11)
 
 set(dynamixel_current_2port src/dynamixel.cpp ${src/dynamixel.hpp})
 set(dynamixel_current_2port src/dynamixel_controller.cpp ${src/dynamixel_controller.hpp})
+set(dynamixel_current_2port src/callback.cpp ${src/callback.hpp})
+
 
 
 find_package(catkin REQUIRED COMPONENTS
@@ -64,6 +66,7 @@ add_executable(
   dynamixel_current_2port
   src/main.cpp
   src/dynamixel.cpp ${dynamixel.hpp}
+  src/callback.cpp ${callback.hpp}
   # src/dynamixel_controller.cpp ${dynamixel_controller.hpp}
 
 )

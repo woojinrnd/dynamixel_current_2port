@@ -64,6 +64,7 @@ Dxl::Dxl()
     }
 }
 
+
 //Destructor
 Dxl::~Dxl()
 {
@@ -175,41 +176,41 @@ int16_t Dxl::GetPresentMode()
 // **************************** SETTERS ******************************** //
 
 //setter() : 각도 setter() [rad]
-void Dxl::syncWriteTheta()
-{
-    dynamixel::GroupSyncWrite SyncWriteTh(portHandler, packetHandler, DxlReg_GoalPosition, 4);
-    uint8_t parameter[NUMBER_OF_DYNAMIXELS][4] = {{0}};
-
-
-    for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
-    {
-        std::cout << "ref_th_value_ : " << ref_th_value_(i) << std::endl;
-        ref_th_value_ = ref_th_ * RAD_TO_VALUE;
-
-        getParam(ref_th_value_(i), parameter[i]);
-        // SyncWriteTh.addParam(dxl_id[i], (uint8_t *)&parameter);
-        SyncWriteTh.addParam(dxl_id[i], parameter[i]);
-    }
-
-    SyncWriteTh.txPacket();
-    SyncWriteTh.clearParam();
-}
-
-
 // void Dxl::syncWriteTheta()
 // {
-//   dynamixel::GroupSyncWrite gSyncWriteTh(portHandler, packetHandler, DxlReg_GoalPosition, 4);
+//     dynamixel::GroupSyncWrite SyncWriteTh(portHandler, packetHandler, DxlReg_GoalPosition, 4);
+//     uint8_t parameter[NUMBER_OF_DYNAMIXELS][4] = {{0}};
 
-//   uint8_t parameter[NUMBER_OF_DYNAMIXELS] = {0, 0, 0, 0, 0, 0};
 
-//   for (uint8_t i=0; i < NUMBER_OF_DYNAMIXELS; i++){
-//     ref_th_value_ = ref_th_ * RAD_TO_VALUE;
-//     getParam(ref_th_value_[i], parameter);
-//     gSyncWriteTh.addParam(dxl_id[i], (uint8_t *)&parameter);
-//   }
-//   gSyncWriteTh.txPacket();
-//   gSyncWriteTh.clearParam();
+//     for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
+//     {
+//         std::cout << "ref_th_value_ : " << ref_th_value_(i) << std::endl;
+//         ref_th_value_ = ref_th_ * RAD_TO_VALUE;
+
+//         getParam(ref_th_value_(i), parameter[i]);
+//         // SyncWriteTh.addParam(dxl_id[i], (uint8_t *)&parameter);
+//         SyncWriteTh.addParam(dxl_id[i], parameter[i]);
+//     }
+
+//     SyncWriteTh.txPacket();
+//     SyncWriteTh.clearParam();
 // }
+
+
+void Dxl::syncWriteTheta()
+{
+  dynamixel::GroupSyncWrite gSyncWriteTh(portHandler, packetHandler, DxlReg_GoalPosition, 4);
+
+  uint8_t parameter[NUMBER_OF_DYNAMIXELS] = {0, 0, 0, 0, 0, 0};
+
+  for (uint8_t i=0; i < NUMBER_OF_DYNAMIXELS; i++){
+    ref_th_value_ = ref_th_ * RAD_TO_VALUE;
+    getParam(ref_th_value_[i], parameter);
+    gSyncWriteTh.addParam(dxl_id[i], (uint8_t *)&parameter);
+  }
+  gSyncWriteTh.txPacket();
+  gSyncWriteTh.clearParam();
+}
 
 //Setter() : 목표 세타값 설정 [rad]
 void Dxl::SetThetaRef(VectorXd theta)
@@ -252,6 +253,16 @@ void Dxl::SetTorqueRef(VectorXd a_torque)
 // {
 
 // }
+void Dxl::SetJointName()
+{
+
+    joint_state.name.resize(NUMBER_OF_DYNAMIXELS);
+    joint_state.position.resize(NUMBER_OF_DYNAMIXELS);
+    joint_state.velocity.resize(NUMBER_OF_DYNAMIXELS);
+    joint_state.effort.resize(NUMBER_OF_DYNAMIXELS);
+
+    joint_state.name.push_back("joint_1, joint_2, joint_3, joint_4, joint_5, joint_6");
+}
 
 //Setter() : 현재 모드 설정
 int16_t Dxl::SetPresentMode(int16_t Mode)
@@ -296,11 +307,10 @@ void Dxl::initActuatorValues()
     torque2value[4] = TORQUE_TO_VALUE_MX_106;
     torque2value[5] = TORQUE_TO_VALUE_MX_106;
 
-    zero_manual_offset[0] = 0;
+    zero_manual_offset[0] = -PI/2;
     zero_manual_offset[1] = 0;
     zero_manual_offset[2] = 0;
     zero_manual_offset[3] = 0;
     zero_manual_offset[4] = 0;
     zero_manual_offset[5] = 0;
 }
-
