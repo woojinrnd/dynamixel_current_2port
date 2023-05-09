@@ -5,7 +5,7 @@
 
 Dxl dxl;
 Callback callback;
-// Dxl_Controller dxl_ctrl;
+Dxl_Controller dxl_ctrl;
 
 int main(int argc, char **argv)
 {
@@ -13,61 +13,59 @@ int main(int argc, char **argv)
     ros::Time::init();
     ros::Rate loop_rate(300);
     ros::NodeHandle nh;
-    
+
 
     ros::Publisher joint_state_publisher_;   ///< Publishes joint states from reads
-    joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("joint_states", 100);
+    joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
     
     ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
-    joint_state_subscriber_ = nh.subscribe("desired_joint_states", 10, &Callback::JointStatesCallback, &callback);
+    joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, &callback);
 
-    // sensor_msgs::JointState joint_state;
+    ros::Subscriber FSR_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR 
+    FSR_sensor_subscriber_ = nh.subscribe("FSR", 1000, &Callback::sensorCallback, &callback);
 
-    // joint_state.name.resize(NUMBER_OF_DYNAMIXELS);
-    // joint_state.position.resize(NUMBER_OF_DYNAMIXELS);
-    // joint_state.velocity.resize(NUMBER_OF_DYNAMIXELS);
-    // joint_state.effort.resize(NUMBER_OF_DYNAMIXELS);
-
-    // joint_state.name.push_back("joint_1, joint_2, joint_3, joint_4, joint_5, joint_6");
-    // joint_state_publisher_.publish(joint_state);
-    
     VectorXd A(6);
-    
-
-    dxl.SetJointName();
-    
-    
+    VectorXd B(6);
 
     dxl.initActuatorValues();
 
-    // for (int i = 0; i < 6; i++)
-    // {
-    //     A[i] = 0;
-    // }
+    for (int i = 0; i < 6; i++)
+    {
+        A[i] = 0;
+    }
 
-    dxl.SetThetaRef(A);
-
+    // dxl.SetThetaRef(A);
+    // dxl.syncWriteTheta();
+    
 
     while (ros::ok())
     {
+        sensor_msgs::JointState msg;
+        msg.header.stamp = ros::Time::now();
+
+        std::vector<std::string> joint_name = {"j1", "j2", "j3", "j4", "j5", "j6"};
+    
+
+        for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
+        {
+            msg.name.push_back(joint_name.at(i));
+            dxl.GetThetaAct();
+            msg.position.push_back(dxl.th_[i]);
+        }
+        
+        joint_state_publisher_.publish(msg);
         dxl.syncWriteTheta();
+        callback.Go_stop();
+        
 
-    sensor_msgs::JointState joint_state;
-    joint_state.name.push_back("joint_1, joint_2, joint_3, joint_4, joint_5, joint_6");
-    joint_state.position.resize(NUMBER_OF_DYNAMIXELS);
-    joint_state.velocity.resize(NUMBER_OF_DYNAMIXELS);
-    joint_state.effort.resize(NUMBER_OF_DYNAMIXELS);
-
-    for (int i = 0; i < NUMBER_OF_DYNAMIXELS; i++) A[i] = callback.Goal_joint_[i];
-    dxl.SetThetaRef(A);
-    joint_state_publisher_.publish(joint_state);
+        // ROS_INFO("Position : %d", dxl.syncReadTheta());
         // std::cout << dxl.GetThetaAct() << std::endl;
+
+        ros::spinOnce();
+        loop_rate.sleep();
     }
-    // if (dxl.GetThetaAct() == A) return 0;
-    // else if (dxl.GetThetaAct() == B) return 0;
 
-    ROS_INFO("daynmixel_current_2port!");
-
+    // ROS_INFO("daynmixel_current_2port!");
     // dxl.~Dxl();
-    // return 0;
+    return 0;
 }

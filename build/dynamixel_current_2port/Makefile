@@ -686,6 +686,33 @@ src/dynamixel.cpp.s:
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.s
 .PHONY : src/dynamixel.cpp.s
 
+src/dynamixel_controller.o: src/dynamixel_controller.cpp.o
+
+.PHONY : src/dynamixel_controller.o
+
+# target to build an object file
+src/dynamixel_controller.cpp.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.o
+.PHONY : src/dynamixel_controller.cpp.o
+
+src/dynamixel_controller.i: src/dynamixel_controller.cpp.i
+
+.PHONY : src/dynamixel_controller.i
+
+# target to preprocess a source file
+src/dynamixel_controller.cpp.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.i
+.PHONY : src/dynamixel_controller.cpp.i
+
+src/dynamixel_controller.s: src/dynamixel_controller.cpp.s
+
+.PHONY : src/dynamixel_controller.s
+
+# target to generate assembly for a file
+src/dynamixel_controller.cpp.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.s
+.PHONY : src/dynamixel_controller.cpp.s
+
 src/main.o: src/main.cpp.o
 
 .PHONY : src/main.o
@@ -763,6 +790,9 @@ help:
 	@echo "... src/dynamixel.o"
 	@echo "... src/dynamixel.i"
 	@echo "... src/dynamixel.s"
+	@echo "... src/dynamixel_controller.o"
+	@echo "... src/dynamixel_controller.i"
+	@echo "... src/dynamixel_controller.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

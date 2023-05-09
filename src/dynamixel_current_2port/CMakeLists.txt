@@ -52,6 +52,10 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
+
+##Library
+# add_library(dynamixel_current_2port src/dynamixel_controller.cpp src/callback.cpp src/dynamixel.cpp)
+
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
@@ -67,7 +71,7 @@ add_executable(
   src/main.cpp
   src/dynamixel.cpp ${dynamixel.hpp}
   src/callback.cpp ${callback.hpp}
-  # src/dynamixel_controller.cpp ${dynamixel_controller.hpp}
+  src/dynamixel_controller.cpp ${dynamixel_controller.hpp}
 
 )
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

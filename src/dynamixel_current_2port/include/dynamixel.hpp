@@ -126,25 +126,25 @@ class Dxl
         VectorXd ref_th_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd ref_th_dot_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd ref_torque_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
-        VectorXd th_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        // VectorXd th_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd th_last_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd th_dot_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd th_dot_est_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
 
         int16_t Mode = 1; // Current = 0, Position = 1
         
-        //Spread Joint command
-        sensor_msgs::JointState joint_state;
-        sensor_msgs::JointState write_msg_;   ///< Stores the last message received from the write command topic
-        bool write_ready_ = false;            ///< Booleans indicating if we have received commands
-        int recv_queue_size_ = 1;             ///< Receive queue size for desired_joint_states topic
-        bool stop_motors_on_shutdown_;        ///< Indicates if the motors should be turned off when the controller stops
+        // //Spread Joint command
+        // sensor_msgs::JointState joint_state;
+        // sensor_msgs::JointState write_msg_;   ///< Stores the last message received from the write command topic
+        // bool write_ready_ = false;            ///< Booleans indicating if we have received commands
+        // int recv_queue_size_ = 1;             ///< Receive queue size for desired_joint_states topic
+        // bool stop_motors_on_shutdown_;        ///< Indicates if the motors should be turned off when the controller stops
 
         // Member Function
 
         // ************************************ GETTERS ***************************************** //
 
-        virtual void syncReadTheta();  // rad_pos = (count-count_initial_position) * (range/360) * (2*PI/encoder_cpr)
+        // virtual void syncReadTheta();  // rad_pos = (count-count_initial_position) * (range/360) * (2*PI/encoder_cpr)
         virtual void syncReadThetaDot();
         virtual void getParam(int32_t data, uint8_t *param);
 
@@ -171,6 +171,10 @@ class Dxl
         virtual VectorXd GetThetaDotEstimated();
         // virtual VectorXd GetPIDGain();
         virtual int16_t  GetPresentMode();
+        virtual void syncReadTheta();  // rad_pos = (count-count_initial_position) * (range/360) * (2*PI/encoder_cpr)
+        VectorXd th_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+
+
 
 // **************************** SETTERS ******************************** //
 
@@ -180,7 +184,6 @@ class Dxl
         // Current = 0, Position = 1
         virtual int16_t SetPresentMode(int16_t Mode); 
         virtual void syncWriteTheta();
-        virtual void SetJointName();
 
         
 

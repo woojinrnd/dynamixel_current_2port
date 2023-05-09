@@ -1,6 +1,6 @@
 #include "dynamixel_controller.hpp"
 
-Dxl _DXL;
+extern Dxl dxl;
 
 Dxl_Controller::Dxl_Controller() {}
 
@@ -11,7 +11,7 @@ Dxl_Controller::Dxl_Controller() {}
 VectorXd Dxl_Controller::GetJointTheta()
 {
     VectorXd th_(NUMBER_OF_DYNAMIXELS);
-    th_ = _DXL.GetThetaAct();
+    th_ = dxl.GetThetaAct();
     for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++)
     {
         th_cont[i] = th_[i];
@@ -23,7 +23,7 @@ VectorXd Dxl_Controller::GetJointTheta()
 VectorXd Dxl_Controller::GetThetaDot()
 {
     VectorXd th_dot_(NUMBER_OF_DYNAMIXELS);
-    th_dot_ = _DXL.GetThetaDot();
+    th_dot_ = dxl.GetThetaDot();
     for(uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++)    
     {
         th_dot_cont[i] = th_dot_[i];
@@ -35,7 +35,7 @@ VectorXd Dxl_Controller::GetThetaDot()
 VectorXd Dxl_Controller::GetThetaDotMAF()
 {
     VectorXd a_th_dot(NUMBER_OF_DYNAMIXELS);
-    a_th_dot = _DXL.GetThetaDotEstimated();
+    a_th_dot = dxl.GetThetaDotEstimated();
     for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++)
     {
         th_dot_cont[i] = a_th_dot[i];
@@ -62,7 +62,7 @@ void Dxl_Controller::SetTorque(VectorXd tau)
     {
         torque_cont[i] = tau[i];
     }
-    _DXL.SetTorqueRef(torque_cont);
+    dxl.SetTorqueRef(torque_cont);
 }
 
 //Setter() : 목표 theta값 설정[rad]
@@ -72,6 +72,6 @@ void Dxl_Controller::SetPosition(VectorXd theta)
     {
         th_cont[i] = theta[i];
     }
-    _DXL.SetThetaRef(th_cont);
+    dxl.SetThetaRef(th_cont);
 }
 

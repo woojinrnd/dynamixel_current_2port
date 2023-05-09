@@ -253,16 +253,6 @@ void Dxl::SetTorqueRef(VectorXd a_torque)
 // {
 
 // }
-void Dxl::SetJointName()
-{
-
-    joint_state.name.resize(NUMBER_OF_DYNAMIXELS);
-    joint_state.position.resize(NUMBER_OF_DYNAMIXELS);
-    joint_state.velocity.resize(NUMBER_OF_DYNAMIXELS);
-    joint_state.effort.resize(NUMBER_OF_DYNAMIXELS);
-
-    joint_state.name.push_back("joint_1, joint_2, joint_3, joint_4, joint_5, joint_6");
-}
 
 //Setter() : 현재 모드 설정
 int16_t Dxl::SetPresentMode(int16_t Mode)
