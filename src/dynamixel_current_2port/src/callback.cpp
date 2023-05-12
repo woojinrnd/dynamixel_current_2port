@@ -27,16 +27,16 @@ void Callback::Go_stop()
     {
         for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
         {
-            // Goal_joint_[i]++;
-            Goal_joint_[i] = 5;
+            Goal_joint_[i] = 3;
+            dxl.SetThetaRef(Goal_joint_);
         }
     }
     if (fsr_value != 0)
     {
         for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
         {
-            Goal_joint_[i]++;
-            // Goal_joint_[i] = 5;
+            Goal_joint_[i] = 0;
+            dxl.SetThetaRef(Goal_joint_);
         }
     }
 }

@@ -54,8 +54,8 @@ int main(int argc, char **argv)
         }
         
         joint_state_publisher_.publish(msg);
-        dxl.syncWriteTheta();
         callback.Go_stop();
+        dxl.syncWriteTheta();
         
 
         // ROS_INFO("Position : %d", dxl.syncReadTheta());

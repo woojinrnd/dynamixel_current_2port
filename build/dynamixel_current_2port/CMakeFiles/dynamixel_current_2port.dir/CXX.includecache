@@ -44,6 +44,10 @@ sensor_msgs/JointState.h
 dynamixel.hpp
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
 
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/callback.cpp
+callback.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/callback.hpp
+
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp
 iostream
 -
