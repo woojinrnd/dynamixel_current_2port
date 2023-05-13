@@ -1,4 +1,7 @@
 #include "dynamixel.hpp"
+#include "callback.hpp"
+
+extern Callback callback;
 
 //Constructor
 Dxl::Dxl()
@@ -303,4 +306,26 @@ void Dxl::initActuatorValues()
     zero_manual_offset[3] = 0;
     zero_manual_offset[4] = 0;
     zero_manual_offset[5] = 0;
+}
+
+//FSR
+void Dxl::FSR_flag()
+{
+    // if (callback.fsr_value == 0)
+    // {
+    //     for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
+    //     {
+    //         callback.Goal_joint_[i] = 3;
+    //         Dxl::SetThetaRef(callback.Goal_joint_);
+    //     }
+    // }
+
+    if (callback.fsr_value != 0)
+    {
+        for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
+        {
+            callback.Goal_joint_[i] = 0;
+            Dxl::SetThetaRef(callback.Goal_joint_);
+        }
+    }
 }

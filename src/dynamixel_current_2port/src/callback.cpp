@@ -21,24 +21,5 @@ void Callback::sensorCallback(const std_msgs::Int32ConstPtr &FSR)
     fsr_value = FSR->data;
 }
 
-void Callback::Go_stop()
-{
-    if (fsr_value == 0)
-    {
-        for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
-        {
-            Goal_joint_[i] = 3;
-            dxl.SetThetaRef(Goal_joint_);
-        }
-    }
-    if (fsr_value != 0)
-    {
-        for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
-        {
-            Goal_joint_[i] = 0;
-            dxl.SetThetaRef(Goal_joint_);
-        }
-    }
-}
 
 

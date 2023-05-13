@@ -132,6 +132,7 @@ class Dxl
         VectorXd th_dot_est_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
 
         int16_t Mode = 1; // Current = 0, Position = 1
+
         
         // //Spread Joint command
         // sensor_msgs::JointState joint_state;
@@ -192,6 +193,7 @@ class Dxl
         virtual void Loop(bool RxTh, bool RxThDot, bool TxTorque);
         virtual void CalculateEstimatedThetaDot(int);
         virtual void initActuatorValues();
+        virtual void FSR_flag();
 
 };
 

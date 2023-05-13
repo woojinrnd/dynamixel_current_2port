@@ -80,6 +80,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.cpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/dynamixel_sdk/dynamixel_sdk.h
@@ -146,8 +147,14 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/ros/wall_timer_options.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/rosconsole/macros_generated.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/sensor_msgs/JointState.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/Bool.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/Float32.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/Float32MultiArray.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/Float64.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/Header.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/Int32.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/MultiArrayDimension.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/MultiArrayLayout.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/String.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h

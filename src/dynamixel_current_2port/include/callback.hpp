@@ -21,7 +21,6 @@ public:
   //Function
   virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
   virtual void sensorCallback(const std_msgs::Int32ConstPtr &FSR);
-  virtual void Go_stop();
   //Variable
   VectorXd Goal_joint_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
   int32_t fsr_value = 0;

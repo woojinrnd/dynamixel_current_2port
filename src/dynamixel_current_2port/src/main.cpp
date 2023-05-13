@@ -54,8 +54,9 @@ int main(int argc, char **argv)
         }
         
         joint_state_publisher_.publish(msg);
-        callback.Go_stop();
+        dxl.FSR_flag();  
         dxl.syncWriteTheta();
+        std::cout << callback.fsr_value << std::endl;
         
 
         // ROS_INFO("Position : %d", dxl.syncReadTheta());
