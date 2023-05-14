@@ -632,6 +632,33 @@ geometry_msgs_generate_messages_eus/fast:
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build.make dynamixel_current_2port/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build
 .PHONY : geometry_msgs_generate_messages_eus/fast
 
+src/Walkingpattern_generator.o: src/Walkingpattern_generator.cc.o
+
+.PHONY : src/Walkingpattern_generator.o
+
+# target to build an object file
+src/Walkingpattern_generator.cc.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.o
+.PHONY : src/Walkingpattern_generator.cc.o
+
+src/Walkingpattern_generator.i: src/Walkingpattern_generator.cc.i
+
+.PHONY : src/Walkingpattern_generator.i
+
+# target to preprocess a source file
+src/Walkingpattern_generator.cc.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.i
+.PHONY : src/Walkingpattern_generator.cc.i
+
+src/Walkingpattern_generator.s: src/Walkingpattern_generator.cc.s
+
+.PHONY : src/Walkingpattern_generator.s
+
+# target to generate assembly for a file
+src/Walkingpattern_generator.cc.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.s
+.PHONY : src/Walkingpattern_generator.cc.s
+
 src/callback.o: src/callback.cpp.o
 
 .PHONY : src/callback.o
@@ -784,6 +811,9 @@ help:
 	@echo "... dynamixel_workbench_msgs_generate_messages_lisp"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_eus"
+	@echo "... src/Walkingpattern_generator.o"
+	@echo "... src/Walkingpattern_generator.i"
+	@echo "... src/Walkingpattern_generator.s"
 	@echo "... src/callback.o"
 	@echo "... src/callback.i"
 	@echo "... src/callback.s"
