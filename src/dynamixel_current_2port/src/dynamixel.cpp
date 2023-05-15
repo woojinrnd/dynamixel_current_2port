@@ -220,7 +220,7 @@ void Dxl::SetThetaRef(VectorXd theta)
 {
     for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS;i++) 
     {
-        ref_th_[i] = theta[i];
+        ref_th_[i] = theta[i]+PI;
         // std::cout << ref_th_[i] << std::endl;
     }
 }
@@ -300,7 +300,7 @@ void Dxl::initActuatorValues()
     torque2value[4] = TORQUE_TO_VALUE_MX_106;
     torque2value[5] = TORQUE_TO_VALUE_MX_106;
 
-    zero_manual_offset[0] = -PI/2;
+    zero_manual_offset[0] = 0;
     zero_manual_offset[1] = 0;
     zero_manual_offset[2] = 0;
     zero_manual_offset[3] = 0;

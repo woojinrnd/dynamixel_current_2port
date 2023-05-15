@@ -15,8 +15,8 @@ int main(int argc, char **argv)
     ros::Time::init();
     ros::Rate loop_rate(300);
     ros::NodeHandle nh;
-    ros::AsyncSpinner spinner(0); // Multi-threaded spinning
-    spinner.start(); // Multi-threaded spinning
+    // ros::AsyncSpinner spinner(0); // Multi-threaded spinning
+    // spinner.start(); // Multi-threaded spinning
 
 
     ros::Publisher joint_state_publisher_;   ///< Publishes joint states from reads
@@ -28,18 +28,18 @@ int main(int argc, char **argv)
     ros::Subscriber FSR_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR 
     FSR_sensor_subscriber_ = nh.subscribe("FSR", 1000, &Callback::sensorCallback, &callback);
 
-    ros::waitForShutdown(); // Multi-threaded spinning
+    // ros::waitForShutdown(); // Multi-threaded spinning
 
     VectorXd A(6);
 
     dxl.initActuatorValues();
 
-    // for (int i=0; i<6;i++)
-    // {
-    //     A[i] = 3;
-    // }
-    // dxl.SetThetaRef(A);
-    // dxl.syncWriteTheta();
+    for (int i=0; i<6;i++)
+    {
+        A[i] = 0;
+    }
+    dxl.SetThetaRef(A);
+    dxl.syncWriteTheta();
 
     //About motion
     // motion.Motion1();

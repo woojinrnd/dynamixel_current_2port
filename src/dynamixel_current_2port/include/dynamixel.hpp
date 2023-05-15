@@ -24,6 +24,7 @@
 #define TORQUE_TO_VALUE_MX_64    267.094     //mx-64 e-manual plot(not considering about efficiency)
 #define TORQUE_TO_VALUE_MX_106   183.7155         
 #define RAD_TO_VALUE             651.89878   //1rev = 4096 --> 4096/(2*PI)
+#define DEG2RAD                  57.2958
 
 using Eigen::VectorXd;
 
