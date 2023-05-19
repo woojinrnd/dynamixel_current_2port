@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "daynmixel_current_2port");
     ros::Time::init();
-    ros::Rate loop_rate(300);
+    ros::Rate loop_rate(500);
     ros::NodeHandle nh;
     // ros::AsyncSpinner spinner(0); // Multi-threaded spinning
     // spinner.start(); // Multi-threaded spinning
@@ -42,42 +42,37 @@ int main(int argc, char **argv)
     dxl.syncWriteTheta();
 
     //About motion
-    // motion.Motion1();
-    // MatrixXd RL_motion1 = motion.Return_Motion1_RL();
-    // std::cout << RL_motion1 << std::endl;
-    // int t=0;
-    // int indext =0;
+    motion.Motion1();
+    MatrixXd RL_motion1 = motion.Return_Motion1_RL();
+    std::cout << RL_motion1 << std::endl;
+    int t=0;
 
     while (ros::ok())
     {
         //About motion
-        // t += 1;
-        // if (t == 10)
-        // {indext +=1;}
+        t += 1;
+ 
+         for (int i = 0; i < 6; i++)
+        {
+            A[i] = RL_motion1(t, i);
+        }
 
-        // for (int i = 0; i < 6; i++)
-        // {
-        //     A[i] = RL_motion1(indext, i);
-        // }
-        // std::cout << A << std::endl;
-
-        // if (indext >= 923)
-        //     indext = 0;
-        // dxl.SetThetaRef(A);
-
+        if (t >= 923)
+            t = 0;
+        dxl.SetThetaRef(A);
         dxl.syncWriteTheta();
 
         sensor_msgs::JointState msg;
         msg.header.stamp = ros::Time::now();
 
-        std::vector<std::string> joint_name = {"j1", "j2", "j3", "j4", "j5", "j6"};
+        std::vector<std::string> joint_name = {"j1", "j2", "j3", "j4", "j5", "j6", "j7", "j8", "j9", "j10", "j11", "j12"};
     
 
         for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
         {
             msg.name.push_back(joint_name.at(i));
-            dxl.GetThetaAct();
-            msg.position.push_back(dxl.th_[i]);
+            // dxl.syncReadTheta();
+            // msg.position.push_back(dxl.th_[i]);
         }
         joint_state_publisher_.publish(msg);
         dxl.FSR_flag();  

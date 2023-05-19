@@ -204,7 +204,7 @@ void Dxl::syncWriteTheta()
 {
   dynamixel::GroupSyncWrite gSyncWriteTh(portHandler, packetHandler, DxlReg_GoalPosition, 4);
 
-  uint8_t parameter[NUMBER_OF_DYNAMIXELS] = {0, 0, 0, 0, 0, 0};
+  uint8_t parameter[NUMBER_OF_DYNAMIXELS] = {0};
 
   for (uint8_t i=0; i < NUMBER_OF_DYNAMIXELS; i++){
     ref_th_value_ = ref_th_ * RAD_TO_VALUE;
@@ -229,7 +229,7 @@ void Dxl::SetThetaRef(VectorXd theta)
 void Dxl::syncWriteTorque()
 {
     dynamixel::GroupSyncWrite groupSyncWriter(portHandler, packetHandler, DxlReg_GoalCurrent, 2);
-    uint8_t parameter[NUMBER_OF_DYNAMIXELS] = {0, 0, 0, 0, 0, 0};
+    uint8_t parameter[NUMBER_OF_DYNAMIXELS] = {0};
     for (uint8_t i=0; i<NUMBER_OF_DYNAMIXELS; i++)
     {
         ref_torque_value[i] = torqueToValue(ref_torque_[i], i);
@@ -299,13 +299,17 @@ void Dxl::initActuatorValues()
     torque2value[3] = TORQUE_TO_VALUE_MX_106;
     torque2value[4] = TORQUE_TO_VALUE_MX_106;
     torque2value[5] = TORQUE_TO_VALUE_MX_106;
+    
+    torque2value[6] = TORQUE_TO_VALUE_MX_64;
+    torque2value[7] = TORQUE_TO_VALUE_MX_106;
+    torque2value[8] = TORQUE_TO_VALUE_MX_106;
+    torque2value[9] = TORQUE_TO_VALUE_MX_106;
+    torque2value[10] = TORQUE_TO_VALUE_MX_106;
+    torque2value[11] = TORQUE_TO_VALUE_MX_106;
 
-    zero_manual_offset[0] = 0;
-    zero_manual_offset[1] = 0;
-    zero_manual_offset[2] = 0;
-    zero_manual_offset[3] = 0;
-    zero_manual_offset[4] = 0;
-    zero_manual_offset[5] = 0;
+    
+    for (int i=0; i<NUMBER_OF_DYNAMIXELS; i++)
+    zero_manual_offset[i] = 0;
 }
 
 //FSR

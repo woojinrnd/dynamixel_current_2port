@@ -15,7 +15,7 @@
 #define PROTOCOL_VERSION         2.0
 
 //Default setting
-#define NUMBER_OF_DYNAMIXELS     6
+#define NUMBER_OF_DYNAMIXELS     12
 #define BAUDRATE                 4000000 
 #define DEVICE_NAME              "/dev/ttyACM0"
 
@@ -115,7 +115,7 @@ class Dxl
         dynamixel::PortHandler* portHandler;
         dynamixel::PacketHandler* packetHandler;
 
-        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0, 3, 4, 6, 9, 11 };
+        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0, 11, 9, 3, 6, 4 };
         // const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0 };
         float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };
