@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "daynmixel_current_2port");
     ros::Time::init();
-    ros::Rate loop_rate(500);
+    ros::Rate loop_rate(300);
     ros::NodeHandle nh;
     // ros::AsyncSpinner spinner(0); // Multi-threaded spinning
     // spinner.start(); // Multi-threaded spinning
@@ -30,11 +30,12 @@ int main(int argc, char **argv)
 
     // ros::waitForShutdown(); // Multi-threaded spinning
 
-    VectorXd A(6);
+    VectorXd A(NUMBER_OF_DYNAMIXELS);
+    VectorXd RL(6);
+    VectorXd LL(6);
 
-    dxl.initActuatorValues();
 
-    for (int i=0; i<6;i++)
+    for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
     {
         A[i] = 0;
     }
@@ -44,28 +45,46 @@ int main(int argc, char **argv)
     //About motion
     motion.Motion1();
     MatrixXd RL_motion1 = motion.Return_Motion1_RL();
-    std::cout << RL_motion1 << std::endl;
+    MatrixXd LL_Motion1 = motion.Return_Motion1_LL();
     int t=0;
 
     while (ros::ok())
     {
         //About motion
         t += 1;
- 
-         for (int i = 0; i < 6; i++)
+
+
+        for (int i = 0; i < 6; i++)
         {
             A[i] = RL_motion1(t, i);
         }
 
+        // for (int i=6;i<12;i++)
+        // {
+        //     A[i] = LL_Motion1(t, i);
+        // }
+
+
         if (t >= 923)
             t = 0;
+
+        dxl.SetThetaRef(A);
+        dxl.syncWriteTheta();
+
+        // dxl.SetThetaRef(RL);
+        // dxl.syncWriteTheta();
+        // dxl.SetThetaRef(LL);
+        // dxl.syncWriteTheta();
+
+        for (int i = 0; i < NUMBER_OF_DYNAMIXELS; i ++) cout << A[i] << endl;
+
         dxl.SetThetaRef(A);
         dxl.syncWriteTheta();
 
         sensor_msgs::JointState msg;
         msg.header.stamp = ros::Time::now();
-
-        std::vector<std::string> joint_name = {"j1", "j2", "j3", "j4", "j5", "j6", "j7", "j8", "j9", "j10", "j11", "j12"};
+// , "j7", "j8", "j9", "j10", "j11", "j12"}
+        std::vector<std::string> joint_name = {"j1", "j2", "j3", "j4", "j5", "j6"};
     
 
         for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
@@ -84,6 +103,6 @@ int main(int argc, char **argv)
     }
 
     // ROS_INFO("daynmixel_current_2port!");
-    // dxl.~Dxl();
+    dxl.~Dxl();
     return 0;
 }

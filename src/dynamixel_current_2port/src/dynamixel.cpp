@@ -300,12 +300,12 @@ void Dxl::initActuatorValues()
     torque2value[4] = TORQUE_TO_VALUE_MX_106;
     torque2value[5] = TORQUE_TO_VALUE_MX_106;
     
-    torque2value[6] = TORQUE_TO_VALUE_MX_64;
-    torque2value[7] = TORQUE_TO_VALUE_MX_106;
-    torque2value[8] = TORQUE_TO_VALUE_MX_106;
-    torque2value[9] = TORQUE_TO_VALUE_MX_106;
-    torque2value[10] = TORQUE_TO_VALUE_MX_106;
-    torque2value[11] = TORQUE_TO_VALUE_MX_106;
+    // torque2value[6] = TORQUE_TO_VALUE_MX_64;
+    // torque2value[7] = TORQUE_TO_VALUE_MX_106;
+    // torque2value[8] = TORQUE_TO_VALUE_MX_106;
+    // torque2value[9] = TORQUE_TO_VALUE_MX_106;
+    // torque2value[10] = TORQUE_TO_VALUE_MX_106;
+    // torque2value[11] = TORQUE_TO_VALUE_MX_106;
 
     
     for (int i=0; i<NUMBER_OF_DYNAMIXELS; i++)

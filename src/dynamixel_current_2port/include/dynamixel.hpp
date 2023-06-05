@@ -15,7 +15,7 @@
 #define PROTOCOL_VERSION         2.0
 
 //Default setting
-#define NUMBER_OF_DYNAMIXELS     12
+#define NUMBER_OF_DYNAMIXELS     6
 #define BAUDRATE                 4000000 
 #define DEVICE_NAME              "/dev/ttyACM0"
 
@@ -24,7 +24,9 @@
 #define TORQUE_TO_VALUE_MX_64    267.094     //mx-64 e-manual plot(not considering about efficiency)
 #define TORQUE_TO_VALUE_MX_106   183.7155         
 #define RAD_TO_VALUE             651.89878   //1rev = 4096 --> 4096/(2*PI)
-#define DEG2RAD                  57.2958
+#define RAD2DEG                  57.2958
+#define DEG2RAD                  0.0174533
+
 
 using Eigen::VectorXd;
 
@@ -114,8 +116,8 @@ class Dxl
     private:
         dynamixel::PortHandler* portHandler;
         dynamixel::PacketHandler* packetHandler;
-
-        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0, 11, 9, 3, 6, 4 };
+// , 1, 3, 5, 7, 9, 11
+        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {10, 8, 6, 4, 0, 2};
         // const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0 };
         float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };
