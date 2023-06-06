@@ -9,6 +9,8 @@
 #include "std_msgs/Float32MultiArray.h"
 #include "std_msgs/Bool.h"
 #include "dynamixel.hpp"
+#include <sensor_msgs/Imu.h>
+#include <tf/tf.h>
 
 using Eigen::VectorXd;
 
@@ -20,10 +22,16 @@ public:
 
   //Function
   virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
-  virtual void sensorCallback(const std_msgs::Int32ConstPtr &FSR);
+  virtual void FSRsensorCallback(const std_msgs::Int32ConstPtr &FSR);
+  virtual void IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU);
+
   //Variable
   VectorXd Goal_joint_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
   int32_t fsr_value = 0;
+  VectorXd quaternion = VectorXd::Zero(4);
+  VectorXd RPY = VectorXd::Zero(3); //Roll Pitch Yaw
+
+  // tf2::Quaternion quaternion;
   
 };
 

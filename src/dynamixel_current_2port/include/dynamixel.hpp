@@ -8,6 +8,7 @@
 #include <std_msgs/Float64.h> 
 #include "dynamixel_sdk/dynamixel_sdk.h"
 #include <sensor_msgs/JointState.h>
+#include <tf/tf.h>
 // #include <unordered_map> //자료구조 중 더 빠른 map탐색 key:value
 
 
@@ -15,7 +16,7 @@
 #define PROTOCOL_VERSION         2.0
 
 //Default setting
-#define NUMBER_OF_DYNAMIXELS     6
+#define NUMBER_OF_DYNAMIXELS     3
 #define BAUDRATE                 4000000 
 #define DEVICE_NAME              "/dev/ttyACM0"
 
@@ -116,8 +117,7 @@ class Dxl
     private:
         dynamixel::PortHandler* portHandler;
         dynamixel::PacketHandler* packetHandler;
-// , 1, 3, 5, 7, 9, 11
-        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {10, 8, 6, 4, 0, 2};
+        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {6, 4, 3};
         // const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0 };
         float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };
@@ -197,6 +197,7 @@ class Dxl
         virtual void CalculateEstimatedThetaDot(int);
         virtual void initActuatorValues();
         virtual void FSR_flag();
+        virtual void Quaternino2RPY();
 
 };
 

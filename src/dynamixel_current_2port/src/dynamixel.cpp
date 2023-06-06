@@ -293,12 +293,16 @@ void Dxl::Loop(bool RxTh, bool RxThDot, bool TxTorque)
 //dxl 초기 세팅
 void Dxl::initActuatorValues()
 {
-    torque2value[0] = TORQUE_TO_VALUE_MX_64;
-    torque2value[1] = TORQUE_TO_VALUE_MX_106;
-    torque2value[2] = TORQUE_TO_VALUE_MX_106;
-    torque2value[3] = TORQUE_TO_VALUE_MX_106;
-    torque2value[4] = TORQUE_TO_VALUE_MX_106;
-    torque2value[5] = TORQUE_TO_VALUE_MX_106;
+    for (int i =0; i< NUMBER_OF_DYNAMIXELS; i++)
+    {
+        torque2value[i] = TORQUE_TO_VALUE_MX_106;
+    }
+    // torque2value[0] = TORQUE_TO_VALUE_MX_64;
+    // torque2value[1] = TORQUE_TO_VALUE_MX_106;
+    // torque2value[2] = TORQUE_TO_VALUE_MX_106;
+    // torque2value[3] = TORQUE_TO_VALUE_MX_106;
+    // torque2value[4] = TORQUE_TO_VALUE_MX_106;
+    // torque2value[5] = TORQUE_TO_VALUE_MX_106;
     
     // torque2value[6] = TORQUE_TO_VALUE_MX_64;
     // torque2value[7] = TORQUE_TO_VALUE_MX_106;
@@ -328,8 +332,22 @@ void Dxl::FSR_flag()
     {
         for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
         {
-            callback.Goal_joint_[i] = 0;
+            callback.Goal_joint_[i] = PI;
             Dxl::SetThetaRef(callback.Goal_joint_);
         }
     }
+}
+
+void Dxl::Quaternino2RPY()
+{
+    tf::Quaternion q(
+        callback.quaternion(0),
+        callback.quaternion(1),
+        callback.quaternion(2),
+        callback.quaternion(3));
+    tf::Matrix3x3 m(q);
+    m.getRPY(callback.RPY(0), callback.RPY(1), callback.RPY(2));
+    // ROS_INFO("roll : %.3f", callback.roll * RAD2DEG);
+    // ROS_INFO("pitch : %.3f", callback.pitch * RAD2DEG);
+    // ROS_INFO("yaw : %.3f", callback.yaw * RAD2DEG);
 }

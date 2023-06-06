@@ -26,14 +26,15 @@ int main(int argc, char **argv)
     joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, &callback);
 
     ros::Subscriber FSR_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR 
-    FSR_sensor_subscriber_ = nh.subscribe("FSR", 1000, &Callback::sensorCallback, &callback);
+    FSR_sensor_subscriber_ = nh.subscribe("FSR", 1000, &Callback::FSRsensorCallback, &callback);
+
+    ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node 
+    IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, &callback);
+
 
     // ros::waitForShutdown(); // Multi-threaded spinning
 
     VectorXd A(NUMBER_OF_DYNAMIXELS);
-    VectorXd RL(6);
-    VectorXd LL(6);
-
 
     for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
     {
@@ -43,21 +44,21 @@ int main(int argc, char **argv)
     dxl.syncWriteTheta();
 
     //About motion
-    motion.Motion1();
-    MatrixXd RL_motion1 = motion.Return_Motion1_RL();
-    MatrixXd LL_Motion1 = motion.Return_Motion1_LL();
-    int t=0;
+    // motion.Motion1();
+    // MatrixXd RL_motion1 = motion.Return_Motion1_RL();
+    // MatrixXd LL_Motion1 = motion.Return_Motion1_LL();
+    // int t=0;
 
     while (ros::ok())
     {
-        //About motion
-        t += 1;
+        // About motion
+        // t += 1;
 
 
-        for (int i = 0; i < 6; i++)
-        {
-            A[i] = RL_motion1(t, i);
-        }
+        // for (int i = 0; i < 6; i++)
+        // {
+        //     A[i] = RL_motion1(t, i);
+        // }
 
         // for (int i=6;i<12;i++)
         // {
@@ -65,27 +66,25 @@ int main(int argc, char **argv)
         // }
 
 
-        if (t >= 923)
-            t = 0;
+        // if (t >= 923)
+        //     t = 0;
 
-        dxl.SetThetaRef(A);
-        dxl.syncWriteTheta();
-
-        // dxl.SetThetaRef(RL);
-        // dxl.syncWriteTheta();
-        // dxl.SetThetaRef(LL);
+        // dxl.SetThetaRef(A);
         // dxl.syncWriteTheta();
 
-        for (int i = 0; i < NUMBER_OF_DYNAMIXELS; i ++) cout << A[i] << endl;
+        // for (int i = 0; i < NUMBER_OF_DYNAMIXELS; i ++) 
+        // cout << "A[" << i << "] : " << A[i] << endl;
 
-        dxl.SetThetaRef(A);
-        dxl.syncWriteTheta();
+        // dxl.SetThetaRef(A);
+        // dxl.syncWriteTheta();
+        
 
+        //About joint msg
         sensor_msgs::JointState msg;
         msg.header.stamp = ros::Time::now();
-// , "j7", "j8", "j9", "j10", "j11", "j12"}
-        std::vector<std::string> joint_name = {"j1", "j2", "j3", "j4", "j5", "j6"};
-    
+// , "j3", "j4", "j5", "j6", "j7", "j8", "j9", "j10", "j11", "j12"}
+        std::vector<std::string> joint_name = {"j1", "j2", "j3"};
+
 
         for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
         {
@@ -94,9 +93,20 @@ int main(int argc, char **argv)
             // msg.position.push_back(dxl.th_[i]);
         }
         joint_state_publisher_.publish(msg);
-        dxl.FSR_flag();  
-        dxl.syncWriteTheta();
+        
+        //About FSR
+        // dxl.FSR_flag();  
+        // dxl.syncWriteTheta();
         // std::cout << callback.fsr_value << std::endl;
+
+        //About IMU
+        dxl.Quaternino2RPY();
+        for (int i = 0; i < 2; i++)
+        {
+            A[i] = callback.RPY(i);
+        }
+        dxl.SetThetaRef(A);
+        dxl.syncWriteTheta();
 
         ros::spinOnce();
         loop_rate.sleep();
