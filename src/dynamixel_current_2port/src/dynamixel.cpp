@@ -332,7 +332,7 @@ void Dxl::FSR_flag()
     {
         for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
         {
-            callback.Goal_joint_[i] = PI;
+            callback.Goal_joint_[i] = 0;
             Dxl::SetThetaRef(callback.Goal_joint_);
         }
     }

@@ -30,6 +30,9 @@ public:
   int32_t fsr_value = 0;
   VectorXd quaternion = VectorXd::Zero(4);
   VectorXd RPY = VectorXd::Zero(3); //Roll Pitch Yaw
+  VectorXd Accel = VectorXd::Zero(3); // Accel_x, Accel_y, Accel_z 
+  VectorXd Gyro = VectorXd::Zero(3); // Gyro_x, Gyro_y, Gyro_z 
+
 
   // tf2::Quaternion quaternion;
   

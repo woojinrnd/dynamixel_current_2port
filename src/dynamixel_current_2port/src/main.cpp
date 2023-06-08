@@ -9,14 +9,22 @@ Callback callback;
 Dxl_Controller dxl_ctrl;
 Motions motion;
 
+FILE *imu_accel;
+FILE *imu_gyro;
+
+
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "daynmixel_current_2port");
     ros::Time::init();
-    ros::Rate loop_rate(300);
+    ros::Rate loop_rate(400);
     ros::NodeHandle nh;
     // ros::AsyncSpinner spinner(0); // Multi-threaded spinning
     // spinner.start(); // Multi-threaded spinning
+
+    imu_accel = fopen("/home/woojin/imu_moving1.dat", "w");
+    imu_gyro = fopen("/home/woojin/imu_gyro1.dat", "w");
 
 
     ros::Publisher joint_state_publisher_;   ///< Publishes joint states from reads
@@ -34,25 +42,25 @@ int main(int argc, char **argv)
 
     // ros::waitForShutdown(); // Multi-threaded spinning
 
-    VectorXd A(NUMBER_OF_DYNAMIXELS);
+    // VectorXd A(NUMBER_OF_DYNAMIXELS);
 
-    for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
-    {
-        A[i] = 0;
-    }
-    dxl.SetThetaRef(A);
-    dxl.syncWriteTheta();
+    // for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
+    // {
+    //     A[i] = 0;
+    // }
+    // dxl.SetThetaRef(A);
+    // dxl.syncWriteTheta();
 
     //About motion
     // motion.Motion1();
     // MatrixXd RL_motion1 = motion.Return_Motion1_RL();
     // MatrixXd LL_Motion1 = motion.Return_Motion1_LL();
-    // int t=0;
+    int t=0;
 
     while (ros::ok())
     {
         // About motion
-        // t += 1;
+        t += 1;
 
 
         // for (int i = 0; i < 6; i++)
@@ -80,19 +88,19 @@ int main(int argc, char **argv)
         
 
         //About joint msg
-        sensor_msgs::JointState msg;
-        msg.header.stamp = ros::Time::now();
-// , "j3", "j4", "j5", "j6", "j7", "j8", "j9", "j10", "j11", "j12"}
-        std::vector<std::string> joint_name = {"j1", "j2", "j3"};
+//         sensor_msgs::JointState msg;
+//         msg.header.stamp = ros::Time::now();
+// // , "j3", "j4", "j5", "j6", "j7", "j8", "j9", "j10", "j11", "j12"}
+//         std::vector<std::string> joint_name = {"j1", "j2", "j3"};
 
 
-        for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
-        {
-            msg.name.push_back(joint_name.at(i));
-            // dxl.syncReadTheta();
-            // msg.position.push_back(dxl.th_[i]);
-        }
-        joint_state_publisher_.publish(msg);
+//         for (uint8_t i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
+//         {
+//             msg.name.push_back(joint_name.at(i));
+//             // dxl.syncReadTheta();
+//             // msg.position.push_back(dxl.th_[i]);
+//         }
+//         joint_state_publisher_.publish(msg);
         
         //About FSR
         // dxl.FSR_flag();  
@@ -100,13 +108,19 @@ int main(int argc, char **argv)
         // std::cout << callback.fsr_value << std::endl;
 
         //About IMU
-        dxl.Quaternino2RPY();
-        for (int i = 0; i < 2; i++)
-        {
-            A[i] = callback.RPY(i);
-        }
-        dxl.SetThetaRef(A);
-        dxl.syncWriteTheta();
+        // dxl.Quaternino2RPY();
+        // for (int i = 0; i < 2; i++)
+        // {
+        //     A[i] = callback.RPY(i);
+        // }
+        // dxl.SetThetaRef(A);
+        // dxl.syncWriteTheta();
+
+
+        //file write
+		fprintf(imu_accel, "%d %.3f %.3f %.3f\n",t, callback.Accel(0),callback.Accel(1),callback.Accel(2));
+		fprintf(imu_gyro, "%d %.3f %.3f %.3f\n",t, callback.Gyro(0),callback.Gyro(1),callback.Gyro(2));
+
 
         ros::spinOnce();
         loop_rate.sleep();

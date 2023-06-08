@@ -29,6 +29,16 @@ void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
     IMU->linear_acceleration.x, IMU->linear_acceleration.y, IMU->linear_acceleration.z,
         IMU->angular_velocity.x, IMU->angular_velocity.y, IMU->angular_velocity.z,
         IMU->orientation.x, IMU->orientation.y, IMU->orientation.z, IMU->orientation.w;
+    
+    Accel(0) = IMU->linear_acceleration.x;
+    Accel(1) = IMU->linear_acceleration.y;
+    Accel(2) = IMU->linear_acceleration.z;
+
+    Gyro(0) = IMU->angular_velocity.x;
+    Gyro(1) = IMU->angular_velocity.y;
+    Gyro(2) = IMU->angular_velocity.z;
+
+
     quaternion(0) = IMU->orientation.x;
     quaternion(1) = IMU->orientation.y;
     quaternion(2) = IMU->orientation.z;
