@@ -351,3 +351,30 @@ void Dxl::Quaternino2RPY()
     // ROS_INFO("pitch : %.3f", callback.pitch * RAD2DEG);
     // ROS_INFO("yaw : %.3f", callback.yaw * RAD2DEG);
 }
+
+// Low Pass Filter
+// x_k     input value
+// y_pre   previous filtered value
+// Ts      sampling time
+// tau     time constant
+// y_k     output
+float Dxl::LPF(float x_k, float y_pre, float Ts, float tau)
+{
+    float y_k;
+    y_k = (tau * y_pre + Ts * x_k) / (Ts + tau);
+    return y_k;
+}
+
+// High Pass Filter
+// x_k     input value
+// x_pre   previous input value
+// y_pre   previous filtered value
+// Ts      sampling time
+// tau     time constant
+// y_k     output
+float Dxl::HPF(float x_k, float x_pre, float y_pre, float Ts, float tau)
+{
+    static float y_k;
+    y_k = (tau / (tau + Ts) * y_pre) + (tau / (tau + Ts)) * (x_k - x_pre);
+    return y_k;
+}

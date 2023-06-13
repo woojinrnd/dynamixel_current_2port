@@ -117,7 +117,7 @@ class Dxl
     private:
         dynamixel::PortHandler* portHandler;
         dynamixel::PacketHandler* packetHandler;
-        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {6, 4, 3};
+        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {12, 6, 18};
         // const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0 };
         float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };
@@ -136,7 +136,6 @@ class Dxl
 
         int16_t Mode = 1; // Current = 0, Position = 1
 
-        
         // //Spread Joint command
         // sensor_msgs::JointState joint_state;
         // sensor_msgs::JointState write_msg_;   ///< Stores the last message received from the write command topic
@@ -198,6 +197,9 @@ class Dxl
         virtual void initActuatorValues();
         virtual void FSR_flag();
         virtual void Quaternino2RPY();
+        virtual float LPF(float x_k, float y_pre, float Ts, float tau);
+        virtual float HPF(float x_k, float x_pre, float y_pre, float Ts, float tau);
+
 
 };
 
