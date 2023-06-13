@@ -378,3 +378,24 @@ float Dxl::HPF(float x_k, float x_pre, float y_pre, float Ts, float tau)
     y_k = (tau / (tau + Ts) * y_pre) + (tau / (tau + Ts)) * (x_k - x_pre);
     return y_k;
 }
+
+
+// High Pass Filter + Integral
+// x_k     input value
+// y_pre   previous filtered value
+// Ts      sampling time
+// tau     time constant
+// y_k     output
+float Dxl::HPF_Integral(float x_k, float y_pre, float Ts, float tau)
+{
+    static float y_k;
+    y_k = y_pre*(1 - tau*Ts) + (x_k*Ts);
+    return y_k;
+}
+
+float Dxl::Integral(float x_k, float y_pre, float Ts)
+{
+    static float y_k;
+    y_k = y_pre + x_k*Ts;
+    return y_k;
+}
