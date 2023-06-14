@@ -3,14 +3,14 @@
 #include "callback.hpp"
 #include "dynamixel_controller.hpp"
 #include "Walkingpattern_generator.hpp"
+#include "sensor.hpp"
 
-#define Ts 0.002
-#define tau 5
 
 Dxl dxl;
 Callback callback;
 Dxl_Controller dxl_ctrl;
 Motions motion;
+Sensor sensor;
 
 FILE *imu_accel;
 FILE *imu_gyro;
@@ -40,15 +40,6 @@ int main(int argc, char **argv)
     ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
     IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, &callback);
 
-    // Origin Gyro
-    ros::Publisher IMU_Gryo_x_publisher_; ///< Publishes Imu/gyro.x from reads
-    IMU_Gryo_x_publisher_ = nh.advertise<std_msgs::Float32>("/Gyro/x", 100);
-
-    ros::Publisher IMU_Gryo_y_publisher_; ///< Publishes Imu/gyro.y from reads
-    IMU_Gryo_y_publisher_ = nh.advertise<std_msgs::Float32>("/Gyro/y", 100);
-
-    ros::Publisher IMU_Gryo_z_publisher_; ///< Publishes Imu/gyro.z from reads
-    IMU_Gryo_z_publisher_ = nh.advertise<std_msgs::Float32>("/Gyro/z", 100);
 
     // Filterd Gyro (LPF)
     ros::Publisher IMU_Gryo_filted_x_publisher_; ///< Publishes Imu/gyro.x from reads
@@ -157,44 +148,6 @@ int main(int argc, char **argv)
         //  dxl.SetThetaRef(A);
         //  dxl.syncWriteTheta();
 
-        ///////////// IMU Origin ///////////////
-        // Gyro x y z
-        geometry_msgs::Vector3 gyro;
-
-        gyro.x = callback.Gyro(0);
-        gyro.y = callback.Gyro(1);
-        gyro.z = callback.Gyro(2);
-
-        std_msgs::Float32 wx;
-        std_msgs::Float32 wy;
-        std_msgs::Float32 wz;
-
-        wx.data = gyro.x;
-        wy.data = gyro.y;
-        wz.data = gyro.z;
-
-        IMU_Gryo_x_publisher_.publish(wx);
-        IMU_Gryo_y_publisher_.publish(wy);
-        IMU_Gryo_z_publisher_.publish(wz);
-
-        // Accel x y z
-        geometry_msgs::Vector3 accel;
-
-        accel.x = callback.Accel(0);
-        accel.y = callback.Accel(1);
-        accel.z = callback.Accel(2);
-
-        std_msgs::Float32 ax;
-        std_msgs::Float32 ay;
-        std_msgs::Float32 az;
-
-        ax.data = accel.x;
-        ay.data = accel.y;
-        az.data = accel.z;
-
-        // IMU_Accel_x_publisher_.publish(ax);
-        // IMU_Accel_y_publisher_.publish(ay);
-        // IMU_Accel_z_publisher_.publish(az);
 
         /////////////// IMU Filtering ////////////////
         ///////////////LPF//////////////////////
@@ -314,28 +267,28 @@ int main(int argc, char **argv)
         float hpf_yi_pre_y = 0; // 이전 output (초기값 = 0)
         float hpf_yi_pre_z = 0; // 이전 output (초기값 = 0)
 
-        // Apply the High-pass + Integral filter
+        // Apply Integral filter
         float acc_i_x = dxl.Integral(accel.x, hpf_yi_pre_x, Ts);
         // Update the previous input and filtered values for the next iteration
         hpf_yi_pre_x = acc_i_x;
         // publish_msg
-        ax_i.data = acc_i_x * 100; // [cm/s]
+        ax_i.data = acc_i_x*100; // [cm/s]
         IMU_Velocity_x_publisher_.publish(ax_i);
 
-        // Apply the High-pass + Integral filter
+        // Apply Integral filter
         float acc_i_y = dxl.Integral(accel.y, hpf_yi_pre_y, Ts);
         // Update the previous input and filtered values for the next iteration
         hpf_yi_pre_y = acc_i_y;
         // publish_msg
-        ay_i.data = acc_i_y * 100; // [cm/s]
+        ay_i.data = acc_i_y*100; // [cm/s]
         IMU_Velocity_y_publisher_.publish(ay_i);
 
-        // Apply the High-pass + Integral filter
+        // Apply Integral filter
         float acc_fi_z = dxl.Integral(accel.z, hpf_yi_pre_z, Ts);
         // Update the previous input and filtered values for the next iteration
         hpf_yi_pre_z = acc_fi_z;
         // publish_msg
-        az_i.data = acc_fi_z * 100; // [cm/s]
+        az_i.data = acc_fi_z*100; // [cm/s]
         IMU_Velocity_z_publisher_.publish(az_i);
 
         // file write

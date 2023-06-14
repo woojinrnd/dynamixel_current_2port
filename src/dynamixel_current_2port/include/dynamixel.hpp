@@ -30,6 +30,7 @@
 
 
 
+
 using Eigen::VectorXd;
 
 // Operating Mode
@@ -198,11 +199,6 @@ class Dxl
         virtual void initActuatorValues();
         virtual void FSR_flag();
         virtual void Quaternino2RPY();
-        virtual float LPF(float x_k, float y_pre, float Ts, float tau);
-        virtual float HPF(float x_k, float x_pre, float y_pre, float Ts, float tau);
-        virtual float HPF_Integral(float x_k, float y_pre, float Ts, float tau);
-        virtual float Integral(float x_k, float y_pre, float Ts);
-
 };
 
 
