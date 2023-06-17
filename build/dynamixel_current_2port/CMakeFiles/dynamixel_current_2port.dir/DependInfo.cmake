@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.cpp" "/home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o"
   "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_controller.cpp" "/home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.o"
   "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp" "/home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o"
+  "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/sensor.cpp" "/home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

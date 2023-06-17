@@ -11,5 +11,5 @@ export CMAKE_PREFIX_PATH="/home/woojin/dynamixel_current/dynamixel_current_2port
 export LD_LIBRARY_PATH="/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib:$LD_LIBRARY_PATH"
 export PKG_CONFIG_PATH="/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
 export PWD='/home/woojin/dynamixel_current/dynamixel_current_2port/build'
-export ROSLISP_PACKAGE_DIRECTORIES='/home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/common-lisp'
+export ROSLISP_PACKAGE_DIRECTORIES="/home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
 export ROS_PACKAGE_PATH="/home/woojin/dynamixel_current/dynamixel_current_2port/src:$ROS_PACKAGE_PATH"

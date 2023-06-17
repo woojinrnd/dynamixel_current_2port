@@ -10,7 +10,6 @@ Dxl dxl;
 Callback callback;
 Dxl_Controller dxl_ctrl;
 Motions motion;
-Sensor sensor;
 
 FILE *imu_accel;
 FILE *imu_gyro;
@@ -21,8 +20,10 @@ int main(int argc, char **argv)
     ros::Time::init();
     ros::Rate loop_rate(500);
     ros::NodeHandle nh;
-    // ros::AsyncSpinner spinner(0); // Multi-threaded spinning
-    // spinner.start(); // Multi-threaded spinning
+    Sensor sensor; 
+
+    ros::AsyncSpinner spinner(0); // Multi-threaded spinning
+    spinner.start(); // Multi-threaded spinning
 
     // IMU
     //  imu_accel = fopen("/home/woojin/imu_Accel_0613_(1).dat", "w");
@@ -40,46 +41,6 @@ int main(int argc, char **argv)
     ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
     IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, &callback);
 
-
-    // Filterd Gyro (LPF)
-    ros::Publisher IMU_Gryo_filted_x_publisher_; ///< Publishes Imu/gyro.x from reads
-    IMU_Gryo_filted_x_publisher_ = nh.advertise<std_msgs::Float32>("/filtered/Gyro/x", 100);
-
-    ros::Publisher IMU_Gryo_filted_y_publisher_; ///< Publishes Imu/gyro.y from reads
-    IMU_Gryo_filted_y_publisher_ = nh.advertise<std_msgs::Float32>("/filtered/Gyro/y", 100);
-
-    ros::Publisher IMU_Gryo_filted_z_publisher_; ///< Publishes Imu/gyro.z from reads
-    IMU_Gryo_filted_z_publisher_ = nh.advertise<std_msgs::Float32>("/filtered/Gyro/z", 100);
-
-    // Origin Accel
-    ros::Publisher IMU_Accel_x_publisher_; ///< Publishes Imu/accel.x from reads
-    IMU_Accel_x_publisher_ = nh.advertise<std_msgs::Float32>("/Accel/x", 100);
-
-    ros::Publisher IMU_Accel_y_publisher_; ///< Publishes Imu/accel.y from reads
-    IMU_Accel_y_publisher_ = nh.advertise<std_msgs::Float32>("/Accel/y", 100);
-
-    ros::Publisher IMU_Accel_z_publisher_; ///< Publishes Imu/accel.z from reads
-    IMU_Accel_z_publisher_ = nh.advertise<std_msgs::Float32>("/Accel/z", 100);
-
-    // Filterd Accel (Integral)
-    ros::Publisher IMU_Velocity_x_publisher_; ///< Publishes Imu/accel.x from reads
-    IMU_Velocity_x_publisher_ = nh.advertise<std_msgs::Float32>("/Velocity/x", 100);
-
-    ros::Publisher IMU_Velocity_y_publisher_; ///< Publishes Imu/accel.y from reads
-    IMU_Velocity_y_publisher_ = nh.advertise<std_msgs::Float32>("/Velocity/y", 100);
-
-    ros::Publisher IMU_Velocity_z_publisher_; ///< Publishes Imu/accel.z from reads
-    IMU_Velocity_z_publisher_ = nh.advertise<std_msgs::Float32>("/Velocity/z", 100);
-
-    // Filterd Accel (HPF_Integral)
-    ros::Publisher IMU_Velocity_filted_x_publisher_; ///< Publishes Imu/accel.x from reads
-    IMU_Velocity_filted_x_publisher_ = nh.advertise<std_msgs::Float32>("/filtered/Velocity/x", 100);
-
-    ros::Publisher IMU_Velocity_filted_y_publisher_; ///< Publishes Imu/accel.y from reads
-    IMU_Velocity_filted_y_publisher_ = nh.advertise<std_msgs::Float32>("/filtered/Velocity/y", 100);
-
-    ros::Publisher IMU_Velocity_filted_z_publisher_; ///< Publishes Imu/accel.z from reads
-    IMU_Velocity_filted_z_publisher_ = nh.advertise<std_msgs::Float32>("/filtered/Velocity/z", 100);
 
     // ros::waitForShutdown(); // Multi-threaded spinning
 
@@ -149,151 +110,16 @@ int main(int argc, char **argv)
         //  dxl.syncWriteTheta();
 
 
-        /////////////// IMU Filtering ////////////////
-        ///////////////LPF//////////////////////
-        std_msgs::Float32 wx_f;
-        std_msgs::Float32 wy_f;
-        std_msgs::Float32 wz_f;
-
-        // Gyro Low_Pass_Filter
-        float lpf_y_pre_x = 0;
-        float lpf_y_pre_y = 0;
-        float lpf_y_pre_z = 0;
-
-        // Apply the low-pass filter
-        float lpf_y_k_x = dxl.LPF(gyro.x, lpf_y_k_x, Ts, tau);
-        // Update the previous filtered value for the next iteration
-        lpf_y_pre_x = lpf_y_k_x;
-        // Publish_msg
-        wx_f.data = lpf_y_k_x;
-        IMU_Gryo_filted_x_publisher_.publish(wx_f);
-
-        // Apply the low-pass filter
-        float lpf_y_k_y = dxl.LPF(gyro.y, lpf_y_k_y, Ts, tau);
-        // Update the previous filtered value for the next iteration
-        lpf_y_pre_y = lpf_y_k_y;
-        // publish_msg
-        wy_f.data = lpf_y_k_y;
-        IMU_Gryo_filted_y_publisher_.publish(wy_f);
-
-        // Apply the low-pass filter
-        float lpf_y_k_z = dxl.LPF(gyro.z, lpf_y_k_z, Ts, tau);
-        // Update the previous filtered value for the next iteration
-        lpf_y_pre_z = lpf_y_k_z;
-        // publish_msg
-        wz_f.data = lpf_y_k_z;
-        IMU_Gryo_filted_z_publisher_.publish(wz_f);
-
-        // ///////////////HPF//////////////////////
-        // // Apply the High-pass filter
-        // std_msgs::Float32 ax_f;
-        // std_msgs::Float32 ay_f;
-        // std_msgs::Float32 az_f;
-
-        // float hpf_x_pre_x = 0; // 이전 input (초기값 = 0)
-        // float hpf_x_pre_y = 0; // 이전 input (초기값 = 0)
-        // float hpf_x_pre_z = 0; // 이전 input (초기값 = 0)
-
-        // float hpf_y_pre_x = 0; // 이전 output (초기값 = 0)
-        // float hpf_y_pre_y = 0; // 이전 output (초기값 = 0)
-        // float hpf_y_pre_z = 0; // 이전 output (초기값 = 0)
-
-        // float acc_f_x = dxl.HPF(accel.x, hpf_x_pre_x, hpf_y_pre_x, Ts, tau);
-        // // Update the previous input and filtered values for the next iteration
-        // hpf_x_pre_x = accel.x;
-        // hpf_y_pre_x = acc_f_x;
-        // // publish_msg
-        // ax_f.data = acc_f_x;
-        // IMU_Accel_filted_x_publisher_.publish(ax_f);
-
-        // // Apply the High-pass filter
-        // float acc_f_y = dxl.HPF(accel.y, hpf_x_pre_y, hpf_y_pre_y, Ts, tau);
-        // // Update the previous input and filtered values for the next iteration
-        // hpf_x_pre_y = accel.y;
-        // hpf_y_pre_y = acc_f_y;
-        // // publish_msg
-        // ay_f.data = acc_f_y;
-        // IMU_Accel_filted_y_publisher_.publish(ay_f);
-
-        // // Apply the High-pass filter
-        // float acc_f_z = dxl.HPF(accel.z, hpf_x_pre_z, hpf_y_pre_z, Ts, tau);
-        // // Update the previous input and filtered values for the next iteration
-        // hpf_x_pre_z = accel.z;
-        // hpf_y_pre_z = acc_f_z;
-        // // publish_msg
-        // az_f.data = acc_f_z;
-        // IMU_Accel_filted_z_publisher_.publish(az_f);
-
-        ///////////////HPF_Integral//////////////////////
-        std_msgs::Float32 ax_f;
-        std_msgs::Float32 ay_f;
-        std_msgs::Float32 az_f;
-
-        float hpf_y_pre_x = 0; // 이전 output (초기값 = 0)
-        float hpf_y_pre_y = 0; // 이전 output (초기값 = 0)
-        float hpf_y_pre_z = 0; // 이전 output (초기값 = 0)
-
-        // Apply the High-pass + Integral filter
-        float acc_f_x = dxl.HPF_Integral(accel.x, hpf_y_pre_x, Ts, tau);
-        // Update the previous input and filtered values for the next iteration
-        hpf_y_pre_x = acc_f_x;
-        // publish_msg
-        ax_f.data = acc_f_x * 100; // [cm/s]
-        IMU_Velocity_filted_x_publisher_.publish(ax_f);
-
-        // Apply the High-pass + Integral filter
-        float acc_f_y = dxl.HPF_Integral(accel.y, hpf_y_pre_y, Ts, tau);
-        // Update the previous input and filtered values for the next iteration
-        hpf_y_pre_y = acc_f_y;
-        // publish_msg
-        ay_f.data = acc_f_y * 100; // [cm/s]
-        IMU_Velocity_filted_y_publisher_.publish(ay_f);
-
-        // Apply the High-pass + Integral filter
-        float acc_f_z = dxl.HPF_Integral(accel.z, hpf_y_pre_z, Ts, tau);
-        // Update the previous input and filtered values for the next iteration
-        hpf_y_pre_z = acc_f_z;
-        // publish_msg
-        az_f.data = acc_f_z * 100; // [cm/s]
-        IMU_Velocity_filted_z_publisher_.publish(az_f);
-
-
-        ///////////////Integral//////////////////////
-        std_msgs::Float32 ax_i;
-        std_msgs::Float32 ay_i;
-        std_msgs::Float32 az_i;
-
-        float hpf_yi_pre_x = 0; // 이전 output (초기값 = 0)
-        float hpf_yi_pre_y = 0; // 이전 output (초기값 = 0)
-        float hpf_yi_pre_z = 0; // 이전 output (초기값 = 0)
-
-        // Apply Integral filter
-        float acc_i_x = dxl.Integral(accel.x, hpf_yi_pre_x, Ts);
-        // Update the previous input and filtered values for the next iteration
-        hpf_yi_pre_x = acc_i_x;
-        // publish_msg
-        ax_i.data = acc_i_x*100; // [cm/s]
-        IMU_Velocity_x_publisher_.publish(ax_i);
-
-        // Apply Integral filter
-        float acc_i_y = dxl.Integral(accel.y, hpf_yi_pre_y, Ts);
-        // Update the previous input and filtered values for the next iteration
-        hpf_yi_pre_y = acc_i_y;
-        // publish_msg
-        ay_i.data = acc_i_y*100; // [cm/s]
-        IMU_Velocity_y_publisher_.publish(ay_i);
-
-        // Apply Integral filter
-        float acc_fi_z = dxl.Integral(accel.z, hpf_yi_pre_z, Ts);
-        // Update the previous input and filtered values for the next iteration
-        hpf_yi_pre_z = acc_fi_z;
-        // publish_msg
-        az_i.data = acc_fi_z*100; // [cm/s]
-        IMU_Velocity_z_publisher_.publish(az_i);
-
         // file write
         //  fprintf(imu_accel, "%d %.lf %.lf %.lf\n",t, callback.Accel(0),callback.Accel(1),callback.Accel(2));
         //  fprintf(imu_gyro, "%d %.lf %.lf %.lf\n",t, callback.Gyro(0),callback.Gyro(1),callback.Gyro(2));
+
+        sensor.Publish_Accel_Origin();
+        sensor.Publish_Gyro_Origin();
+        sensor.Publish_Accel_HPF();
+        sensor.Publish_Gyro_LPF();
+        sensor.Publish_Velocity_HPF_Integral();
+        sensor.Publish_Velocity_Integral();
 
         ros::spinOnce();
         loop_rate.sleep();

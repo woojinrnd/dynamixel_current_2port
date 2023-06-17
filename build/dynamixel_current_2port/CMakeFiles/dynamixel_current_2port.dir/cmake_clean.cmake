@@ -6,6 +6,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o"
   "CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.o"
   "CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o"
+  "CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o"
 )
 
 # Per-language clean rules from dependency scanning.

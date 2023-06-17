@@ -122,13 +122,27 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpatter
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.s"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.cc -o CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.s
 
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/flags.make
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/sensor.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o"
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o -c /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/sensor.cpp
+
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.i"
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/sensor.cpp > CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.i
+
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.s"
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/sensor.cpp -o CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.s
+
 # Object files for target dynamixel_current_2port
 dynamixel_current_2port_OBJECTS = \
 "CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o" \
 "CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o" \
 "CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o" \
 "CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.o" \
-"CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.o"
+"CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.o" \
+"CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o"
 
 # External object files for target dynamixel_current_2port
 dynamixel_current_2port_EXTERNAL_OBJECTS =
@@ -138,6 +152,7 @@ dynamixel_current_2port_EXTERNAL_OBJECTS =
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_controller.cpp.o
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.o
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: /opt/ros/noetic/lib/libdynamixel_sdk.so
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: /opt/ros/noetic/lib/libroscpp.so
@@ -158,7 +173,7 @@ dynamixel_current_2port_EXTERNAL_OBJECTS =
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/dynamixel_current_2port.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

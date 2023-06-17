@@ -6,14 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
-eigen3/Eigen/Dense
--
-iostream
--
-cmath
--
-
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
 iostream
 -
@@ -54,21 +46,27 @@ sensor_msgs/JointState.h
 tf/tf.h
 -
 
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel_controller.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/sensor.hpp
+eigen3/Eigen/Dense
+-
+vector
+-
+iostream
+-
+sensor_msgs/Imu.h
+-
+ros/ros.h
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/ros/ros.h
+std_msgs/Float32.h
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/std_msgs/Float32.h
+callback.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
 dynamixel.hpp
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
 
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/main.cpp
-iostream
--
-dynamixel.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.hpp
-callback.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/callback.hpp
-dynamixel_controller.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_controller.hpp
-Walkingpattern_generator.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/sensor.cpp
+sensor.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/sensor.hpp
 
 /opt/ros/noetic/include/dynamixel_sdk/dynamixel_sdk.h
 group_bulk_read.h

@@ -767,6 +767,33 @@ src/main.cpp.s:
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/sensor.o: src/sensor.cpp.o
+
+.PHONY : src/sensor.o
+
+# target to build an object file
+src/sensor.cpp.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o
+.PHONY : src/sensor.cpp.o
+
+src/sensor.i: src/sensor.cpp.i
+
+.PHONY : src/sensor.i
+
+# target to preprocess a source file
+src/sensor.cpp.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.i
+.PHONY : src/sensor.cpp.i
+
+src/sensor.s: src/sensor.cpp.s
+
+.PHONY : src/sensor.s
+
+# target to generate assembly for a file
+src/sensor.cpp.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.s
+.PHONY : src/sensor.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -826,6 +853,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/sensor.o"
+	@echo "... src/sensor.i"
+	@echo "... src/sensor.s"
 .PHONY : help
 
 
