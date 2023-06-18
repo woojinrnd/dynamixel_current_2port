@@ -23,6 +23,8 @@ private:
     float tau_LPF = 0.5;
     float tau_HPF = 0.5;
     float tau_HPF_Integral = 0.5;
+    float alpha = 0.7;
+    float L = 0.45; //foot ~ IMU [m]
 
     geometry_msgs::Vector3 gyro;
     geometry_msgs::Vector3 accel;
@@ -74,6 +76,11 @@ private:
     ros::Publisher IMU_Velocity_filtered_y_publisher_; ///< Publishes Imu/accel.y from reads
     ros::Publisher IMU_Velocity_filtered_z_publisher_; ///< Publishes Imu/accel.z from reads
 
+    // Filterd Accel (Complementary Filter)
+    ros::Publisher IMU_Velocity_Complementary_x_publisher_; ///< Publishes Imu/accel.x from reads
+    ros::Publisher IMU_Velocity_Complementary_y_publisher_; ///< Publishes Imu/accel.y from reads
+    ros::Publisher IMU_Velocity_Complementary_z_publisher_; ///< Publishes Imu/accel.z from reads
+
 public:
     Sensor()
     {
@@ -106,6 +113,11 @@ public:
         IMU_Velocity_filtered_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/x", 100);
         IMU_Velocity_filtered_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/y", 100);
         IMU_Velocity_filtered_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/z", 100);
+
+        /////////////// Filterd Accel (HPF_Integral) ///////////////////
+        IMU_Velocity_Complementary_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity_Complementary/x", 100);
+        IMU_Velocity_Complementary_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity_Complementary/y", 100);
+        IMU_Velocity_Complementary_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity_Complementary/z", 100);
     }
 
     // Filter
@@ -115,6 +127,8 @@ public:
     // virtual float HPF(const float& x_k, const float& x_pre, const float& y_pre, const float Ts, const float tau_HPF);
     virtual float HPF_Integral(float x_k, float y_pre, float Ts, float tau_HPF_Integral);
     virtual float Integral(float x_k, float y_pre, float Ts);
+    virtual float Complementary(float gyro, float HPF_Int, float alpha);
+
 
     // Publish
     virtual void Publish_Gyro_Origin();
@@ -123,6 +137,7 @@ public:
     virtual void Publish_Accel_HPF();
     virtual void Publish_Velocity_Integral();
     virtual void Publish_Velocity_HPF_Integral();
+    virtual void Publish_Velocity_Complementary();
 
 };
 

@@ -120,6 +120,9 @@ int main(int argc, char **argv)
         sensor.Publish_Gyro_LPF();
         sensor.Publish_Velocity_HPF_Integral();
         sensor.Publish_Velocity_Integral();
+        sensor.Publish_Velocity_Complementary();
+
+        
 
         ros::spinOnce();
         loop_rate.sleep();

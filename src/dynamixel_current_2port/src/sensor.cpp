@@ -76,6 +76,17 @@ float Sensor::Integral(float x_k, float y_pre, float Ts)
     return y_k;
 }
 
+//Complementary filter (Linear velocity = alpha*angular_velocity*L + (1-alpha)*HPF_Integral(Linear_accel))
+//alpha : Weight
+float Sensor::Complementary(float gyro, float HPF_Int, float alpha)
+{
+    float y_k;
+    y_k = alpha * gyro * L + (1 - alpha) * HPF_Int;
+    return y_k;
+}
+
+
+
 ///////////////////////////////////////// Publish //////////////////////////////////////////
 
 ///////////// IMU Origin ///////////////
@@ -201,9 +212,9 @@ void Sensor::Publish_Velocity_Integral()
     hpf_yi_pre_z = acc_i_z;
 
     // publish_msg
-    ax_i.data = acc_i_x * 100; // [cm/s]
-    ay_i.data = acc_i_y * 100; // [cm/s]
-    az_i.data = acc_i_z * 100; // [cm/s]
+    ax_i.data = acc_i_x; // [cm/s]
+    ay_i.data = acc_i_y; // [cm/s]
+    az_i.data = acc_i_z; // [cm/s]
 
     IMU_Velocity_x_publisher_.publish(ax_i);
     IMU_Velocity_y_publisher_.publish(ay_i);
@@ -228,11 +239,44 @@ void Sensor::Publish_Velocity_HPF_Integral()
     hpf_y_pre_z = acc_f_z;
 
     // publish_msg
-    ax_f.data = acc_f_x * 100; // [cm/s]
-    ay_f.data = acc_f_y * 100; // [cm/s]
-    az_f.data = acc_f_z * 100; // [cm/s]
+    ax_f.data = acc_f_x; // [cm/s]
+    ay_f.data = acc_f_y; // [cm/s]
+    az_f.data = acc_f_z; // [cm/s]
 
     IMU_Velocity_filtered_x_publisher_.publish(ax_f);
     IMU_Velocity_filtered_y_publisher_.publish(ay_f);
     IMU_Velocity_filtered_z_publisher_.publish(az_f);
+}
+
+///////////////////Complementary Filter/////////////////
+void Sensor::Publish_Velocity_Complementary()
+{   
+    std_msgs::Float32 ax_c;
+    std_msgs::Float32 ay_c;
+    std_msgs::Float32 az_c;
+
+    gyro.x = callback.Gyro(0);
+    gyro.y = callback.Gyro(1);
+    gyro.z = callback.Gyro(2);
+
+    float HPF_Intx = HPF_Integral(accel.x, hpf_y_pre_x, Ts, tau_HPF_Integral);
+    float HPF_Inty = HPF_Integral(accel.y, hpf_y_pre_y, Ts, tau_HPF_Integral);
+    float HPF_Intz = HPF_Integral(accel.z, hpf_y_pre_z, Ts, tau_HPF_Integral);
+
+    // Update the previous input and filtered values for the next iteration
+    hpf_y_pre_x = HPF_Intx;
+    hpf_y_pre_y = HPF_Inty;
+    hpf_y_pre_z = HPF_Intz;
+
+    float Complementaryx = Complementary(gyro.y, HPF_Intx, alpha);
+    float Complementaryy = Complementary(gyro.z, HPF_Inty, alpha);
+    float Complementaryz = Complementary(gyro.x, HPF_Intz, alpha);
+
+    ax_c.data = Complementaryx;
+    ay_c.data = Complementaryy;
+    az_c.data = Complementaryz;
+
+    IMU_Velocity_Complementary_x_publisher_.publish(ax_c);
+    IMU_Velocity_Complementary_y_publisher_.publish(ay_c);
+    IMU_Velocity_Complementary_z_publisher_.publish(az_c);
 }
