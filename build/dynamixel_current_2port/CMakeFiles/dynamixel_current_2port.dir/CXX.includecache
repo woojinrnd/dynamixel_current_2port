@@ -27,6 +27,8 @@ std_msgs/Int32.h
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/std_msgs/Int32.h
 std_msgs/Float32MultiArray.h
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/std_msgs/Float32MultiArray.h
+std_msgs/UInt8.h
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/std_msgs/UInt8.h
 std_msgs/Bool.h
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/std_msgs/Bool.h
 dynamixel.hpp
@@ -87,10 +89,6 @@ dynamixel_controller.hpp
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_controller.hpp
 Walkingpattern_generator.hpp
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.hpp
-sensor.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/sensor.hpp
-
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/sensor.cpp
 sensor.hpp
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/sensor.hpp
 
@@ -1213,6 +1211,22 @@ std_msgs/MultiArrayDimension.h
 -
 
 /opt/ros/noetic/include/std_msgs/String.h
+string
+-
+vector
+-
+memory
+-
+ros/types.h
+-
+ros/serialization.h
+-
+ros/builtin_message_traits.h
+-
+ros/message_operations.h
+-
+
+/opt/ros/noetic/include/std_msgs/UInt8.h
 string
 -
 vector

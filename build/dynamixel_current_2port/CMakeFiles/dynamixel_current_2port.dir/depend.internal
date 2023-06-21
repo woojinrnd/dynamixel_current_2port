@@ -94,6 +94,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.
  /opt/ros/noetic/include/std_msgs/MultiArrayDimension.h
  /opt/ros/noetic/include/std_msgs/MultiArrayLayout.h
  /opt/ros/noetic/include/std_msgs/String.h
+ /opt/ros/noetic/include/std_msgs/UInt8.h
  /opt/ros/noetic/include/tf/LinearMath/Matrix3x3.h
  /opt/ros/noetic/include/tf/LinearMath/MinMax.h
  /opt/ros/noetic/include/tf/LinearMath/QuadWord.h
@@ -210,6 +211,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp
  /opt/ros/noetic/include/std_msgs/MultiArrayDimension.h
  /opt/ros/noetic/include/std_msgs/MultiArrayLayout.h
  /opt/ros/noetic/include/std_msgs/String.h
+ /opt/ros/noetic/include/std_msgs/UInt8.h
  /opt/ros/noetic/include/tf/LinearMath/Matrix3x3.h
  /opt/ros/noetic/include/tf/LinearMath/MinMax.h
  /opt/ros/noetic/include/tf/LinearMath/QuadWord.h
@@ -438,6 +440,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o
  /opt/ros/noetic/include/std_msgs/MultiArrayDimension.h
  /opt/ros/noetic/include/std_msgs/MultiArrayLayout.h
  /opt/ros/noetic/include/std_msgs/String.h
+ /opt/ros/noetic/include/std_msgs/UInt8.h
  /opt/ros/noetic/include/tf/LinearMath/Matrix3x3.h
  /opt/ros/noetic/include/tf/LinearMath/MinMax.h
  /opt/ros/noetic/include/tf/LinearMath/QuadWord.h
@@ -555,6 +558,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o
  /opt/ros/noetic/include/std_msgs/MultiArrayDimension.h
  /opt/ros/noetic/include/std_msgs/MultiArrayLayout.h
  /opt/ros/noetic/include/std_msgs/String.h
+ /opt/ros/noetic/include/std_msgs/UInt8.h
  /opt/ros/noetic/include/tf/LinearMath/Matrix3x3.h
  /opt/ros/noetic/include/tf/LinearMath/MinMax.h
  /opt/ros/noetic/include/tf/LinearMath/QuadWord.h

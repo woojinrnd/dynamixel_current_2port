@@ -15,9 +15,10 @@ void Callback::JointStatesCallback(const sensor_msgs::JointState::ConstPtr &join
     }
 }
 
-void Callback::FSRsensorCallback(const std_msgs::Int32ConstPtr &FSR)
+void Callback::FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR)
 {
-    fsr_value = FSR->data;
+    L_value = FSR->data; // Left_foot_FSR
+    R_value = FSR->data; // Right_foot_FSR
 }
 
 void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)

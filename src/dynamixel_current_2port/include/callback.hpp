@@ -7,6 +7,7 @@
 #include "std_msgs/Float32.h"
 #include "std_msgs/Int32.h"
 #include "std_msgs/Float32MultiArray.h"
+#include "std_msgs/UInt8.h"
 #include "std_msgs/Bool.h"
 #include "dynamixel.hpp"
 #include <sensor_msgs/Imu.h>
@@ -22,12 +23,14 @@ public:
 
   //Function
   virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
-  virtual void FSRsensorCallback(const std_msgs::Int32ConstPtr &FSR);
+  virtual void FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
   virtual void IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU);
 
   //Variable
   VectorXd Goal_joint_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
-  int32_t fsr_value = 0;
+  uint8_t L_value = 0;
+  uint8_t R_value = 0;
+  uint8_t fsr_value[2] = {L_value, R_value};
   VectorXd quaternion = VectorXd::Zero(4);
   VectorXd RPY = VectorXd::Zero(3); //Roll Pitch Yaw
   VectorXd Accel = VectorXd::Zero(3); // Accel_x, Accel_y, Accel_z 

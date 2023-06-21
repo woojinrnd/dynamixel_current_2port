@@ -93,6 +93,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/std_msgs/MultiArrayDimension.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/std_msgs/MultiArrayLayout.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/std_msgs/String.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/std_msgs/UInt8.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/tf/LinearMath/Matrix3x3.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/tf/LinearMath/MinMax.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/tf/LinearMath/QuadWord.h
@@ -209,6 +210,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/MultiArrayDimension.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/MultiArrayLayout.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/String.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/std_msgs/UInt8.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/tf/LinearMath/Matrix3x3.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/tf/LinearMath/MinMax.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /opt/ros/noetic/include/tf/LinearMath/QuadWord.h
@@ -437,6 +439,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/std_msgs/MultiArrayDimension.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/std_msgs/MultiArrayLayout.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/std_msgs/String.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/std_msgs/UInt8.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/tf/LinearMath/Matrix3x3.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/tf/LinearMath/MinMax.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/tf/LinearMath/QuadWord.h
@@ -554,6 +557,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o:
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /opt/ros/noetic/include/std_msgs/MultiArrayDimension.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /opt/ros/noetic/include/std_msgs/MultiArrayLayout.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /opt/ros/noetic/include/std_msgs/String.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /opt/ros/noetic/include/std_msgs/UInt8.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /opt/ros/noetic/include/tf/LinearMath/Matrix3x3.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /opt/ros/noetic/include/tf/LinearMath/MinMax.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /opt/ros/noetic/include/tf/LinearMath/QuadWord.h

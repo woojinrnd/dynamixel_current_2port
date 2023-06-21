@@ -35,8 +35,11 @@ int main(int argc, char **argv)
     ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
     joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, &callback);
 
-    ros::Subscriber FSR_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR
-    FSR_sensor_subscriber_ = nh.subscribe("FSR", 1000, &Callback::FSRsensorCallback, &callback);
+    ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
+    FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, &callback);
+
+    ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
+    FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, &callback);
 
     ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
     IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, &callback);
@@ -99,6 +102,7 @@ int main(int argc, char **argv)
         //  dxl.FSR_flag();
         //  dxl.syncWriteTheta();
         //  std::cout << callback.fsr_value << std::endl;
+        
 
         // About IMU
         //  dxl.Quaternino2RPY();
@@ -122,7 +126,7 @@ int main(int argc, char **argv)
         sensor.Publish_Velocity_Integral();
         sensor.Publish_Velocity_Complementary();
 
-        
+        // cout << callback.L_value << endl;
 
         ros::spinOnce();
         loop_rate.sleep();

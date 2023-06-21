@@ -78,13 +78,14 @@ float Sensor::Integral(float x_k, float y_pre, float Ts)
 
 //Complementary filter (Linear velocity = alpha*angular_velocity*L + (1-alpha)*HPF_Integral(Linear_accel))
 //alpha : Weight
+//gyro : Angular Velocity
+//HPF_Int : Linear Velocity
 float Sensor::Complementary(float gyro, float HPF_Int, float alpha)
 {
     float y_k;
     y_k = alpha * gyro * L + (1 - alpha) * HPF_Int;
     return y_k;
 }
-
 
 
 ///////////////////////////////////////// Publish //////////////////////////////////////////
