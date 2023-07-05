@@ -18,7 +18,7 @@
 //Default setting
 #define NUMBER_OF_DYNAMIXELS     3
 #define BAUDRATE                 4000000 
-#define DEVICE_NAME              "/dev/ttyACM0"
+#define DEVICE_NAME              "/dev/ttyUSB0"
 
 
 #define PI                       3.141592
@@ -119,13 +119,14 @@ class Dxl
     private:
         dynamixel::PortHandler* portHandler;
         dynamixel::PacketHandler* packetHandler;
-        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {12, 6, 18};
+        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {0,12,13};
         // const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0 };
         float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t velocity[NUMBER_OF_DYNAMIXELS] = { 0 };
         int32_t ref_torque_value[NUMBER_OF_DYNAMIXELS] = { 0 };
         int32_t torque2value[NUMBER_OF_DYNAMIXELS] = { 0 };
+        uint32_t current[NUMBER_OF_DYNAMIXELS] = { 0 };
 
         VectorXd ref_th_value_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd ref_th_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
@@ -175,9 +176,12 @@ class Dxl
         virtual VectorXd GetThetaDot();
         virtual VectorXd GetThetaDotEstimated();
         // virtual VectorXd GetPIDGain();
-        virtual int16_t  GetPresentMode();
+        virtual int16_t GetPresentMode();
         virtual void syncReadTheta();  // rad_pos = (count-count_initial_position) * (range/360) * (2*PI/encoder_cpr)
         VectorXd th_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        virtual void SyncReadCurrent();
+        VectorXd cur_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+        virtual VectorXd GetCurrent();
 
 
 
@@ -199,6 +203,8 @@ class Dxl
         virtual void initActuatorValues();
         virtual void FSR_flag();
         virtual void Quaternino2RPY();
+        virtual float convertValue2Current(int32_t value);
+
 };
 
 

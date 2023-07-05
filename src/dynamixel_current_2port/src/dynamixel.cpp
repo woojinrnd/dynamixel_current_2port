@@ -169,6 +169,24 @@ VectorXd Dxl::GetThetaDotEstimated()
 
 // }
 
+//Getter() : 전류값 [mA] 
+void Dxl::SyncReadCurrent()
+{
+    dynamixel::GroupSyncRead groupSyncRead(portHandler, packetHandler, DxlReg_PresentCurrent, 2);
+    for(uint8_t i=0; i < NUMBER_OF_DYNAMIXELS; i++) groupSyncRead.addParam(dxl_id[i]);
+    groupSyncRead.txRxPacket();
+    for(uint8_t i=0; i < NUMBER_OF_DYNAMIXELS; i++) current[i] = groupSyncRead.getData(dxl_id[i], DxlReg_PresentCurrent, 2);
+    groupSyncRead.clearParam();
+    for(uint8_t i=0; i < NUMBER_OF_DYNAMIXELS; i++) cur_[i] = convertValue2Current(current[i]);
+}
+
+VectorXd Dxl::GetCurrent()
+{
+    SyncReadCurrent();
+    return cur_;
+}
+
+
 //Getter() : 현재 모드 getter()
 int16_t Dxl::GetPresentMode()
 {
@@ -280,6 +298,15 @@ float Dxl::convertValue2Radian(int32_t value)
     return radian;
 }
 
+//Value2Curret (Raw data -> Current)
+// 1raw  = 3.36[mA]
+// Range = 0 ~ 1941 (raw)
+float Dxl::convertValue2Current(int32_t value)
+{
+    float current_ = value *3.36;
+    return current_;
+}
+
 //각도(rad), 각속도(rad/s) 읽고, torque(Nm->raw) 쓰기 
 //제어 주파수(전류제어 : 300, 위치제어 : ?)
 void Dxl::Loop(bool RxTh, bool RxThDot, bool TxTorque)
@@ -347,8 +374,8 @@ void Dxl::Quaternino2RPY()
         callback.quaternion(3));
     tf::Matrix3x3 m(q);
     m.getRPY(callback.RPY(0), callback.RPY(1), callback.RPY(2));
-    // ROS_INFO("roll : %.3f", callback.roll * RAD2DEG);
-    // ROS_INFO("pitch : %.3f", callback.pitch * RAD2DEG);
-    // ROS_INFO("yaw : %.3f", callback.yaw * RAD2DEG);
+    ROS_INFO("roll : %.3f", callback.RPY(0) * RAD2DEG);
+    // ROS_INFO("pitch : %.3f", callback.RPY(1) * RAD2DEG);
+    // ROS_INFO("yaw : %.3f", callback.RPY(2) * RAD2DEG);
 }
 

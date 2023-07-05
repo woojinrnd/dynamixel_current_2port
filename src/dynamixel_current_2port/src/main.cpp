@@ -105,7 +105,8 @@ int main(int argc, char **argv)
         
 
         // About IMU
-        //  dxl.Quaternino2RPY();
+        // dxl.Quaternino2RPY();
+        
         //  for (int i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
         //  {
         //      A[i] = callback.RPY[i];
@@ -126,7 +127,10 @@ int main(int argc, char **argv)
         sensor.Publish_Velocity_Integral();
         sensor.Publish_Velocity_Complementary();
 
-        // cout << callback.L_value << endl;
+        cout << dxl.GetCurrent() << endl;
+
+
+        
 
         ros::spinOnce();
         loop_rate.sleep();
