@@ -5,6 +5,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpatter
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.cc
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o
+ /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/callback.cpp
@@ -122,6 +123,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.
  /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
  /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o
+ /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.cpp
@@ -468,6 +470,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o
  /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
  /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o
+ /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/sensor.hpp

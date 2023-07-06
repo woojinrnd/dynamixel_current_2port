@@ -4,6 +4,7 @@
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.cc
 
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/callback.cpp
@@ -121,6 +122,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.cpp
@@ -467,6 +469,7 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/sensor.hpp

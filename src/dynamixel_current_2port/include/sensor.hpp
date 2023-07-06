@@ -10,7 +10,9 @@
 
 #include "callback.hpp"
 #include "dynamixel.hpp"
+#include "Walkingpattern_generator.hpp"
 
+extern Motions motion;
 extern Callback callback;
 
 class Sensor
@@ -25,6 +27,7 @@ private:
     float tau_HPF_Integral = 0.5;
     float alpha = 0.7;
     float L = 0.45; //foot ~ IMU [m]
+    
 
     geometry_msgs::Vector3 gyro;
     geometry_msgs::Vector3 accel;
@@ -80,6 +83,10 @@ private:
     ros::Publisher IMU_Velocity_Complementary_x_publisher_; ///< Publishes Imu/accel.x from reads
     ros::Publisher IMU_Velocity_Complementary_y_publisher_; ///< Publishes Imu/accel.y from reads
     ros::Publisher IMU_Velocity_Complementary_z_publisher_; ///< Publishes Imu/accel.z from reads
+
+
+    //About Capture Point
+    MatrixXd _motion;
 
 public:
     Sensor()
@@ -138,6 +145,10 @@ public:
     virtual void Publish_Velocity_Integral();
     virtual void Publish_Velocity_HPF_Integral();
     virtual void Publish_Velocity_Complementary();
+
+    // Function
+    // virtual MatrixXd GetCapturePoint();
+    // virtual MatrixXd Reference_CP_CM(MatrixXd &_motion);
 
 };
 

@@ -1,6 +1,7 @@
 #include "sensor.hpp"
 
 
+
 // Low Pass Filter
 // x_k     input value
 // y_pre   previous filtered value
@@ -281,3 +282,17 @@ void Sensor::Publish_Velocity_Complementary()
     IMU_Velocity_Complementary_y_publisher_.publish(ay_c);
     IMU_Velocity_Complementary_z_publisher_.publish(az_c);
 }
+
+
+//////////////////////////////FUNCTION//////////////////////////
+//argument : motion
+// MatrixXd Sensor::GetCapturePoint()
+// {
+
+// }
+
+// MatrixXd Reference_CP_CM(MatrixXd &_motion)
+// {
+//     uint8_t a = callback.mode;
+//     if (a == 0) return //CP_CM
+// }

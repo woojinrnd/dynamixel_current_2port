@@ -59,28 +59,7 @@ int main(int argc, char **argv)
 
     while (ros::ok())
     {
-        // About motion
-        t += 1;
-
-        // for (int i = 0; i < 6; i++)
-        // {
-        //     A[i] = RL_motion1(t, i);
-        // }
-
-        // for (int i=6;i<12;i++)
-        // {
-        //     A[i] = LL_Motion1(t, i);
-        // }
-
-        // if (t >= 923)
-        //     t = 0;
-
-        // dxl.SetThetaRef(A);
-        // dxl.syncWriteTheta();
-
-        // for (int i = 0; i < NUMBER_OF_DYNAMIXELS; i ++)
-        // cout << "A[" << i << "] : " << A[i] << endl;
-
+        
         dxl.SetThetaRef(A);
         dxl.syncWriteTheta();
 
@@ -128,9 +107,6 @@ int main(int argc, char **argv)
         sensor.Publish_Velocity_Complementary();
 
         cout << dxl.GetCurrent() << endl;
-
-
-        
 
         ros::spinOnce();
         loop_rate.sleep();
