@@ -1,4 +1,5 @@
 #include <iostream>
+#include <time.h>
 #include "dynamixel.hpp"
 #include "callback.hpp"
 #include "dynamixel_controller.hpp"
@@ -44,24 +45,20 @@ int main(int argc, char **argv)
     ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
     IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, &callback);
 
+    ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
+    Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
+
+
 
     // ros::waitForShutdown(); // Multi-threaded spinning
 
-    VectorXd A(NUMBER_OF_DYNAMIXELS);
-    for (int i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
-    {
-        A[i] = 90 * DEG2RAD;
-    }
-    dxl.SetThetaRef(A);
-    dxl.syncWriteTheta();
-
-    int t = 0;
+    struct timespec start, end;
+    double run_time;
+    clock_gettime(CLOCK_REALTIME, &start); // Wall-clock time
 
     while (ros::ok())
     {
         
-        dxl.SetThetaRef(A);
-        dxl.syncWriteTheta();
 
         // About joint msg
         //         sensor_msgs::JointState msg;
@@ -98,20 +95,16 @@ int main(int argc, char **argv)
         //  fprintf(imu_accel, "%d %.lf %.lf %.lf\n",t, callback.Accel(0),callback.Accel(1),callback.Accel(2));
         //  fprintf(imu_gyro, "%d %.lf %.lf %.lf\n",t, callback.Gyro(0),callback.Gyro(1),callback.Gyro(2));
 
-        sensor.Publish_Accel_Origin();
-        sensor.Publish_Gyro_Origin();
-        sensor.Publish_Accel_HPF();
-        sensor.Publish_Gyro_LPF();
-        sensor.Publish_Velocity_HPF_Integral();
-        sensor.Publish_Velocity_Integral();
-        sensor.Publish_Velocity_Complementary();
-
-        cout << dxl.GetCurrent() << endl;
 
         ros::spinOnce();
         loop_rate.sleep();
     }
 
+    
+    clock_gettime(CLOCK_REALTIME, &end); // Wall-clock time
+    run_time = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0; // 단위는 ms
+
+    cout << run_time << endl;
     // ROS_INFO("daynmixel_current_2port!");
     dxl.~Dxl();
     return 0;

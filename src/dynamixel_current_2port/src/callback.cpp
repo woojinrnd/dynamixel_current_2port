@@ -51,7 +51,7 @@ void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
 void Callback::SelectMotion(const std_msgs::Float32Ptr &msg)
 {
     mode = msg ->data;
-    // ROS_INFO("mode(%f)",mode);
+    ROS_INFO("mode(%f)",mode);
     if (mode == 0)
     {
         RL_motion = RL_motion0;

@@ -168,6 +168,21 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/rule:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/rule
+.PHONY : dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/rule
+
+# Convenience name for target.
+Move_decision_node: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/rule
+
+.PHONY : Move_decision_node
+
+# fast build rule for target.
+Move_decision_node/fast:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build
+.PHONY : Move_decision_node/fast
+
+# Convenience name for target.
 dynamixel_current_2port/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/rule:
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel_current_2port/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/rule
 .PHONY : dynamixel_current_2port/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/rule
@@ -632,12 +647,70 @@ geometry_msgs_generate_messages_eus/fast:
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build.make dynamixel_current_2port/CMakeFiles/geometry_msgs_generate_messages_eus.dir/build
 .PHONY : geometry_msgs_generate_messages_eus/fast
 
+src/Move_decision.o: src/Move_decision.cpp.o
+
+.PHONY : src/Move_decision.o
+
+# target to build an object file
+src/Move_decision.cpp.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Move_decision.cpp.o
+.PHONY : src/Move_decision.cpp.o
+
+src/Move_decision.i: src/Move_decision.cpp.i
+
+.PHONY : src/Move_decision.i
+
+# target to preprocess a source file
+src/Move_decision.cpp.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.i
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Move_decision.cpp.i
+.PHONY : src/Move_decision.cpp.i
+
+src/Move_decision.s: src/Move_decision.cpp.s
+
+.PHONY : src/Move_decision.s
+
+# target to generate assembly for a file
+src/Move_decision.cpp.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.s
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Move_decision.cpp.s
+.PHONY : src/Move_decision.cpp.s
+
+src/Move_decision_node.o: src/Move_decision_node.cpp.o
+
+.PHONY : src/Move_decision_node.o
+
+# target to build an object file
+src/Move_decision_node.cpp.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o
+.PHONY : src/Move_decision_node.cpp.o
+
+src/Move_decision_node.i: src/Move_decision_node.cpp.i
+
+.PHONY : src/Move_decision_node.i
+
+# target to preprocess a source file
+src/Move_decision_node.cpp.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.i
+.PHONY : src/Move_decision_node.cpp.i
+
+src/Move_decision_node.s: src/Move_decision_node.cpp.s
+
+.PHONY : src/Move_decision_node.s
+
+# target to generate assembly for a file
+src/Move_decision_node.cpp.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.s
+.PHONY : src/Move_decision_node.cpp.s
+
 src/Walkingpattern_generator.o: src/Walkingpattern_generator.cc.o
 
 .PHONY : src/Walkingpattern_generator.o
 
 # target to build an object file
 src/Walkingpattern_generator.cc.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.o
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.o
 .PHONY : src/Walkingpattern_generator.cc.o
 
@@ -647,6 +720,7 @@ src/Walkingpattern_generator.i: src/Walkingpattern_generator.cc.i
 
 # target to preprocess a source file
 src/Walkingpattern_generator.cc.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.i
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.i
 .PHONY : src/Walkingpattern_generator.cc.i
 
@@ -656,6 +730,7 @@ src/Walkingpattern_generator.s: src/Walkingpattern_generator.cc.s
 
 # target to generate assembly for a file
 src/Walkingpattern_generator.cc.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.s
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.s
 .PHONY : src/Walkingpattern_generator.cc.s
 
@@ -665,6 +740,7 @@ src/callback.o: src/callback.cpp.o
 
 # target to build an object file
 src/callback.cpp.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o
 .PHONY : src/callback.cpp.o
 
@@ -674,6 +750,7 @@ src/callback.i: src/callback.cpp.i
 
 # target to preprocess a source file
 src/callback.cpp.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.i
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.i
 .PHONY : src/callback.cpp.i
 
@@ -683,6 +760,7 @@ src/callback.s: src/callback.cpp.s
 
 # target to generate assembly for a file
 src/callback.cpp.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.s
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.s
 .PHONY : src/callback.cpp.s
 
@@ -692,6 +770,7 @@ src/dynamixel.o: src/dynamixel.cpp.o
 
 # target to build an object file
 src/dynamixel.cpp.o:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o
 .PHONY : src/dynamixel.cpp.o
 
@@ -701,6 +780,7 @@ src/dynamixel.i: src/dynamixel.cpp.i
 
 # target to preprocess a source file
 src/dynamixel.cpp.i:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.i
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.i
 .PHONY : src/dynamixel.cpp.i
 
@@ -710,6 +790,7 @@ src/dynamixel.s: src/dynamixel.cpp.s
 
 # target to generate assembly for a file
 src/dynamixel.cpp.s:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.s
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/build.make dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.s
 .PHONY : src/dynamixel.cpp.s
 
@@ -803,6 +884,7 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... edit_cache"
+	@echo "... Move_decision_node"
 	@echo "... rosgraph_msgs_generate_messages_py"
 	@echo "... roscpp_generate_messages_lisp"
 	@echo "... geometry_msgs_generate_messages_py"
@@ -838,6 +920,12 @@ help:
 	@echo "... dynamixel_workbench_msgs_generate_messages_lisp"
 	@echo "... std_msgs_generate_messages_nodejs"
 	@echo "... geometry_msgs_generate_messages_eus"
+	@echo "... src/Move_decision.o"
+	@echo "... src/Move_decision.i"
+	@echo "... src/Move_decision.s"
+	@echo "... src/Move_decision_node.o"
+	@echo "... src/Move_decision_node.i"
+	@echo "... src/Move_decision_node.s"
 	@echo "... src/Walkingpattern_generator.o"
 	@echo "... src/Walkingpattern_generator.i"
 	@echo "... src/Walkingpattern_generator.s"

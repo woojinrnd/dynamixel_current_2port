@@ -285,6 +285,19 @@ gtest/fast:
 .PHONY : gtest/fast
 
 #=============================================================================
+# Target rules for targets named Move_decision_node
+
+# Build rule for target.
+Move_decision_node: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Move_decision_node
+.PHONY : Move_decision_node
+
+# fast build rule for target.
+Move_decision_node/fast:
+	$(MAKE) -f dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build
+.PHONY : Move_decision_node/fast
+
+#=============================================================================
 # Target rules for targets named rosgraph_msgs_generate_messages_py
 
 # Build rule for target.
@@ -709,6 +722,7 @@ help:
 	@echo "... gmock"
 	@echo "... gtest_main"
 	@echo "... gtest"
+	@echo "... Move_decision_node"
 	@echo "... rosgraph_msgs_generate_messages_py"
 	@echo "... roscpp_generate_messages_lisp"
 	@echo "... geometry_msgs_generate_messages_py"

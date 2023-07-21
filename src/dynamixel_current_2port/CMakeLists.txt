@@ -8,6 +8,8 @@ set(dynamixel_current_2port src/dynamixel.cpp ${src/dynamixel.hpp})
 set(dynamixel_current_2port src/dynamixel_controller.cpp ${src/dynamixel_controller.hpp})
 set(dynamixel_current_2port src/callback.cpp ${src/callback.hpp})
 set(dynamixel_current_2port src/sensor.cpp ${src/sensor.hpp})
+set(dynamixel_current_2port src/Move_decision.cpp ${src/Move_decision.hpp})
+
 
 
 
@@ -68,6 +70,7 @@ include_directories(
   ./include
 )
 
+#dynamixel_current_2port node
 add_executable(
   dynamixel_current_2port
   src/main.cpp
@@ -76,11 +79,25 @@ add_executable(
   src/dynamixel_controller.cpp ${dynamixel_controller.hpp}
   src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
   src/sensor.cpp ${sensor.hpp}
+  src/Move_decision ${Move_decision.hpp}
 )
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(dynamixel_current_2port ${catkin_LIBRARIES})
 
-install(TARGETS dynamixel_current_2port
+
+#Move_decision node
+add_executable(
+  Move_decision_node
+  src/Move_decision_node.cpp
+  src/dynamixel.cpp ${dynamixel.hpp}
+  src/Move_decision ${Move_decision.hpp}
+  src/callback.cpp ${callback.hpp}
+  src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
+)
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(Move_decision_node ${catkin_LIBRARIES})
+
+install(TARGETS dynamixel_current_2port Move_decision_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
