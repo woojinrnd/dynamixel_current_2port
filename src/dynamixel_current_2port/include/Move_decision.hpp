@@ -56,8 +56,10 @@ public:
     void stopMode();
     void playMotion(float motion_index);
     
-
+    //Publish & Subscribe
     ros::Publisher motion_index_pub_;
+    //Server && Client
+    ros::ServiceServer motion_index_server_;
 
 
 private:

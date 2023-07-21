@@ -91,9 +91,9 @@ endif()
 # flag project as catkin-based to distinguish if a find_package()-ed project is a catkin project
 set(dynamixel_current_2port_FOUND_CATKIN_PROJECT TRUE)
 
-if(NOT "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include;/usr/local/include " STREQUAL " ")
+if(NOT "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/include;/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include;/usr/local/include " STREQUAL " ")
   set(dynamixel_current_2port_INCLUDE_DIRS "")
-  set(_include_dirs "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include;/usr/local/include")
+  set(_include_dirs "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/include;/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include;/usr/local/include")
   if(NOT " " STREQUAL " ")
     set(_report "Check the issue tracker '' and consider creating a ticket if the problem has not been reported yet.")
   elseif(NOT " " STREQUAL " ")
@@ -177,7 +177,7 @@ foreach(library ${libraries})
   endif()
 endforeach()
 
-set(dynamixel_current_2port_EXPORTED_TARGETS "")
+set(dynamixel_current_2port_EXPORTED_TARGETS "dynamixel_current_2port_generate_messages_cpp;dynamixel_current_2port_generate_messages_eus;dynamixel_current_2port_generate_messages_lisp;dynamixel_current_2port_generate_messages_nodejs;dynamixel_current_2port_generate_messages_py")
 # create dummy targets for exported code generation targets to make life of users easier
 foreach(t ${dynamixel_current_2port_EXPORTED_TARGETS})
   if(NOT TARGET ${t})
@@ -185,7 +185,7 @@ foreach(t ${dynamixel_current_2port_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "cmake_modules;dynamixel_sdk;dynamixel_workbench_msgs;roscpp;std_msgs;sensor_msgs;geometry_msgs")
+set(depends "cmake_modules;dynamixel_sdk;dynamixel_workbench_msgs;roscpp;std_msgs;sensor_msgs;geometry_msgs;message_runtime")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls
@@ -214,7 +214,7 @@ foreach(depend ${depends})
   _list_append_deduplicate(dynamixel_current_2port_EXPORTED_TARGETS ${${dynamixel_current_2port_dep}_EXPORTED_TARGETS})
 endforeach()
 
-set(pkg_cfg_extras "")
+set(pkg_cfg_extras "dynamixel_current_2port-msg-extras.cmake")
 foreach(extra ${pkg_cfg_extras})
   if(NOT IS_ABSOLUTE ${extra})
     set(extra ${dynamixel_current_2port_DIR}/${extra})

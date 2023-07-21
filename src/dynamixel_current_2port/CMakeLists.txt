@@ -4,13 +4,15 @@ project(dynamixel_current_2port)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
+################################################################################
+# Find catkin packages and libraries for catkin and system dependencies
+################################################################################
+
 set(dynamixel_current_2port src/dynamixel.cpp ${src/dynamixel.hpp})
 set(dynamixel_current_2port src/dynamixel_controller.cpp ${src/dynamixel_controller.hpp})
 set(dynamixel_current_2port src/callback.cpp ${src/callback.hpp})
 set(dynamixel_current_2port src/sensor.cpp ${src/sensor.hpp})
 set(dynamixel_current_2port src/Move_decision.cpp ${src/Move_decision.hpp})
-
-
 
 
 
@@ -22,6 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   sensor_msgs
   geometry_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -31,7 +34,19 @@ find_package(dynamixel_workbench_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 # find_package(RBDL REQUIRED)
 
+################################################################################
+# Declare ROS messages, services and actions
+################################################################################
+add_service_files(
+  FILES
+  Select_Motion.srv
+)
 
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs 
+)
 
 
 catkin_package(
@@ -45,14 +60,17 @@ catkin_package(
     std_msgs
     sensor_msgs
     geometry_msgs
+    message_runtime
   DEPENDS 
     system_lib
     Boost
 )
 
-###########
-## Build ##
-###########
+
+
+################################################################################
+# Build
+################################################################################
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations

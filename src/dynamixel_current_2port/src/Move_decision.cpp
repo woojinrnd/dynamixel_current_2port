@@ -47,7 +47,11 @@ void Move_Decision::callbackThread()
     ros::NodeHandle nh(ros::this_node::getName());
 
     //Subscriber & Publisher
-    motion_index_pub_ = nh.advertise<std_msgs::Float32>("Select_Motion", 0);
+    // motion_index_pub_ = nh.advertise<std_msgs::Float32>("Select_Motion", 0);
+
+    // motion_index_server_ = nh.advertiseService("Select_Motion", playMotion);
+
+    
     ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
     {
@@ -58,26 +62,47 @@ void Move_Decision::callbackThread()
     }
 }
 
+// static bool playMotion(Move_Decision::Select::Request &req, Move_Decision::Service::Response &res)
+// {
+//     switch (req.num)
+//     {
+//     case 1:
+//         res.ans = "Hello";
+//         break;
+
+//     case 2:
+//         res.ans = "ROS";
+//         break;
+
+//     case 3:
+//         res.ans = "World!";
+//         break;
+//     }
+//     ROS_INFO("[MESSAGE] Select Number: %d ", req.num);
+//     ROS_INFO_STREAM("[MESSAGE] " << res.ans);
+//     return true;
+// }
 
 
-void Move_Decision::startMode()
-{
-    playMotion(Motion_Index::InitPose);
-}
+// //About Publish
+// void Move_Decision::startMode()
+// {
+//     playMotion(Motion_Index::InitPose);
+// }
 
 
-void Move_Decision::stopMode()
-{
-    playMotion(Motion_Index::Foward_4step);
-}
+// void Move_Decision::stopMode()
+// {
+//     playMotion(Motion_Index::Foward_4step);
+// }
 
 
-void Move_Decision::playMotion(float motion_index)
-{
-    std_msgs::Float32 motion_msgs;
-    motion_msgs.data = motion_index;
+// void Move_Decision::playMotion(float motion_index)
+// {
+//     std_msgs::Float32 motion_msgs;
+//     motion_msgs.data = motion_index;
 
-    motion_index_pub_.publish(motion_msgs);
-    // ROS_INFO("%d",motion_msgs);
-}
+//     motion_index_pub_.publish(motion_msgs);
+//     // ROS_INFO("%d",motion_msgs);
+// }
 
