@@ -1,4 +1,5 @@
 #include "Move_decision.hpp"
+#include "dynamixel_current_2port/Select_Motion.h"
 
 // Constructor
 Move_Decision::Move_Decision()
@@ -49,7 +50,7 @@ void Move_Decision::callbackThread()
     //Subscriber & Publisher
     // motion_index_pub_ = nh.advertise<std_msgs::Float32>("Select_Motion", 0);
 
-    // motion_index_server_ = nh.advertiseService("Select_Motion", playMotion);
+    motion_index_server_ = nh.advertiseService("Select_Motion", playMotion);
 
     
     ros::Rate loop_rate(SPIN_RATE);
@@ -62,7 +63,8 @@ void Move_Decision::callbackThread()
     }
 }
 
-// static bool playMotion(Move_Decision::Select::Request &req, Move_Decision::Service::Response &res)
+//
+// static bool playMotion(Move_Decision::Select_Motion::Request &req, Move_Decision::Select_Motion::Response &res)
 // {
 //     switch (req.num)
 //     {
@@ -84,25 +86,25 @@ void Move_Decision::callbackThread()
 // }
 
 
-// //About Publish
-// void Move_Decision::startMode()
-// {
-//     playMotion(Motion_Index::InitPose);
-// }
+////////////About Publish
+void Move_Decision::startMode()
+{
+    playMotion(Motion_Index::InitPose);
+}
 
 
-// void Move_Decision::stopMode()
-// {
-//     playMotion(Motion_Index::Foward_4step);
-// }
+void Move_Decision::stopMode()
+{
+    playMotion(Motion_Index::Foward_4step);
+}
 
 
-// void Move_Decision::playMotion(float motion_index)
-// {
-//     std_msgs::Float32 motion_msgs;
-//     motion_msgs.data = motion_index;
+void Move_Decision::playMotion(float motion_index)
+{
+    std_msgs::Float32 motion_msgs;
+    motion_msgs.data = motion_index;
 
-//     motion_index_pub_.publish(motion_msgs);
-//     // ROS_INFO("%d",motion_msgs);
-// }
+    motion_index_pub_.publish(motion_msgs);
+    // ROS_INFO("%d",motion_msgs);
+}
 

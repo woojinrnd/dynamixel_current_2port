@@ -7,6 +7,7 @@
 #include <ros/ros.h>
 #include <boost/thread.hpp>
 
+
 #include "callback.hpp"
 #include "dynamixel.hpp"
 #include "Walkingpattern_generator.hpp"
@@ -58,6 +59,7 @@ public:
     
     //Publish & Subscribe
     ros::Publisher motion_index_pub_;
+
     //Server && Client
     ros::ServiceServer motion_index_server_;
 
