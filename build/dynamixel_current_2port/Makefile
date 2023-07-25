@@ -258,6 +258,21 @@ dynamixel_current_2port_generate_messages_cpp/fast:
 .PHONY : dynamixel_current_2port_generate_messages_cpp/fast
 
 # Convenience name for target.
+dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle.dir/rule:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle.dir/rule
+.PHONY : dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle.dir/rule
+
+# Convenience name for target.
+_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle: dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle.dir/rule
+
+.PHONY : _dynamixel_current_2port_generate_messages_check_deps_Turn_Angle
+
+# fast build rule for target.
+_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle/fast:
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle.dir/build.make dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle.dir/build
+.PHONY : _dynamixel_current_2port_generate_messages_check_deps_Turn_Angle/fast
+
+# Convenience name for target.
 dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Select_Motion.dir/rule:
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build && $(MAKE) -f CMakeFiles/Makefile2 dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Select_Motion.dir/rule
 .PHONY : dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Select_Motion.dir/rule
@@ -1070,6 +1085,7 @@ help:
 	@echo "... dynamixel_current_2port_gencpp"
 	@echo "... list_install_components"
 	@echo "... dynamixel_current_2port_generate_messages_cpp"
+	@echo "... _dynamixel_current_2port_generate_messages_check_deps_Turn_Angle"
 	@echo "... _dynamixel_current_2port_generate_messages_check_deps_Select_Motion"
 	@echo "... dynamixel_current_2port_genlisp"
 	@echo "... dynamixel_current_2port_generate_messages"

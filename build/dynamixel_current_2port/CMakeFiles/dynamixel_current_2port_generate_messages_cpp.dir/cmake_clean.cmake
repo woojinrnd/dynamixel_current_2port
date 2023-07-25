@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h"
+  "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h"
   "CMakeFiles/dynamixel_current_2port_generate_messages_cpp"
 )
 

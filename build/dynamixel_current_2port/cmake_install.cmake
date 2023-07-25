@@ -38,7 +38,10 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/dynamixel_current_2port/srv" TYPE FILE FILES "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/dynamixel_current_2port/srv" TYPE FILE FILES
+    "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv"
+    "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv"
+    )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)

@@ -40,7 +40,7 @@ template<>
 struct MD5Sum< ::dynamixel_current_2port::Select_Motion > {
   static const char* value()
   {
-    return "cc9905de9a643bc5d56477c60453b2c8";
+    return "83c87f0c95a7dce9842bd2a407ff039e";
   }
 
   static const char* value(const ::dynamixel_current_2port::Select_Motion&) { return value(); }

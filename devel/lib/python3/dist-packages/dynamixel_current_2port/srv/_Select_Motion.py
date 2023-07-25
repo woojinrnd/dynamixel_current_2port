@@ -123,12 +123,12 @@ import struct
 
 
 class Select_MotionResponse(genpy.Message):
-  _md5sum = "5aaa1cdf85b33c7430af49dec6f787c6"
+  _md5sum = "e097b00b598ab557593863a20526c625"
   _type = "dynamixel_current_2port/Select_MotionResponse"
   _has_header = False  # flag to mark the presence of a Header object
-  _full_text = """int8 Select_Motion
+  _full_text = """int8 select_motion
 """
-  __slots__ = ['Select_Motion']
+  __slots__ = ['select_motion']
   _slot_types = ['int8']
 
   def __init__(self, *args, **kwds):
@@ -139,7 +139,7 @@ class Select_MotionResponse(genpy.Message):
     changes.  You cannot mix in-order arguments and keyword arguments.
 
     The available fields are:
-       Select_Motion
+       select_motion
 
     :param args: complete set of field values, in .msg order
     :param kwds: use keyword arguments corresponding to message field names
@@ -148,10 +148,10 @@ class Select_MotionResponse(genpy.Message):
     if args or kwds:
       super(Select_MotionResponse, self).__init__(*args, **kwds)
       # message fields cannot be None, assign default values for those that are
-      if self.Select_Motion is None:
-        self.Select_Motion = 0
+      if self.select_motion is None:
+        self.select_motion = 0
     else:
-      self.Select_Motion = 0
+      self.select_motion = 0
 
   def _get_types(self):
     """
@@ -165,7 +165,7 @@ class Select_MotionResponse(genpy.Message):
     :param buff: buffer, ``StringIO``
     """
     try:
-      _x = self.Select_Motion
+      _x = self.select_motion
       buff.write(_get_struct_b().pack(_x))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
@@ -181,7 +181,7 @@ class Select_MotionResponse(genpy.Message):
       end = 0
       start = end
       end += 1
-      (self.Select_Motion,) = _get_struct_b().unpack(str[start:end])
+      (self.select_motion,) = _get_struct_b().unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -194,7 +194,7 @@ class Select_MotionResponse(genpy.Message):
     :param numpy: numpy python module
     """
     try:
-      _x = self.Select_Motion
+      _x = self.select_motion
       buff.write(_get_struct_b().pack(_x))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
@@ -211,7 +211,7 @@ class Select_MotionResponse(genpy.Message):
       end = 0
       start = end
       end += 1
-      (self.Select_Motion,) = _get_struct_b().unpack(str[start:end])
+      (self.select_motion,) = _get_struct_b().unpack(str[start:end])
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e)  # most likely buffer underfill
@@ -228,6 +228,6 @@ def _get_struct_b():
     return _struct_b
 class Select_Motion(object):
   _type          = 'dynamixel_current_2port/Select_Motion'
-  _md5sum = 'cc9905de9a643bc5d56477c60453b2c8'
+  _md5sum = '83c87f0c95a7dce9842bd2a407ff039e'
   _request_class  = Select_MotionRequest
   _response_class = Select_MotionResponse

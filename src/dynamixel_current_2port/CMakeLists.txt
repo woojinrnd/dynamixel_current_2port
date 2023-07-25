@@ -40,6 +40,7 @@ find_package(Eigen3 REQUIRED)
 add_service_files(
   FILES
   Select_Motion.srv
+  Turn_Angle.srv
 )
 
 generate_messages(

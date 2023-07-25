@@ -4,6 +4,9 @@
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionRequest.h
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionResponse.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleRequest.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleResponse.h
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Move_decision.hpp
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
@@ -123,6 +126,12 @@ dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionRequest.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionResponse.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleRequest.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleResponse.h
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Move_decision.hpp
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
@@ -245,6 +254,12 @@ dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.cc
 
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionRequest.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionResponse.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleRequest.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleResponse.h
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
@@ -363,6 +378,12 @@ dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /o
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionRequest.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionResponse.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleRequest.h
+dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleResponse.h
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp

@@ -54,6 +54,7 @@ CMAKE_BINARY_DIR = /home/woojin/dynamixel_current/dynamixel_current_2port/build
 include dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_cpp.dir/progress.make
 
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_cpp: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_cpp: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
 
 
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h: /opt/ros/noetic/lib/gencpp/gen_cpp.py
@@ -63,8 +64,16 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating C++ code from dynamixel_current_2port/Select_Motion.srv"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port && /home/woojin/dynamixel_current/dynamixel_current_2port/build/catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p dynamixel_current_2port -o /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port -e /opt/ros/noetic/share/gencpp/cmake/..
 
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h: /opt/ros/noetic/lib/gencpp/gen_cpp.py
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h: /opt/ros/noetic/share/gencpp/msg.h.template
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h: /opt/ros/noetic/share/gencpp/srv.h.template
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating C++ code from dynamixel_current_2port/Turn_Angle.srv"
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port && /home/woojin/dynamixel_current/dynamixel_current_2port/build/catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/gencpp/cmake/../../../lib/gencpp/gen_cpp.py /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p dynamixel_current_2port -o /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port -e /opt/ros/noetic/share/gencpp/cmake/..
+
 dynamixel_current_2port_generate_messages_cpp: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_cpp
 dynamixel_current_2port_generate_messages_cpp: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
+dynamixel_current_2port_generate_messages_cpp: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
 dynamixel_current_2port_generate_messages_cpp: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_cpp.dir/build.make
 
 .PHONY : dynamixel_current_2port_generate_messages_cpp

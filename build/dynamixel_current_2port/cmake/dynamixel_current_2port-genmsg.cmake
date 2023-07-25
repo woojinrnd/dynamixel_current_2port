@@ -1,6 +1,6 @@
 # generated from genmsg/cmake/pkg-genmsg.cmake.em
 
-message(STATUS "dynamixel_current_2port: 0 messages, 1 services")
+message(STATUS "dynamixel_current_2port: 0 messages, 2 services")
 
 set(MSG_I_FLAGS "-Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg;-Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg")
 
@@ -22,6 +22,11 @@ add_custom_target(_dynamixel_current_2port_generate_messages_check_deps_${_filen
   COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "dynamixel_current_2port" "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv" ""
 )
 
+get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv" NAME_WE)
+add_custom_target(_dynamixel_current_2port_generate_messages_check_deps_${_filename}
+  COMMAND ${CATKIN_ENV} ${PYTHON_EXECUTABLE} ${GENMSG_CHECK_DEPS_SCRIPT} "dynamixel_current_2port" "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv" ""
+)
+
 #
 #  langs = gencpp;geneus;genlisp;gennodejs;genpy
 #
@@ -32,6 +37,12 @@ add_custom_target(_dynamixel_current_2port_generate_messages_check_deps_${_filen
 ### Generating Services
 _generate_srv_cpp(dynamixel_current_2port
   "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/dynamixel_current_2port
+)
+_generate_srv_cpp(dynamixel_current_2port
+  "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${gencpp_INSTALL_DIR}/dynamixel_current_2port
@@ -51,6 +62,8 @@ add_dependencies(dynamixel_current_2port_generate_messages dynamixel_current_2po
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv" NAME_WE)
 add_dependencies(dynamixel_current_2port_generate_messages_cpp _dynamixel_current_2port_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv" NAME_WE)
+add_dependencies(dynamixel_current_2port_generate_messages_cpp _dynamixel_current_2port_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
 add_custom_target(dynamixel_current_2port_gencpp)
@@ -65,6 +78,12 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS dynamixel_current_2port_generate_me
 ### Generating Services
 _generate_srv_eus(dynamixel_current_2port
   "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/dynamixel_current_2port
+)
+_generate_srv_eus(dynamixel_current_2port
+  "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${geneus_INSTALL_DIR}/dynamixel_current_2port
@@ -84,6 +103,8 @@ add_dependencies(dynamixel_current_2port_generate_messages dynamixel_current_2po
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv" NAME_WE)
 add_dependencies(dynamixel_current_2port_generate_messages_eus _dynamixel_current_2port_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv" NAME_WE)
+add_dependencies(dynamixel_current_2port_generate_messages_eus _dynamixel_current_2port_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
 add_custom_target(dynamixel_current_2port_geneus)
@@ -98,6 +119,12 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS dynamixel_current_2port_generate_me
 ### Generating Services
 _generate_srv_lisp(dynamixel_current_2port
   "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/dynamixel_current_2port
+)
+_generate_srv_lisp(dynamixel_current_2port
+  "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${genlisp_INSTALL_DIR}/dynamixel_current_2port
@@ -117,6 +144,8 @@ add_dependencies(dynamixel_current_2port_generate_messages dynamixel_current_2po
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv" NAME_WE)
 add_dependencies(dynamixel_current_2port_generate_messages_lisp _dynamixel_current_2port_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv" NAME_WE)
+add_dependencies(dynamixel_current_2port_generate_messages_lisp _dynamixel_current_2port_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
 add_custom_target(dynamixel_current_2port_genlisp)
@@ -131,6 +160,12 @@ list(APPEND ${PROJECT_NAME}_EXPORTED_TARGETS dynamixel_current_2port_generate_me
 ### Generating Services
 _generate_srv_nodejs(dynamixel_current_2port
   "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/dynamixel_current_2port
+)
+_generate_srv_nodejs(dynamixel_current_2port
+  "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv"
   "${MSG_I_FLAGS}"
   ""
   ${CATKIN_DEVEL_PREFIX}/${gennodejs_INSTALL_DIR}/dynamixel_current_2port
@@ -150,6 +185,8 @@ add_dependencies(dynamixel_current_2port_generate_messages dynamixel_current_2po
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv" NAME_WE)
 add_dependencies(dynamixel_current_2port_generate_messages_nodejs _dynamixel_current_2port_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv" NAME_WE)
+add_dependencies(dynamixel_current_2port_generate_messages_nodejs _dynamixel_current_2port_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility
 add_custom_target(dynamixel_current_2port_gennodejs)
@@ -168,6 +205,12 @@ _generate_srv_py(dynamixel_current_2port
   ""
   ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/dynamixel_current_2port
 )
+_generate_srv_py(dynamixel_current_2port
+  "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv"
+  "${MSG_I_FLAGS}"
+  ""
+  ${CATKIN_DEVEL_PREFIX}/${genpy_INSTALL_DIR}/dynamixel_current_2port
+)
 
 ### Generating Module File
 _generate_module_py(dynamixel_current_2port
@@ -182,6 +225,8 @@ add_dependencies(dynamixel_current_2port_generate_messages dynamixel_current_2po
 
 # add dependencies to all check dependencies targets
 get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv" NAME_WE)
+add_dependencies(dynamixel_current_2port_generate_messages_py _dynamixel_current_2port_generate_messages_check_deps_${_filename})
+get_filename_component(_filename "/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv" NAME_WE)
 add_dependencies(dynamixel_current_2port_generate_messages_py _dynamixel_current_2port_generate_messages_check_deps_${_filename})
 
 # target for backward compatibility

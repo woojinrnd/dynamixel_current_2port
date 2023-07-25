@@ -5,11 +5,9 @@
 #include "Move_decision.hpp"
 #include "Walkingpattern_generator.hpp"
 
-
 Dxl dxl;
 Callback callback;
 Motions motion;
-
 
 FILE *imu_accel;
 FILE *imu_gyro;
@@ -21,9 +19,12 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(500);
     ros::NodeHandle nh;
     Move_Decision move_decision;
+    // Move_Decision *move_decision = new Move_Decision();
+ 
 
-    ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
+    // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
     // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
+    
 
     //Timer
     struct timespec start, end;
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
     {
 
 
-        cout << "woojin" << endl;
+        // cout << "woojin" << endl;
         // callback.Write_Leg_Theta();
         // dxl.SetThetaRef(callback.All_Theta);
         // dxl.syncWriteTheta();
@@ -52,10 +53,10 @@ int main(int argc, char **argv)
     clock_gettime(CLOCK_REALTIME, &end); // Wall-clock time
     run_time = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0; // 단위는 ms
 
-    cout << run_time << endl;
     // ROS_INFO("daynmixel_current_2port!");
     dxl.~Dxl();
     move_decision.~Move_Decision();
+    cout << run_time << endl;
     return 0;
 }
 

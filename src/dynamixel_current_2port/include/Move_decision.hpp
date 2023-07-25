@@ -11,6 +11,9 @@
 #include "callback.hpp"
 #include "dynamixel.hpp"
 #include "Walkingpattern_generator.hpp"
+#include "dynamixel_current_2port/Select_Motion.h"
+#include "dynamixel_current_2port/Turn_Angle.h"
+
 
 extern Motions motion;
 extern Callback callback;
@@ -22,7 +25,7 @@ public:
     enum Motion_Index 
     {
         InitPose = 0,
-        Foward_4step = 1,
+        Forward_4step = 1,
         Left_2step = 2,
         Step_in_place = 3,
         Right_2step = 4,
@@ -36,6 +39,8 @@ public:
         STOP_MODE = 2,
         WAKEUP_MODE = 3,
         GOAL_MODE = 4,
+        HUDDLE_MODE = 5,
+        WALL_MODE = 6,
     };
     
     enum Stand_Status 
@@ -53,25 +58,36 @@ public:
     void processThread();
     void callbackThread();
 
-    void startMode();
-    void stopMode();
-    void playMotion(float motion_index);
+    // void startMode();
+    // void stopMode();
+    // void playMotion(float motion_index);
+    void Emergency(bool emergency_);
+
+    bool playMotion(dynamixel_current_2port::Select_Motion::Request &req, dynamixel_current_2port::Select_Motion::Response &res);
+    bool turn_angle(dynamixel_current_2port::Turn_Angle::Request &req, dynamixel_current_2port::Turn_Angle::Response &res);
     
     //Publish & Subscribe
-    ros::Publisher motion_index_pub_;
+    ros::Publisher Emergency_pub_;
 
     //Server && Client
     ros::ServiceServer motion_index_server_;
+    ros::ServiceServer turn_angle_server_;
+
+    
 
 
 private:
-  const double FALL_FORWARD_LIMIT;
-  const double FALL_BACK_LIMIT;
-  const int SPIN_RATE;
+    const double FALL_FORWARD_LIMIT;
+    const double FALL_BACK_LIMIT;
+    const int SPIN_RATE;
 
-  int stand_state_;
-  int robot_status_;
-  bool stop_fallen_check_;
+    int8_t stand_status_;
+    int8_t motion_index_;
+    int8_t running_mode_;
+    int8_t turn_angle_;
+    bool emergency_ = 1;
+
+    bool stop_fallen_check_;
 };
 
 #endif // MOVE_DECISION_H

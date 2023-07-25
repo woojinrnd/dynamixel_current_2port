@@ -54,6 +54,7 @@ CMAKE_BINARY_DIR = /home/woojin/dynamixel_current/dynamixel_current_2port/build
 include dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_nodejs.dir/progress.make
 
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_nodejs: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv/Select_Motion.js
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_nodejs: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv/Turn_Angle.js
 
 
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv/Select_Motion.js: /opt/ros/noetic/lib/gennodejs/gen_nodejs.py
@@ -61,8 +62,14 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_nod
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Javascript code from dynamixel_current_2port/Select_Motion.srv"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p dynamixel_current_2port -o /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv
 
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv/Turn_Angle.js: /opt/ros/noetic/lib/gennodejs/gen_nodejs.py
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv/Turn_Angle.js: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Javascript code from dynamixel_current_2port/Turn_Angle.srv"
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/gennodejs/cmake/../../../lib/gennodejs/gen_nodejs.py /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p dynamixel_current_2port -o /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv
+
 dynamixel_current_2port_generate_messages_nodejs: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_nodejs
 dynamixel_current_2port_generate_messages_nodejs: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv/Select_Motion.js
+dynamixel_current_2port_generate_messages_nodejs: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv/Turn_Angle.js
 dynamixel_current_2port_generate_messages_nodejs: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_nodejs.dir/build.make
 
 .PHONY : dynamixel_current_2port_generate_messages_nodejs

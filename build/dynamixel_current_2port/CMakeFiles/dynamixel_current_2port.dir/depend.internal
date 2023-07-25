@@ -5,6 +5,9 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Move_decision
  /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
  /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionRequest.h
  /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionResponse.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleRequest.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleResponse.h
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Move_decision.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
@@ -127,6 +130,12 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/Walkingpatter
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.cc
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionRequest.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionResponse.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleRequest.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleResponse.h
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
@@ -245,6 +254,12 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.
  /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
  /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionRequest.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionResponse.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleRequest.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleResponse.h
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
@@ -472,6 +487,12 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/dynamixel_con
  /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
  /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionRequest.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionResponse.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleRequest.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleResponse.h
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp
@@ -592,6 +613,12 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/main.cpp.o
  /opt/ros/noetic/include/xmlrpcpp/XmlRpcDecl.h
  /opt/ros/noetic/include/xmlrpcpp/XmlRpcValue.h
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port.dir/src/sensor.cpp.o
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_Motion.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionRequest.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Select_MotionResponse.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_Angle.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleRequest.h
+ /home/woojin/dynamixel_current/dynamixel_current_2port/devel/include/dynamixel_current_2port/Turn_AngleResponse.h
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/Walkingpattern_generator.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/callback.hpp
  /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/include/dynamixel.hpp

@@ -54,6 +54,7 @@ CMAKE_BINARY_DIR = /home/woojin/dynamixel_current/dynamixel_current_2port/build
 include dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_eus.dir/progress.make
 
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_eus: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/srv/Select_Motion.l
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_eus: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/srv/Turn_Angle.l
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_eus: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/manifest.l
 
 
@@ -62,12 +63,18 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_eus
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating EusLisp code from dynamixel_current_2port/Select_Motion.srv"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p dynamixel_current_2port -o /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/srv
 
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/srv/Turn_Angle.l: /opt/ros/noetic/lib/geneus/gen_eus.py
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/srv/Turn_Angle.l: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating EusLisp code from dynamixel_current_2port/Turn_Angle.srv"
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/geneus/cmake/../../../lib/geneus/gen_eus.py /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p dynamixel_current_2port -o /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/srv
+
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/manifest.l: /opt/ros/noetic/lib/geneus/gen_eus.py
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating EusLisp manifest code for dynamixel_current_2port"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating EusLisp manifest code for dynamixel_current_2port"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/geneus/cmake/../../../lib/geneus/gen_eus.py -m -o /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port dynamixel_current_2port std_msgs geometry_msgs
 
 dynamixel_current_2port_generate_messages_eus: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_eus
 dynamixel_current_2port_generate_messages_eus: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/srv/Select_Motion.l
+dynamixel_current_2port_generate_messages_eus: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/srv/Turn_Angle.l
 dynamixel_current_2port_generate_messages_eus: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/roseus/ros/dynamixel_current_2port/manifest.l
 dynamixel_current_2port_generate_messages_eus: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_eus.dir/build.make
 

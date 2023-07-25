@@ -8,9 +8,12 @@
 
 
 Dxl dxl;
-Callback callback;
 Dxl_Controller dxl_ctrl;
 Motions motion;
+Sensor sensor; 
+Callback callback;
+
+
 
 FILE *imu_accel;
 FILE *imu_gyro;
@@ -21,32 +24,19 @@ int main(int argc, char **argv)
     ros::Time::init();
     ros::Rate loop_rate(500);
     ros::NodeHandle nh;
-    Sensor sensor; 
 
-    ros::AsyncSpinner spinner(0); // Multi-threaded spinning
-    spinner.start(); // Multi-threaded spinning
+
+    // ros::AsyncSpinner spinner(0); // Multi-threaded spinning
+    // spinner.start(); // Multi-threaded spinning
 
     // IMU
     //  imu_accel = fopen("/home/woojin/imu_Accel_0613_(1).dat", "w");
     //  imu_gyro = fopen("/home/woojin/imu_gyro1_0613_(1).dat", "w");
 
-    ros::Publisher joint_state_publisher_; ///< Publishes joint states from reads
-    joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
 
-    ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
-    joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, &callback);
 
-    ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
-    FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, &callback);
-
-    ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
-    FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, &callback);
-
-    ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
-    IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, &callback);
-
-    ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
-    Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
+    // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
+    // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
 
 
 

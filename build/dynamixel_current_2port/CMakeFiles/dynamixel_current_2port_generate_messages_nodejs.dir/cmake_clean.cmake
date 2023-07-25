@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv/Select_Motion.js"
+  "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/share/gennodejs/ros/dynamixel_current_2port/srv/Turn_Angle.js"
   "CMakeFiles/dynamixel_current_2port_generate_messages_nodejs"
 )
 

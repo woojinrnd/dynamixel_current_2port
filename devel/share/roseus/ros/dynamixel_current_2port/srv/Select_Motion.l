@@ -57,38 +57,38 @@
 
 (defclass dynamixel_current_2port::Select_MotionResponse
   :super ros::object
-  :slots (_Select_Motion ))
+  :slots (_select_motion ))
 
 (defmethod dynamixel_current_2port::Select_MotionResponse
   (:init
    (&key
-    ((:Select_Motion __Select_Motion) 0)
+    ((:select_motion __select_motion) 0)
     )
    (send-super :init)
-   (setq _Select_Motion (round __Select_Motion))
+   (setq _select_motion (round __select_motion))
    self)
-  (:Select_Motion
-   (&optional __Select_Motion)
-   (if __Select_Motion (setq _Select_Motion __Select_Motion)) _Select_Motion)
+  (:select_motion
+   (&optional __select_motion)
+   (if __select_motion (setq _select_motion __select_motion)) _select_motion)
   (:serialization-length
    ()
    (+
-    ;; int8 _Select_Motion
+    ;; int8 _select_motion
     1
     ))
   (:serialize
    (&optional strm)
    (let ((s (if strm strm
               (make-string-output-stream (send self :serialization-length)))))
-     ;; int8 _Select_Motion
-       (write-byte _Select_Motion s)
+     ;; int8 _select_motion
+       (write-byte _select_motion s)
      ;;
      (if (null strm) (get-output-stream-string s))))
   (:deserialize
    (buf &optional (ptr- 0))
-   ;; int8 _Select_Motion
-     (setq _Select_Motion (sys::peek buf ptr- :char)) (incf ptr- 1)
-     (if (> _Select_Motion 127) (setq _Select_Motion (- _Select_Motion 256)))
+   ;; int8 _select_motion
+     (setq _select_motion (sys::peek buf ptr- :char)) (incf ptr- 1)
+     (if (> _select_motion 127) (setq _select_motion (- _select_motion 256)))
    ;;
    self)
   )
@@ -97,7 +97,7 @@
   :super ros::object
   :slots ())
 
-(setf (get dynamixel_current_2port::Select_Motion :md5sum-) "cc9905de9a643bc5d56477c60453b2c8")
+(setf (get dynamixel_current_2port::Select_Motion :md5sum-) "83c87f0c95a7dce9842bd2a407ff039e")
 (setf (get dynamixel_current_2port::Select_Motion :datatype-) "dynamixel_current_2port/Select_Motion")
 (setf (get dynamixel_current_2port::Select_Motion :request) dynamixel_current_2port::Select_MotionRequest)
 (setf (get dynamixel_current_2port::Select_Motion :response) dynamixel_current_2port::Select_MotionResponse)
@@ -105,24 +105,24 @@
 (defmethod dynamixel_current_2port::Select_MotionRequest
   (:response () (instance dynamixel_current_2port::Select_MotionResponse :init)))
 
-(setf (get dynamixel_current_2port::Select_MotionRequest :md5sum-) "cc9905de9a643bc5d56477c60453b2c8")
+(setf (get dynamixel_current_2port::Select_MotionRequest :md5sum-) "83c87f0c95a7dce9842bd2a407ff039e")
 (setf (get dynamixel_current_2port::Select_MotionRequest :datatype-) "dynamixel_current_2port/Select_MotionRequest")
 (setf (get dynamixel_current_2port::Select_MotionRequest :definition-)
       "bool finish
 ---
-int8 Select_Motion
+int8 select_motion
 ")
 
-(setf (get dynamixel_current_2port::Select_MotionResponse :md5sum-) "cc9905de9a643bc5d56477c60453b2c8")
+(setf (get dynamixel_current_2port::Select_MotionResponse :md5sum-) "83c87f0c95a7dce9842bd2a407ff039e")
 (setf (get dynamixel_current_2port::Select_MotionResponse :datatype-) "dynamixel_current_2port/Select_MotionResponse")
 (setf (get dynamixel_current_2port::Select_MotionResponse :definition-)
       "bool finish
 ---
-int8 Select_Motion
+int8 select_motion
 ")
 
 
 
-(provide :dynamixel_current_2port/Select_Motion "cc9905de9a643bc5d56477c60453b2c8")
+(provide :dynamixel_current_2port/Select_Motion "83c87f0c95a7dce9842bd2a407ff039e")
 
 

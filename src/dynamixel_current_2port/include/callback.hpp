@@ -12,8 +12,12 @@
 #include "dynamixel.hpp"
 #include <sensor_msgs/Imu.h>
 #include <tf/tf.h>
+#include <boost/thread.hpp>
+
 
 #include "Walkingpattern_generator.hpp"
+#include "dynamixel_current_2port/Select_Motion.h"
+#include "dynamixel_current_2port/Turn_Angle.h"
 
 using Eigen::VectorXd;
 
@@ -27,12 +31,21 @@ public:
   virtual void FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
   virtual void IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU);
   
-  virtual void SelectMotion(const std_msgs::Float32Ptr &msg);
+  // virtual void SelectMotion(const std_msgs::Float32Ptr &msg);
   virtual void MotionMaker();
   virtual void Write_Leg_Theta();
   virtual void Write_Arm_Theta();
-  
-  
+
+  // Callback Thread
+  virtual void callbackThread();
+  virtual void Emergency(const std_msgs::Bool &msg);
+  ros::Subscriber Emergency_sub_;           ///< Gets Motion number from motion_decision
+  ros::Publisher joint_state_publisher_;    ///< Publishes joint states from reads
+  ros::Subscriber joint_state_subscriber_;  ///< Gets joint states for writes
+  ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
+  ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
+  ros::Subscriber IMU_sensor_subscriber_;   ///< Gets IMU Sensor data from XSENSE mti_driver_node
+
   // Variable
   VectorXd Goal_joint_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
   uint8_t L_value = 0;

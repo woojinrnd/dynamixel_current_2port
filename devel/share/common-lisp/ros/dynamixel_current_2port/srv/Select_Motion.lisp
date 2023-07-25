@@ -43,10 +43,10 @@
   "dynamixel_current_2port/Select_MotionRequest")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<Select_Motion-request>)))
   "Returns md5sum for a message object of type '<Select_Motion-request>"
-  "cc9905de9a643bc5d56477c60453b2c8")
+  "83c87f0c95a7dce9842bd2a407ff039e")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'Select_Motion-request)))
   "Returns md5sum for a message object of type 'Select_Motion-request"
-  "cc9905de9a643bc5d56477c60453b2c8")
+  "83c87f0c95a7dce9842bd2a407ff039e")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<Select_Motion-request>)))
   "Returns full string definition for message of type '<Select_Motion-request>"
   (cl:format cl:nil "bool finish~%~%~%"))
@@ -65,9 +65,9 @@
 ;//! \htmlinclude Select_Motion-response.msg.html
 
 (cl:defclass <Select_Motion-response> (roslisp-msg-protocol:ros-message)
-  ((Select_Motion
-    :reader Select_Motion
-    :initarg :Select_Motion
+  ((select_motion
+    :reader select_motion
+    :initarg :select_motion
     :type cl:fixnum
     :initform 0))
 )
@@ -80,13 +80,13 @@
   (cl:unless (cl:typep m 'Select_Motion-response)
     (roslisp-msg-protocol:msg-deprecation-warning "using old message class name dynamixel_current_2port-srv:<Select_Motion-response> is deprecated: use dynamixel_current_2port-srv:Select_Motion-response instead.")))
 
-(cl:ensure-generic-function 'Select_Motion-val :lambda-list '(m))
-(cl:defmethod Select_Motion-val ((m <Select_Motion-response>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader dynamixel_current_2port-srv:Select_Motion-val is deprecated.  Use dynamixel_current_2port-srv:Select_Motion instead.")
-  (Select_Motion m))
+(cl:ensure-generic-function 'select_motion-val :lambda-list '(m))
+(cl:defmethod select_motion-val ((m <Select_Motion-response>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader dynamixel_current_2port-srv:select_motion-val is deprecated.  Use dynamixel_current_2port-srv:select_motion instead.")
+  (select_motion m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <Select_Motion-response>) ostream)
   "Serializes a message object of type '<Select_Motion-response>"
-  (cl:let* ((signed (cl:slot-value msg 'Select_Motion)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 256) signed)))
+  (cl:let* ((signed (cl:slot-value msg 'select_motion)) (unsigned (cl:if (cl:< signed 0) (cl:+ signed 256) signed)))
     (cl:write-byte (cl:ldb (cl:byte 8 0) unsigned) ostream)
     )
 )
@@ -94,7 +94,7 @@
   "Deserializes a message object of type '<Select_Motion-response>"
     (cl:let ((unsigned 0))
       (cl:setf (cl:ldb (cl:byte 8 0) unsigned) (cl:read-byte istream))
-      (cl:setf (cl:slot-value msg 'Select_Motion) (cl:if (cl:< unsigned 128) unsigned (cl:- unsigned 256))))
+      (cl:setf (cl:slot-value msg 'select_motion) (cl:if (cl:< unsigned 128) unsigned (cl:- unsigned 256))))
   msg
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<Select_Motion-response>)))
@@ -105,16 +105,16 @@
   "dynamixel_current_2port/Select_MotionResponse")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<Select_Motion-response>)))
   "Returns md5sum for a message object of type '<Select_Motion-response>"
-  "cc9905de9a643bc5d56477c60453b2c8")
+  "83c87f0c95a7dce9842bd2a407ff039e")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'Select_Motion-response)))
   "Returns md5sum for a message object of type 'Select_Motion-response"
-  "cc9905de9a643bc5d56477c60453b2c8")
+  "83c87f0c95a7dce9842bd2a407ff039e")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<Select_Motion-response>)))
   "Returns full string definition for message of type '<Select_Motion-response>"
-  (cl:format cl:nil "int8 Select_Motion~%~%~%"))
+  (cl:format cl:nil "int8 select_motion~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'Select_Motion-response)))
   "Returns full string definition for message of type 'Select_Motion-response"
-  (cl:format cl:nil "int8 Select_Motion~%~%~%"))
+  (cl:format cl:nil "int8 select_motion~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <Select_Motion-response>))
   (cl:+ 0
      1
@@ -122,7 +122,7 @@
 (cl:defmethod roslisp-msg-protocol:ros-message-to-list ((msg <Select_Motion-response>))
   "Converts a ROS message object to a list"
   (cl:list 'Select_Motion-response
-    (cl:cons ':Select_Motion (Select_Motion msg))
+    (cl:cons ':select_motion (select_motion msg))
 ))
 (cl:defmethod roslisp-msg-protocol:service-request-type ((msg (cl:eql 'Select_Motion)))
   'Select_Motion-request)

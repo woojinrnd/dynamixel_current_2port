@@ -92,22 +92,22 @@ class Select_MotionResponse {
   constructor(initObj={}) {
     if (initObj === null) {
       // initObj === null is a special case for deserialization where we don't initialize fields
-      this.Select_Motion = null;
+      this.select_motion = null;
     }
     else {
-      if (initObj.hasOwnProperty('Select_Motion')) {
-        this.Select_Motion = initObj.Select_Motion
+      if (initObj.hasOwnProperty('select_motion')) {
+        this.select_motion = initObj.select_motion
       }
       else {
-        this.Select_Motion = 0;
+        this.select_motion = 0;
       }
     }
   }
 
   static serialize(obj, buffer, bufferOffset) {
     // Serializes a message object of type Select_MotionResponse
-    // Serialize message field [Select_Motion]
-    bufferOffset = _serializer.int8(obj.Select_Motion, buffer, bufferOffset);
+    // Serialize message field [select_motion]
+    bufferOffset = _serializer.int8(obj.select_motion, buffer, bufferOffset);
     return bufferOffset;
   }
 
@@ -115,8 +115,8 @@ class Select_MotionResponse {
     //deserializes a message object of type Select_MotionResponse
     let len;
     let data = new Select_MotionResponse(null);
-    // Deserialize message field [Select_Motion]
-    data.Select_Motion = _deserializer.int8(buffer, bufferOffset);
+    // Deserialize message field [select_motion]
+    data.select_motion = _deserializer.int8(buffer, bufferOffset);
     return data;
   }
 
@@ -131,13 +131,13 @@ class Select_MotionResponse {
 
   static md5sum() {
     //Returns md5sum for a message object
-    return '5aaa1cdf85b33c7430af49dec6f787c6';
+    return 'e097b00b598ab557593863a20526c625';
   }
 
   static messageDefinition() {
     // Returns full string definition for message
     return `
-    int8 Select_Motion
+    int8 select_motion
     
     `;
   }
@@ -148,11 +148,11 @@ class Select_MotionResponse {
       msg = {};
     }
     const resolved = new Select_MotionResponse(null);
-    if (msg.Select_Motion !== undefined) {
-      resolved.Select_Motion = msg.Select_Motion;
+    if (msg.select_motion !== undefined) {
+      resolved.select_motion = msg.select_motion;
     }
     else {
-      resolved.Select_Motion = 0
+      resolved.select_motion = 0
     }
 
     return resolved;
@@ -162,6 +162,6 @@ class Select_MotionResponse {
 module.exports = {
   Request: Select_MotionRequest,
   Response: Select_MotionResponse,
-  md5sum() { return 'cc9905de9a643bc5d56477c60453b2c8'; },
+  md5sum() { return '83c87f0c95a7dce9842bd2a407ff039e'; },
   datatype() { return 'dynamixel_current_2port/Select_Motion'; }
 };

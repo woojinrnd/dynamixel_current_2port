@@ -363,6 +363,19 @@ dynamixel_current_2port_generate_messages_cpp/fast:
 .PHONY : dynamixel_current_2port_generate_messages_cpp/fast
 
 #=============================================================================
+# Target rules for targets named _dynamixel_current_2port_generate_messages_check_deps_Turn_Angle
+
+# Build rule for target.
+_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 _dynamixel_current_2port_generate_messages_check_deps_Turn_Angle
+.PHONY : _dynamixel_current_2port_generate_messages_check_deps_Turn_Angle
+
+# fast build rule for target.
+_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle/fast:
+	$(MAKE) -f dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle.dir/build.make dynamixel_current_2port/CMakeFiles/_dynamixel_current_2port_generate_messages_check_deps_Turn_Angle.dir/build
+.PHONY : _dynamixel_current_2port_generate_messages_check_deps_Turn_Angle/fast
+
+#=============================================================================
 # Target rules for targets named _dynamixel_current_2port_generate_messages_check_deps_Select_Motion
 
 # Build rule for target.
@@ -884,6 +897,7 @@ help:
 	@echo "... Move_decision_node"
 	@echo "... dynamixel_current_2port_gencpp"
 	@echo "... dynamixel_current_2port_generate_messages_cpp"
+	@echo "... _dynamixel_current_2port_generate_messages_check_deps_Turn_Angle"
 	@echo "... _dynamixel_current_2port_generate_messages_check_deps_Select_Motion"
 	@echo "... dynamixel_current_2port_genlisp"
 	@echo "... dynamixel_current_2port_generate_messages"

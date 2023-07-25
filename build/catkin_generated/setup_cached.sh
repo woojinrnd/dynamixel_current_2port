@@ -8,4 +8,3 @@
 
 # modified environment variables
 export PWD='/home/woojin/dynamixel_current/dynamixel_current_2port/build'
-export PYTHONPATH="/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages:$PYTHONPATH"

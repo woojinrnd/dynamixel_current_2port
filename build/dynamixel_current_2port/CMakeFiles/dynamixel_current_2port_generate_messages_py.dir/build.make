@@ -54,6 +54,7 @@ CMAKE_BINARY_DIR = /home/woojin/dynamixel_current/dynamixel_current_2port/build
 include dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_py.dir/progress.make
 
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_py: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/_Select_Motion.py
+dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_py: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/_Turn_Angle.py
 dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_py: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/__init__.py
 
 
@@ -62,13 +63,20 @@ dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_py:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Python code from SRV dynamixel_current_2port/Select_Motion"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/genpy/cmake/../../../lib/genpy/gensrv_py.py /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Select_Motion.srv -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p dynamixel_current_2port -o /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv
 
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/_Turn_Angle.py: /opt/ros/noetic/lib/genpy/gensrv_py.py
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/_Turn_Angle.py: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Python code from SRV dynamixel_current_2port/Turn_Angle"
+	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/genpy/cmake/../../../lib/genpy/gensrv_py.py /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/srv/Turn_Angle.srv -Istd_msgs:/opt/ros/noetic/share/std_msgs/cmake/../msg -Igeometry_msgs:/opt/ros/noetic/share/geometry_msgs/cmake/../msg -p dynamixel_current_2port -o /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv
+
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/__init__.py: /opt/ros/noetic/lib/genpy/genmsg_py.py
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/__init__.py: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/_Select_Motion.py
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Generating Python srv __init__.py for dynamixel_current_2port"
+/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/__init__.py: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/_Turn_Angle.py
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Generating Python srv __init__.py for dynamixel_current_2port"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && ../catkin_generated/env_cached.sh /usr/bin/python3 /opt/ros/noetic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py -o /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv --initpy
 
 dynamixel_current_2port_generate_messages_py: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_py
 dynamixel_current_2port_generate_messages_py: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/_Select_Motion.py
+dynamixel_current_2port_generate_messages_py: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/_Turn_Angle.py
 dynamixel_current_2port_generate_messages_py: /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages/dynamixel_current_2port/srv/__init__.py
 dynamixel_current_2port_generate_messages_py: dynamixel_current_2port/CMakeFiles/dynamixel_current_2port_generate_messages_py.dir/build.make
 

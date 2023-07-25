@@ -24,17 +24,17 @@ struct Select_MotionResponse_
   typedef Select_MotionResponse_<ContainerAllocator> Type;
 
   Select_MotionResponse_()
-    : Select_Motion(0)  {
+    : select_motion(0)  {
     }
   Select_MotionResponse_(const ContainerAllocator& _alloc)
-    : Select_Motion(0)  {
+    : select_motion(0)  {
   (void)_alloc;
     }
 
 
 
-   typedef int8_t _Select_Motion_type;
-  _Select_Motion_type Select_Motion;
+   typedef int8_t _select_motion_type;
+  _select_motion_type select_motion;
 
 
 
@@ -65,7 +65,7 @@ return s;
 template<typename ContainerAllocator1, typename ContainerAllocator2>
 bool operator==(const ::dynamixel_current_2port::Select_MotionResponse_<ContainerAllocator1> & lhs, const ::dynamixel_current_2port::Select_MotionResponse_<ContainerAllocator2> & rhs)
 {
-  return lhs.Select_Motion == rhs.Select_Motion;
+  return lhs.select_motion == rhs.select_motion;
 }
 
 template<typename ContainerAllocator1, typename ContainerAllocator2>
@@ -122,12 +122,12 @@ struct MD5Sum< ::dynamixel_current_2port::Select_MotionResponse_<ContainerAlloca
 {
   static const char* value()
   {
-    return "5aaa1cdf85b33c7430af49dec6f787c6";
+    return "e097b00b598ab557593863a20526c625";
   }
 
   static const char* value(const ::dynamixel_current_2port::Select_MotionResponse_<ContainerAllocator>&) { return value(); }
-  static const uint64_t static_value1 = 0x5aaa1cdf85b33c74ULL;
-  static const uint64_t static_value2 = 0x30af49dec6f787c6ULL;
+  static const uint64_t static_value1 = 0xe097b00b598ab557ULL;
+  static const uint64_t static_value2 = 0x593863a20526c625ULL;
 };
 
 template<class ContainerAllocator>
@@ -146,7 +146,7 @@ struct Definition< ::dynamixel_current_2port::Select_MotionResponse_<ContainerAl
 {
   static const char* value()
   {
-    return "int8 Select_Motion\n"
+    return "int8 select_motion\n"
 ;
   }
 
@@ -165,7 +165,7 @@ namespace serialization
   {
     template<typename Stream, typename T> inline static void allInOne(Stream& stream, T m)
     {
-      stream.next(m.Select_Motion);
+      stream.next(m.select_motion);
     }
 
     ROS_DECLARE_ALLINONE_SERIALIZER
@@ -184,8 +184,8 @@ struct Printer< ::dynamixel_current_2port::Select_MotionResponse_<ContainerAlloc
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::dynamixel_current_2port::Select_MotionResponse_<ContainerAllocator>& v)
   {
-    s << indent << "Select_Motion: ";
-    Printer<int8_t>::stream(s, indent + "  ", v.Select_Motion);
+    s << indent << "select_motion: ";
+    Printer<int8_t>::stream(s, indent + "  ", v.select_motion);
   }
 };
 
