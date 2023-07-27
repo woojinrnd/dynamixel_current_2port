@@ -67,15 +67,6 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
 
-        cout << "finish : ";
-        cin >> srv_SM.request.finish;
-        ROS_INFO("TRY TO REQUEST....");
-        if (client_SM.call(srv_SM))
-        {
-            ROS_INFO("select_motion : %d",srv_SM.response.select_motion);
-        }
-
-
         ros::spinOnce();
         loop_rate.sleep();
 
@@ -113,7 +104,6 @@ int main(int argc, char **argv)
         // file write
         //  fprintf(imu_accel, "%d %.lf %.lf %.lf\n",t, callback.Accel(0),callback.Accel(1),callback.Accel(2));
         //  fprintf(imu_gyro, "%d %.lf %.lf %.lf\n",t, callback.Gyro(0),callback.Gyro(1),callback.Gyro(2));
-
 
     }
 

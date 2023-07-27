@@ -1,9 +1,6 @@
 #include <iostream>
 #include <time.h>
 #include "Move_decision.hpp"
-#include "Walkingpattern_generator.hpp"
-
-
 
 int main(int argc, char **argv)
 {
@@ -12,17 +9,14 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(500);
     ros::NodeHandle nh;
     Move_Decision move_decision;
- 
 
     // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
     // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
-    
 
-    //Timer
+    // Timer
     struct timespec start, end;
     double run_time;
     clock_gettime(CLOCK_REALTIME, &start); // Wall-clock time
-    
 
     // callback.Write_Arm_Theta();
     // callback.MotionMaker();
@@ -34,23 +28,18 @@ int main(int argc, char **argv)
         // callback.Write_Leg_Theta();
         // dxl.SetThetaRef(callback.All_Theta);
         // dxl.syncWriteTheta();
-        
 
         ros::spinOnce();
         loop_rate.sleep();
     }
 
-    
-    clock_gettime(CLOCK_REALTIME, &end); // Wall-clock time
+    clock_gettime(CLOCK_REALTIME, &end);                                                         // Wall-clock time
     run_time = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0; // 단위는 ms
 
-    // ROS_INFO("daynmixel_current_2port!");
-    // dxl.~Dxl();
     move_decision.~Move_Decision();
     cout << run_time << endl;
     return 0;
 }
-
 
 /////////////////////////////////THREAD_EXAMPLE/////////////////////////////////
 // #include <ros/ros.h>

@@ -201,8 +201,8 @@ class Dxl
         virtual void Loop(bool RxTh, bool RxThDot, bool TxTorque);
         virtual void CalculateEstimatedThetaDot(int);
         virtual void initActuatorValues();
-        // virtual void FSR_flag();
-        // virtual void Quaternino2RPY();
+        virtual void FSR_flag();
+        virtual void Quaternino2RPY();
         virtual float convertValue2Current(int32_t value);
 
 };
