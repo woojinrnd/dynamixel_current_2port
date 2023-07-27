@@ -23,6 +23,7 @@ Move_Decision::~Move_Decision()
 }
 
 
+///////////////////////////  Process Thread   /////////////////////////
 void Move_Decision::process()
 {
     motion_index_ = 3;
@@ -47,6 +48,9 @@ void Move_Decision::processThread()
     }
 }
 
+
+///////////////////////////  Callback Thread   /////////////////////////
+
 void Move_Decision::callbackThread()
 {
     ros::NodeHandle nh(ros::this_node::getName());
@@ -54,14 +58,14 @@ void Move_Decision::callbackThread()
     //Subscriber & Publisher
     Emergency_pub_ = nh.advertise<std_msgs::Bool>("Emergency", 0);
 
-    //Server
+    // Server
     motion_index_server_ = nh.advertiseService("Select_Motion", &Move_Decision::playMotion, this);
     turn_angle_server_ = nh.advertiseService("Turn_Angle", &Move_Decision::turn_angle, this);
 
     ros::Rate loop_rate(1);
     while (nh.ok())
     {
-        // startMode();
+        startMode();
 
         ros::spinOnce();
         loop_rate.sleep();
@@ -121,11 +125,12 @@ bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req
 }
 
 
-////////////About Publish
-// void Move_Decision::startMode()
-// {
-//     playMotion(Motion_Index::InitPose);
-// }
+///////////////////////////////////////// About Publish /////////////////////////////////////////
+void Move_Decision::startMode()
+{
+    // emergency_ = 0;
+    Emergency(emergency_);
+}
 
 
 // void Move_Decision::stopMode()
@@ -137,10 +142,10 @@ bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req
 //Emergency Stop
 //0 : Stop
 //1 : Keep Going (Option)
-void Move_Decision::Emergency(bool emergency_)
+void Move_Decision::Emergency(bool _Emergency)
 {
     std_msgs::Bool emergency;
-    emergency.data = emergency_;
+    emergency.data = _Emergency;
 
     Emergency_pub_.publish(emergency);
     ROS_INFO("%d",emergency);

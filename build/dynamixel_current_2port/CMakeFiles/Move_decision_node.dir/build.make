@@ -70,22 +70,9 @@ dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.s"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Move_decision_node.cpp -o CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.s
 
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/flags.make
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o"
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o -c /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.cpp
-
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.i"
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.cpp > CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.i
-
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.s"
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.cpp -o CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.s
-
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/flags.make
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Move_decision.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o -c /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Move_decision.cpp
 
 dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.i: cmake_force
@@ -96,48 +83,16 @@ dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.s"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Move_decision.cpp -o CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.s
 
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/flags.make
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/callback.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o"
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Move_decision_node.dir/src/callback.cpp.o -c /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/callback.cpp
-
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Move_decision_node.dir/src/callback.cpp.i"
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/callback.cpp > CMakeFiles/Move_decision_node.dir/src/callback.cpp.i
-
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Move_decision_node.dir/src/callback.cpp.s"
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/callback.cpp -o CMakeFiles/Move_decision_node.dir/src/callback.cpp.s
-
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.o: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/flags.make
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.o: /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.o"
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.o -c /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.cc
-
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.i"
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.cc > CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.i
-
-dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.s"
-	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Walkingpattern_generator.cc -o CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.s
-
 # Object files for target Move_decision_node
 Move_decision_node_OBJECTS = \
 "CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o" \
-"CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o" \
-"CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o" \
-"CMakeFiles/Move_decision_node.dir/src/callback.cpp.o" \
-"CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.o"
+"CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o"
 
 # External object files for target Move_decision_node
 Move_decision_node_EXTERNAL_OBJECTS =
 
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision_node.cpp.o
-/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/dynamixel.cpp.o
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Move_decision.cpp.o
-/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/callback.cpp.o
-/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/src/Walkingpattern_generator.cc.o
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/build.make
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: /opt/ros/noetic/lib/libdynamixel_sdk.so
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: /opt/ros/noetic/lib/libroscpp.so
@@ -158,7 +113,7 @@ Move_decision_node_EXTERNAL_OBJECTS =
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
 /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node: dynamixel_current_2port/CMakeFiles/Move_decision_node.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/woojin/dynamixel_current/dynamixel_current_2port/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable /home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/Move_decision_node"
 	cd /home/woojin/dynamixel_current/dynamixel_current_2port/build/dynamixel_current_2port && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Move_decision_node.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

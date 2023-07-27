@@ -36,15 +36,15 @@ public:
   virtual void Write_Leg_Theta();
   virtual void Write_Arm_Theta();
 
-  // Callback Thread
-  virtual void callbackThread();
-  virtual void Emergency(const std_msgs::Bool &msg);
-  ros::Subscriber Emergency_sub_;           ///< Gets Motion number from motion_decision
-  ros::Publisher joint_state_publisher_;    ///< Publishes joint states from reads
-  ros::Subscriber joint_state_subscriber_;  ///< Gets joint states for writes
-  ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
-  ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
-  ros::Subscriber IMU_sensor_subscriber_;   ///< Gets IMU Sensor data from XSENSE mti_driver_node
+  //Callback Thread
+  // virtual void callbackThread();
+  virtual void Emergencycallback(const std_msgs::Bool &msg);
+  // ros::Publisher joint_state_publisher_; ///< Publishes joint states from reads
+  // ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
+  // ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
+  // ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
+  // ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
+  // ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
 
   // Variable
   VectorXd Goal_joint_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);

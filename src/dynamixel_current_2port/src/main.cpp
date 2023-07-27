@@ -6,14 +6,10 @@
 #include "Walkingpattern_generator.hpp"
 #include "sensor.hpp"
 
-
 Dxl dxl;
 Dxl_Controller dxl_ctrl;
 Motions motion;
-Sensor sensor; 
 Callback callback;
-
-
 
 FILE *imu_accel;
 FILE *imu_gyro;
@@ -24,16 +20,39 @@ int main(int argc, char **argv)
     ros::Time::init();
     ros::Rate loop_rate(500);
     ros::NodeHandle nh;
-
+    Sensor sensor;
 
     // ros::AsyncSpinner spinner(0); // Multi-threaded spinning
     // spinner.start(); // Multi-threaded spinning
+
 
     // IMU
     //  imu_accel = fopen("/home/woojin/imu_Accel_0613_(1).dat", "w");
     //  imu_gyro = fopen("/home/woojin/imu_gyro1_0613_(1).dat", "w");
 
+    ros::Publisher joint_state_publisher_; ///< Publishes joint states from reads
+    ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
+    ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
+    ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
+    ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
+    ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
+    joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
+    joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, &callback);
+    FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, &callback);
+    FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, &callback);
+    IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, &callback);
+    Emergency_subscriber_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergencycallback, &callback);
 
+
+    //Client (재민이형 코드에 들어감)
+    ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("Select_Motion");
+    ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("Turn_Angle");
+
+    dynamixel_current_2port::Select_Motion srv_SM;
+    dynamixel_current_2port::Turn_Angle srv_TA;
+
+    srv_SM.request.finish = 1;
+    srv_TA.request.finish = 1;
 
     // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
     // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);

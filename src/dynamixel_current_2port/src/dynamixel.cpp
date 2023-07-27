@@ -344,39 +344,39 @@ void Dxl::initActuatorValues()
 }
 
 //FSR
-void Dxl::FSR_flag()
-{
-    // if (callback.fsr_value == 0)
-    // {
-    //     for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
-    //     {
-    //         callback.Goal_joint_[i] = 3;
-    //         Dxl::SetThetaRef(callback.Goal_joint_);
-    //     }
-    // }
+// void Dxl::FSR_flag()
+// {
+//     // if (callback.fsr_value == 0)
+//     // {
+//     //     for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
+//     //     {
+//     //         callback.Goal_joint_[i] = 3;
+//     //         Dxl::SetThetaRef(callback.Goal_joint_);
+//     //     }
+//     // }
 
-    if (callback.fsr_value != 0)
-    {
-        for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
-        {
-            callback.Goal_joint_[i] = 0;
-            Dxl::SetThetaRef(callback.Goal_joint_);
-        }
-    }
-}
+//     if (callback.fsr_value != 0)
+//     {
+//         for (int i=0; i<NUMBER_OF_DYNAMIXELS;i++)
+//         {
+//             callback.Goal_joint_[i] = 0;
+//             Dxl::SetThetaRef(callback.Goal_joint_);
+//         }
+//     }
+// }
 
-//IMU
-void Dxl::Quaternino2RPY()
-{
-    tf::Quaternion q(
-        callback.quaternion(0),
-        callback.quaternion(1),
-        callback.quaternion(2),
-        callback.quaternion(3));
-    tf::Matrix3x3 m(q);
-    m.getRPY(callback.RPY(0), callback.RPY(1), callback.RPY(2));
-    ROS_INFO("roll : %.3f", callback.RPY(0) * RAD2DEG);
-    // ROS_INFO("pitch : %.3f", callback.RPY(1) * RAD2DEG);
-    // ROS_INFO("yaw : %.3f", callback.RPY(2) * RAD2DEG);
-}
+// //IMU
+// void Dxl::Quaternino2RPY()
+// {
+//     tf::Quaternion q(
+//         callback.quaternion(0),
+//         callback.quaternion(1),
+//         callback.quaternion(2),
+//         callback.quaternion(3));
+//     tf::Matrix3x3 m(q);
+//     m.getRPY(callback.RPY(0), callback.RPY(1), callback.RPY(2));
+//     ROS_INFO("roll : %.3f", callback.RPY(0) * RAD2DEG);
+//     // ROS_INFO("pitch : %.3f", callback.RPY(1) * RAD2DEG);
+//     // ROS_INFO("yaw : %.3f", callback.RPY(2) * RAD2DEG);
+// }
 

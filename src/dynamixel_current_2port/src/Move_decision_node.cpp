@@ -1,16 +1,9 @@
 #include <iostream>
 #include <time.h>
-#include "dynamixel.hpp"
-#include "callback.hpp"
 #include "Move_decision.hpp"
 #include "Walkingpattern_generator.hpp"
 
-Dxl dxl;
-Callback callback;
-Motions motion;
 
-FILE *imu_accel;
-FILE *imu_gyro;
 
 int main(int argc, char **argv)
 {
@@ -19,7 +12,6 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(500);
     ros::NodeHandle nh;
     Move_Decision move_decision;
-    // Move_Decision *move_decision = new Move_Decision();
  
 
     // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
@@ -38,7 +30,6 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
 
-
         // cout << "woojin" << endl;
         // callback.Write_Leg_Theta();
         // dxl.SetThetaRef(callback.All_Theta);
@@ -54,7 +45,7 @@ int main(int argc, char **argv)
     run_time = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0; // 단위는 ms
 
     // ROS_INFO("daynmixel_current_2port!");
-    dxl.~Dxl();
+    // dxl.~Dxl();
     move_decision.~Move_Decision();
     cout << run_time << endl;
     return 0;

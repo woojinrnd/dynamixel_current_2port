@@ -5,9 +5,9 @@ extern Motions motion;
 
 Callback::Callback()
 {
-    ros::NodeHandle nh(ros::this_node::getName());
+    // ros::NodeHandle nh(ros::this_node::getName());
 
-    boost::thread queue_thread = boost::thread(boost::bind(&Callback::callbackThread, this));
+    // boost::thread queue_thread = boost::thread(boost::bind(&Callback::callbackThread, this));
 }
 
 sensor_msgs::JointState joint_state;
@@ -54,59 +54,59 @@ void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
 }
 
 
-void Callback::callbackThread()
-{
-    ros::NodeHandle nh(ros::this_node::getName());
+// void Callback::callbackThread()
+// {
+//     ros::NodeHandle nh(ros::this_node::getName());
 
-    //Publish & Subscribe
-    Emergency_sub_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergency, this);
-    joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, this);
-    FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, this);
-    FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, this);
-    IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, this);
-    joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
+//     // joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
+//     // joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, this);
+//     // FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, this);
+//     // FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, this);
+//     // IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, this);
+//     // Emergency_subscriber_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergencycallback, this);
 
-    //Client (재민이형 코드에 들어감)
-    ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("Select_Motion");
-    ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("Turn_Angle");
 
-    dynamixel_current_2port::Select_Motion srv_SM;
-    dynamixel_current_2port::Turn_Angle srv_TA;
+//     // //Client (재민이형 코드에 들어감)
+//     // ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("Select_Motion");
+//     // ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("Turn_Angle");
 
-    srv_SM.request.finish = 1;
-    srv_TA.request.finish = 1;
+//     // dynamixel_current_2port::Select_Motion srv_SM;
+//     // dynamixel_current_2port::Turn_Angle srv_TA;
 
-    ros::Rate loop_rate(1);
-    while (nh.ok())
-    {
-        // startMode();
-        if (client_SM.call(srv_SM))
-        {
-            ROS_INFO("#Motion# Service call success!");
-            ROS_INFO("Response: %d", srv_SM.response.select_motion);
-        }
-        else
-        {
-            ROS_ERROR("Failed to call service");
-        }
+//     // srv_SM.request.finish = 1;
+//     // srv_TA.request.finish = 1;
+
+//     ros::Rate loop_rate(1);
+//     while (nh.ok())
+//     {
+//         // startMode();
+//         if (client_SM.call(srv_SM))
+//         {
+//             ROS_INFO("#Motion# Service call success!");
+//             ROS_INFO("Response: %d", srv_SM.response.select_motion);
+//         }
+//         else
+//         {
+//             ROS_ERROR("Failed to call service");
+//         }
         
-        if (client_TA.call(srv_TA))
-        {
-            ROS_INFO("#Angle# Service call success!");
-            ROS_INFO("Response: %d", srv_TA.response.turn_angle);
-        }
-        else
-        {
-            ROS_ERROR("Failed to call service");
-        }
+//         if (client_TA.call(srv_TA))
+//         {
+//             ROS_INFO("#Angle# Service call success!");
+//             ROS_INFO("Response: %d", srv_TA.response.turn_angle);
+//         }
+//         else
+//         {
+//             ROS_ERROR("Failed to call service");
+//         }
 
-        ros::spinOnce();
-        loop_rate.sleep();
-        //usleep(1000);
-    }
-}
+//         ros::spinOnce();
+//         loop_rate.sleep();
+//         //usleep(1000);
+//     }
+// }
 
-void Callback::Emergency(const std_msgs::Bool &msg)
+void Callback::Emergencycallback(const std_msgs::Bool &msg)
 {
     ROS_INFO("%d", msg.data);
 }

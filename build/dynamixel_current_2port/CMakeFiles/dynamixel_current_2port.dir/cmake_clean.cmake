@@ -1,7 +1,6 @@
 file(REMOVE_RECURSE
   "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port"
   "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/dynamixel_current_2port/dynamixel_current_2port.pdb"
-  "CMakeFiles/dynamixel_current_2port.dir/src/Move_decision.cpp.o"
   "CMakeFiles/dynamixel_current_2port.dir/src/Walkingpattern_generator.cc.o"
   "CMakeFiles/dynamixel_current_2port.dir/src/callback.cpp.o"
   "CMakeFiles/dynamixel_current_2port.dir/src/dynamixel.cpp.o"

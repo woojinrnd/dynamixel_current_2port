@@ -58,7 +58,7 @@ public:
     void processThread();
     void callbackThread();
 
-    // void startMode();
+    void startMode();
     // void stopMode();
     // void playMotion(float motion_index);
     void Emergency(bool emergency_);
@@ -73,7 +73,7 @@ public:
     ros::ServiceServer motion_index_server_;
     ros::ServiceServer turn_angle_server_;
 
-    
+    bool emergency_ = 1 ;
 
 
 private:
@@ -85,7 +85,6 @@ private:
     int8_t motion_index_;
     int8_t running_mode_;
     int8_t turn_angle_;
-    bool emergency_ = 1;
 
     bool stop_fallen_check_;
 };

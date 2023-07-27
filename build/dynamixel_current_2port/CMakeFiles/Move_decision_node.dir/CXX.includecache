@@ -166,15 +166,17 @@ sensor_msgs/JointState.h
 tf/tf.h
 -
 
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Move_decision.cpp
+Move_decision.hpp
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Move_decision.hpp
+dynamixel_current_2port/Select_Motion.h
+/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel_current_2port/Select_Motion.h
+
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Move_decision_node.cpp
 iostream
 -
 time.h
 -
-dynamixel.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/dynamixel.hpp
-callback.hpp
-/home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/callback.hpp
 Move_decision.hpp
 /home/woojin/dynamixel_current/dynamixel_current_2port/src/dynamixel_current_2port/src/Move_decision.hpp
 Walkingpattern_generator.hpp
