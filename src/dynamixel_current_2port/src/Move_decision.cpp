@@ -129,7 +129,7 @@ bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req
 void Move_Decision::startMode()
 {
     // emergency_ = 0;
-    Emergency(emergency_);
+    EmergencyPublish(emergency_);
 }
 
 
@@ -142,12 +142,12 @@ void Move_Decision::startMode()
 //Emergency Stop
 //0 : Stop
 //1 : Keep Going (Option)
-void Move_Decision::Emergency(bool _Emergency)
+void Move_Decision::EmergencyPublish(bool _Emergency)
 {
     std_msgs::Bool emergency;
     emergency.data = _Emergency;
 
     Emergency_pub_.publish(emergency);
-    ROS_INFO("%d",emergency);
+    // ROS_INFO("%d",emergency);
 }
 

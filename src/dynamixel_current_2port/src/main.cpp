@@ -6,6 +6,9 @@
 #include "Walkingpattern_generator.hpp"
 #include "sensor.hpp"
 
+#include "dynamixel_current_2port/Select_Motion.h"
+#include "dynamixel_current_2port/Turn_Angle.h"
+
 Dxl dxl;
 Dxl_Controller dxl_ctrl;
 Motions motion;
@@ -36,6 +39,7 @@ int main(int argc, char **argv)
     ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
     ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
     ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
+
     joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
     joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, &callback);
     FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, &callback);
@@ -45,19 +49,14 @@ int main(int argc, char **argv)
 
 
     //Client (재민이형 코드에 들어감)
-    ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("Select_Motion");
-    ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("Turn_Angle");
+    ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
+    ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
 
     dynamixel_current_2port::Select_Motion srv_SM;
     dynamixel_current_2port::Turn_Angle srv_TA;
 
-    srv_SM.request.finish = 1;
-    srv_TA.request.finish = 1;
-
     // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
     // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
-
-
 
     // ros::waitForShutdown(); // Multi-threaded spinning
 
@@ -67,7 +66,18 @@ int main(int argc, char **argv)
 
     while (ros::ok())
     {
-        
+
+        cout << "finish : ";
+        cin >> srv_SM.request.finish;
+        ROS_INFO("TRY TO REQUEST....");
+        if (client_SM.call(srv_SM))
+        {
+            ROS_INFO("select_motion : %d",srv_SM.response.select_motion);
+        }
+
+
+        ros::spinOnce();
+        loop_rate.sleep();
 
         // About joint msg
         //         sensor_msgs::JointState msg;
@@ -105,8 +115,6 @@ int main(int argc, char **argv)
         //  fprintf(imu_gyro, "%d %.lf %.lf %.lf\n",t, callback.Gyro(0),callback.Gyro(1),callback.Gyro(2));
 
 
-        ros::spinOnce();
-        loop_rate.sleep();
     }
 
     

@@ -16,8 +16,7 @@
 
 
 #include "Walkingpattern_generator.hpp"
-#include "dynamixel_current_2port/Select_Motion.h"
-#include "dynamixel_current_2port/Turn_Angle.h"
+
 
 using Eigen::VectorXd;
 
@@ -45,6 +44,8 @@ public:
   // ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
   // ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
   // ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
+
+
 
   // Variable
   VectorXd Goal_joint_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);

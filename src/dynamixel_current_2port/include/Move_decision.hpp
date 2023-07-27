@@ -61,7 +61,7 @@ public:
     void startMode();
     // void stopMode();
     // void playMotion(float motion_index);
-    void Emergency(bool emergency_);
+    void EmergencyPublish(bool emergency_);
 
     bool playMotion(dynamixel_current_2port::Select_Motion::Request &req, dynamixel_current_2port::Select_Motion::Response &res);
     bool turn_angle(dynamixel_current_2port::Turn_Angle::Request &req, dynamixel_current_2port::Turn_Angle::Response &res);

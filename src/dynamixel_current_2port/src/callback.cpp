@@ -108,7 +108,8 @@ void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
 
 void Callback::Emergencycallback(const std_msgs::Bool &msg)
 {
-    ROS_INFO("%d", msg.data);
+    // ROS_INFO("%d", msg.data);
+    // std::cout << 11111 << std::endl;
 }
 
 // void Callback::SelectMotion(const std_msgs::Float32Ptr &msg)
