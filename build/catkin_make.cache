@@ -1,2 +1,0 @@
-dynamixel_current_2port
--DCATKIN_WHITELIST_PACKAGES= -DCATKIN_DEVEL_PREFIX=/home/woojin/dynamixel_current/dynamixel_current_2port/devel -DCMAKE_INSTALL_PREFIX=/home/woojin/dynamixel_current/dynamixel_current_2port/install -G Unix Makefiles
