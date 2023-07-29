@@ -27,7 +27,7 @@ Move_Decision::~Move_Decision()
 
 void Move_Decision::process()
 {
-    
+    Set_turn_angle_(5);
 }
 
 

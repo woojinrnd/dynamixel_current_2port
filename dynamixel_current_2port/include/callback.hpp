@@ -26,7 +26,11 @@ using Eigen::VectorXd;
 class Callback
 {
 public:
-  Callback();
+  // Callback();
+  Callback(Motions *motionPtr);
+  Motions *motionPtr;
+
+  
   ros::NodeHandle nh;
   // Function
   virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
@@ -35,31 +39,32 @@ public:
   
   // virtual void SelectMotion(const std_msgs::UInt8::ConstPtr &msg);
 
+  virtual void MotionMaker();
+  virtual void Write_Leg_Theta();
+  virtual void Write_Arm_Theta();
+
+
+
+  //Callback Thread
+
   // Client (재민이형 코드에 들어감)
   ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
   ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
 
   dynamixel_current_2port::Select_Motion srv_SM;
   dynamixel_current_2port::Turn_Angle srv_TA;
-  int8_t res_mode = srv_SM.response.select_motion;
+  int8_t res_angle = srv_TA.response.turn_angle;
+
   virtual void SelectMotion();
 
-
-
-
-  virtual void MotionMaker();
-  virtual void Write_Leg_Theta();
-  virtual void Write_Arm_Theta();
-
-  //Callback Thread
-  // virtual void callbackThread();
+  virtual void callbackThread();
   virtual void Emergencycallback(const std_msgs::Bool &msg);
-  // ros::Publisher joint_state_publisher_; ///< Publishes joint states from reads
-  // ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
-  // ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
-  // ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
-  // ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
-  // ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
+  ros::Publisher joint_state_publisher_; ///< Publishes joint states from reads
+  ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
+  ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
+  ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
+  ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
+  ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
 
 
 

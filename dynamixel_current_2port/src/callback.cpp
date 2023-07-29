@@ -1,13 +1,14 @@
 #include "callback.hpp"
 
 extern Dxl dxl;
-extern Motions motion;
+// extern Motions motion;
 
-Callback::Callback()
+// Callback::callback()
+Callback::Callback(Motions *motionPtr) : motionPtr(motionPtr)
 {
-    // ros::NodeHandle nh(ros::this_node::getName());
+    ros::NodeHandle nh(ros::this_node::getName());
 
-    // boost::thread queue_thread = boost::thread(boost::bind(&Callback::callbackThread, this));
+    boost::thread queue_thread = boost::thread(boost::bind(&Callback::callbackThread, this));
 }
 
 sensor_msgs::JointState joint_state;
@@ -51,61 +52,58 @@ void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
     quaternion(3) = IMU->orientation.w;
 }
 
-// void Callback::callbackThread()
-// {
-//     ros::NodeHandle nh(ros::this_node::getName());
+void Callback::callbackThread()
+{
+    ros::NodeHandle nh(ros::this_node::getName());
 
-//     // joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
-//     // joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, this);
-//     // FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, this);
-//     // FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, this);
-//     // IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, this);
-//     // Emergency_subscriber_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergencycallback, this);
+    joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
+    joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, this);
+    FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, this);
+    FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, this);
+    IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, this);
+    Emergency_subscriber_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergencycallback, this);
 
-//     // //Client (재민이형 코드에 들어감)
-//     // ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("Select_Motion");
-//     // ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("Turn_Angle");
+    srv_SM.request.finish = 1;
+    srv_TA.request.finish = 1;
 
-//     // dynamixel_current_2port::Select_Motion srv_SM;
-//     // dynamixel_current_2port::Turn_Angle srv_TA;
+    ros::Rate loop_rate(1);
+    while (nh.ok())
+    {
+        // startMode();
+        if (client_SM.call(srv_SM))
+        {
+            ROS_INFO("#[MESSAGE] SM Request : %d#", srv_SM.request.finish);
+            ROS_INFO("[MESSAGE] SM Response : %d", srv_SM.response.select_motion);
+            SelectMotion();
+        }
+        else
+        {
+            ROS_ERROR("Failed to call service");
+        }
 
-//     // srv_SM.request.finish = 1;
-//     // srv_TA.request.finish = 1;
+        // if (client_TA.call(srv_TA))
+        // {
+        //     ROS_INFO("#[MESSAGE] TA Request : %d#", srv_TA.request.finish);
+        //     ROS_INFO("[MESSAGE] TA Response : %d", srv_TA.response.turn_angle);
+        // }
+        // else
+        // {
+        //     ROS_ERROR("Failed to call service");
+        // }
 
-//     ros::Rate loop_rate(1);
-//     while (nh.ok())
-//     {
-//         // startMode();
-//         if (client_SM.call(srv_SM))
-//         {
-//             ROS_INFO("#Motion# Service call success!");
-//             ROS_INFO("Response: %d", srv_SM.response.select_motion);
-//         }
-//         else
-//         {
-//             ROS_ERROR("Failed to call service");
-//         }
-
-//         if (client_TA.call(srv_TA))
-//         {
-//             ROS_INFO("#Angle# Service call success!");
-//             ROS_INFO("Response: %d", srv_TA.response.turn_angle);
-//         }
-//         else
-//         {
-//             ROS_ERROR("Failed to call service");
-//         }
-
-//         ros::spinOnce();
-//         loop_rate.sleep();
-//         //usleep(1000);
-//     }
-// }
+        ros::spinOnce();
+        loop_rate.sleep();
+        // usleep(1000);
+    }
+}
 
 void Callback::Emergencycallback(const std_msgs::Bool &msg)
 {
     // ROS_INFO("%d", msg.data);
-    // std::cout << 11111 << std::endl;
+    if (msg.data == false)
+    {
+        ROS_ERROR("Emergency");
+    }
 }
 
 // About Subscribe
@@ -171,97 +169,101 @@ void Callback::Emergencycallback(const std_msgs::Bool &msg)
 // About Client Callback
 void Callback::SelectMotion()
 {
-    mode = res_mode;
-    ROS_INFO("mode(%d)", mode);
-    if (mode == 0)
+    if (client_SM.call(srv_SM))
     {
-        RL_motion = RL_motion0;
-        LL_motion = LL_motion0;
-    }
-    else if (mode == 1)
-    {
-        indext = 0;
-        RL_motion = RL_motion1;
-        LL_motion = LL_motion1;
-    }
-    else if (mode == 2)
-    {
-        indext = 0;
-        RL_motion = RL_motion2;
-        LL_motion = LL_motion2;
-    }
-    else if (mode == 3)
-    {
-        indext = 0;
-        RL_motion = RL_motion3;
-        LL_motion = LL_motion3;
-    }
-    else if (mode == 4)
-    {
-        indext = 0;
-        RL_motion = RL_motion4;
-        LL_motion = LL_motion4;
-    }
-    else if (mode == 5)
-    {
-        indext = 0;
-        RL_motion = RL_motion5;
-        LL_motion = LL_motion5;
-    }
-    else if (mode == 6)
-    {
-        indext = 0;
-        RL_motion = RL_motion6;
-        LL_motion = LL_motion6;
-    }
-    else if (mode == 7)
-    {
-        indext = 0;
-        RL_motion = RL_motion7;
-        LL_motion = LL_motion7;
-    }
-    else
-    {
-        indext = 0;
-        RL_motion = RL_motion0;
-        LL_motion = LL_motion0;
+        int8_t res_mode = srv_SM.response.select_motion;
+        mode = res_mode;
+        ROS_INFO("mode(%d)", mode);
+        if (mode == 0)
+        {
+            RL_motion = RL_motion0;
+            LL_motion = LL_motion0;
+        }
+        else if (mode == 1)
+        {
+            indext = 0;
+            RL_motion = RL_motion1;
+            LL_motion = LL_motion1;
+        }
+        else if (mode == 2)
+        {
+            indext = 0;
+            RL_motion = RL_motion2;
+            LL_motion = LL_motion2;
+        }
+        else if (mode == 3)
+        {
+            indext = 0;
+            RL_motion = RL_motion3;
+            LL_motion = LL_motion3;
+        }
+        else if (mode == 4)
+        {
+            indext = 0;
+            RL_motion = RL_motion4;
+            LL_motion = LL_motion4;
+        }
+        else if (mode == 5)
+        {
+            indext = 0;
+            RL_motion = RL_motion5;
+            LL_motion = LL_motion5;
+        }
+        else if (mode == 6)
+        {
+            indext = 0;
+            RL_motion = RL_motion6;
+            LL_motion = LL_motion6;
+        }
+        else if (mode == 7)
+        {
+            indext = 0;
+            RL_motion = RL_motion7;
+            LL_motion = LL_motion7;
+        }
+        else
+        {
+            indext = 0;
+            RL_motion = RL_motion0;
+            LL_motion = LL_motion0;
+        }
     }
 }
 
 void Callback::MotionMaker()
 {
 
-    motion.Motion0();
-    LL_motion0 = motion.Return_Motion0_LL();
-    RL_motion0 = motion.Return_Motion0_RL();
+    motionPtr->Motion0();
+    LL_motion0 = motionPtr->Return_Motion0_LL();
+    RL_motion0 = motionPtr->Return_Motion0_RL();
 
-    motion.Motion1();
-    LL_motion1 = motion.Return_Motion1_LL();
-    RL_motion1 = motion.Return_Motion1_RL();
+    motionPtr->Motion1();
+    LL_motion1 = motionPtr->Return_Motion1_LL();
+    RL_motion1 = motionPtr->Return_Motion1_RL();
 
-    motion.Motion2();
-    LL_motion2 = motion.Return_Motion2_LL();
-    RL_motion2 = motion.Return_Motion2_RL();
+    motionPtr->Motion2();
+    LL_motion2 = motionPtr->Return_Motion2_LL();
+    RL_motion2 = motionPtr->Return_Motion2_RL();
 
-    motion.Motion3();
-    LL_motion3 = motion.Return_Motion3_LL();
-    RL_motion3 = motion.Return_Motion3_RL();
+    motionPtr->Motion3();
+    LL_motion3 = motionPtr->Return_Motion3_LL();
+    RL_motion3 = motionPtr->Return_Motion3_RL();
 
-    motion.Motion4();
-    LL_motion4 = motion.Return_Motion4_LL();
-    RL_motion4 = motion.Return_Motion4_RL();
+    motionPtr->Motion4();
+    LL_motion4 = motionPtr->Return_Motion4_LL();
+    RL_motion4 = motionPtr->Return_Motion4_RL();
 
-    motion.Motion5();
-    LL_motion5 = motion.Return_Motion5_LL();
-    RL_motion5 = motion.Return_Motion5_RL();
+    motionPtr->Motion5();
+    LL_motion5 = motionPtr->Return_Motion5_LL();
+    RL_motion5 = motionPtr->Return_Motion5_RL();
 
-    motion.Motion6();
-    LL_motion6 = motion.Return_Motion6_LL();
-    RL_motion6 = motion.Return_Motion6_RL();
+    motionPtr->Motion6();
+    LL_motion6 = motionPtr->Return_Motion6_LL();
+    RL_motion6 = motionPtr->Return_Motion6_RL();
 
-    motion.Motion7();
-    LL_motion7 = motion.Return_Motion7_LL();
-    RL_motion7 = motion.Return_Motion7_RL();
+    motionPtr->Motion7();
+    LL_motion7 = motionPtr->Return_Motion7_LL();
+    RL_motion7 = motionPtr->Return_Motion7_RL();
 
     LL_motion = LL_motion0;
     RL_motion = RL_motion0;
@@ -311,7 +313,7 @@ void Callback::Write_Leg_Theta()
     // {
     // indext += 1;
     // }
-    // if (indext >= RL_motion.rows() - 1)
+    // if (indext >= RL_motionPtr->rows() - 1)
     // {
     //     if (L_value > 1 && R_value > 1)
     //         indext = 0

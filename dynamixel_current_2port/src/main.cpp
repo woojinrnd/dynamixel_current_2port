@@ -1,5 +1,3 @@
-#include <iostream>
-#include <time.h>
 #include "dynamixel.hpp"
 #include "callback.hpp"
 #include "dynamixel_controller.hpp"
@@ -11,8 +9,7 @@
 
 Dxl dxl;
 Dxl_Controller dxl_ctrl;
-Motions motion;
-// Callback callback;
+// Motions motion;
 
 FILE *imu_accel;
 FILE *imu_gyro;
@@ -23,8 +20,10 @@ int main(int argc, char **argv)
     ros::Time::init();
     ros::Rate loop_rate(1);
     ros::NodeHandle nh;
-    Sensor sensor;
-    Callback callback;
+    // Sensor sensor;
+
+    Motions motion;
+    Callback callback(&motion);
 
 
     // ros::AsyncSpinner spinner(0); // Multi-threaded spinning
@@ -35,19 +34,19 @@ int main(int argc, char **argv)
     //  imu_accel = fopen("/home/woojin/imu_Accel_0613_(1).dat", "w");
     //  imu_gyro = fopen("/home/woojin/imu_gyro1_0613_(1).dat", "w");
 
-    ros::Publisher joint_state_publisher_; ///< Publishes joint states from reads
-    ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
-    ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
-    ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
-    ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
-    ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
+    // ros::Publisher joint_state_publisher_; ///< Publishes joint states from reads
+    // ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
+    // ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
+    // ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
+    // ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
+    // ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
 
-    joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
-    joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, &callback);
-    FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, &callback);
-    FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, &callback);
-    IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, &callback);
-    Emergency_subscriber_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergencycallback, &callback);
+    // joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
+    // joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, &callback);
+    // FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, &callback);
+    // FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, &callback);
+    // IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, &callback);
+    // Emergency_subscriber_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergencycallback, &callback);
 
 
     // //Client (재민이형 코드에 들어감)
@@ -61,9 +60,6 @@ int main(int argc, char **argv)
 
     // ros::waitForShutdown(); // Multi-threaded spinning
 
-    callback.srv_SM.request.finish = 1;
-
-
     struct timespec start, end;
     double run_time;
     clock_gettime(CLOCK_REALTIME, &start); // Wall-clock time
@@ -71,16 +67,17 @@ int main(int argc, char **argv)
     while (ros::ok())
     {
 
-        if (callback.client_SM.call(callback.srv_SM))
-        {
-            ROS_INFO("#[MESSAGE] SM Request : %d#",  callback.srv_SM.request.finish);
-            ROS_INFO("[MESSAGE] SM Response : %d", callback.srv_SM.response.select_motion);
-        }
-        else
-        {
-            ROS_INFO("Response Wait...");
-        }
-        callback.SelectMotion();
+        // if (callback.client_SM.call(callback.srv_SM))
+        // {
+        //     ROS_INFO("#[MESSAGE] SM Request : %d#",  callback.srv_SM.request.finish);
+        //     ROS_INFO("[MESSAGE] SM Response : %d", callback.srv_SM.response.select_motion);
+        //     callback.SelectMotion();
+
+        // }
+        // else
+        // {
+        //     ROS_INFO("Response Wait...");
+        // }
         
 
 
