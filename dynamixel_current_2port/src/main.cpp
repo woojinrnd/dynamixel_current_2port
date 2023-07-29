@@ -12,7 +12,7 @@
 Dxl dxl;
 Dxl_Controller dxl_ctrl;
 Motions motion;
-Callback callback;
+// Callback callback;
 
 FILE *imu_accel;
 FILE *imu_gyro;
@@ -21,9 +21,11 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "daynmixel_current_2port");
     ros::Time::init();
-    ros::Rate loop_rate(500);
+    ros::Rate loop_rate(1);
     ros::NodeHandle nh;
     Sensor sensor;
+    Callback callback;
+
 
     // ros::AsyncSpinner spinner(0); // Multi-threaded spinning
     // spinner.start(); // Multi-threaded spinning
@@ -48,17 +50,19 @@ int main(int argc, char **argv)
     Emergency_subscriber_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergencycallback, &callback);
 
 
-    //Client (재민이형 코드에 들어감)
-    ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
-    ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
+    // //Client (재민이형 코드에 들어감)
+    // ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
+    // ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
 
-    dynamixel_current_2port::Select_Motion srv_SM;
-    dynamixel_current_2port::Turn_Angle srv_TA;
 
-    // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
+
+    ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
     // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
 
     // ros::waitForShutdown(); // Multi-threaded spinning
+
+    callback.srv_SM.request.finish = 1;
+
 
     struct timespec start, end;
     double run_time;
@@ -66,6 +70,20 @@ int main(int argc, char **argv)
 
     while (ros::ok())
     {
+
+        if (callback.client_SM.call(callback.srv_SM))
+        {
+            ROS_INFO("#[MESSAGE] SM Request : %d#",  callback.srv_SM.request.finish);
+            ROS_INFO("[MESSAGE] SM Response : %d", callback.srv_SM.response.select_motion);
+        }
+        else
+        {
+            ROS_INFO("Response Wait...");
+        }
+        callback.SelectMotion();
+        
+
+
 
         ros::spinOnce();
         loop_rate.sleep();

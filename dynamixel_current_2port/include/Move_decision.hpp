@@ -8,7 +8,7 @@
 #include <boost/thread.hpp>
 #include <std_msgs/Bool.h>
 #include <sensor_msgs/Imu.h>
-
+// #include <mutex>
 
 
 #include "dynamixel_current_2port/Select_Motion.h"
@@ -54,6 +54,7 @@ public:
 
 
 
+
 // ********************************************** PROCESS THREAD************************************************** //
 
     void process();
@@ -68,6 +69,7 @@ public:
 
 
 // ********************************************** MoveDecision THREAD ************************************************** //
+    
     void Running_Mode_Decision();
     void MoveDecisionThread();
 
@@ -96,6 +98,10 @@ public:
     ros::ServiceServer motion_index_server_;
     ros::ServiceServer turn_angle_server_;
 
+    //srv
+    dynamixel_current_2port::Select_Motion srv_SM;
+    dynamixel_current_2port::Turn_Angle srv_TA;
+
 // ********************************************** FUNCTION ************************************************** //
     
     Eigen::Vector3d convertRotationToRPY(const Eigen::Matrix3d& rotation);
@@ -109,6 +115,11 @@ public:
     int8_t Get_stand_status_() const;
     int8_t Get_running_mode_() const;
     int8_t Get_turn_angle_() const;
+    
+    bool Get_ProcessON() const;
+    bool Get_MoveDecisionON() const;
+    bool Get_CallbackON() const;
+
 
 
 // ********************************************** SETTERS ************************************************** //
@@ -119,6 +130,9 @@ public:
     void Set_running_mode_(int8_t running_mode_);
     void Set_turn_angle_(int8_t turn_angle_);
 
+    void Set_ProcessON(bool ProcessON_);
+    void Set_MoveDecisionON(bool MoveDecisionON_);
+    void Set_CallbackON(bool CallbackON_);
 
 
 // ********************************************** IMG_PROC ************************************************** //
@@ -132,6 +146,7 @@ private:
     const double FALL_BACK_LIMIT;
     const int SPIN_RATE;
 
+    boost::mutex motion_index_mutex_;
     int8_t motion_index_; 
     int8_t stand_status_;
     int8_t running_mode_;
@@ -142,6 +157,13 @@ private:
     double present_roll_;
     
     bool Emergency_;
+
+    /// Thread switch ///
+    bool ProcessON_;
+    bool MoveDecisionON_;
+    bool CallbackON_;
+
+
 
 };
 

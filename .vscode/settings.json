@@ -6,5 +6,8 @@
     "python.analysis.extraPaths": [
         "/home/woojin/dynamixel_current/dynamixel_current_2port/devel/lib/python3/dist-packages",
         "/opt/ros/noetic/lib/python3/dist-packages"
-    ]
+    ],
+    "files.associations": {
+        "random": "cpp"
+    }
 }

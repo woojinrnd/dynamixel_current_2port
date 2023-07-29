@@ -1,7 +1,5 @@
 #include "sensor.hpp"
 
-
-
 // Low Pass Filter
 // x_k     input value
 // y_pre   previous filtered value

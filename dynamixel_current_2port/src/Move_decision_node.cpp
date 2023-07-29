@@ -6,7 +6,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "Move_decision");
     ros::Time::init();
-    ros::Rate loop_rate(500);
+    ros::Rate loop_rate(1);
     ros::NodeHandle nh;
     Move_Decision move_decision;
 

@@ -36,7 +36,7 @@ void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
     IMU->linear_acceleration.x, IMU->linear_acceleration.y, IMU->linear_acceleration.z,
         IMU->angular_velocity.x, IMU->angular_velocity.y, IMU->angular_velocity.z,
         IMU->orientation.x, IMU->orientation.y, IMU->orientation.z, IMU->orientation.w;
-    
+
     Accel(0) = IMU->linear_acceleration.x;
     Accel(1) = IMU->linear_acceleration.y;
     Accel(2) = IMU->linear_acceleration.z;
@@ -45,14 +45,11 @@ void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
     Gyro(1) = IMU->angular_velocity.y;
     Gyro(2) = IMU->angular_velocity.z;
 
-
     quaternion(0) = IMU->orientation.x;
     quaternion(1) = IMU->orientation.y;
     quaternion(2) = IMU->orientation.z;
     quaternion(3) = IMU->orientation.w;
-   
 }
-
 
 // void Callback::callbackThread()
 // {
@@ -64,7 +61,6 @@ void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
 //     // FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, this);
 //     // IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, this);
 //     // Emergency_subscriber_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergencycallback, this);
-
 
 //     // //Client (재민이형 코드에 들어감)
 //     // ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("Select_Motion");
@@ -89,7 +85,7 @@ void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
 //         {
 //             ROS_ERROR("Failed to call service");
 //         }
-        
+
 //         if (client_TA.call(srv_TA))
 //         {
 //             ROS_INFO("#Angle# Service call success!");
@@ -112,67 +108,128 @@ void Callback::Emergencycallback(const std_msgs::Bool &msg)
     // std::cout << 11111 << std::endl;
 }
 
-// void Callback::SelectMotion(const std_msgs::Float32Ptr &msg)
-// {
-//     mode = msg ->data;
-//     ROS_INFO("mode(%f)",mode);
-//     if (mode == 0)
-//     {
-//         RL_motion = RL_motion0;
-//         LL_motion = LL_motion0;
-//     }
-//     else if (mode == 1)
-//     {
-//         indext = 0;
-//         RL_motion = RL_motion1;
-//         LL_motion = LL_motion1;
-//     }
-//     else if (mode == 2)
-//     {
-//         indext = 0;
-//         RL_motion = RL_motion2;
-//         LL_motion = LL_motion2;
-//     }
-//     else if (mode == 3)
-//     {
-//         indext = 0;
-//         RL_motion = RL_motion3;
-//         LL_motion = LL_motion3;
-//     }
-//     else if (mode == 4)
-//     {
-//         indext = 0;
-//         RL_motion = RL_motion4;
-//         LL_motion = LL_motion4;
-//     }
-//     else if (mode == 5)
-//     {
-//         indext = 0;
-//         RL_motion = RL_motion5;
-//         LL_motion = LL_motion5;
-//     }
-//     else if (mode == 6)
-//     {
-//         indext = 0;
-//         RL_motion = RL_motion6;
-//         LL_motion = LL_motion6;
-//     }
-//     else if (mode == 7)
-//     {
-//         indext = 0;
-//         RL_motion = RL_motion7;
-//         LL_motion = LL_motion7;
-//     }
-//     else
-//     {
-//         indext = 0;
-//         RL_motion = RL_motion0;
-//         LL_motion = LL_motion0;
-//     }
-// }
+// About Subscribe
+//  void Callback::SelectMotion(const std_msgs::UInt8::ConstPtr &msg)
+//  {
+//      mode = msg ->data;
+//      ROS_INFO("mode(%f)",mode);
+//      if (mode == 0)
+//      {
+//          RL_motion = RL_motion0;
+//          LL_motion = LL_motion0;
+//      }
+//      else if (mode == 1)
+//      {
+//          indext = 0;
+//          RL_motion = RL_motion1;
+//          LL_motion = LL_motion1;
+//      }
+//      else if (mode == 2)
+//      {
+//          indext = 0;
+//          RL_motion = RL_motion2;
+//          LL_motion = LL_motion2;
+//      }
+//      else if (mode == 3)
+//      {
+//          indext = 0;
+//          RL_motion = RL_motion3;
+//          LL_motion = LL_motion3;
+//      }
+//      else if (mode == 4)
+//      {
+//          indext = 0;
+//          RL_motion = RL_motion4;
+//          LL_motion = LL_motion4;
+//      }
+//      else if (mode == 5)
+//      {
+//          indext = 0;
+//          RL_motion = RL_motion5;
+//          LL_motion = LL_motion5;
+//      }
+//      else if (mode == 6)
+//      {
+//          indext = 0;
+//          RL_motion = RL_motion6;
+//          LL_motion = LL_motion6;
+//      }
+//      else if (mode == 7)
+//      {
+//          indext = 0;
+//          RL_motion = RL_motion7;
+//          LL_motion = LL_motion7;
+//      }
+//      else
+//      {
+//          indext = 0;
+//          RL_motion = RL_motion0;
+//          LL_motion = LL_motion0;
+//      }
+//  }
 
-void Callback::MotionMaker(){
-    
+// About Client Callback
+void Callback::SelectMotion()
+{
+    mode = res_mode;
+    ROS_INFO("mode(%d)", mode);
+    if (mode == 0)
+    {
+        RL_motion = RL_motion0;
+        LL_motion = LL_motion0;
+    }
+    else if (mode == 1)
+    {
+        indext = 0;
+        RL_motion = RL_motion1;
+        LL_motion = LL_motion1;
+    }
+    else if (mode == 2)
+    {
+        indext = 0;
+        RL_motion = RL_motion2;
+        LL_motion = LL_motion2;
+    }
+    else if (mode == 3)
+    {
+        indext = 0;
+        RL_motion = RL_motion3;
+        LL_motion = LL_motion3;
+    }
+    else if (mode == 4)
+    {
+        indext = 0;
+        RL_motion = RL_motion4;
+        LL_motion = LL_motion4;
+    }
+    else if (mode == 5)
+    {
+        indext = 0;
+        RL_motion = RL_motion5;
+        LL_motion = LL_motion5;
+    }
+    else if (mode == 6)
+    {
+        indext = 0;
+        RL_motion = RL_motion6;
+        LL_motion = LL_motion6;
+    }
+    else if (mode == 7)
+    {
+        indext = 0;
+        RL_motion = RL_motion7;
+        LL_motion = LL_motion7;
+    }
+    else
+    {
+        indext = 0;
+        RL_motion = RL_motion0;
+        LL_motion = LL_motion0;
+    }
+}
+
+void Callback::MotionMaker()
+{
 
     motion.Motion0();
     LL_motion0 = motion.Return_Motion0_LL();
@@ -208,22 +265,21 @@ void Callback::MotionMaker(){
 
     LL_motion = LL_motion0;
     RL_motion = RL_motion0;
-
-
 }
 
-void Callback::Write_Leg_Theta(){
+void Callback::Write_Leg_Theta()
+{
 
     ////////////////////////////////////////////////////////////////////
-    All_Theta[0] = RL_motion(indext, 0); //Right Waist
-    All_Theta[1] = RL_motion(indext, 1) - 2 * DEG2RAD;//Left Waist
-    All_Theta[2] = RL_motion(indext, 2) -  10.74 * DEG2RAD;//Right Waist
-    All_Theta[3] = -RL_motion(indext, 3) + 38.34 * DEG2RAD;//Left
-    All_Theta[4] = -RL_motion(indext, 4) +24.22 * DEG2RAD;
+    All_Theta[0] = RL_motion(indext, 0);                    // Right Waist
+    All_Theta[1] = RL_motion(indext, 1) - 2 * DEG2RAD;      // Left Waist
+    All_Theta[2] = RL_motion(indext, 2) - 10.74 * DEG2RAD;  // Right Waist
+    All_Theta[3] = -RL_motion(indext, 3) + 38.34 * DEG2RAD; // Left
+    All_Theta[4] = -RL_motion(indext, 4) + 24.22 * DEG2RAD;
     All_Theta[5] = -RL_motion(indext, 5);
     All_Theta[6] = LL_motion(indext, 0);
     All_Theta[7] = LL_motion(indext, 1);
-    All_Theta[8] = -LL_motion(indext, 2) +  10.74 * DEG2RAD;
+    All_Theta[8] = -LL_motion(indext, 2) + 10.74 * DEG2RAD;
     All_Theta[9] = LL_motion(indext, 3) - 38.34 * DEG2RAD;
     All_Theta[10] = LL_motion(indext, 4) - 24.22 * DEG2RAD;
     All_Theta[11] = -LL_motion(indext, 5);
@@ -264,18 +320,19 @@ void Callback::Write_Leg_Theta(){
     //     else
     //         indext = indext - 1;
     // }
-       indext = 843;
+    indext = 843;
     // indext = 1181;
     // indext += 1;
     if (indext >= RL_motion.rows() - 1)
     {
-    indext = 0;
-    RL_motion = RL_motion0;
-    LL_motion = LL_motion0;
+        indext = 0;
+        RL_motion = RL_motion0;
+        LL_motion = LL_motion0;
     }
 }
 
-void Callback::Write_Arm_Theta(){
+void Callback::Write_Arm_Theta()
+{
     All_Theta[12] = 0; // 허리
     All_Theta[13] = -90 * DEG2RAD;
     All_Theta[14] = 90 * DEG2RAD;
@@ -286,5 +343,3 @@ void Callback::Write_Arm_Theta(){
     All_Theta[19] = 0 * DEG2RAD;
     All_Theta[20] = 0 * DEG2RAD;
 }
-
-

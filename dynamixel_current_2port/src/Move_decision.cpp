@@ -4,9 +4,8 @@
 Move_Decision::Move_Decision()
     : FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(500),
+      SPIN_RATE(1),
       stand_status_(Stand_Status::Stand),
-      running_mode_(Running_Mode::LINE_MODE),
       motion_index_(Motion_Index::InitPose),
       stop_fallen_check_(false),
       Emergency_(1)
@@ -15,8 +14,9 @@ Move_Decision::Move_Decision()
     ros::NodeHandle nh(ros::this_node::getName());
 
     boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
-    boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
     boost::thread move_thread = boost::thread(boost::bind(&Move_Decision::MoveDecisionThread, this));
+    boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
+
 }
 
 Move_Decision::~Move_Decision()
@@ -29,7 +29,6 @@ void Move_Decision::process()
 {
     
 }
-
 
 
 
@@ -48,6 +47,110 @@ void Move_Decision::processThread()
     }
 }
 
+
+// ********************************************** MoveDecision THREAD ************************************************** //
+
+void Move_Decision::MoveDecisionThread()
+{
+  // set node loop rate
+  ros::Rate loop_rate(SPIN_RATE);
+
+  // node loop
+  while (ros::ok())
+  {
+        // relax to fit output rate
+        loop_rate.sleep();
+  }
+}
+
+void Move_Decision::Running_Mode_Decision()
+{
+    if (running_mode_ == WAKEUP_MODE || stand_status_== Fallen_Forward || stand_status_== Fallen_Back)
+    {
+    running_mode_ = WAKEUP_MODE;
+    }
+
+    else if (running_mode_ != WAKEUP_MODE)
+    {
+        if (goal_line_det_flg && line_det_flg) // goal_line_detect_flg is true: goal_line detection mode
+        {
+                running_mode_ = GOAL_MODE;
+        }
+        else if (no_line_det_flg)
+        {
+                running_mode_ = NO_LINE_MODE;
+        }
+        else if (line_det_flg)
+        {
+                running_mode_ = LINE_MODE;
+        }
+    }
+
+    switch (running_mode_)
+    {
+    case LINE_MODE:
+        LINE_mode();
+        break;
+    case NO_LINE_MODE:
+        NOLINE_mode();
+        break;
+    case STOP_MODE:
+        STOP_mode();
+        break;
+    case WAKEUP_MODE:
+        WAKEUP_mode();
+        break;
+    case GOAL_MODE:
+        GOAL_LINE_mode();
+        break;
+    case HUDDLE_MODE:
+        HUDDLE_mode();
+        break;
+    case WALL_MODE:
+        WALL_mode();
+        break;
+    }
+
+    running_mode_ = Running_Mode::LINE_MODE;
+}
+
+
+void Move_Decision::LINE_mode()
+{
+    Set_motion_index_(Motion_Index::Right_2step);
+    srv_SM.response.select_motion = Motion_Index::Right_2step;
+}
+
+void Move_Decision::NOLINE_mode()
+{
+    
+}
+
+void Move_Decision::STOP_mode()
+{
+    
+}
+
+void Move_Decision::WAKEUP_mode()
+{
+    
+}
+
+void Move_Decision::GOAL_LINE_mode()
+{
+    
+}
+
+void Move_Decision::HUDDLE_mode()
+{
+    
+}
+
+void Move_Decision::WALL_mode()
+{
+    
+}
+
 // ********************************************** CALLBACK THREAD ************************************************** //
 
 void Move_Decision::callbackThread()
@@ -63,10 +166,11 @@ void Move_Decision::callbackThread()
     motion_index_server_ = nh.advertiseService("Select_Motion", &Move_Decision::playMotion, this);
     turn_angle_server_ = nh.advertiseService("Turn_Angle", &Move_Decision::turn_angle, this);
 
-    ros::Rate loop_rate(100);
+    ros::Rate loop_rate(1);
     while (nh.ok())
     {
         startMode();
+        Running_Mode_Decision();
 
         ros::spinOnce();
         loop_rate.sleep();
@@ -108,8 +212,8 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
         }
     }
 
-    ROS_INFO("[MESSAGE] SM Request : %d ", req.finish);
-    ROS_INFO("[MESSAGE] SM Response : %d", res.select_motion);
+    ROS_INFO("[MESSAGE] SM Request :   %d ", req.finish);
+    ROS_INFO("#[MESSAGE] SM Response : %d#", res.select_motion);
     return true;
 }
 
@@ -121,8 +225,8 @@ bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req
         res.turn_angle = Get_turn_angle_();
     }
 
-    ROS_INFO("[MESSAGE] TA Request : %d ", req.finish);
-    ROS_INFO("[MESSAGE] TA Response : %d", res.turn_angle);
+    ROS_INFO("[MESSAGE] TA Request :   %d ", req.finish);
+    ROS_INFO("#[MESSAGE] TA Response : %d#", res.turn_angle);
     return true;
 }
 
@@ -131,6 +235,7 @@ void Move_Decision::startMode()
 {
     bool send_emergency = Get_Emergency_();
     EmergencyPublish(send_emergency);
+    Set_motion_index_(Motion_Index::InitPose);
 }
 
 
@@ -185,108 +290,6 @@ void Move_Decision::imuDataCallback(const sensor_msgs::Imu::ConstPtr& msg)
 
 
 
-// ********************************************** MoveDecision THREAD ************************************************** //
-void Move_Decision::MoveDecisionThread()
-{
-  // set node loop rate
-  ros::Rate loop_rate(SPIN_RATE);
-
-  // node loop
-  while (ros::ok())
-  {
-    Running_Mode_Decision();
-
-    // relax to fit output rate
-    loop_rate.sleep();
-  }
-}
-
-
-
-
-void Move_Decision::Running_Mode_Decision()
-{
-    if (running_mode_ == WAKEUP_MODE || stand_status_== Fallen_Forward || stand_status_== Fallen_Back)
-    {
-    running_mode_ = WAKEUP_MODE;
-    }
-    else if (running_mode_ != WAKEUP_MODE)
-    {
-        if (goal_line_det_flg && line_det_flg) // goal_line_detect_flg is true: goal_line detection mode
-        {
-                running_mode_ = GOAL_MODE;
-        }
-        else if (no_line_det_flg)
-        {
-                running_mode_ = NO_LINE_MODE;
-        }
-        else if (line_det_flg)
-        {
-                running_mode_ = LINE_MODE;
-        }
-    }
-
-    switch (running_mode_)
-    {
-    case LINE_MODE:
-        LINE_mode();
-        break;
-    case NO_LINE_MODE:
-        NOLINE_mode();
-        break;
-    case STOP_MODE:
-        STOP_mode();
-        break;
-    case WAKEUP_MODE:
-        WAKEUP_mode();
-        break;
-    case GOAL_MODE:
-        GOAL_LINE_mode();
-        break;
-    case HUDDLE_MODE:
-        HUDDLE_mode();
-        break;
-    case WALL_MODE:
-        WALL_mode();
-        break;
-    }
-}
-
-
-void Move_Decision::LINE_mode()
-{
-
-}
-
-void Move_Decision::NOLINE_mode()
-{
-    
-}
-
-void Move_Decision::STOP_mode()
-{
-    
-}
-
-void Move_Decision::WAKEUP_mode()
-{
-    
-}
-
-void Move_Decision::GOAL_LINE_mode()
-{
-    
-}
-
-void Move_Decision::HUDDLE_mode()
-{
-    
-}
-
-void Move_Decision::WALL_mode()
-{
-    
-}
 // ********************************************** GETTERS ************************************************** //
 
 bool Move_Decision::Get_Emergency_() const
@@ -312,6 +315,21 @@ int8_t Move_Decision::Get_running_mode_() const
 int8_t Move_Decision::Get_turn_angle_() const
 {
     return turn_angle_;
+}
+
+bool Move_Decision::Get_ProcessON() const
+{
+    return ProcessON_;
+}
+
+bool Move_Decision::Get_MoveDecisionON() const
+{
+    return MoveDecisionON_;
+}
+
+bool Move_Decision::Get_CallbackON() const
+{
+    return CallbackON_;
 }
 
 // ********************************************** SETTERS ************************************************** //
@@ -340,6 +358,22 @@ void Move_Decision::Set_turn_angle_(int8_t turn_angle_)
 {
     this->turn_angle_ = turn_angle_;
 }
+
+void Move_Decision::Set_ProcessON(bool ProcessON_)
+{
+    this->ProcessON_ = ProcessON_;
+}
+
+void Move_Decision::Set_MoveDecisionON(bool MoveDecisionON_)
+{
+    this->MoveDecisionON_ = MoveDecisionON_;
+}
+
+void Move_Decision::Set_CallbackON(bool CallbackON_)
+{
+    this->CallbackON_ = CallbackON_;
+}
+
 
 
 // ********************************************** FUNCTION ************************************************** //

@@ -16,6 +16,9 @@
 
 
 #include "Walkingpattern_generator.hpp"
+#include "dynamixel_current_2port/Select_Motion.h"
+#include "dynamixel_current_2port/Turn_Angle.h"
+
 
 
 using Eigen::VectorXd;
@@ -24,13 +27,26 @@ class Callback
 {
 public:
   Callback();
-
+  ros::NodeHandle nh;
   // Function
   virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
   virtual void FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
   virtual void IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU);
   
-  // virtual void SelectMotion(const std_msgs::Float32Ptr &msg);
+  // virtual void SelectMotion(const std_msgs::UInt8::ConstPtr &msg);
+
+  // Client (재민이형 코드에 들어감)
+  ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
+  ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
+
+  dynamixel_current_2port::Select_Motion srv_SM;
+  dynamixel_current_2port::Turn_Angle srv_TA;
+  int8_t res_mode = srv_SM.response.select_motion;
+  virtual void SelectMotion();
+
+
+
+
   virtual void MotionMaker();
   virtual void Write_Leg_Theta();
   virtual void Write_Arm_Theta();
@@ -58,7 +74,7 @@ public:
   VectorXd Gyro = VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
   
   
-  float mode = 0;
+  int8_t mode = 0;
   double walkfreq = 1.48114;
   double walktime = 2 / walkfreq;
   int freq = 500;
