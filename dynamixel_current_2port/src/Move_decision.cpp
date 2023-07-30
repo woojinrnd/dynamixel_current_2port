@@ -28,6 +28,7 @@ Move_Decision::~Move_Decision()
 void Move_Decision::process()
 {
     Set_turn_angle_(5);
+    line_det_flg = true;
 }
 
 
@@ -111,14 +112,13 @@ void Move_Decision::Running_Mode_Decision()
         break;
     }
 
-    running_mode_ = Running_Mode::LINE_MODE;
+    // running_mode_ = Running_Mode::LINE_MODE;
 }
 
 
 void Move_Decision::LINE_mode()
 {
-    Set_motion_index_(Motion_Index::Right_2step);
-    srv_SM.response.select_motion = Motion_Index::Right_2step;
+    Set_motion_index_(Motion_Index::Left_2step);
 }
 
 void Move_Decision::NOLINE_mode()

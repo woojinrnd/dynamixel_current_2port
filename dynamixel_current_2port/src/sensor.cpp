@@ -1,5 +1,68 @@
 #include "sensor.hpp"
 
+Sensor::Sensor(Motions *motionPtr, Callback *callbackPtr)
+    : motionPtr(motionPtr),
+      callbackPtr(callbackPtr),
+      SPIN_RATE(1)
+{
+    nh_ = ros::NodeHandle();
+    ////////////////Origin////////////////
+
+    ros::NodeHandle nh(ros::this_node::getName());
+    boost::thread queue_thread = boost::thread(boost::bind(&Sensor::callbackThead, this));
+}
+
+Sensor::~Sensor()
+{
+}
+
+// ********************************************** PUBLISHER ************************************************** //
+// **********************************************  TRHEAD ************************************************** //
+
+void Sensor::callbackThead()
+{
+    ros::NodeHandle nh(ros::this_node::getName());
+    IMU_Gryo_x_publisher_ = nh_.advertise<std_msgs::Float32>("/Gyro/x", 100);
+    IMU_Gryo_y_publisher_ = nh_.advertise<std_msgs::Float32>("/Gyro/y", 100);
+    IMU_Gryo_z_publisher_ = nh_.advertise<std_msgs::Float32>("/Gyro/z", 100);
+
+    IMU_Accel_x_publisher_ = nh_.advertise<std_msgs::Float32>("/Accel/x", 100);
+    IMU_Accel_y_publisher_ = nh_.advertise<std_msgs::Float32>("/Accel/y", 100);
+    IMU_Accel_z_publisher_ = nh_.advertise<std_msgs::Float32>("/Accel/z", 100);
+
+    // /////////////Filterd Gyro (LPF)////////////////
+    IMU_Gryo_filtered_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Gyro/x", 100);
+    IMU_Gryo_filtered_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Gyro/y", 100);
+    IMU_Gryo_filtered_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Gyro/z", 100);
+
+    //////////////// Filterd Accel (Integral)/////////////////
+    IMU_Velocity_x_publisher_ = nh_.advertise<std_msgs::Float32>("/Velocity/x", 100);
+    IMU_Velocity_y_publisher_ = nh_.advertise<std_msgs::Float32>("/Velocity/y", 100);
+    IMU_Velocity_z_publisher_ = nh_.advertise<std_msgs::Float32>("/Velocity/z", 100);
+
+    //////////////// Filterd Accel (HPF)/////////////////
+    IMU_Accel_filtered_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Accel/x", 100);
+    IMU_Accel_filtered_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Accel/y", 100);
+    IMU_Accel_filtered_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Accel/z", 100);
+
+    /////////////// Filterd Accel (HPF_Integral) ///////////////////
+    IMU_Velocity_filtered_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/x", 100);
+    IMU_Velocity_filtered_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/y", 100);
+    IMU_Velocity_filtered_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/z", 100);
+
+    /////////////// Filterd Accel (HPF_Integral) ///////////////////
+    IMU_Velocity_Complementary_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity_Complementary/x", 100);
+    IMU_Velocity_Complementary_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity_Complementary/y", 100);
+    IMU_Velocity_Complementary_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity_Complementary/z", 100);
+
+    ros::Rate loop_rate(SPIN_RATE);
+    while(nh.ok())
+    {
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+}
+
 // Low Pass Filter
 // x_k     input value
 // y_pre   previous filtered value
@@ -75,17 +138,16 @@ float Sensor::Integral(float x_k, float y_pre, float Ts)
     return y_k;
 }
 
-//Complementary filter (Linear velocity = alpha*angular_velocity*L + (1-alpha)*HPF_Integral(Linear_accel))
-//alpha : Weight
-//gyro : Angular Velocity
-//HPF_Int : Linear Velocity
+// Complementary filter (Linear velocity = alpha*angular_velocity*L + (1-alpha)*HPF_Integral(Linear_accel))
+// alpha : Weight
+// gyro : Angular Velocity
+// HPF_Int : Linear Velocity
 float Sensor::Complementary(float gyro, float HPF_Int, float alpha)
 {
     float y_k;
     y_k = alpha * gyro * L + (1 - alpha) * HPF_Int;
     return y_k;
 }
-
 
 ///////////////////////////////////////// Publish //////////////////////////////////////////
 
@@ -98,9 +160,9 @@ void Sensor::Publish_Gyro_Origin()
     std_msgs::Float32 wy;
     std_msgs::Float32 wz;
 
-    gyro.x = callback.Gyro(0);
-    gyro.y = callback.Gyro(1);
-    gyro.z = callback.Gyro(2);
+    gyro.x = callbackPtr->Gyro(0);
+    gyro.y = callbackPtr->Gyro(1);
+    gyro.z = callbackPtr->Gyro(2);
     wx.data = gyro.x;
     wy.data = gyro.y;
     wz.data = gyro.z;
@@ -118,9 +180,9 @@ void Sensor::Publish_Accel_Origin()
     std_msgs::Float32 ay;
     std_msgs::Float32 az;
 
-    accel.x = callback.Accel(0);
-    accel.y = callback.Accel(1);
-    accel.z = callback.Accel(2);
+    accel.x = callbackPtr->Accel(0);
+    accel.y = callbackPtr->Accel(1);
+    accel.z = callbackPtr->Accel(2);
     ax.data = accel.x;
     ay.data = accel.y;
     az.data = accel.z;
@@ -151,7 +213,6 @@ void Sensor::Publish_Gyro_LPF()
     lpf_y_pre_x = lpf_y_k_x;
     lpf_y_pre_y = lpf_y_k_y;
     lpf_y_pre_z = lpf_y_k_z;
-
 
     // Publish the filtered values
     wx_f.data = lpf_y_k_x;
@@ -250,14 +311,14 @@ void Sensor::Publish_Velocity_HPF_Integral()
 
 ///////////////////Complementary Filter/////////////////
 void Sensor::Publish_Velocity_Complementary()
-{   
+{
     std_msgs::Float32 ax_c;
     std_msgs::Float32 ay_c;
     std_msgs::Float32 az_c;
 
-    gyro.x = callback.Gyro(0);
-    gyro.y = callback.Gyro(1);
-    gyro.z = callback.Gyro(2);
+    gyro.x = callbackPtr->Gyro(0);
+    gyro.y = callbackPtr->Gyro(1);
+    gyro.z = callbackPtr->Gyro(2);
 
     float HPF_Intx = HPF_Integral(accel.x, hpf_y_pre_x, Ts, tau_HPF_Integral);
     float HPF_Inty = HPF_Integral(accel.y, hpf_y_pre_y, Ts, tau_HPF_Integral);
@@ -281,16 +342,15 @@ void Sensor::Publish_Velocity_Complementary()
     IMU_Velocity_Complementary_z_publisher_.publish(az_c);
 }
 
-
 //////////////////////////////FUNCTION//////////////////////////
-//argument : motion
-// MatrixXd Sensor::GetCapturePoint()
-// {
+// argument : motion
+//  MatrixXd Sensor::GetCapturePoint()
+//  {
 
 // }
 
 // MatrixXd Reference_CP_CM(MatrixXd &_motion)
 // {
-//     uint8_t a = callback.mode;
+//     uint8_t a = callbackPtr->mode;
 //     if (a == 0) return //CP_CM
 // }

@@ -1,24 +1,21 @@
 #include "callback.hpp"
 
-extern Dxl dxl;
-// extern Motions motion;
 
 // Callback::callback()
-Callback::Callback(Motions *motionPtr) : motionPtr(motionPtr)
+Callback::Callback(Motions *motionPtr, Dxl *dxlPtr) : motionPtr(motionPtr), dxlPtr(dxlPtr)
 {
     ros::NodeHandle nh(ros::this_node::getName());
 
     boost::thread queue_thread = boost::thread(boost::bind(&Callback::callbackThread, this));
 }
 
-sensor_msgs::JointState joint_state;
 
 void Callback::JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command)
 {
     for (int i = 0; i < NUMBER_OF_DYNAMIXELS; i++)
     {
         Goal_joint_[i] = joint_command->position[i];
-        dxl.SetThetaRef(Goal_joint_);
+        dxlPtr->SetThetaRef(Goal_joint_);
     }
 }
 

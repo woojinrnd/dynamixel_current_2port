@@ -9,12 +9,11 @@
 #include "std_msgs/Float32MultiArray.h"
 #include "std_msgs/UInt8.h"
 #include "std_msgs/Bool.h"
-#include "dynamixel.hpp"
 #include <sensor_msgs/Imu.h>
 #include <tf/tf.h>
 #include <boost/thread.hpp>
 
-
+#include "dynamixel.hpp"
 #include "Walkingpattern_generator.hpp"
 #include "dynamixel_current_2port/Select_Motion.h"
 #include "dynamixel_current_2port/Turn_Angle.h"
@@ -27,8 +26,10 @@ class Callback
 {
 public:
   // Callback();
-  Callback(Motions *motionPtr);
+  Callback(Motions *motionPtr, Dxl *dxlPtr);
+
   Motions *motionPtr;
+  Dxl *dxlPtr;
 
   
   ros::NodeHandle nh;
@@ -43,6 +44,7 @@ public:
   virtual void Write_Leg_Theta();
   virtual void Write_Arm_Theta();
 
+  sensor_msgs::JointState joint_state;
 
 
   //Callback Thread

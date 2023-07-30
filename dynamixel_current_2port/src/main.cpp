@@ -7,9 +7,6 @@
 #include "dynamixel_current_2port/Select_Motion.h"
 #include "dynamixel_current_2port/Turn_Angle.h"
 
-Dxl dxl;
-Dxl_Controller dxl_ctrl;
-// Motions motion;
 
 FILE *imu_accel;
 FILE *imu_gyro;
@@ -20,10 +17,12 @@ int main(int argc, char **argv)
     ros::Time::init();
     ros::Rate loop_rate(1);
     ros::NodeHandle nh;
-    // Sensor sensor;
-
+    
+    Dxl dxl;
+    Dxl_Controller dxl_ctrl(&dxl);
     Motions motion;
-    Callback callback(&motion);
+    Callback callback(&motion, &dxl);
+    Sensor sensor(&motion, &callback);
 
 
     // ros::AsyncSpinner spinner(0); // Multi-threaded spinning
@@ -55,7 +54,7 @@ int main(int argc, char **argv)
 
 
 
-    ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
+    // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
     // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
 
     // ros::waitForShutdown(); // Multi-threaded spinning
@@ -128,6 +127,7 @@ int main(int argc, char **argv)
 
     cout << run_time << endl;
     // ROS_INFO("daynmixel_current_2port!");
+
     dxl.~Dxl();
     return 0;
 }

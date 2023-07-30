@@ -13,7 +13,9 @@ class Dxl_Controller
 {
     public:
         //Construction
-        Dxl_Controller();
+        Dxl_Controller(Dxl *dxlPtr);
+        Dxl *dxlPtr;
+        
         //Member Variable
         VectorXd th_cont = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
         VectorXd th_dot_cont = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
