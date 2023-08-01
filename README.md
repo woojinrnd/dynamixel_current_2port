@@ -1,6 +1,5 @@
 # ROS GRPAH
-![0730_rosgraph](https://github.com/woojinrnd/dynamixel_current_2port/assets/122770475/7b7b6554-2e49-4127-a354-5fdf539a45a1)
-
+![0730(2)_rosgraph](https://github.com/woojinrnd/dynamixel_current_2port/assets/122770475/a4cfefc6-b8cb-490b-95da-91e7643174ce)
 
 # Souce Tree
 ```
