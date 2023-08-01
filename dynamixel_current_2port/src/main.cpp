@@ -11,6 +11,8 @@
 FILE *imu_accel;
 FILE *imu_gyro;
 
+
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "daynmixel_current_2port");

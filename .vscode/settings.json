@@ -9,6 +9,7 @@
     ],
     "files.associations": {
         "random": "cpp",
-        "dense": "cpp"
+        "dense": "cpp",
+        "string": "cpp"
     }
 }

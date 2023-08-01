@@ -23,6 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   sensor_msgs
+  cv_bridge
   geometry_msgs
   message_generation
 )
@@ -32,6 +33,7 @@ find_package(Boost REQUIRED COMPONENTS system)
 find_package(dynamixel_sdk REQUIRED)
 find_package(dynamixel_workbench_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(OpenCV REQUIRED)
 # find_package(RBDL REQUIRED)
 
 ################################################################################
@@ -62,9 +64,11 @@ catkin_package(
     sensor_msgs
     geometry_msgs
     message_runtime
+    cv_bridge
   DEPENDS 
     system_lib
     Boost
+    OpenCV
 )
 
 
@@ -108,9 +112,10 @@ add_executable(
   Move_decision_node
   src/Move_decision_node.cpp
   # src/dynamixel.cpp ${dynamixel.hpp}
-  src/Move_decision ${Move_decision.hpp}
+  src/Move_decision.cpp ${Move_decision.hpp} 
   # src/callback.cpp ${callback.hpp}
   # src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
+  src/img_proc.cpp ${img_proc.hpp}
 )
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(Move_decision_node ${catkin_LIBRARIES})
