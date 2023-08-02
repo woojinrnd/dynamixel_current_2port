@@ -1,14 +1,10 @@
 #include <opencv2/opencv.hpp>
 
-// // About Mode
-// static bool goal_line_det_flg = false;
-// static bool line_det_flg = false;
-// static bool no_line_det_flg = false;
-// static bool huddle_det_flg = false;
-// static bool wall_det_flg = false;
-
-// Line_def_flg
-static double delta_x;
+// Line Processing
+// delta_x :화면의 중앙.x - 마지막으로 포착한 라인의 중심점.x
+// delta_x > 0 : LEFT
+// delta_x < 0 : RIGHT
+// static double delta_x = 0;
 static cv::Point point_target;
 static cv::Point tmp_point_target;
 

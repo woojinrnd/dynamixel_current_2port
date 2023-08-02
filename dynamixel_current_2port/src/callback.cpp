@@ -78,15 +78,15 @@ void Callback::callbackThread()
             ROS_ERROR("Failed to call service");
         }
 
-        // if (client_TA.call(srv_TA))
-        // {
-        //     ROS_INFO("#[MESSAGE] TA Request : %d#", srv_TA.request.finish);
-        //     ROS_INFO("[MESSAGE] TA Response : %d", srv_TA.response.turn_angle);
-        // }
-        // else
-        // {
-        //     ROS_ERROR("Failed to call service");
-        // }
+        if (client_TA.call(srv_TA))
+        {
+            ROS_INFO("#[MESSAGE] TA Request : %d#", srv_TA.request.finish);
+            ROS_INFO("[MESSAGE] TA Response : %d", srv_TA.response.turn_angle);
+        }
+        else
+        {
+            ROS_ERROR("Failed to call service");
+        }
 
         ros::spinOnce();
         loop_rate.sleep();

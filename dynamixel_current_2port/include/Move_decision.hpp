@@ -29,6 +29,8 @@ public:
         Step_in_place = 3,
         Right_2step = 4,
         Back_4step = 5,
+        FWD_UP = 6,
+        BWD_UP = 7,
     };
 
     enum Running_Mode
@@ -55,6 +57,9 @@ public:
     string Str_Step_in_place = "Step_in_place";
     string Str_Right_2step = "Right_2step";
     string Str_Back_4step = "Back_4step";
+    string Str_FWD_UP = "FWD_UP";
+    string Str_BWD_UP = "BWD_UP";
+
 
     string Str_LINE_MODE = "LINE_MODE";
     string Str_NO_LINE_MODE = "NO_LINE_MODE";
@@ -131,6 +136,18 @@ public:
     bool Get_MoveDecisionON() const;
     bool Get_CallbackON() const;
 
+    bool Get_goal_line_det_flg() const;
+    bool Get_line_det_flg() const;
+    bool Get_no_line_det_flg() const;
+    bool Get_huddle_det_flg() const;
+    bool Get_wall_det_flg() const;
+    bool Get_stop_det_flg() const;
+
+
+    int8_t Get_gradient() const;
+    double Get_delta_x() const;
+
+
     // ********************************************** SETTERS ************************************************** //
 
     void Set_Emergency_(bool Emergency_);
@@ -143,19 +160,36 @@ public:
     void Set_MoveDecisionON(bool MoveDecisionON_);
     void Set_CallbackON(bool CallbackON_);
 
-    // ********************************************** IMG_PROC ************************************************** //
+    void Set_goal_line_det_flg(bool goal_line_det_flg);
+    void Set_line_det_flg(bool line_det_flg);
+    void Set_no_line_det_flg(bool no_line_det_flg);
+    void Set_huddle_det_flg(bool huddle_det_flg);
+    void Set_wall_det_flg(bool wall_det_flg);
+    void Set_stop_det_flg(bool stop_det_flg);
 
-    // About Mode
-    bool goal_line_det_flg = false;
-    bool line_det_flg = false;
-    bool no_line_det_flg = false;
-    bool huddle_det_flg = false;
-    bool wall_det_flg = false;
+
+    void Set_gradient(int8_t gradient);
+    void Set_delta_x(double delta_x);
+
+
+    // ********************************************** IMG_PROC ************************************************** //
 
     // StraightLine
     bool straightLine;
     double margin_gradient = 10; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
+    
+    //If no find line (NO_LINE_MODE)
+    //delta_x : Center of window.x - Center of last captured line.x 
+    //delta_x > 0 : LEFT
+    //delta_x < 0 : RIGHT
+    //Out of Range -> A straight trun walking
+    double Angle_ToFindLine = 10;
+    //Actural send turn angle
+    double Actural_angle = 0; 
+
+    //check the variable sharing with multi thread
+    int aaaa = -5;
 
 private:
     const double FALL_FORWARD_LIMIT;
@@ -167,11 +201,18 @@ private:
     int8_t stand_status_;
     int8_t running_mode_;
     int8_t turn_angle_;
+    
+
+    bool goal_line_det_flg = false;
+    bool line_det_flg = false;
+    bool no_line_det_flg = false;
+    bool huddle_det_flg = false;
+    bool wall_det_flg = false;
+    bool stop_det_flg = false;
 
     bool stop_fallen_check_;
     double present_pitch_;
     double present_roll_;
-    double gradient; // Line_angle
 
     bool Emergency_;
 
@@ -179,6 +220,11 @@ private:
     bool ProcessON_;
     bool MoveDecisionON_;
     bool CallbackON_;
+
+    /// Img_Proc ///
+    int8_t gradient; // Line_angle
+    double delta_x = 0;
+
 };
 
 #endif // MOVE_DECISION_H

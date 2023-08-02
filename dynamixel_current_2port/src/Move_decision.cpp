@@ -8,7 +8,9 @@ Move_Decision::Move_Decision()
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::InitPose),
       stop_fallen_check_(false),
-      Emergency_(1)
+      Emergency_(1),
+      turn_angle_(0),
+      gradient(0)
 {
     // Init ROS
     ros::NodeHandle nh(ros::this_node::getName());
@@ -26,13 +28,68 @@ Move_Decision::~Move_Decision()
 
 void Move_Decision::process()
 {
-    // Set_turn_angle_(5);
-    line_det_flg = true;
+    /////////////   DEBUG WINDOW    /////////////
+    //// Switch line_det_flg | no_line_det_flg
+    // if (aaaa % 2 == 0)
+    // {
+    //     Set_line_det_flg(true);
+    //     Set_no_line_det_flg(false);
+    // }
+    // else
+    // {
+    //     Set_no_line_det_flg(true);
+    //     Set_line_det_flg(false);
+    // }
+    // aaaa++;
+
+    //// No-straight line - set gradient
+    // Set_line_det_flg(true);
+    // Set_gradient(30);
+
+    //// no_line_det_flg
+    // Set_no_line_det_flg(true);
+    // aaaa++;
+    // Set_delta_x(aaaa);
+
+    //// wake up mode
+    // Set_running_mode_(Running_Mode::WAKEUP_MODE);
+    // Set_stand_status_(Stand_Status::Fallen_Forward);
+    // Motion_Info();
 
 
-    ////////////////    Line det flg    ////////////////
+    /////////////   DEBUG WINDOW    /////////////
+
+
+
+
+    //////영상처리를 통해 line_det_flg(T/F) 판별필요
+
+    
+    ///////////////////////// LINE_MODE --- line_det_flg = true /////////////////////////
+    // if (라인 인식 == true)
+    // {
+    //     Set_line_det_flg(true);
+    // }
+
+    // 영상처리를 통해 Gradient 값 가져오기
     // Gradient 추가(Line ~ center of frame )
-    gradient = 30;
+    // Gradient -> Turn_angle_
+    // Set_gradient(50);
+
+    /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
+    // else if (라인 인식 == false)
+    // {
+    //     Set_no_line_det_flg(true);
+    // delta_x : Center of window.x - Center of last captured line.x
+
+    //     delta_x = ;
+    // }
+
+    /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
+    // else if (골 라인 인식 == true)
+    // {
+        
+    // }
 }
 
 void Move_Decision::processThread()
@@ -43,12 +100,16 @@ void Move_Decision::processThread()
     // node loop
     while (ros::ok())
     {
-        ROS_INFO("---------------PROCESSTHREAD------------");
+        ROS_INFO("\n");
+        ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
         process();
         Running_Info();
         Motion_Info();
-
-
+        //ProccessThread(gradient) = callbackThread(turn_angle)
+        ROS_INFO("Gradient : %d", Get_gradient());
+        ROS_INFO("delta_x : %f", delta_x);
+        ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
+        ROS_INFO("\n");
         // relax to fit output rate
         loop_rate.sleep();
     }
@@ -98,6 +159,10 @@ void Move_Decision::Running_Mode_Decision()
         {
             running_mode_ = WALL_MODE;
         }
+        else if (stop_det_flg)
+        {
+            running_mode_ = STOP_MODE;
+        }
     }
 
     switch (running_mode_)
@@ -132,8 +197,8 @@ void Move_Decision::LINE_mode()
 {
     // Set_motion_index_(Motion_Index::Right_2step);
 
-    double tmp_gradient = gradient;
-    StraightLineDecision(gradient, margin_gradient);
+    int8_t tmp_gradient = Get_gradient();
+    StraightLineDecision(tmp_gradient, margin_gradient);
 
     // Straight Line
     if (straightLine == true)
@@ -144,21 +209,50 @@ void Move_Decision::LINE_mode()
     // Non Straight Line
     if (straightLine == false)
     {
-        Set_turn_angle_(gradient);
-        Set_motion_index_(Motion_Index::Right_2step);
+        Set_turn_angle_(tmp_gradient);
     }
 }
 
 void Move_Decision::NOLINE_mode()
 {
+    // Counter Clock wise(+) (Turn Angle sign)
+    // delta_x > 0 : LEFT Window  ->  Left turn (-)
+    // delta_x < 0 : RIGHT window ->  Right turn  (+)
+    double tmp_delta_x = Get_delta_x();
+    if (tmp_delta_x < 0) // Right
+    {
+        Actural_angle -= 1;
+        if (Actural_angle < -Angle_ToFindLine)
+        {
+            Actural_angle = -Angle_ToFindLine;
+        }
+        Set_turn_angle_(Actural_angle);
+        ROS_WARN("RIGHT TURN");
+        // ROS_INFO("turn angle : %d", Get_turn_angle_());
+    }
+    else //LEFT
+    {
+        Actural_angle += 1;
+        if (Actural_angle > Angle_ToFindLine)
+        {
+            Actural_angle = Angle_ToFindLine;
+        }
+        Set_turn_angle_(Actural_angle);
+        ROS_WARN("LEFT_TURN");
+    }
 }
 
 void Move_Decision::STOP_mode()
 {
+    Set_Emergency_(true);
 }
 
 void Move_Decision::WAKEUP_mode()
 {
+    int8_t tmp_stand_status = Get_stand_status_();
+    if (tmp_stand_status == Stand_Status::Fallen_Back) Set_motion_index_(Motion_Index::FWD_UP);
+    if (tmp_stand_status == Stand_Status::Fallen_Forward) Set_motion_index_(Motion_Index::BWD_UP);
+    // Motion_Info();
 }
 
 void Move_Decision::GOAL_LINE_mode()
@@ -191,13 +285,15 @@ void Move_Decision::callbackThread()
     while (nh.ok())
     {
         startMode();
-        
-        ROS_INFO("---------------CallbackThread------------");
+
+        ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
+        ROS_INFO("-------------------------------------------------------------------");
         Running_Mode_Decision();
         Running_Info();
         Motion_Info();
-        
-        ROS_INFO("---------------CallbackThread------------");
+        ROS_INFO("angle : %d", Get_turn_angle_());
+        ROS_INFO("-------------------------------------------------------------------");
+        ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
 
         ros::spinOnce();
         loop_rate.sleep();
@@ -234,6 +330,19 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
 
         case Motion_Index::Back_4step:
             res.select_motion = Motion_Index::Back_4step;
+            break;
+        }
+    }
+    else if ((req.finish == true) && ((stand_status_ == Stand_Status::Fallen_Back)) || (stand_status_ == Stand_Status::Fallen_Forward))
+    {
+        switch (Get_motion_index_())
+        {
+        case Motion_Index::FWD_UP:
+            res.select_motion = Motion_Index::FWD_UP;
+            break;
+
+        case Motion_Index::BWD_UP:
+            res.select_motion = Motion_Index::BWD_UP;
             break;
         }
     }
@@ -351,6 +460,47 @@ bool Move_Decision::Get_CallbackON() const
     return CallbackON_;
 }
 
+bool Move_Decision::Get_goal_line_det_flg() const
+{
+    return goal_line_det_flg;
+}
+
+bool Move_Decision::Get_line_det_flg() const
+{
+    return line_det_flg;
+}
+
+bool Move_Decision::Get_no_line_det_flg() const
+{
+    return no_line_det_flg;
+}
+
+bool Move_Decision::Get_huddle_det_flg() const
+{
+    return huddle_det_flg;
+}
+
+bool Move_Decision::Get_wall_det_flg() const
+{
+    return wall_det_flg;
+}
+
+bool Move_Decision::Get_stop_det_flg() const
+{
+    return stop_det_flg;
+}
+
+int8_t Move_Decision::Get_gradient() const
+{
+    return gradient;
+}
+
+double Move_Decision::Get_delta_x() const
+{
+    return delta_x;
+}
+
+
 // ********************************************** SETTERS ************************************************** //
 
 void Move_Decision::Set_Emergency_(bool Emergency_)
@@ -393,6 +543,46 @@ void Move_Decision::Set_CallbackON(bool CallbackON_)
     this->CallbackON_ = CallbackON_;
 }
 
+void Move_Decision::Set_goal_line_det_flg(bool goal_line_det_flg)
+{
+    this->goal_line_det_flg = goal_line_det_flg;
+}
+
+void Move_Decision::Set_line_det_flg(bool line_det_flg)
+{
+    this->line_det_flg = line_det_flg;
+}
+
+void Move_Decision::Set_no_line_det_flg(bool no_line_det_flg)
+{
+    this->no_line_det_flg = no_line_det_flg;
+}
+
+void Move_Decision::Set_huddle_det_flg(bool huddle_det_flg)
+{
+    this->huddle_det_flg = huddle_det_flg;
+}
+
+void Move_Decision::Set_wall_det_flg(bool wall_det_flg)
+{
+    this->wall_det_flg = wall_det_flg;
+}
+
+void Move_Decision::Set_stop_det_flg(bool stop_det_flg)
+{
+    this->stop_det_flg = stop_det_flg;
+}
+
+void Move_Decision::Set_gradient(int8_t gradient)
+{
+    this->gradient = gradient;
+}
+
+void Move_Decision::Set_delta_x(double delta_x)
+{
+    this->delta_x = delta_x;
+}
+
 // ********************************************** FUNCTION ************************************************** //
 
 Eigen::Vector3d Move_Decision::convertRotationToRPY(const Eigen::Matrix3d &rotation)
@@ -413,20 +603,20 @@ Eigen::Vector3d Move_Decision::convertQuaternionToRPY(const Eigen::Quaterniond &
     return rpy;
 }
 
-/*             mg_gra        mg_gra              */
-/*      False    |     True    |     Flase       */
+/*            -mg_gra        mg_gra              */
+/*      False    |     True    |     False       */
 /*  <----------------------------------------->  */
 void Move_Decision::StraightLineDecision(double gra, double mg_gra)
 {
-    // Straight Line Decision
     if ((gra > mg_gra) || (gra < -mg_gra)) // judged to be a straight line. If it exists between the slopes, it is a straight line.
     {
-        straightLine = true;
+        straightLine = false;
     }
 
+    // Straight Line Decision
     else /*if ((gradient < margin_gradient && (gradient > -margin_gradient)))*/
     {
-        straightLine = false;
+        straightLine = true;
     }
 }
 
@@ -458,6 +648,14 @@ void Move_Decision::Motion_Info()
     case Motion_Index::Back_4step:
         tmp_motion = Str_Back_4step;
         break;
+
+    case Motion_Index::FWD_UP:
+        tmp_motion = Str_FWD_UP;
+        break;
+
+    case Motion_Index::BWD_UP:
+        tmp_motion = Str_BWD_UP;
+        break;
     }
 
     ROS_INFO("%s", tmp_motion.c_str());
@@ -466,7 +664,7 @@ void Move_Decision::Motion_Info()
 void Move_Decision::Running_Info()
 {
     string tmp_running;
-    switch (Get_motion_index_())
+    switch (Get_running_mode_())
     {
     case Running_Mode::LINE_MODE:
         tmp_running = Str_LINE_MODE;
