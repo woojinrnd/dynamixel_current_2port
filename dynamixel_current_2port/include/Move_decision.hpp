@@ -176,20 +176,21 @@ public:
 
     // StraightLine
     bool straightLine;
-    double margin_gradient = 10; // margin of straight line
+    double margin_gradient = 5; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
+    double Angle_toBeStraight = 40; //max or min
     
     //If no find line (NO_LINE_MODE)
     //delta_x : Center of window.x - Center of last captured line.x 
     //delta_x > 0 : LEFT
     //delta_x < 0 : RIGHT
     //Out of Range -> A straight trun walking
-    double Angle_ToFindLine = 10;
+    double Angle_ToFindLine = 10; //max or min
     //Actural send turn angle
     double Actural_angle = 0; 
 
     //check the variable sharing with multi thread
-    int aaaa = -5;
+    int aaaa = -25;
 
 private:
     const double FALL_FORWARD_LIMIT;

@@ -64,9 +64,18 @@ int main(int argc, char **argv)
     struct timespec start, end;
     double run_time;
     clock_gettime(CLOCK_REALTIME, &start); // Wall-clock time
+    
+    VectorXd A(3); 
+    for (int i = 0; i<3; i++)
+    {
+        A(i) = 30*DEG2RAD;
+    }
+    
 
     while (ros::ok())
     {
+        dxl.SetThetaRef(A);
+        dxl.syncWriteTheta();
 
         // if (callback.client_SM.call(callback.srv_SM))
         // {
@@ -133,3 +142,6 @@ int main(int argc, char **argv)
     dxl.~Dxl();
     return 0;
 }
+
+
+

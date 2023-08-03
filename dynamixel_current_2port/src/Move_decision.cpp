@@ -4,7 +4,7 @@
 Move_Decision::Move_Decision()
     : FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(1),
+      SPIN_RATE(3),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::InitPose),
       stop_fallen_check_(false),
@@ -28,7 +28,7 @@ Move_Decision::~Move_Decision()
 
 void Move_Decision::process()
 {
-    /////////////   DEBUG WINDOW    /////////////
+    //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
     //// Switch line_det_flg | no_line_det_flg
     // if (aaaa % 2 == 0)
     // {
@@ -42,9 +42,10 @@ void Move_Decision::process()
     // }
     // aaaa++;
 
-    //// No-straight line - set gradient
+    //// No-straight line - set gradient //aaaa = -25
     // Set_line_det_flg(true);
-    // Set_gradient(30);
+    // aaaa++;
+    // Set_gradient(aaaa);
 
     //// no_line_det_flg
     // Set_no_line_det_flg(true);
@@ -56,15 +57,13 @@ void Move_Decision::process()
     // Set_stand_status_(Stand_Status::Fallen_Forward);
     // Motion_Info();
 
+    //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
+    
 
-    /////////////   DEBUG WINDOW    /////////////
-
-
-
+    
 
     //////영상처리를 통해 line_det_flg(T/F) 판별필요
 
-    
     ///////////////////////// LINE_MODE --- line_det_flg = true /////////////////////////
     // if (라인 인식 == true)
     // {
@@ -88,7 +87,7 @@ void Move_Decision::process()
     /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
     // else if (골 라인 인식 == true)
     // {
-        
+
     // }
 }
 
@@ -105,7 +104,7 @@ void Move_Decision::processThread()
         process();
         Running_Info();
         Motion_Info();
-        //ProccessThread(gradient) = callbackThread(turn_angle)
+        // ProccessThread(gradient) = callbackThread(turn_angle)
         ROS_INFO("Gradient : %d", Get_gradient());
         ROS_INFO("delta_x : %f", delta_x);
         ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
@@ -204,12 +203,70 @@ void Move_Decision::LINE_mode()
     if (straightLine == true)
     {
         Set_motion_index_(Motion_Index::Forward_4step);
+        ROS_ERROR("STRAIGHT LINE");
     }
 
     // Non Straight Line
     if (straightLine == false)
     {
-        Set_turn_angle_(tmp_gradient);
+        // Counter Clock wise(+) (Turn Angle sign)
+        // Gradient : Angle from center of window.x to center of line.x
+        // LEFT TURN
+        if (tmp_gradient >= margin_gradient * 5)
+        {
+            Actural_angle += 4;
+            ROS_WARN("LEFT_TURN");
+        }
+        else if (tmp_gradient >= margin_gradient * 4)
+        {
+            Actural_angle += 3;
+            ROS_WARN("LEFT_TURN");
+        }
+        else if (tmp_gradient >= margin_gradient * 3)
+        {
+            Actural_angle += 2;
+            ROS_WARN("LEFT_TURN");
+        }
+        else if (tmp_gradient >= margin_gradient * 2)
+        {
+            Actural_angle += 2;
+            ROS_WARN("LEFT_TURN");
+        }
+        else if (tmp_gradient > margin_gradient * 1)
+        {
+            Actural_angle += 2;
+            ROS_WARN("LEFT_TURN");
+        }
+
+        // Right Turn
+        if (tmp_gradient <= -margin_gradient * 5)
+        {
+            Actural_angle -= 4;
+            ROS_WARN("RIGHT TURN");
+        }
+        else if (tmp_gradient <= -margin_gradient * 4)
+        {
+            Actural_angle -= 3;
+            ROS_WARN("RIGHT TURN");
+        }
+        else if (tmp_gradient <= -margin_gradient * 3)
+        {
+            Actural_angle -= 2;
+            ROS_WARN("RIGHT TURN");
+        }
+        else if (tmp_gradient <= -margin_gradient * 2)
+        {
+            Actural_angle -= 2;
+            ROS_WARN("RIGHT TURN");
+        }
+        else if (tmp_gradient < -margin_gradient * 1)
+        {
+            Actural_angle -= 2;
+            ROS_WARN("RIGHT TURN");
+        }
+
+        Set_turn_angle_(Actural_angle);
+        ROS_ERROR("NO STRAIGHT LINE");
     }
 }
 
@@ -230,7 +287,7 @@ void Move_Decision::NOLINE_mode()
         ROS_WARN("RIGHT TURN");
         // ROS_INFO("turn angle : %d", Get_turn_angle_());
     }
-    else //LEFT
+    else // LEFT
     {
         Actural_angle += 1;
         if (Actural_angle > Angle_ToFindLine)
@@ -250,8 +307,10 @@ void Move_Decision::STOP_mode()
 void Move_Decision::WAKEUP_mode()
 {
     int8_t tmp_stand_status = Get_stand_status_();
-    if (tmp_stand_status == Stand_Status::Fallen_Back) Set_motion_index_(Motion_Index::FWD_UP);
-    if (tmp_stand_status == Stand_Status::Fallen_Forward) Set_motion_index_(Motion_Index::BWD_UP);
+    if (tmp_stand_status == Stand_Status::Fallen_Back)
+        Set_motion_index_(Motion_Index::FWD_UP);
+    if (tmp_stand_status == Stand_Status::Fallen_Forward)
+        Set_motion_index_(Motion_Index::BWD_UP);
     // Motion_Info();
 }
 
@@ -281,7 +340,7 @@ void Move_Decision::callbackThread()
     motion_index_server_ = nh.advertiseService("Select_Motion", &Move_Decision::playMotion, this);
     turn_angle_server_ = nh.advertiseService("Turn_Angle", &Move_Decision::turn_angle, this);
 
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
     {
         startMode();
@@ -499,7 +558,6 @@ double Move_Decision::Get_delta_x() const
 {
     return delta_x;
 }
-
 
 // ********************************************** SETTERS ************************************************** //
 
