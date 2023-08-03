@@ -1,16 +1,16 @@
 # BUILD
-mkdir -p [what you want folder name]/[src]
-cd [what you want folder name]/[src]
-git clone https://github.com/woojinrnd/dynamixel_current_2port.git
-cd ..
-catkin_make
+mkdir -p [what you want folder name]/[src]  
+cd [what you want folder name]/[src]  
+git clone https://github.com/woojinrnd/dynamixel_current_2port.git  
+cd ..  
+catkin_make  
 
 # RUN
-source devel/setup.bash
-split 3 terminal
-[terminal 1] roscore
-[terminal 2] rosrun dynamixel_current_2port Move_decision_node
-[terminal 3] rosrun dynamixel_current_2port dynamixel_current_2port
+source devel/setup.bash  
+split 3 terminal  
+[terminal 1] roscore  
+[terminal 2] rosrun dynamixel_current_2port Move_decision_node  
+[terminal 3] rosrun dynamixel_current_2port dynamixel_current_2port  
 
 
 # ROS GRPAH
