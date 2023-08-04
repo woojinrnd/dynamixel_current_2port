@@ -18,7 +18,7 @@
 //Default setting
 #define NUMBER_OF_DYNAMIXELS     3
 #define BAUDRATE                 4000000 
-#define DEVICE_NAME              "/dev/ttyUSB1"
+#define DEVICE_NAME              "/dev/ttyUSB0"
 
 
 #define PI                       3.141592
@@ -117,7 +117,7 @@ class Dxl
     private:
         dynamixel::PortHandler* portHandler;
         dynamixel::PacketHandler* packetHandler;
-        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {1,12,18};
+        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {2,12,18};
         // const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = { 0 };
         float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };

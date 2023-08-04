@@ -14,6 +14,8 @@
 
 #include "dynamixel_current_2port/Select_Motion.h"
 #include "dynamixel_current_2port/Turn_Angle.h"
+#include "dynamixel_current_2port/UD_NeckAngle.h"
+#include "dynamixel_current_2port/RL_NeckAngle.h"
 #include "img_proc.hpp"
 
 using namespace std;
@@ -101,6 +103,8 @@ public:
 
     bool playMotion(dynamixel_current_2port::Select_Motion::Request &req, dynamixel_current_2port::Select_Motion::Response &res);
     bool turn_angle(dynamixel_current_2port::Turn_Angle::Request &req, dynamixel_current_2port::Turn_Angle::Response &res);
+    bool Move_UD_NeckAngle(dynamixel_current_2port::UD_NeckAngle::Request &req, dynamixel_current_2port::UD_NeckAngle::Response &res);
+    bool Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Request &req, dynamixel_current_2port::RL_NeckAngle::Response &res);
 
     void imuDataCallback(const sensor_msgs::Imu::ConstPtr &msg);
 
@@ -111,10 +115,9 @@ public:
     // Server && Client
     ros::ServiceServer motion_index_server_;
     ros::ServiceServer turn_angle_server_;
+    ros::ServiceServer UD_NeckAngle_server_;
+    ros::ServiceServer RL_NeckAngle_server_;
 
-    // srv
-    dynamixel_current_2port::Select_Motion srv_SM;
-    dynamixel_current_2port::Turn_Angle srv_TA;
 
     // ********************************************** FUNCTION ************************************************** //
 
@@ -130,7 +133,7 @@ public:
     int8_t Get_motion_index_() const;
     int8_t Get_stand_status_() const;
     int8_t Get_running_mode_() const;
-    int8_t Get_turn_angle_() const;
+    double Get_turn_angle_() const;
 
     bool Get_ProcessON() const;
     bool Get_MoveDecisionON() const;
@@ -144,8 +147,11 @@ public:
     bool Get_stop_det_flg() const;
 
 
-    int8_t Get_gradient() const;
+    double Get_gradient() const;
     double Get_delta_x() const;
+
+    double Get_RL_NeckAngle() const;
+    double Get_UD_NeckAngle() const;
 
 
     // ********************************************** SETTERS ************************************************** //
@@ -154,7 +160,7 @@ public:
     void Set_motion_index_(int8_t motion_index_);
     void Set_stand_status_(int8_t stand_status_);
     void Set_running_mode_(int8_t running_mode_);
-    void Set_turn_angle_(int8_t turn_angle_);
+    void Set_turn_angle_(double turn_angle_);
 
     void Set_ProcessON(bool ProcessON_);
     void Set_MoveDecisionON(bool MoveDecisionON_);
@@ -168,8 +174,10 @@ public:
     void Set_stop_det_flg(bool stop_det_flg);
 
 
-    void Set_gradient(int8_t gradient);
+    void Set_gradient(double gradient);
     void Set_delta_x(double delta_x);
+    void Set_RL_NeckAngle(double RL_NeckAngle_);
+    void Set_UD_NeckAngle(double UD_NeckAngle_);
 
 
     // ********************************************** IMG_PROC ************************************************** //
@@ -186,24 +194,28 @@ public:
     //delta_x < 0 : RIGHT
     //Out of Range -> A straight trun walking
     double Angle_ToFindLine = 10; //max or min
+
     //Actural send turn angle
-    double Actural_angle = 0; 
+    double Actural_angle = 0;
 
     //check the variable sharing with multi thread
-    int aaaa = -25;
+    // int aaaa = -25;
 
 private:
     const double FALL_FORWARD_LIMIT;
     const double FALL_BACK_LIMIT;
     const int SPIN_RATE;
 
-    boost::mutex motion_index_mutex_;
     int8_t motion_index_;
     int8_t stand_status_;
     int8_t running_mode_;
-    int8_t turn_angle_;
-    
 
+    //Neck 
+    double turn_angle_ = 0;
+    double RL_NeckAngle_ = 0;
+    double UD_NeckAngle_ = 0;
+
+    //Running mode
     bool goal_line_det_flg = false;
     bool line_det_flg = false;
     bool no_line_det_flg = false;

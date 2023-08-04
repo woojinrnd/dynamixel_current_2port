@@ -217,7 +217,7 @@ int16_t Dxl::GetPresentMode()
 //     SyncWriteTh.clearParam();
 // }
 
-
+//setter() : 각도 setter() [rad]
 void Dxl::syncWriteTheta()
 {
   dynamixel::GroupSyncWrite gSyncWriteTh(portHandler, packetHandler, DxlReg_GoalPosition, 4);
@@ -232,6 +232,21 @@ void Dxl::syncWriteTheta()
   gSyncWriteTh.txPacket();
   gSyncWriteTh.clearParam();
 }
+
+// void Dxl::syncWriteTheta()
+// {
+//   dynamixel::GroupSyncWrite gSyncWriteTh(portHandler, packetHandler, DxlReg_GoalPosition, 4);
+
+//   uint8_t parameter[NUMBER_OF_DYNAMIXELS] = {0};
+
+//   for (uint8_t i=0; i < NUMBER_OF_DYNAMIXELS; i++){
+//     ref_th_value_ = ref_th_ * RAD_TO_VALUE;
+//     getParam(ref_th_value_[i], parameter);
+//     gSyncWriteTh.addParam(dxl_id[i], (uint8_t *)&parameter);
+//   }
+//   gSyncWriteTh.txPacket();
+//   gSyncWriteTh.clearParam();
+// }
 
 //Setter() : 목표 세타값 설정 [rad]
 void Dxl::SetThetaRef(VectorXd theta)

@@ -8,3 +8,6 @@
 static cv::Point point_target;
 static cv::Point tmp_point_target;
 
+//check the variable sharing with multi thread
+static int aaaa = -25;
+

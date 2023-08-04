@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "daynmixel_current_2port");
     ros::Time::init();
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(100);
     ros::NodeHandle nh;
     
     Dxl dxl;
@@ -54,8 +54,6 @@ int main(int argc, char **argv)
     // ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
     // ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
 
-
-
     // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
     // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
 
@@ -65,17 +63,17 @@ int main(int argc, char **argv)
     double run_time;
     clock_gettime(CLOCK_REALTIME, &start); // Wall-clock time
     
-    VectorXd A(3); 
-    for (int i = 0; i<3; i++)
-    {
-        A(i) = 30*DEG2RAD;
-    }
+    // VectorXd A(3); 
+    // for (int i = 0; i<3; i++)
+    // {
+    //     A(i) = 30*DEG2RAD;
+    // }
     
 
     while (ros::ok())
     {
-        dxl.SetThetaRef(A);
-        dxl.syncWriteTheta();
+        // dxl.SetThetaRef(A);
+        // dxl.syncWriteTheta();
 
         // if (callback.client_SM.call(callback.srv_SM))
         // {
@@ -88,6 +86,9 @@ int main(int argc, char **argv)
         // {
         //     ROS_INFO("Response Wait...");
         // }
+        
+        dxl.SetThetaRef(callback.All_Theta);
+        dxl.syncWriteTheta();
         
 
 

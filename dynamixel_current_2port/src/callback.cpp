@@ -2,7 +2,7 @@
 
 
 // Callback::callback()
-Callback::Callback(Motions *motionPtr, Dxl *dxlPtr) : motionPtr(motionPtr), dxlPtr(dxlPtr)
+Callback::Callback(Motions *motionPtr, Dxl *dxlPtr) : motionPtr(motionPtr), dxlPtr(dxlPtr), SPIN_RATE(100)
 {
     ros::NodeHandle nh(ros::this_node::getName());
 
@@ -62,8 +62,11 @@ void Callback::callbackThread()
 
     srv_SM.request.finish = 1;
     srv_TA.request.finish = 1;
+    srv_UD_Neck.request.finish = 1;
+    srv_RL_Neck.request.finish = 1;
 
-    ros::Rate loop_rate(1);
+
+    ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
     {
         // startMode();
@@ -73,16 +76,28 @@ void Callback::callbackThread()
             ROS_INFO("[MESSAGE] SM Response : %d", srv_SM.response.select_motion);
             SelectMotion();
         }
-        else
-        {
-            ROS_ERROR("Failed to call service");
-        }
 
         if (client_TA.call(srv_TA))
         {
             ROS_INFO("#[MESSAGE] TA Request : %d#", srv_TA.request.finish);
-            ROS_INFO("[MESSAGE] TA Response : %d", srv_TA.response.turn_angle);
+            ROS_INFO("[MESSAGE] TA Response : %f", srv_TA.response.turn_angle);
+            // Turn Body Angle에 모션 해당하는 부분
         }
+
+        if (client_UD_Neck.call(srv_UD_Neck))
+        {
+            ROS_INFO("#[MESSAGE] UD Request : %d#", srv_UD_Neck.request.finish);
+            ROS_INFO("[MESSAGE] UD Response : %f", srv_UD_Neck.response.ud_neckangle);
+            Move_UD_NeckAngle();            
+        }
+
+        if (client_RL_Neck.call(srv_RL_Neck))
+        {
+            ROS_INFO("#[MESSAGE] RL Request : %d#", srv_RL_Neck.request.finish);
+            ROS_INFO("[MESSAGE] RL Response : %f", srv_RL_Neck.response.rl_neckangle);
+            Move_RL_NeckAngle();            
+        }
+
         else
         {
             ROS_ERROR("Failed to call service");
@@ -102,7 +117,6 @@ void Callback::Emergencycallback(const std_msgs::Bool &msg)
         ROS_ERROR("Emergency");
     }
 }
-
 // About Subscribe
 //  void Callback::SelectMotion(const std_msgs::UInt8::ConstPtr &msg)
 //  {
@@ -163,7 +177,30 @@ void Callback::Emergencycallback(const std_msgs::Bool &msg)
 //      }
 //  }
 
-// About Client Callback
+/////////////////////////////////////////////// About Client Callback ///////////////////////////////////////////////
+void Callback::Move_RL_NeckAngle()
+{
+    if (client_RL_Neck.call(srv_RL_Neck))
+    {
+        double res_rl_neck = srv_RL_Neck.response.rl_neckangle;
+        rl_neckangle = res_rl_neck;
+        // All_Theta[21] = rl_neckangle;
+        All_Theta[1] = rl_neckangle * DEG2RAD;
+    }
+}
+
+void Callback::Move_UD_NeckAngle()
+{
+    if (client_UD_Neck.call(srv_UD_Neck))
+    {
+        double res_ud_neck = srv_UD_Neck.response.ud_neckangle;
+        ud_neckangle = res_ud_neck;
+        // All_Theta[22] = ud_neckangle;
+        All_Theta[0] = ud_neckangle * DEG2RAD;
+    }
+}
+
+
 void Callback::SelectMotion()
 {
     if (client_SM.call(srv_SM))

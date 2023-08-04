@@ -4,7 +4,7 @@
 Move_Decision::Move_Decision()
     : FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(3),
+      SPIN_RATE(100),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::InitPose),
       stop_fallen_check_(false),
@@ -57,6 +57,19 @@ void Move_Decision::process()
     // Set_stand_status_(Stand_Status::Fallen_Forward);
     // Motion_Info();
 
+    // stop mode
+    // rostopic echo /Move_decision/Emergency
+    // Set_stop_det_flg(true);
+
+    // goal mode 
+    // Set_goal_line_det_flg(true);
+    // Set_line_det_flg(true);
+
+    // huddle mode
+    Set_UD_NeckAngle(180);
+    Set_huddle_det_flg(true);
+    
+
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
     
 
@@ -85,10 +98,18 @@ void Move_Decision::process()
     // }
 
     /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
+
+    // else if (장애물과 로봇이 접촉해 정지가 필요할 때)
+    // {
+            // Set_stop_det_flg(true);
+    // }
+
+    /////////////////////////NO_LINE_MODE --- goal_line_det_flg = true /////////////////////////
     // else if (골 라인 인식 == true)
     // {
-
+            // Set_goal_line_det_flg(true);
     // }
+
 }
 
 void Move_Decision::processThread()
@@ -105,7 +126,7 @@ void Move_Decision::processThread()
         Running_Info();
         Motion_Info();
         // ProccessThread(gradient) = callbackThread(turn_angle)
-        ROS_INFO("Gradient : %d", Get_gradient());
+        ROS_INFO("Gradient : %f", Get_gradient());
         ROS_INFO("delta_x : %f", delta_x);
         ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
         ROS_INFO("\n");
@@ -301,7 +322,7 @@ void Move_Decision::NOLINE_mode()
 
 void Move_Decision::STOP_mode()
 {
-    Set_Emergency_(true);
+    Set_Emergency_(false);
 }
 
 void Move_Decision::WAKEUP_mode()
@@ -316,10 +337,25 @@ void Move_Decision::WAKEUP_mode()
 
 void Move_Decision::GOAL_LINE_mode()
 {
+    //longer width 활용하고 싶음
+    Set_motion_index_(Motion_Index::Forward_4step);
 }
 
 void Move_Decision::HUDDLE_mode()
 {
+    
+    // 고개를 들고 허들의 거리값 받아와 걸음 수 계산
+    // 걸음수 전달 후, LineMode로 진입
+    // 허들을 다시 본다면 멈추고 다시 걸음 수 계산
+    // LineMode   
+    
+    double tmp_ud_neckangle = Get_UD_NeckAngle();
+    tmp_ud_neckangle = 45;
+    Set_UD_NeckAngle(tmp_ud_neckangle);
+
+
+    Set_line_det_flg(true);
+
 }
 
 void Move_Decision::WALL_mode()
@@ -339,6 +375,9 @@ void Move_Decision::callbackThread()
     // Server
     motion_index_server_ = nh.advertiseService("Select_Motion", &Move_Decision::playMotion, this);
     turn_angle_server_ = nh.advertiseService("Turn_Angle", &Move_Decision::turn_angle, this);
+    UD_NeckAngle_server_ = nh.advertiseService("UD_NeckAngle", &Move_Decision::Move_UD_NeckAngle, this);
+    RL_NeckAngle_server_ = nh.advertiseService("RL_NeckAngle", &Move_Decision::Move_RL_NeckAngle, this);
+
 
     ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
@@ -350,7 +389,9 @@ void Move_Decision::callbackThread()
         Running_Mode_Decision();
         Running_Info();
         Motion_Info();
-        ROS_INFO("angle : %d", Get_turn_angle_());
+        ROS_INFO("angle : %f", Get_turn_angle_());
+        ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
+        ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());
         ROS_INFO("-------------------------------------------------------------------");
         ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
 
@@ -360,7 +401,7 @@ void Move_Decision::callbackThread()
     }
 }
 
-///////////////////////////////////////// Server Part /////////////////////////////////////////
+//////////////////////////////////////////////////////////// Server Part ////////////////////////////////////////////////////////////////
 bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &req, dynamixel_current_2port::Select_Motion::Response &res)
 {
     if ((req.finish == true) && (stand_status_ == Stand_Status::Stand))
@@ -420,7 +461,33 @@ bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req
     }
 
     ROS_INFO("[MESSAGE] TA Request :   %d ", req.finish);
-    ROS_INFO("#[MESSAGE] TA Response : %d#", res.turn_angle);
+    ROS_INFO("#[MESSAGE] TA Response : %f#", res.turn_angle);
+    return true;
+}
+
+bool Move_Decision::Move_UD_NeckAngle(dynamixel_current_2port::UD_NeckAngle::Request &req, dynamixel_current_2port::UD_NeckAngle::Response &res)
+{
+    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand))
+    {
+        // img_procssing
+        res.ud_neckangle = Get_UD_NeckAngle();
+    }
+
+    ROS_INFO("[MESSAGE] UD Request :   %d ", req.finish);
+    ROS_INFO("#[MESSAGE] UD Response : %f#", res.ud_neckangle);
+    return true;
+}
+
+bool Move_Decision::Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Request &req, dynamixel_current_2port::RL_NeckAngle::Response &res)
+{
+    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand))
+    {
+        // img_procssing
+        res.rl_neckangle = Get_RL_NeckAngle();
+    }
+
+    ROS_INFO("[MESSAGE] RL Request :   %d ", req.finish);
+    ROS_INFO("#[MESSAGE] RL Response : %f#", res.rl_neckangle);
     return true;
 }
 
@@ -499,7 +566,7 @@ int8_t Move_Decision::Get_running_mode_() const
     return running_mode_;
 }
 
-int8_t Move_Decision::Get_turn_angle_() const
+double Move_Decision::Get_turn_angle_() const
 {
     return turn_angle_;
 }
@@ -549,7 +616,7 @@ bool Move_Decision::Get_stop_det_flg() const
     return stop_det_flg;
 }
 
-int8_t Move_Decision::Get_gradient() const
+double Move_Decision::Get_gradient() const
 {
     return gradient;
 }
@@ -557,6 +624,16 @@ int8_t Move_Decision::Get_gradient() const
 double Move_Decision::Get_delta_x() const
 {
     return delta_x;
+}
+
+double Move_Decision::Get_UD_NeckAngle() const
+{
+    return UD_NeckAngle_;
+}
+
+double Move_Decision::Get_RL_NeckAngle() const
+{
+    return RL_NeckAngle_;
 }
 
 // ********************************************** SETTERS ************************************************** //
@@ -581,7 +658,7 @@ void Move_Decision::Set_running_mode_(int8_t running_mode_)
     this->running_mode_ = running_mode_;
 }
 
-void Move_Decision::Set_turn_angle_(int8_t turn_angle_)
+void Move_Decision::Set_turn_angle_(double turn_angle_)
 {
     this->turn_angle_ = turn_angle_;
 }
@@ -631,7 +708,7 @@ void Move_Decision::Set_stop_det_flg(bool stop_det_flg)
     this->stop_det_flg = stop_det_flg;
 }
 
-void Move_Decision::Set_gradient(int8_t gradient)
+void Move_Decision::Set_gradient(double gradient)
 {
     this->gradient = gradient;
 }
@@ -639,6 +716,16 @@ void Move_Decision::Set_gradient(int8_t gradient)
 void Move_Decision::Set_delta_x(double delta_x)
 {
     this->delta_x = delta_x;
+}
+
+void Move_Decision::Set_RL_NeckAngle(double RL_NeckAngle_)
+{
+    this->RL_NeckAngle_ = RL_NeckAngle_;
+}
+
+void Move_Decision::Set_UD_NeckAngle(double UD_NeckAngle_)
+{
+    this->UD_NeckAngle_ = UD_NeckAngle_;
 }
 
 // ********************************************** FUNCTION ************************************************** //
@@ -716,7 +803,7 @@ void Move_Decision::Motion_Info()
         break;
     }
 
-    ROS_INFO("%s", tmp_motion.c_str());
+    ROS_INFO("Motion_Index : %s", tmp_motion.c_str());
 }
 
 void Move_Decision::Running_Info()
@@ -752,5 +839,5 @@ void Move_Decision::Running_Info()
         tmp_running = Str_WALL_MODE;
         break;
     }
-    ROS_INFO("%s", tmp_running.c_str());
+    ROS_INFO("Running_Mode : %s", tmp_running.c_str());
 }

@@ -44,6 +44,8 @@ add_service_files(
   FILES
   Select_Motion.srv
   Turn_Angle.srv
+  UD_NeckAngle.srv
+  RL_NeckAngle.srv
 )
 
 generate_messages(

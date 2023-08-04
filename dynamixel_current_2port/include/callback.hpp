@@ -15,8 +15,12 @@
 
 #include "dynamixel.hpp"
 #include "Walkingpattern_generator.hpp"
+
 #include "dynamixel_current_2port/Select_Motion.h"
 #include "dynamixel_current_2port/Turn_Angle.h"
+#include "dynamixel_current_2port/UD_NeckAngle.h"
+#include "dynamixel_current_2port/RL_NeckAngle.h"
+
 
 
 
@@ -47,17 +51,25 @@ public:
   sensor_msgs::JointState joint_state;
 
 
-  //Callback Thread
+  //////////////////////////////Callback Thread
 
   // Client (재민이형 코드에 들어감)
   ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
   ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
+  ros::ServiceClient client_UD_Neck = nh.serviceClient<dynamixel_current_2port::UD_NeckAngle>("/Move_decision/UD_NeckAngle");
+  ros::ServiceClient client_RL_Neck = nh.serviceClient<dynamixel_current_2port::RL_NeckAngle>("/Move_decision/RL_NeckAngle");
 
   dynamixel_current_2port::Select_Motion srv_SM;
   dynamixel_current_2port::Turn_Angle srv_TA;
-  int8_t res_angle = srv_TA.response.turn_angle;
+  dynamixel_current_2port::UD_NeckAngle srv_UD_Neck;
+  dynamixel_current_2port::RL_NeckAngle srv_RL_Neck;
 
+
+  /////////Service callbacek
   virtual void SelectMotion();
+  virtual void Move_UD_NeckAngle();
+  virtual void Move_RL_NeckAngle();
+
 
   virtual void callbackThread();
   virtual void Emergencycallback(const std_msgs::Bool &msg);
@@ -71,6 +83,7 @@ public:
 
 
   // Variable
+  const int SPIN_RATE;
   VectorXd Goal_joint_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
   uint8_t L_value = 0;
   uint8_t R_value = 0;
@@ -79,8 +92,9 @@ public:
   VectorXd RPY = VectorXd::Zero(3);   // Roll Pitch Yaw
   VectorXd Accel = VectorXd::Zero(3); // Accel_x, Accel_y, Accel_z
   VectorXd Gyro = VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
-  
-  
+  double rl_neckangle = 0;
+  double ud_neckangle = 0;
+
   int8_t mode = 0;
   double walkfreq = 1.48114;
   double walktime = 2 / walkfreq;
@@ -107,7 +121,7 @@ public:
   MatrixXd LL_motion6;
   MatrixXd RL_motion7;
   MatrixXd LL_motion7;
-  VectorXd All_Theta = MatrixXd::Zero(NUMBER_OF_DYNAMIXELS, 1);
+  VectorXd All_Theta = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
 
   // tf2::Quaternion quaternion;
 };
