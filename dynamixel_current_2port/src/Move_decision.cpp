@@ -66,7 +66,6 @@ void Move_Decision::process()
     // Set_line_det_flg(true);
 
     // huddle mode
-    Set_UD_NeckAngle(180);
     Set_huddle_det_flg(true);
     
 

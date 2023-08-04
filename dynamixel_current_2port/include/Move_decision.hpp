@@ -210,9 +210,17 @@ private:
     int8_t stand_status_;
     int8_t running_mode_;
 
-    //Neck 
+    //Body Angle
+    //Counter Clock Wise(+)
+    //LEFT(+) / RIGHT(-)
     double turn_angle_ = 0;
+
+    //Neck 
+    //Counter Clock Wise(+)
+    //LEFT(+) / RIGHT(-)
     double RL_NeckAngle_ = 0;
+    //Counter Clock Wise(+)
+    //UP(+) / DOWN(-)
     double UD_NeckAngle_ = 0;
 
     //Running mode
