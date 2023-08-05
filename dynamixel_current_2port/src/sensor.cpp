@@ -3,7 +3,7 @@
 Sensor::Sensor(Motions *motionPtr, Callback *callbackPtr)
     : motionPtr(motionPtr),
       callbackPtr(callbackPtr),
-      SPIN_RATE(1)
+      SPIN_RATE(100)
 {
     nh_ = ros::NodeHandle();
     ////////////////Origin////////////////
@@ -57,7 +57,8 @@ void Sensor::callbackThead()
 
     ros::Rate loop_rate(SPIN_RATE);
     while(nh.ok())
-    {
+    {   
+        Publish_Velocity_Complementary();
         ros::spinOnce();
         loop_rate.sleep();
     }

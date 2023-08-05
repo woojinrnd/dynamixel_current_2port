@@ -9,15 +9,18 @@
 #include <std_msgs/Bool.h>
 #include <sensor_msgs/Imu.h>
 #include <opencv2/opencv.hpp>
-// #include <mutex>
 #include <string.h>
 
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+#include <std_msgs/Float32.h>
+#include <thread>
+#include <librealsense2/rs.hpp>
 
 #include "dynamixel_current_2port/Select_Motion.h"
 #include "dynamixel_current_2port/Turn_Angle.h"
 #include "dynamixel_current_2port/UD_NeckAngle.h"
 #include "dynamixel_current_2port/RL_NeckAngle.h"
-#include "img_proc.hpp"
 
 using namespace std;
 
@@ -53,7 +56,7 @@ public:
         Fallen_Forward = 1,
         Fallen_Back = 2,
     };
-    
+
     string Str_InitPose = "InitPose";
     string Str_Forward_4step = "Forward_4step";
     string Str_Left_2step = "Left_2step";
@@ -63,7 +66,6 @@ public:
     string Str_FWD_UP = "FWD_UP";
     string Str_BWD_UP = "BWD_UP";
 
-
     string Str_LINE_MODE = "LINE_MODE";
     string Str_NO_LINE_MODE = "NO_LINE_MODE";
     string Str_STOP_MODE = "STOP_MODE";
@@ -72,17 +74,55 @@ public:
     string Str_HUDDLE_MODE = "HUDDLE_MODE";
     string Str_WALL_MODE = "WALL_MODE";
 
-    
-    Move_Decision(Img_proc *img_procPtr);
-    ~Move_Decision();
-    Img_proc *img_procPtr;
+    // Move_Decision(Img_proc *img_procPtr);
+    Move_Decision();
 
+    ~Move_Decision();
+    // Img_proc *img_procPtr;
 
     // ********************************************** 2D THREAD************************************************** //
     void webcam_thread();
-    // ********************************************** 3D THREAD************************************************** //
-    void realsense_thread();
+    void topic_publish(const std::string &topic_name)
+    {
+        pub = nh.advertise<std_msgs::Float32>(topic_name, 1000);
+    }
 
+    void publish_message(float msg_data)
+    {
+        std_msgs::Float32 msg;
+        msg.data = msg_data;
+        pub.publish(msg);
+    }
+    int threshold_value_white = 127;
+    int threshold_value_yellow = 127;
+    const int max_value = 255;
+    int hue_lower = 0;
+    int hue_upper = 179;
+    int saturation_lower = 0;
+    int saturation_upper = 255;
+    int value_lower = 0;
+    int value_upper = 255;
+
+    cv::Scalar blue_color = (255, 0, 0);
+    cv::Scalar green_color = (0, 255, 0);
+    cv::Scalar red_color = (0, 0, 255);
+
+    cv::Scalar lower_bound_yellow = (20, 20, 100); // HSV에서 노란색의 하한값
+    cv::Scalar upper_bound_yellow = (32, 255, 255);
+
+    cv::Scalar lower_bound_white = (0, 0, 0);
+    cv::Scalar upper_bound_white = (179, 255, 255);
+
+    static void on_trackbar(int, void *);
+    void create_threshold_trackbar_W(const std::string &window_name);
+    void create_threshold_trackbar_Y(const std::string &window_name);
+    void create_color_range_trackbar(const std::string &window_name);
+    cv::Mat extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
+    cv::Mat detect_color_areas(const cv::Mat &input_frame, const cv::Scalar &contour_color, int threshold_value);
+    // ********************************************** 3D THREAD************************************************** //
+
+    void realsense_thread();
+    
     // ********************************************** PROCESS THREAD************************************************** //
 
     void process();
@@ -125,14 +165,12 @@ public:
     ros::ServiceServer UD_NeckAngle_server_;
     ros::ServiceServer RL_NeckAngle_server_;
 
-
     // ********************************************** FUNCTION ************************************************** //
 
     Eigen::Vector3d convertRotationToRPY(const Eigen::Matrix3d &rotation);
     Eigen::Vector3d convertQuaternionToRPY(const Eigen::Quaterniond &quaternion);
     void Motion_Info();
     void Running_Info();
-
 
     // ********************************************** GETTERS ************************************************** //
 
@@ -153,13 +191,13 @@ public:
     bool Get_wall_det_flg() const;
     bool Get_stop_det_flg() const;
 
-
     double Get_gradient() const;
     double Get_delta_x() const;
 
     double Get_RL_NeckAngle() const;
     double Get_UD_NeckAngle() const;
 
+    bool Get_img_proc_line_det() const;
 
     // ********************************************** SETTERS ************************************************** //
 
@@ -180,11 +218,12 @@ public:
     void Set_wall_det_flg(bool wall_det_flg);
     void Set_stop_det_flg(bool stop_det_flg);
 
-
     void Set_gradient(double gradient);
     void Set_delta_x(double delta_x);
     void Set_RL_NeckAngle(double RL_NeckAngle_);
     void Set_UD_NeckAngle(double UD_NeckAngle_);
+
+    void Set_img_proc_line_det(bool img_proc_line_det_);
 
 
     // ********************************************** IMG_PROC ************************************************** //
@@ -193,22 +232,26 @@ public:
     bool straightLine;
     double margin_gradient = 5; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
-    double Angle_toBeStraight = 40; //max or min
-    
-    //If no find line (NO_LINE_MODE)
-    //delta_x : Center of window.x - Center of last captured line.x 
-    //delta_x > 0 : LEFT
-    //delta_x < 0 : RIGHT
-    //Out of Range -> A straight trun walking
-    double Angle_ToFindLine = 10; //max or min
+    double Angle_toBeStraight = 40; // max or min
 
-    //Actural send turn angle
+    // If no find line (NO_LINE_MODE)
+    // delta_x : Center of window.x - Center of last captured line.x
+    // delta_x > 0 : LEFT
+    // delta_x < 0 : RIGHT
+    // Out of Range -> A straight trun walking
+    double Angle_ToFindLine = 10; // max or min
+
+    // Actural send turn angle
     double Actural_angle = 0;
 
-    //check the variable sharing with multi thread
-    // int aaaa = -25;
+    // check the variable sharing with multi thread
+    int aaaa = -25;
 
 private:
+
+    ros::NodeHandle nh;
+    ros::Publisher pub;
+    
     const double FALL_FORWARD_LIMIT;
     const double FALL_BACK_LIMIT;
     const int SPIN_RATE;
@@ -217,20 +260,20 @@ private:
     int8_t stand_status_;
     int8_t running_mode_;
 
-    //Body Angle
-    //Counter Clock Wise(+)
-    //LEFT(+) / RIGHT(-)
+    // Body Angle
+    // Counter Clock Wise(+)
+    // LEFT(+) / RIGHT(-)
     double turn_angle_ = 0;
 
-    //Neck 
-    //Counter Clock Wise(+)
-    //LEFT(+) / RIGHT(-)
+    // Neck
+    // Counter Clock Wise(+)
+    // LEFT(+) / RIGHT(-)
     double RL_NeckAngle_ = 0;
-    //Counter Clock Wise(+)
-    //UP(+) / DOWN(-)
+    // Counter Clock Wise(+)
+    // UP(+) / DOWN(-)
     double UD_NeckAngle_ = 0;
 
-    //Running mode
+    // Running mode
     bool goal_line_det_flg = false;
     bool line_det_flg = false;
     bool no_line_det_flg = false;
@@ -252,7 +295,9 @@ private:
     /// Img_Proc ///
     int8_t gradient; // Line_angle
     double delta_x = 0;
-
+    bool img_proc_line_det_ = false;
+    bool tmp_img_proc_line_det_flg_;
+    bool tmp_no_line_det_flg_;
 };
 
 #endif // MOVE_DECISION_H

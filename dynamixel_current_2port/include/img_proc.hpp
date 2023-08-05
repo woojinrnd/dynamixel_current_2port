@@ -8,10 +8,12 @@
 #include <thread>
 #include <librealsense2/rs.hpp>
 
+
+
 class Img_proc
 {
 public:
-    // Img_proc();
+    Img_proc();
     // ~Img_proc();
     void topic_publish(const std::string &topic_name)
     {
@@ -54,15 +56,96 @@ public:
     cv::Scalar lower_bound_white = (0, 0, 0);
     cv::Scalar upper_bound_white = (179, 255, 255);
 
+    // cv::Scalar blue_color;
+    // cv::Scalar green_color;
+    // cv::Scalar red_color;
 
-    static void on_trackbar(int, void*);
+    // cv::Scalar lower_bound_yellow; // HSV에서 노란색의 하한값
+    // cv::Scalar upper_bound_yellow;
+
+    // cv::Scalar lower_bound_white;
+    // cv::Scalar upper_bound_white;
+
+    static void on_trackbar(int, void *);
     void create_threshold_trackbar_W(const std::string &window_name);
     void create_threshold_trackbar_Y(const std::string &window_name);
     void create_color_range_trackbar(const std::string &window_name);
-    cv::Mat extract_color(const cv::Mat& input_frame, const cv::Scalar& lower_bound, const cv::Scalar& upper_bound);
-    cv::Mat detect_color_areas(const cv::Mat& input_frame, const cv::Scalar& contour_color, int threshold_value);
+    cv::Mat extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
+    cv::Mat detect_color_areas(const cv::Mat &input_frame, const cv::Scalar &contour_color, int threshold_value);
     // void webcam_thread();
     // void realsense_thread();
+
+    // ********************************************** GETTERS ************************************************** //
+    cv::Scalar getBlueColor() const
+    {
+        return blue_color;
+    }
+
+    cv::Scalar getGreenColor() const
+    {
+        return green_color;
+    }
+
+    cv::Scalar getRedColor() const
+    {
+        return red_color;
+    }
+
+    cv::Scalar getLowerBoundYellow() const
+    {
+        return lower_bound_yellow;
+    }
+
+    cv::Scalar getUpperBoundYellow() const
+    {
+        return upper_bound_yellow;
+    }
+
+    cv::Scalar getLowerBoundWhite() const
+    {
+        return lower_bound_white;
+    }
+
+    cv::Scalar getUpperBoundWhite() const
+    {
+        return upper_bound_white;
+    }
+
+    // ********************************************** SETTERS ************************************************** //
+    void setBlueColor(const cv::Scalar &color)
+    {
+        blue_color = color;
+    }
+
+    void setGreenColor(const cv::Scalar &color)
+    {
+        green_color = color;
+    }
+
+    void setRedColor(const cv::Scalar &color)
+    {
+        red_color = color;
+    }
+
+    void setLowerBoundYellow(const cv::Scalar &lower)
+    {
+        lower_bound_yellow = lower;
+    }
+
+    void setUpperBoundYellow(const cv::Scalar &upper)
+    {
+        upper_bound_yellow = upper;
+    }
+
+    void setLowerBoundWhite(const cv::Scalar &lower)
+    {
+        lower_bound_white = lower;
+    }
+
+    void setUpperBoundWhite(const cv::Scalar &upper)
+    {
+        upper_bound_white = upper;
+    }
 
 private:
     ros::NodeHandle nh;

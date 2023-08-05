@@ -1,21 +1,24 @@
 #include "img_proc.hpp"
+// #include "Move_decision.hpp"
 
-// Img_proc::Img_proc() {}
-// Img_proc::~Img_proc() {}
 
-void Img_proc::on_trackbar(int, void*) {
+void Img_proc::on_trackbar(int, void *)
+{
     // Function body if required.
 }
 
-void Img_proc::create_threshold_trackbar_W(const std::string& window_name) {
+void Img_proc::create_threshold_trackbar_W(const std::string &window_name)
+{
     cv::createTrackbar("Threshold_white", window_name, &threshold_value_white, max_value, on_trackbar);
 }
 
-void Img_proc::create_threshold_trackbar_Y(const std::string& window_name) {
+void Img_proc::create_threshold_trackbar_Y(const std::string &window_name)
+{
     cv::createTrackbar("Threshold_yellow", window_name, &threshold_value_yellow, max_value, on_trackbar);
 }
 
-void Img_proc::create_color_range_trackbar(const std::string& window_name) {
+void Img_proc::create_color_range_trackbar(const std::string &window_name)
+{
     cv::createTrackbar("Hue Lower", window_name, &hue_lower, 179, on_trackbar);
     cv::createTrackbar("Hue Upper", window_name, &hue_upper, 179, on_trackbar);
     cv::createTrackbar("Saturation Lower", window_name, &saturation_lower, 255, on_trackbar);
@@ -24,7 +27,8 @@ void Img_proc::create_color_range_trackbar(const std::string& window_name) {
     cv::createTrackbar("Value Upper", window_name, &value_upper, 255, on_trackbar);
 }
 
-cv::Mat Img_proc::extract_color(const cv::Mat& input_frame, const cv::Scalar& lower_bound, const cv::Scalar& upper_bound) {
+cv::Mat Img_proc::extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound)
+{
     cv::Mat frame = input_frame.clone();
     cv::Mat hsv;
     cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
@@ -38,7 +42,8 @@ cv::Mat Img_proc::extract_color(const cv::Mat& input_frame, const cv::Scalar& lo
     return color_extracted;
 }
 
-cv::Mat Img_proc::detect_color_areas(const cv::Mat& input_frame, const cv::Scalar& contour_color, int threshold_value) {
+cv::Mat Img_proc::detect_color_areas(const cv::Mat &input_frame, const cv::Scalar &contour_color, int threshold_value)
+{
     cv::Mat frame = input_frame.clone();
     cv::Mat gray;
     cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
@@ -48,37 +53,44 @@ cv::Mat Img_proc::detect_color_areas(const cv::Mat& input_frame, const cv::Scala
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(binary, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-    //cv::cvtColor(gray, frame, cv::COLOR_GRAY2BGR);
+    // cv::cvtColor(gray, frame, cv::COLOR_GRAY2BGR);
 
     std::vector<cv::Point> top_contour;
     double topmost_y = std::numeric_limits<double>::max();
 
-    for (const auto& contour : contours) {
+    for (const auto &contour : contours)
+    {
         double area = cv::contourArea(contour);
-        if (area > 1000) {
+        if (area > 1000)
+        {
             cv::Moments m = cv::moments(contour);
             if (m.m00 == 0)
                 continue;
 
             cv::Point center(m.m10 / m.m00, m.m01 / m.m00);
-            if (center.y < topmost_y) {
+            if (center.y < topmost_y)
+            {
                 topmost_y = center.y;
                 top_contour = contour;
             }
         }
     }
 
-    if (!top_contour.empty()) {
+    if (!top_contour.empty())
+    {
         cv::RotatedRect min_area_rect = cv::minAreaRect(top_contour);
         cv::Point2f vertices[4];
         min_area_rect.points(vertices);
         for (int i = 0; i < 4; ++i)
-            cv::line(frame, vertices[i], vertices[(i+1)%4], cv::Scalar(0, 255, 255), 3);
+            cv::line(frame, vertices[i], vertices[(i + 1) % 4], cv::Scalar(0, 255, 255), 3);
 
         float angle;
-        if (min_area_rect.size.width < min_area_rect.size.height) {
+        if (min_area_rect.size.width < min_area_rect.size.height)
+        {
             angle = min_area_rect.angle;
-        } else {
+        }
+        else
+        {
             angle = 90 + min_area_rect.angle;
         }
         std::cout << "Angle: " << angle << std::endl;
@@ -114,7 +126,6 @@ cv::Mat Img_proc::detect_color_areas(const cv::Mat& input_frame, const cv::Scala
 //     //create_color_range_trackbar(window_name1);
 //     create_threshold_trackbar_Y(window_name4);
 //     //create_color_range_trackbar(window_name3);
-
 
 //     cv::Mat frame, hsv_frame_white, hsv_frame_yellow, thresh_frame_white, thresh_frame_yellow;
 
