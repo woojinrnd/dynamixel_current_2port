@@ -1,8 +1,9 @@
 #include "Move_decision.hpp"
 
 // Constructor
-Move_Decision::Move_Decision()
-    : FALL_FORWARD_LIMIT(60),
+Move_Decision::Move_Decision(Img_proc *img_procPtr)
+    : img_procPtr(img_procPtr),
+      FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
       SPIN_RATE(100),
       stand_status_(Stand_Status::Stand),
@@ -16,12 +17,122 @@ Move_Decision::Move_Decision()
     ros::NodeHandle nh(ros::this_node::getName());
 
     boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
+    boost::thread web_process_thread = boost::thread(boost::bind(&Move_Decision::webcam_thread, this));
+    boost::thread depth_process_thread = boost::thread(boost::bind(&Move_Decision::realsense_thread, this));
     boost::thread move_thread = boost::thread(boost::bind(&Move_Decision::MoveDecisionThread, this));
     boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
 }
 
 Move_Decision::~Move_Decision()
 {
+}
+
+// ********************************************** 2D THREAD************************************************** //
+
+void Move_Decision::webcam_thread() {
+    const int webcam_width = 640;
+    const int webcam_height = 480;
+
+    cv::VideoCapture cap(0);
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
+
+    if (!cap.isOpened())
+    {
+        std::cerr << "Could not open the webcam\n";
+        return;
+    }
+
+    const std::string window_name1 = "hsv Frame_white";
+    const std::string window_name2 = "thresh Frame_white";
+    const std::string window_name3 = "hsv Frame_yellow";
+    const std::string window_name4 = "thresh Frame_yellow";
+    cv::namedWindow(window_name1);
+    cv::namedWindow(window_name2);
+    cv::namedWindow(window_name3);
+    cv::namedWindow(window_name4);
+
+    img_procPtr->create_threshold_trackbar_W(window_name2);
+    //create_color_range_trackbar(window_name1);
+    img_procPtr->create_threshold_trackbar_Y(window_name4);
+    //create_color_range_trackbar(window_name3);
+
+
+    cv::Mat frame, hsv_frame_white, hsv_frame_yellow, thresh_frame_white, thresh_frame_yellow;
+
+    while (true)
+    {
+        cap >> frame;
+        if (frame.empty())
+            break;
+
+        hsv_frame_white = img_procPtr->extract_color(frame, img_procPtr->lower_bound_white, img_procPtr->upper_bound_white);
+        hsv_frame_yellow = img_procPtr->extract_color(frame, img_procPtr->lower_bound_yellow, img_procPtr->upper_bound_yellow);
+        thresh_frame_white = img_procPtr->detect_color_areas(hsv_frame_white, img_procPtr->green_color, img_procPtr->threshold_value_white);
+        thresh_frame_yellow = img_procPtr->detect_color_areas(hsv_frame_yellow, img_procPtr->blue_color, img_procPtr->threshold_value_yellow);
+
+        cv::imshow("origin", frame);
+        cv::imshow("hsv Frame_white", hsv_frame_white);
+        cv::imshow("hsv Frame_yellow", hsv_frame_yellow);
+        cv::imshow("thresh Frame_white", thresh_frame_white);
+        cv::imshow("thresh Frame_yellow", thresh_frame_yellow);
+        if (cv::waitKey(1) == 27)
+            break;
+    }
+}
+
+// ********************************************** 3D THREAD************************************************** //
+
+void Move_Decision::realsense_thread()
+{
+    const int realsense_width = 640;
+    const int realsense_height = 480;
+
+    rs2::colorizer color_map;
+    rs2::pipeline pipe;
+    rs2::config cfg;
+    cfg.enable_stream(RS2_STREAM_COLOR, realsense_width, realsense_height, RS2_FORMAT_BGR8, 30);
+    cfg.enable_stream(RS2_STREAM_DEPTH, realsense_width, realsense_height, RS2_FORMAT_Z16, 30);
+
+    try
+    {
+        pipe.start(cfg);
+    }
+    catch (const rs2::error &e)
+    {
+        std::cerr << "Failed to open the RealSense camera: " << e.what() << std::endl;
+        return;
+    }
+
+    const auto window_name = "Realsense Depth Frame";
+    cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
+
+    const auto window_name_color = "Realsense Color Frame";
+    cv::namedWindow(window_name_color, cv::WINDOW_AUTOSIZE);
+
+    try
+    {
+        while (cv::waitKey(1) < 0 && cv::getWindowProperty(window_name, cv::WND_PROP_AUTOSIZE) >= 0)
+        {
+            rs2::frameset data = pipe.wait_for_frames();
+
+            rs2::frame depth = data.get_depth_frame().apply_filter(color_map);
+            rs2::frame color = data.get_color_frame();
+
+            const int w = depth.as<rs2::video_frame>().get_width();
+            const int h = depth.as<rs2::video_frame>().get_height();
+
+            cv::Mat depthMat(cv::Size(w, h), CV_16U, (void *)depth.get_data(), cv::Mat::AUTO_STEP);
+            cv::Mat colorMat(cv::Size(w, h), CV_8UC3, (void *)color.get_data(), cv::Mat::AUTO_STEP);
+
+            cv::imshow(window_name, depthMat);
+            cv::imshow(window_name_color, colorMat);
+        }
+    }
+    catch (const rs2::error &e)
+    {
+        std::cerr << "An error occurred during streaming: " << e.what() << std::endl;
+    }
 }
 
 // ********************************************** PROCESS THREAD************************************************** //
@@ -61,18 +172,14 @@ void Move_Decision::process()
     // rostopic echo /Move_decision/Emergency
     // Set_stop_det_flg(true);
 
-    // goal mode 
+    // goal mode
     // Set_goal_line_det_flg(true);
     // Set_line_det_flg(true);
 
     // huddle mode
     Set_huddle_det_flg(true);
-    
 
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
-    
-
-    
 
     //////영상처리를 통해 line_det_flg(T/F) 판별필요
 
@@ -100,15 +207,14 @@ void Move_Decision::process()
 
     // else if (장애물과 로봇이 접촉해 정지가 필요할 때)
     // {
-            // Set_stop_det_flg(true);
+    // Set_stop_det_flg(true);
     // }
 
     /////////////////////////NO_LINE_MODE --- goal_line_det_flg = true /////////////////////////
     // else if (골 라인 인식 == true)
     // {
-            // Set_goal_line_det_flg(true);
+    // Set_goal_line_det_flg(true);
     // }
-
 }
 
 void Move_Decision::processThread()
@@ -119,16 +225,16 @@ void Move_Decision::processThread()
     // node loop
     while (ros::ok())
     {
-        ROS_INFO("\n");
-        ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
-        process();
-        Running_Info();
-        Motion_Info();
-        // ProccessThread(gradient) = callbackThread(turn_angle)
-        ROS_INFO("Gradient : %f", Get_gradient());
-        ROS_INFO("delta_x : %f", delta_x);
-        ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
-        ROS_INFO("\n");
+        // ROS_INFO("\n");
+        // ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
+        // process();
+        // Running_Info();
+        // Motion_Info();
+        // // ProccessThread(gradient) = callbackThread(turn_angle)
+        // ROS_INFO("Gradient : %f", Get_gradient());
+        // ROS_INFO("delta_x : %f", delta_x);
+        // ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
+        // ROS_INFO("\n");
         // relax to fit output rate
         loop_rate.sleep();
     }
@@ -336,25 +442,23 @@ void Move_Decision::WAKEUP_mode()
 
 void Move_Decision::GOAL_LINE_mode()
 {
-    //longer width 활용하고 싶음
+    // longer width 활용하고 싶음
     Set_motion_index_(Motion_Index::Forward_4step);
 }
 
 void Move_Decision::HUDDLE_mode()
 {
-    
+
     // 고개를 들고 허들의 거리값 받아와 걸음 수 계산
     // 걸음수 전달 후, LineMode로 진입
     // 허들을 다시 본다면 멈추고 다시 걸음 수 계산
-    // LineMode   
-    
+    // LineMode
+
     double tmp_ud_neckangle = Get_UD_NeckAngle();
     tmp_ud_neckangle = 45;
     Set_UD_NeckAngle(tmp_ud_neckangle);
 
-
     Set_line_det_flg(true);
-
 }
 
 void Move_Decision::WALL_mode()
@@ -377,22 +481,21 @@ void Move_Decision::callbackThread()
     UD_NeckAngle_server_ = nh.advertiseService("UD_NeckAngle", &Move_Decision::Move_UD_NeckAngle, this);
     RL_NeckAngle_server_ = nh.advertiseService("RL_NeckAngle", &Move_Decision::Move_RL_NeckAngle, this);
 
-
     ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
     {
         startMode();
 
-        ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
-        ROS_INFO("-------------------------------------------------------------------");
-        Running_Mode_Decision();
-        Running_Info();
-        Motion_Info();
-        ROS_INFO("angle : %f", Get_turn_angle_());
-        ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
-        ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());
-        ROS_INFO("-------------------------------------------------------------------");
-        ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
+        // ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
+        // ROS_INFO("-------------------------------------------------------------------");
+        // Running_Mode_Decision();
+        // Running_Info();
+        // Motion_Info();
+        // ROS_INFO("angle : %f", Get_turn_angle_());
+        // ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
+        // ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());
+        // ROS_INFO("-------------------------------------------------------------------");
+        // ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
 
         ros::spinOnce();
         loop_rate.sleep();

@@ -122,8 +122,9 @@ add_executable(
   # src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
   src/img_proc.cpp ${img_proc.hpp}
 )
+
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(Move_decision_node ${catkin_LIBRARIES})
+target_link_libraries(Move_decision_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${realsense2_LIBRARY})
 
 install(TARGETS dynamixel_current_2port Move_decision_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

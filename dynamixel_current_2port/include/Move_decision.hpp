@@ -12,6 +12,7 @@
 // #include <mutex>
 #include <string.h>
 
+
 #include "dynamixel_current_2port/Select_Motion.h"
 #include "dynamixel_current_2port/Turn_Angle.h"
 #include "dynamixel_current_2port/UD_NeckAngle.h"
@@ -72,9 +73,15 @@ public:
     string Str_WALL_MODE = "WALL_MODE";
 
     
-    Move_Decision();
+    Move_Decision(Img_proc *img_procPtr);
     ~Move_Decision();
+    Img_proc *img_procPtr;
 
+
+    // ********************************************** 2D THREAD************************************************** //
+    void webcam_thread();
+    // ********************************************** 3D THREAD************************************************** //
+    void realsense_thread();
 
     // ********************************************** PROCESS THREAD************************************************** //
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <time.h>
 #include "Move_decision.hpp"
+// #include "img_proc.hpp"
 
 int main(int argc, char **argv)
 {
@@ -8,7 +9,10 @@ int main(int argc, char **argv)
     ros::Time::init();
     ros::Rate loop_rate(1);
     ros::NodeHandle nh;
-    Move_Decision move_decision;
+
+    Img_proc img_proc;
+    Move_Decision move_decision(&img_proc);
+
 
     // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
     // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
