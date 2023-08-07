@@ -91,8 +91,6 @@ int main(int argc, char **argv)
         dxl.syncWriteTheta();
         
 
-
-
         ros::spinOnce();
         loop_rate.sleep();
 

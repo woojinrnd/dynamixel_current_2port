@@ -81,7 +81,6 @@ public:
   ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
 
 
-
   // Variable
   const int SPIN_RATE;
   VectorXd Goal_joint_ = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
@@ -94,6 +93,7 @@ public:
   VectorXd Gyro = VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
   double rl_neckangle = 0;
   double ud_neckangle = 0;
+
 
   int8_t mode = 0;
   double walkfreq = 1.48114;

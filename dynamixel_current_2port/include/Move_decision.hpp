@@ -11,16 +11,16 @@
 #include <opencv2/opencv.hpp>
 #include <string.h>
 
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
-#include <std_msgs/Float32.h>
-#include <thread>
-#include <librealsense2/rs.hpp>
+
 
 #include "dynamixel_current_2port/Select_Motion.h"
 #include "dynamixel_current_2port/Turn_Angle.h"
 #include "dynamixel_current_2port/UD_NeckAngle.h"
 #include "dynamixel_current_2port/RL_NeckAngle.h"
+
+#include "img_proc.hpp"
+// #include "IMG_PROC.hpp"
+
 
 using namespace std;
 
@@ -74,55 +74,13 @@ public:
     string Str_HUDDLE_MODE = "HUDDLE_MODE";
     string Str_WALL_MODE = "WALL_MODE";
 
-    // Move_Decision(Img_proc *img_procPtr);
-    Move_Decision();
+    Move_Decision(Img_proc *img_procPtr);
+    Img_proc *img_procPtr;
 
+    // Move_Decision();
     ~Move_Decision();
-    // Img_proc *img_procPtr;
 
-    // ********************************************** 2D THREAD************************************************** //
-    void webcam_thread();
-    void topic_publish(const std::string &topic_name)
-    {
-        pub = nh.advertise<std_msgs::Float32>(topic_name, 1000);
-    }
 
-    void publish_message(float msg_data)
-    {
-        std_msgs::Float32 msg;
-        msg.data = msg_data;
-        pub.publish(msg);
-    }
-    int threshold_value_white = 127;
-    int threshold_value_yellow = 127;
-    const int max_value = 255;
-    int hue_lower = 0;
-    int hue_upper = 179;
-    int saturation_lower = 0;
-    int saturation_upper = 255;
-    int value_lower = 0;
-    int value_upper = 255;
-
-    cv::Scalar blue_color = (255, 0, 0);
-    cv::Scalar green_color = (0, 255, 0);
-    cv::Scalar red_color = (0, 0, 255);
-
-    cv::Scalar lower_bound_yellow = (20, 20, 100); // HSV에서 노란색의 하한값
-    cv::Scalar upper_bound_yellow = (32, 255, 255);
-
-    cv::Scalar lower_bound_white = (0, 0, 0);
-    cv::Scalar upper_bound_white = (179, 255, 255);
-
-    static void on_trackbar(int, void *);
-    void create_threshold_trackbar_W(const std::string &window_name);
-    void create_threshold_trackbar_Y(const std::string &window_name);
-    void create_color_range_trackbar(const std::string &window_name);
-    cv::Mat extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
-    cv::Mat detect_color_areas(const cv::Mat &input_frame, const cv::Scalar &contour_color, int threshold_value);
-    // ********************************************** 3D THREAD************************************************** //
-
-    void realsense_thread();
-    
     // ********************************************** PROCESS THREAD************************************************** //
 
     void process();
@@ -196,8 +154,9 @@ public:
 
     double Get_RL_NeckAngle() const;
     double Get_UD_NeckAngle() const;
+    bool Get_RL_Neck_on_flg() const;
+    bool Get_UD_Neck_on_flg() const;
 
-    bool Get_img_proc_line_det() const;
 
     // ********************************************** SETTERS ************************************************** //
 
@@ -222,14 +181,15 @@ public:
     void Set_delta_x(double delta_x);
     void Set_RL_NeckAngle(double RL_NeckAngle_);
     void Set_UD_NeckAngle(double UD_NeckAngle_);
+    void Set_RL_Neck_on_flg(bool RL_Neck_on_flg);
+    void Set_UD_Neck_on_flg(bool UD_Neck_on_flg);
 
-    void Set_img_proc_line_det(bool img_proc_line_det_);
 
 
     // ********************************************** IMG_PROC ************************************************** //
 
     // StraightLine
-    bool straightLine;
+    bool straightLine = true;
     double margin_gradient = 5; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
     double Angle_toBeStraight = 40; // max or min
@@ -245,7 +205,8 @@ public:
     double Actural_angle = 0;
 
     // check the variable sharing with multi thread
-    int aaaa = -25;
+    int aaaa = 1;
+    int b = aaaa % 2;
 
 private:
 
@@ -269,9 +230,11 @@ private:
     // Counter Clock Wise(+)
     // LEFT(+) / RIGHT(-)
     double RL_NeckAngle_ = 0;
+    bool RL_Neck_on_flg = false;
     // Counter Clock Wise(+)
     // UP(+) / DOWN(-)
     double UD_NeckAngle_ = 0;
+    bool UD_Neck_on_flg = false;
 
     // Running mode
     bool goal_line_det_flg = false;
@@ -293,11 +256,8 @@ private:
     bool CallbackON_;
 
     /// Img_Proc ///
-    int8_t gradient; // Line_angle
+    int8_t gradient = 0; // Line_angle
     double delta_x = 0;
-    bool img_proc_line_det_ = false;
-    bool tmp_img_proc_line_det_flg_;
-    bool tmp_no_line_det_flg_;
 };
 
 #endif // MOVE_DECISION_H

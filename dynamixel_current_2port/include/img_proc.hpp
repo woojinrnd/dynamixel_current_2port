@@ -7,6 +7,10 @@
 #include <std_msgs/Float32.h>
 #include <thread>
 #include <librealsense2/rs.hpp>
+#include <vector>
+
+using namespace cv;
+using namespace std;
 
 
 
@@ -14,7 +18,12 @@ class Img_proc
 {
 public:
     Img_proc();
-    // ~Img_proc();
+    ~Img_proc() {};
+    
+    // ********************************************** 2D THREAD************************************************** //
+
+    void webcam_thread();
+
     void topic_publish(const std::string &topic_name)
     {
         pub = nh.advertise<std_msgs::Float32>(topic_name, 1000);
@@ -27,14 +36,11 @@ public:
         pub.publish(msg);
     }
 
-    // Line Processing
-    // delta_x :화면의 중앙.x - 마지막으로 포착한 라인의 중심점.x
-    // delta_x > 0 : LEFT
-    // delta_x < 0 : RIGHT
-    // static double delta_x = 0;
-
-    // check the variable sharing with multi thread
-    int aaaa = -25;
+    //Cam set
+    const int webcam_width = 640;
+    const int webcam_height = 480;
+    const int webcam_fps = 30;
+    const int webcam_id = 1;
 
     int threshold_value_white = 127;
     int threshold_value_yellow = 127;
@@ -50,21 +56,13 @@ public:
     cv::Scalar green_color = (0, 255, 0);
     cv::Scalar red_color = (0, 0, 255);
 
-    cv::Scalar lower_bound_yellow = (20, 20, 100); // HSV에서 노란색의 하한값
-    cv::Scalar upper_bound_yellow = (32, 255, 255);
+    cv::Scalar HSV_lower_bound_yellow = (20, 20, 100); // HSV에서 노란색의 하한값
+    cv::Scalar HSV_upper_bound_yellow = (32, 255, 255);
 
-    cv::Scalar lower_bound_white = (0, 0, 0);
-    cv::Scalar upper_bound_white = (179, 255, 255);
+    cv::Scalar HSV_lower_bound_white = (0, 0, 0);
+    cv::Scalar HSV_upper_bound_white = (179, 255, 255);
 
-    // cv::Scalar blue_color;
-    // cv::Scalar green_color;
-    // cv::Scalar red_color;
 
-    // cv::Scalar lower_bound_yellow; // HSV에서 노란색의 하한값
-    // cv::Scalar upper_bound_yellow;
-
-    // cv::Scalar lower_bound_white;
-    // cv::Scalar upper_bound_white;
 
     static void on_trackbar(int, void *);
     void create_threshold_trackbar_W(const std::string &window_name);
@@ -72,82 +70,47 @@ public:
     void create_color_range_trackbar(const std::string &window_name);
     cv::Mat extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
     cv::Mat detect_color_areas(const cv::Mat &input_frame, const cv::Scalar &contour_color, int threshold_value);
-    // void webcam_thread();
-    // void realsense_thread();
+
+
+
+    // ********************************************** 3D THREAD************************************************** //
+
+    void realsense_thread();
+
+    //Cam set
+    const int realsense_width = 640;
+    const int realsense_height = 480;
+    const int realsense_fps = 30;
 
     // ********************************************** GETTERS ************************************************** //
-    cv::Scalar getBlueColor() const
-    {
-        return blue_color;
-    }
 
-    cv::Scalar getGreenColor() const
-    {
-        return green_color;
-    }
-
-    cv::Scalar getRedColor() const
-    {
-        return red_color;
-    }
-
-    cv::Scalar getLowerBoundYellow() const
-    {
-        return lower_bound_yellow;
-    }
-
-    cv::Scalar getUpperBoundYellow() const
-    {
-        return upper_bound_yellow;
-    }
-
-    cv::Scalar getLowerBoundWhite() const
-    {
-        return lower_bound_white;
-    }
-
-    cv::Scalar getUpperBoundWhite() const
-    {
-        return upper_bound_white;
-    }
-
+    bool Get_img_proc_line_det() const;
+    
     // ********************************************** SETTERS ************************************************** //
-    void setBlueColor(const cv::Scalar &color)
-    {
-        blue_color = color;
-    }
 
-    void setGreenColor(const cv::Scalar &color)
-    {
-        green_color = color;
-    }
+    void Set_img_proc_line_det(bool img_proc_line_det_);
 
-    void setRedColor(const cv::Scalar &color)
-    {
-        red_color = color;
-    }
 
-    void setLowerBoundYellow(const cv::Scalar &lower)
-    {
-        lower_bound_yellow = lower;
-    }
+    // ********************************************** running ************************************************** //
 
-    void setUpperBoundYellow(const cv::Scalar &upper)
-    {
-        upper_bound_yellow = upper;
-    }
+    cv::VideoCapture vcap;
+    Mat Origin_img;
 
-    void setLowerBoundWhite(const cv::Scalar &lower)
-    {
-        lower_bound_white = lower;
-    }
+    void RGB2HSV(const cv::Mat& rgb_image, cv::Mat& hsv_image);
+    void RGB2LAB(const cv::Mat& rgb_image, cv::Mat& lab_image);
+    void extractAndDisplayObject();
+    // void extractAndDisplayObject2(cv::VideoCapture& cap, const cv::Scalar& hsv_lower, const cv::Scalar& hsv_upper, const cv::Scalar& lab_lower, const cv::Scalar& lab_upper);
 
-    void setUpperBoundWhite(const cv::Scalar &upper)
-    {
-        upper_bound_white = upper;
-    }
+    void init();
+
+
 
 private:
     ros::NodeHandle nh;
     ros::Publisher pub;
+    const int SPIN_RATE;
+
+    //LINE Determine flg from img_proc
+    bool img_proc_line_det_ = false;
+
 };

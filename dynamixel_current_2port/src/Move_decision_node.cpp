@@ -10,9 +10,9 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(1);
     ros::NodeHandle nh;
 
-    // Move_Decision move_decision(&img_proc);
-    Move_Decision move_decision;
-
+    Img_proc img_proc;
+    Move_Decision move_decision(&img_proc);
+    // Move_Decision move_decision;
 
 
     // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision

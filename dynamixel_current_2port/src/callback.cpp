@@ -117,6 +117,7 @@ void Callback::Emergencycallback(const std_msgs::Bool &msg)
         ROS_ERROR("Emergency");
     }
 }
+
 // About Subscribe
 //  void Callback::SelectMotion(const std_msgs::UInt8::ConstPtr &msg)
 //  {
@@ -200,7 +201,6 @@ void Callback::Move_UD_NeckAngle()
     }
 }
 
-
 void Callback::SelectMotion()
 {
     if (client_SM.call(srv_SM))
@@ -266,7 +266,6 @@ void Callback::SelectMotion()
 
 void Callback::MotionMaker()
 {
-
     motionPtr->Motion0();
     LL_motion0 = motionPtr->Return_Motion0_LL();
     RL_motion0 = motionPtr->Return_Motion0_RL();
