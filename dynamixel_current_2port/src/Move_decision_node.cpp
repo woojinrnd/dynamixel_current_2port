@@ -15,6 +15,7 @@ int main(int argc, char **argv)
     // Move_Decision move_decision;
 
 
+
     // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
     // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
 

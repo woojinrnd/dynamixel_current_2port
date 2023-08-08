@@ -2,7 +2,8 @@
 
 // Constructor
 Img_proc::Img_proc()
-    : SPIN_RATE(30)
+    : SPIN_RATE(30),
+      img_proc_line_det_(false)
 {
 }
 
@@ -80,6 +81,7 @@ cv::Mat Img_proc::detect_color_areas(const cv::Mat &input_frame, const cv::Scala
                 top_contour = contour;
             }
             Set_img_proc_line_det(true);
+            
             ROS_WARN("LINE_MODE ON");
         }
         else
@@ -219,98 +221,19 @@ void Img_proc::realsense_thread()
     }
 }
 
-// ********************************************** GETTERS ************************************************** //
-
-bool Img_proc::Get_img_proc_line_det() const
-{
-    return img_proc_line_det_;
-}
-
-// ********************************************** SETTERS ************************************************** //
-
-void Img_proc::Set_img_proc_line_det(bool img_proc_line_det_)
-{
-    img_proc_line_det_ = img_proc_line_det_;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// void Img_proc::FIELD_imgprocessing() // find field contour area and fill
-// {
-//     // seperate 'bitwise image' and 'field image' for next bitwise operation.
-//     Mat field;
-//     Mat bitwise;
-//     bitwise_and(Field.img_hsv, Field.img_lab, bitwise);
-
-//     morphologyEx(bitwise, bitwise, MORPH_OPEN, Mat(), Point(-1, -1), 2);
-//     field = bitwise.clone();
-
-//     // for (int i = 100; i < 180; ++i) // i = y-axis, j = x-axis, draw rectangle for straight line detection
-//     //{
-//     //	for (int j = 120; j < 200; ++j)
-//     //	{
-//     //		field.at<char>(i, j) = 255;
-//     //	}
-//     // }
-
-//     for (int i = 0; i < 240; ++i) // i = y-axis, j = x-axis, draw rectangle for straight line detection
-//     {
-//         for (int j = 0; j < 320; ++j)
-//         {
-//             if (i > 240 - 5)
-//             {
-//                 if (j > 40 && j < 280)
-//                 {
-//                     field.at<char>(i, j) = 255;
-//                 }
-//             }
-//         }
-//     }
-//     vector<vector<Point>> contours;
-//     vector<Point> hull;
-//     vector<Point> approxpoly;
-//     findContours(field, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
-
-//     int _size = (int)contours.size();
-//     int area_max = 0;
-//     int label_num = 0;
-//     if (_size > 0)
-//     {
-//         for (int i = 0; i < _size; i++)
-//         {
-//             int area = cvRound(contourArea(contours[i]) * 100.0);
-//             if (area > area_max)
-//             {
-//                 area_max = area;
-//                 label_num = i;
-//             }
-//         }
-
-//         //*** WARNING algorithm changed !! WARNING ***//
-
-//         // approxPolyDP(Mat(contours[label_num]), approxpoly, arcLength(contours[label_num], true)*0.02, true);
-//         // fillConvexPoly(field, approxpoly, Scalar(255), 8);
-//         convexHull(Mat(contours[label_num]), hull, false);
-//         fillConvexPoly(field, hull, Scalar(255), 8);
-
-//         //***   WARNING WARNING WARNING WARNING   ***//
-//         // drawContours(field, Mat(contours[label_num]), -1, Scalar(255), -1);
-//     }
-//     morphologyEx(field, field, MORPH_ERODE, Mat(), Point(-1, -1), 5);
-//     bitwise_and(field, ~bitwise, field);
-//     morphologyEx(field, Field.img_field, MORPH_OPEN, Mat(), Point(-1, -1), 2);
-//     // morphologyEx(field, Field.img_field, MORPH_ERODE, Mat(), Point(-1, -1), 5);
-//     // morphologyEx(img_field, img_field, MORPH_DILATE, Mat(), Point(-1, -1), 2);
-// }
+// *************************************************************************  *****************************************************************************//
 
 void Img_proc::RGB2HSV(const cv::Mat &rgb_image, cv::Mat &hsv_image)
 {
     cv::cvtColor(rgb_image, hsv_image, cv::COLOR_BGR2HSV);
+    morphologyEx(hsv_image, hsv_image, MORPH_OPEN, Mat(), Point(-1, -1), 1);
+    morphologyEx(hsv_image, hsv_image, MORPH_ERODE, Mat(), Point(-1, -1), -5);
 }
 
 void Img_proc::RGB2LAB(const cv::Mat &rgb_image, cv::Mat &lab_image)
 {
     cv::cvtColor(rgb_image, lab_image, cv::COLOR_BGR2Lab);
+	morphologyEx(lab_image, lab_image, MORPH_OPEN, Mat(), Point(-1, -1), 1);
 }
 
 void Img_proc::extractAndDisplayObject()
@@ -339,10 +262,10 @@ void Img_proc::extractAndDisplayObject()
     int v_max = cv::getTrackbarPos("V max", "Threshold Adjustments");
     int l_min = cv::getTrackbarPos("L min", "Threshold Adjustments");
     int l_max = cv::getTrackbarPos("L max", "Threshold Adjustments");
-    int a_min = cv::getTrackbarPos("a min", "Threshold Adjustments");
-    int a_max = cv::getTrackbarPos("a max", "Threshold Adjustments");
-    int b_min = cv::getTrackbarPos("b min", "Threshold Adjustments");
-    int b_max = cv::getTrackbarPos("b max", "Threshold Adjustments");
+    int a_min = cv::getTrackbarPos("A min", "Threshold Adjustments");
+    int a_max = cv::getTrackbarPos("A max", "Threshold Adjustments");
+    int b_min = cv::getTrackbarPos("B min", "Threshold Adjustments");
+    int b_max = cv::getTrackbarPos("B max", "Threshold Adjustments");
 
     cv::Scalar hsv_lower_thresh(h_min, s_min, v_min);
     cv::Scalar hsv_upper_thresh(h_max, s_max, v_max);
@@ -354,64 +277,67 @@ void Img_proc::extractAndDisplayObject()
 
     // Combine binary masks from both color spaces
     cv::Mat final_binary_mask;
+    Mat field;
     cv::bitwise_and(hsv_binary_mask, lab_binary_mask, final_binary_mask);
 
     // Apply morphological operations if needed (e.g., to remove noise)
     cv::Mat morph_kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     cv::morphologyEx(final_binary_mask, final_binary_mask, cv::MORPH_OPEN, morph_kernel);
 
+    field = final_binary_mask.clone();
+
+    
     // Calculate object area
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Point> hull;
     std::vector<cv::Point> approxpoly;
-    cv::findContours(final_binary_mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+    // cv::findContours(final_binary_mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+    cv::findContours(field, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 
     int _size = static_cast<int>(contours.size());
     int area_max = 0;
     int label_num = 0;
+
     if (_size > 0)
     {
         for (int i = 0; i < _size; i++)
         {
             int area = cvRound(cv::contourArea(contours[i]));
-            if (area > area_max)
-            {
-                area_max = area;
-                label_num = i;
-            }
+            area_max = std::max(area_max, area);
         }
 
-        if (area_max > 1000)
+        if (area_max >= 2000)
         {
-            // Your logic for handling when area > 1000
-            // img_proc_line_det_ = true;
-            Set_img_proc_line_det(true);
+            this->Set_img_proc_line_det(true);
+            // ROS_WARN("img_proc_line_det : %d", Get_img_proc_line_det());
         }
-        else
+
+        else if (500 < area_max < 2000)
         {
-            // Your logic for handling when area <= 1000
-            Set_img_proc_line_det(false);
-            // img_proc_line_det_ = false;
+            this->Set_img_proc_line_det(false);
+            // ROS_ERROR("img_proc_line_det : %d", Get_img_proc_line_det());
         }
 
         cv::convexHull(cv::Mat(contours[label_num]), hull, false);
-        cv::fillConvexPoly(Origin_img, hull, cv::Scalar(255), 8);
+        // cv::fillConvexPoly(Origin_img, hull, cv::Scalar(255), 8);
+        cv::fillConvexPoly(field, hull, cv::Scalar(255), 8);
 
         cv::Scalar color(0, 0, 255); // Red color for text
         std::string area_text = "Area: " + std::to_string(area_max) + " pixels";
 
         // Draw the area information on the frame
         cv::putText(Origin_img, area_text, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 1, color, 2);
-        // cv::morphologyEx(Origin_img, Origin_img, cv::MORPH_ERODE, cv::Mat(), cv::Point(-1, -1), 5);
-        // cv::bitwise_and(Origin_img, ~final_binary_mask, Origin_img);
-        // cv::morphologyEx(Origin_img, Origin_img, cv::MORPH_OPEN, cv::Mat(), cv::Point(-1, -1), 2);
     }
-    else
+
+    if(contours.empty())
     {
-        // Your logic for handling when no contours are found
-        // img_proc_line_det_ = false; // No detection, set to false
-        Set_img_proc_line_det(false);
+        this->Set_img_proc_no_line_det(true);
+        // ROS_ERROR("img_proc_no_line_det : %d", Get_img_proc_no_line_det());
+        // cout << "no area" << endl;
     }
+    cv::morphologyEx(field, field, cv::MORPH_ERODE, cv::Mat(), cv::Point(-1, -1), 5);
+    cv::bitwise_and(field, ~final_binary_mask, field);
+    cv::morphologyEx(field, field, cv::MORPH_OPEN, cv::Mat(), cv::Point(-1, -1), 2);
 
     // Show the original frame and the final binary mask
     cv::imshow("Original Frame", Origin_img);
@@ -425,6 +351,7 @@ void Img_proc::init()
     vcap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
     vcap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
     vcap.set(cv::CAP_PROP_FPS, webcam_fps);
+    
 
     if (!vcap.isOpened())
     {
@@ -441,10 +368,40 @@ void Img_proc::init()
     cv::createTrackbar("V max", "Threshold Adjustments", nullptr, 255);
     cv::createTrackbar("L min", "Threshold Adjustments", nullptr, 255);
     cv::createTrackbar("L max", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("a min", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("a max", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("b min", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("b max", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("A min", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("A max", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("B min", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("B max", "Threshold Adjustments", nullptr, 255);
+
+
+    cv::setTrackbarPos("H min", "Threshold Adjustments", 77);
+    cv::setTrackbarPos("S min", "Threshold Adjustments", 142);
+    cv::setTrackbarPos("V min", "Threshold Adjustments", 54);
+    cv::setTrackbarPos("L min", "Threshold Adjustments", 53);
+    cv::setTrackbarPos("A min", "Threshold Adjustments", 77);
+    cv::setTrackbarPos("B min", "Threshold Adjustments", 82);
+
+    cv::setTrackbarPos("H max", "Threshold Adjustments", 235);
+    cv::setTrackbarPos("S max", "Threshold Adjustments", 214);
+    cv::setTrackbarPos("V max", "Threshold Adjustments", 156);
+    cv::setTrackbarPos("L max", "Threshold Adjustments", 130);
+    cv::setTrackbarPos("A max", "Threshold Adjustments", 143);
+    cv::setTrackbarPos("B max", "Threshold Adjustments", 134);
+}
+
+void Img_proc::LINE_imgprocessing()
+{
+    try
+    {
+        /* code */
+        double tmp_delta_x = 0;
+        vector<vector<Point>> contours;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    
 }
 
 void Img_proc::webcam_thread()
@@ -461,4 +418,83 @@ void Img_proc::webcam_thread()
     // Release the camera and close OpenCV windows
     vcap.release();
     cv::destroyAllWindows();
+}
+
+
+
+// ********************************************** GETTERS ************************************************** //
+
+bool Img_proc::Get_img_proc_line_det() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_line_det_);
+    return img_proc_line_det_;
+}
+
+bool Img_proc::Get_img_proc_no_line_det() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_no_line_det_);
+    return img_proc_no_line_det_;
+}
+
+bool Img_proc::Get_img_proc_goal_line_det() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_goal_det_);
+    return img_proc_goal_det_;
+}
+
+bool Img_proc::Get_img_proc_huddle_det() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_huddle_det_);
+    return img_proc_huddle_det_;
+}
+
+bool Img_proc::Get_img_proc_wall_det() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_wall_det_);
+    return img_proc_wall_det_;
+}
+
+bool Img_proc::Get_img_proc_stop_det() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_stop_det_);
+    return img_proc_stop_det_;
+}
+
+
+// ********************************************** SETTERS ************************************************** //
+
+void Img_proc::Set_img_proc_line_det(bool img_proc_line_det)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_line_det_);
+    this->img_proc_line_det_ = img_proc_line_det;
+}
+
+void Img_proc::Set_img_proc_no_line_det(bool img_proc_no_line_det)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_no_line_det_);
+    this->img_proc_no_line_det_ = img_proc_no_line_det;
+}
+
+void Img_proc::Set_img_proc_goal_line_det(bool img_proc_goal_line_det)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_goal_det_);
+    this->img_proc_goal_det_ = img_proc_goal_line_det;
+}
+
+void Img_proc::Set_img_proc_huddle_det(bool img_proc_huddle_det)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_huddle_det_);
+    this->img_proc_huddle_det_ = img_proc_huddle_det;
+}
+
+void Img_proc::Set_img_proc_wall_det(bool img_proc_wall_det)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_wall_det_);
+    this->img_proc_wall_det_ = img_proc_wall_det;
+}
+
+void Img_proc::Set_img_proc_stop_det(bool img_proc_stop_det)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_stop_det_);
+    this->img_proc_stop_det_ = img_proc_stop_det;
 }

@@ -8,6 +8,7 @@
 #include <thread>
 #include <librealsense2/rs.hpp>
 #include <vector>
+#include <mutex>
 
 using namespace cv;
 using namespace std;
@@ -40,7 +41,7 @@ public:
     const int webcam_width = 640;
     const int webcam_height = 480;
     const int webcam_fps = 30;
-    const int webcam_id = 1;
+    const int webcam_id = 2;
 
     int threshold_value_white = 127;
     int threshold_value_yellow = 127;
@@ -56,11 +57,11 @@ public:
     cv::Scalar green_color = (0, 255, 0);
     cv::Scalar red_color = (0, 0, 255);
 
-    cv::Scalar HSV_lower_bound_yellow = (20, 20, 100); // HSV에서 노란색의 하한값
-    cv::Scalar HSV_upper_bound_yellow = (32, 255, 255);
+    cv::Scalar lower_bound_yellow = (20, 20, 100); // HSV에서 노란색의 하한값
+    cv::Scalar upper_bound_yellow = (32, 255, 255);
 
-    cv::Scalar HSV_lower_bound_white = (0, 0, 0);
-    cv::Scalar HSV_upper_bound_white = (179, 255, 255);
+    cv::Scalar lower_bound_white = (0, 0, 0);
+    cv::Scalar upper_bound_white = (179, 255, 255);
 
 
 
@@ -85,11 +86,20 @@ public:
     // ********************************************** GETTERS ************************************************** //
 
     bool Get_img_proc_line_det() const;
-    
+    bool Get_img_proc_no_line_det() const;
+    bool Get_img_proc_goal_line_det() const;
+    bool Get_img_proc_huddle_det() const;
+    bool Get_img_proc_wall_det() const;
+    bool Get_img_proc_stop_det() const;
+
     // ********************************************** SETTERS ************************************************** //
 
-    void Set_img_proc_line_det(bool img_proc_line_det_);
-
+    void Set_img_proc_line_det(bool img_proc_line_det);
+    void Set_img_proc_no_line_det(bool img_proc_no_line_det);
+    void Set_img_proc_goal_line_det(bool img_proc_goal_line_det);
+    void Set_img_proc_huddle_det(bool img_proc_huddle_det);
+    void Set_img_proc_wall_det(bool img_proc_wall_det);
+    void Set_img_proc_stop_det(bool img_proc_stop_det);
 
     // ********************************************** running ************************************************** //
 
@@ -102,6 +112,7 @@ public:
     // void extractAndDisplayObject2(cv::VideoCapture& cap, const cv::Scalar& hsv_lower, const cv::Scalar& hsv_upper, const cv::Scalar& lab_lower, const cv::Scalar& lab_upper);
 
     void init();
+    void LINE_imgprocessing();
 
 
 
@@ -111,6 +122,17 @@ private:
     const int SPIN_RATE;
 
     //LINE Determine flg from img_proc
-    bool img_proc_line_det_ = false;
+    bool img_proc_line_det_;
+    bool img_proc_no_line_det_;
+    bool img_proc_goal_det_;
+    bool img_proc_huddle_det_;
+    bool img_proc_wall_det_;
+    bool img_proc_stop_det_;
 
+    mutable std::mutex mtx_img_proc_line_det_;
+    mutable std::mutex mtx_img_proc_no_line_det_;
+    mutable std::mutex mtx_img_proc_goal_det_;
+    mutable std::mutex mtx_img_proc_huddle_det_;
+    mutable std::mutex mtx_img_proc_wall_det_;
+    mutable std::mutex mtx_img_proc_stop_det_;
 };

@@ -76,6 +76,7 @@ public:
 
     Move_Decision(Img_proc *img_procPtr);
     Img_proc *img_procPtr;
+    
 
     // Move_Decision();
     ~Move_Decision();
@@ -160,27 +161,27 @@ public:
 
     // ********************************************** SETTERS ************************************************** //
 
-    void Set_Emergency_(bool Emergency_);
-    void Set_motion_index_(int8_t motion_index_);
-    void Set_stand_status_(int8_t stand_status_);
-    void Set_running_mode_(int8_t running_mode_);
-    void Set_turn_angle_(double turn_angle_);
+    void Set_Emergency_(bool Emergency);
+    void Set_motion_index_(int8_t motion_index);
+    void Set_stand_status_(int8_t stand_status);
+    void Set_running_mode_(int8_t running_mode);
+    void Set_turn_angle_(double turn_angle);
 
-    void Set_ProcessON(bool ProcessON_);
-    void Set_MoveDecisionON(bool MoveDecisionON_);
-    void Set_CallbackON(bool CallbackON_);
+    void Set_ProcessON(bool ProcessON);
+    void Set_MoveDecisionON(bool MoveDecisionON);
+    void Set_CallbackON(bool CallbackON);
 
-    void Set_goal_line_det_flg(bool goal_line_det_flg);
     void Set_line_det_flg(bool line_det_flg);
     void Set_no_line_det_flg(bool no_line_det_flg);
+    void Set_goal_line_det_flg(bool goal_line_det_flg);
     void Set_huddle_det_flg(bool huddle_det_flg);
     void Set_wall_det_flg(bool wall_det_flg);
     void Set_stop_det_flg(bool stop_det_flg);
 
     void Set_gradient(double gradient);
     void Set_delta_x(double delta_x);
-    void Set_RL_NeckAngle(double RL_NeckAngle_);
-    void Set_UD_NeckAngle(double UD_NeckAngle_);
+    void Set_RL_NeckAngle(double RL_NeckAngle);
+    void Set_UD_NeckAngle(double UD_NeckAngle);
     void Set_RL_Neck_on_flg(bool RL_Neck_on_flg);
     void Set_UD_Neck_on_flg(bool UD_Neck_on_flg);
 
@@ -189,7 +190,7 @@ public:
     // ********************************************** IMG_PROC ************************************************** //
 
     // StraightLine
-    bool straightLine = true;
+    bool straightLine;
     double margin_gradient = 5; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
     double Angle_toBeStraight = 40; // max or min
@@ -207,6 +208,8 @@ public:
     // check the variable sharing with multi thread
     int aaaa = 1;
     int b = aaaa % 2;
+
+
 
 private:
 
@@ -230,19 +233,19 @@ private:
     // Counter Clock Wise(+)
     // LEFT(+) / RIGHT(-)
     double RL_NeckAngle_ = 0;
-    bool RL_Neck_on_flg = false;
+    bool RL_Neck_on_flg_ = false;
     // Counter Clock Wise(+)
     // UP(+) / DOWN(-)
     double UD_NeckAngle_ = 0;
-    bool UD_Neck_on_flg = false;
+    bool UD_Neck_on_flg_ = false;
 
     // Running mode
-    bool goal_line_det_flg = false;
-    bool line_det_flg = false;
-    bool no_line_det_flg = false;
-    bool huddle_det_flg = false;
-    bool wall_det_flg = false;
-    bool stop_det_flg = false;
+    bool goal_line_det_flg_ = false;
+    bool line_det_flg_ = false;
+    bool no_line_det_flg_ = false;
+    bool huddle_det_flg_ = false;
+    bool wall_det_flg_ = false;
+    bool stop_det_flg_ = false;
 
     bool stop_fallen_check_;
     double present_pitch_;
@@ -256,8 +259,37 @@ private:
     bool CallbackON_;
 
     /// Img_Proc ///
-    int8_t gradient = 0; // Line_angle
-    double delta_x = 0;
+    int8_t gradient_ = 0; // Line_angle
+    double delta_x_ = 0;
+
+
+    // ********************************************** MUTEX ************************************************** //
+    mutable std::mutex mtx_goal_line_det_flg;
+    mutable std::mutex mtx_line_det_flg;
+    mutable std::mutex mtx_no_line_det_flg;
+    mutable std::mutex mtx_huddle_det_flg;
+    mutable std::mutex mtx_wall_det_flg;
+    mutable std::mutex mtx_stop_det_flg;
+
+    mutable std::mutex mtx_RL_NeckAngle_;
+    mutable std::mutex mtx_UD_NeckAngle_;
+
+    mutable std::mutex mtx_RL_Neck_on_flg;
+    mutable std::mutex mtx_UD_Neck_on_flg;
+
+    mutable std::mutex mtx_turn_angle_;
+
+    mutable std::mutex mtx_motion_index_;
+    mutable std::mutex mtx_stand_status_;
+    mutable std::mutex mtx_running_mode_;
+
+    mutable std::mutex mtx_gradient;
+    mutable std::mutex mtx_delta_x;
+
+    mutable std::mutex mtx_Emergency_;
+    mutable std::mutex mtx_ProcessON_;
+    mutable std::mutex mtx_MoveDecisionON_;
+    mutable std::mutex mtx_CallbackON_;
 };
 
 #endif // MOVE_DECISION_H

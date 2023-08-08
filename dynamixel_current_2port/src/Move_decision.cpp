@@ -11,7 +11,8 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
       stop_fallen_check_(false),
       Emergency_(1),
       turn_angle_(0),
-      gradient(0)
+      gradient_(0),
+      straightLine(1)
 
 // Move_Decision::Move_Decision()
 //     : FALL_FORWARD_LIMIT(60),
@@ -88,21 +89,22 @@ void Move_Decision::process()
     //////영상처리를 통해 line_det_flg(T/F) 판별필요
 
     ///////////////////////// LINE_MODE --- line_det_flg = true /////////////////////////
-    // bool tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
+    bool tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
+    // ROS_INFO("MOVE_DECISION : %d",tmp_img_proc_line_det_flg_);
+    // ROS_INFO("MOVE_DECISION : %d",img_procPtr->Get_img_proc_no_line_det());
 
-    // if (!tmp_img_proc_line_det_flg_)
-    // {
-    //     Set_no_line_det_flg(true);
-    //     Set_line_det_flg(false);
-    //     ROS_ERROR("1번 : %d", Get_line_det_flg());
-    // }
-    // if (tmp_img_proc_line_det_flg_)
-    // {
-    //     Set_line_det_flg(true);
-    //     Set_no_line_det_flg(false);
-    //     ROS_ERROR("2번 : %d", Get_line_det_flg());
-    // }
-    // tmp_img_proc_line_det_flg_ = !tmp_img_proc_line_det_flg_;
+    if (!tmp_img_proc_line_det_flg_)
+    {
+        Set_no_line_det_flg(true);
+        Set_line_det_flg(false);
+        ROS_ERROR("1번 : %d", Get_line_det_flg());
+    }
+    if (tmp_img_proc_line_det_flg_)
+    {
+        Set_no_line_det_flg(false);
+        Set_line_det_flg(true);
+        ROS_ERROR("2번 : %d", Get_line_det_flg());
+    }
 
     // 영상처리를 통해 Gradient 값 가져오기
     // Gradient 추가(Line ~ center of frame )
@@ -147,8 +149,8 @@ void Move_Decision::processThread()
         Motion_Info();
         // ProccessThread(gradient) = callbackThread(turn_angle)
         ROS_INFO("Gradient : %f", Get_gradient());
-        ROS_INFO("delta_x : %f", delta_x);
-        ROS_INFO("img_proc_line_det_flg : %d", img_procPtr->Get_img_proc_line_det());
+        ROS_INFO("delta_x : %f", delta_x_);
+        ROS_INFO("Move_decision img_proc_line_det : %d", img_procPtr->Get_img_proc_line_det());
         ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
         ROS_INFO("\n");
         // relax to fit output rate
@@ -180,27 +182,27 @@ void Move_Decision::Running_Mode_Decision()
 
     else if (running_mode_ != WAKEUP_MODE)
     {
-        if (goal_line_det_flg && line_det_flg) // goal_line_detect_flg is true: goal_line detection mode
+        if (goal_line_det_flg_ && line_det_flg_) // goal_line_detect_flg is true: goal_line detection mode
         {
             running_mode_ = GOAL_MODE;
         }
-        else if (no_line_det_flg)
+        else if (no_line_det_flg_)
         {
             running_mode_ = NO_LINE_MODE;
         }
-        else if (line_det_flg)
+        else if (line_det_flg_)
         {
             running_mode_ = LINE_MODE;
         }
-        else if (huddle_det_flg)
+        else if (huddle_det_flg_)
         {
             running_mode_ = HUDDLE_MODE;
         }
-        else if (wall_det_flg)
+        else if (wall_det_flg_)
         {
             running_mode_ = WALL_MODE;
         }
-        else if (stop_det_flg)
+        else if (stop_det_flg_)
         {
             running_mode_ = STOP_MODE;
         }
@@ -414,7 +416,7 @@ void Move_Decision::callbackThread()
         // ROS_INFO("angle : %f", Get_turn_angle_());
         ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
         ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());
-        ROS_INFO("img_proc_line_det_flg : %d",  img_procPtr->Get_img_proc_line_det());
+        ROS_INFO("Move_decision img_proc_line_det_flg : %d", img_procPtr->Get_img_proc_line_det());
         ROS_INFO("-------------------------------------------------------------------");
         ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
 
@@ -571,205 +573,242 @@ void Move_Decision::imuDataCallback(const sensor_msgs::Imu::ConstPtr &msg)
 
 bool Move_Decision::Get_Emergency_() const
 {
+    std::lock_guard<std::mutex> lock(mtx_Emergency_);
     return Emergency_;
 }
 
 int8_t Move_Decision::Get_motion_index_() const
 {
+    std::lock_guard<std::mutex> lock(mtx_motion_index_);
     return motion_index_;
 }
 
 int8_t Move_Decision::Get_stand_status_() const
 {
+    std::lock_guard<std::mutex> lock(mtx_stand_status_);
     return stand_status_;
 }
 
 int8_t Move_Decision::Get_running_mode_() const
 {
+    std::lock_guard<std::mutex> lock(mtx_running_mode_);
     return running_mode_;
 }
 
 double Move_Decision::Get_turn_angle_() const
 {
+    std::lock_guard<std::mutex> lock(mtx_turn_angle_);
     return turn_angle_;
 }
 
 bool Move_Decision::Get_ProcessON() const
 {
+    std::lock_guard<std::mutex> lock(mtx_ProcessON_);
     return ProcessON_;
 }
 
 bool Move_Decision::Get_MoveDecisionON() const
 {
+    std::lock_guard<std::mutex> lock(mtx_MoveDecisionON_);
     return MoveDecisionON_;
 }
 
 bool Move_Decision::Get_CallbackON() const
 {
+    std::lock_guard<std::mutex> lock(mtx_CallbackON_);
     return CallbackON_;
-}
-
-bool Move_Decision::Get_goal_line_det_flg() const
-{
-    return goal_line_det_flg;
 }
 
 bool Move_Decision::Get_line_det_flg() const
 {
-    return line_det_flg;
+    std::lock_guard<std::mutex> lock(mtx_line_det_flg);
+    return line_det_flg_;
 }
 
 bool Move_Decision::Get_no_line_det_flg() const
 {
-    return no_line_det_flg;
+    std::lock_guard<std::mutex> lock(mtx_no_line_det_flg);
+    return no_line_det_flg_;
+}
+
+bool Move_Decision::Get_goal_line_det_flg() const
+{
+    std::lock_guard<std::mutex> lock(mtx_goal_line_det_flg);
+    return goal_line_det_flg_;
 }
 
 bool Move_Decision::Get_huddle_det_flg() const
 {
-    return huddle_det_flg;
+    std::lock_guard<std::mutex> lock(mtx_huddle_det_flg);
+    return huddle_det_flg_;
 }
 
 bool Move_Decision::Get_wall_det_flg() const
 {
-    return wall_det_flg;
+    std::lock_guard<std::mutex> lock(mtx_wall_det_flg);
+    return wall_det_flg_;
 }
 
 bool Move_Decision::Get_stop_det_flg() const
 {
-    return stop_det_flg;
+    std::lock_guard<std::mutex> lock(mtx_stop_det_flg);
+    return stop_det_flg_;
 }
 
 double Move_Decision::Get_gradient() const
 {
-    return gradient;
+    std::lock_guard<std::mutex> lock(mtx_gradient);
+    return gradient_;
 }
 
 double Move_Decision::Get_delta_x() const
 {
-    return delta_x;
+    std::lock_guard<std::mutex> lock(mtx_delta_x);
+    return delta_x_;
 }
 
 double Move_Decision::Get_UD_NeckAngle() const
 {
+    std::lock_guard<std::mutex> lock(mtx_UD_NeckAngle_);
     return UD_NeckAngle_;
 }
 
 double Move_Decision::Get_RL_NeckAngle() const
 {
+    std::lock_guard<std::mutex> lock(mtx_RL_NeckAngle_);
     return RL_NeckAngle_;
 }
 
 bool Move_Decision::Get_UD_Neck_on_flg() const
 {
-    return UD_Neck_on_flg;
+    std::lock_guard<std::mutex> lock(mtx_UD_Neck_on_flg);
+    return UD_Neck_on_flg_;
 }
 
 bool Move_Decision::Get_RL_Neck_on_flg() const
 {
-    return RL_Neck_on_flg;
+    std::lock_guard<std::mutex> lock(mtx_RL_Neck_on_flg);
+    return RL_Neck_on_flg_;
 }
-
 
 // ********************************************** SETTERS ************************************************** //
 
-void Move_Decision::Set_Emergency_(bool Emergency_)
+void Move_Decision::Set_Emergency_(bool Emergency)
 {
-    this->Emergency_ = Emergency_;
+    std::lock_guard<std::mutex> lock(mtx_Emergency_);
+    this->Emergency_ = Emergency;
 }
 
-void Move_Decision::Set_motion_index_(int8_t motion_index_)
+void Move_Decision::Set_motion_index_(int8_t motion_index)
 {
-    this->motion_index_ = motion_index_;
+    std::lock_guard<std::mutex> lock(mtx_motion_index_);
+    this->motion_index_ = motion_index;
 }
 
-void Move_Decision::Set_stand_status_(int8_t stand_status_)
+void Move_Decision::Set_stand_status_(int8_t stand_status)
 {
-    this->stand_status_ = stand_status_;
+    std::lock_guard<std::mutex> lock(mtx_stand_status_);
+    this->stand_status_ = stand_status;
 }
 
-void Move_Decision::Set_running_mode_(int8_t running_mode_)
+void Move_Decision::Set_running_mode_(int8_t running_mode)
 {
-    this->running_mode_ = running_mode_;
+    std::lock_guard<std::mutex> lock(mtx_running_mode_);
+    this->running_mode_ = running_mode;
 }
 
-void Move_Decision::Set_turn_angle_(double turn_angle_)
+void Move_Decision::Set_turn_angle_(double turn_angle)
 {
-    this->turn_angle_ = turn_angle_;
+    std::lock_guard<std::mutex> lock(mtx_turn_angle_);
+    this->turn_angle_ = turn_angle;
 }
 
-void Move_Decision::Set_ProcessON(bool ProcessON_)
+void Move_Decision::Set_ProcessON(bool ProcessON)
 {
-    this->ProcessON_ = ProcessON_;
+    std::lock_guard<std::mutex> lock(mtx_ProcessON_);
+    this->ProcessON_ = ProcessON;
 }
 
-void Move_Decision::Set_MoveDecisionON(bool MoveDecisionON_)
+void Move_Decision::Set_MoveDecisionON(bool MoveDecisionON)
 {
-    this->MoveDecisionON_ = MoveDecisionON_;
+    std::lock_guard<std::mutex> lock(mtx_MoveDecisionON_);
+    this->MoveDecisionON_ = MoveDecisionON;
 }
 
-void Move_Decision::Set_CallbackON(bool CallbackON_)
+void Move_Decision::Set_CallbackON(bool CallbackON)
 {
-    this->CallbackON_ = CallbackON_;
+    this->CallbackON_ = CallbackON;
 }
 
 void Move_Decision::Set_goal_line_det_flg(bool goal_line_det_flg)
 {
-    this->goal_line_det_flg = goal_line_det_flg;
+    this->goal_line_det_flg_ = goal_line_det_flg;
 }
 
 void Move_Decision::Set_line_det_flg(bool line_det_flg)
 {
-    this->line_det_flg = line_det_flg;
+    std::lock_guard<std::mutex> lock(mtx_CallbackON_);
+    this->line_det_flg_ = line_det_flg;
 }
 
 void Move_Decision::Set_no_line_det_flg(bool no_line_det_flg)
 {
-    this->no_line_det_flg = no_line_det_flg;
+    std::lock_guard<std::mutex> lock(mtx_no_line_det_flg);
+    this->no_line_det_flg_ = no_line_det_flg;
 }
 
 void Move_Decision::Set_huddle_det_flg(bool huddle_det_flg)
 {
-    this->huddle_det_flg = huddle_det_flg;
+    std::lock_guard<std::mutex> lock(mtx_huddle_det_flg);
+    this->huddle_det_flg_ = huddle_det_flg;
 }
 
 void Move_Decision::Set_wall_det_flg(bool wall_det_flg)
 {
-    this->wall_det_flg = wall_det_flg;
+    std::lock_guard<std::mutex> lock(mtx_wall_det_flg);
+    this->wall_det_flg_ = wall_det_flg;
 }
 
 void Move_Decision::Set_stop_det_flg(bool stop_det_flg)
 {
-    this->stop_det_flg = stop_det_flg;
+    std::lock_guard<std::mutex> lock(mtx_stop_det_flg);
+    this->stop_det_flg_ = stop_det_flg;
 }
 
 void Move_Decision::Set_gradient(double gradient)
 {
-    this->gradient = gradient;
+    std::lock_guard<std::mutex> lock(mtx_gradient);
+    this->gradient_ = gradient;
 }
 
 void Move_Decision::Set_delta_x(double delta_x)
 {
-    this->delta_x = delta_x;
+    std::lock_guard<std::mutex> lock(mtx_delta_x);
+    this->delta_x_ = delta_x;
 }
 
-void Move_Decision::Set_RL_NeckAngle(double RL_NeckAngle_)
+void Move_Decision::Set_RL_NeckAngle(double RL_NeckAngle)
 {
-    this->RL_NeckAngle_ = RL_NeckAngle_;
+    std::lock_guard<std::mutex> lock(mtx_RL_NeckAngle_);
+    this->RL_NeckAngle_ = RL_NeckAngle;
 }
 
-void Move_Decision::Set_UD_NeckAngle(double UD_NeckAngle_)
+void Move_Decision::Set_UD_NeckAngle(double UD_NeckAngle)
 {
-    this->UD_NeckAngle_ = UD_NeckAngle_;
+    std::lock_guard<std::mutex> lock(mtx_UD_NeckAngle_);
+    this->UD_NeckAngle_ = UD_NeckAngle;
 }
 
 void Move_Decision::Set_RL_Neck_on_flg(bool RL_Neck_on_flg)
 {
-    this->RL_Neck_on_flg = RL_Neck_on_flg;
+    std::lock_guard<std::mutex> lock(mtx_RL_Neck_on_flg);
+    this->RL_Neck_on_flg_ = RL_Neck_on_flg;
 }
 
 void Move_Decision::Set_UD_Neck_on_flg(bool UD_Neck_on_flg)
 {
-    this->UD_Neck_on_flg = UD_Neck_on_flg;
+    std::lock_guard<std::mutex> lock(mtx_UD_Neck_on_flg);
+    this->UD_Neck_on_flg_ = UD_Neck_on_flg;
 }
 
 // ********************************************** FUNCTION ************************************************** //
