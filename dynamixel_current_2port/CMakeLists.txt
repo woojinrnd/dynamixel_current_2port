@@ -35,6 +35,7 @@ find_package(dynamixel_workbench_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(realsense2 REQUIRED)
+find_package(yaml-cpp REQUIRED)
 # find_package(RBDL REQUIRED)
 
 ################################################################################
@@ -124,7 +125,7 @@ add_executable(
 )
 
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(Move_decision_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${realsense2_LIBRARY})
+target_link_libraries(Move_decision_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${realsense2_LIBRARY} yaml-cpp)
 
 install(TARGETS dynamixel_current_2port Move_decision_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

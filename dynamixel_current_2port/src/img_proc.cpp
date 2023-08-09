@@ -81,7 +81,7 @@ cv::Mat Img_proc::detect_color_areas(const cv::Mat &input_frame, const cv::Scala
                 top_contour = contour;
             }
             Set_img_proc_line_det(true);
-            
+
             ROS_WARN("LINE_MODE ON");
         }
         else
@@ -233,7 +233,67 @@ void Img_proc::RGB2HSV(const cv::Mat &rgb_image, cv::Mat &hsv_image)
 void Img_proc::RGB2LAB(const cv::Mat &rgb_image, cv::Mat &lab_image)
 {
     cv::cvtColor(rgb_image, lab_image, cv::COLOR_BGR2Lab);
-	morphologyEx(lab_image, lab_image, MORPH_OPEN, Mat(), Point(-1, -1), 1);
+    morphologyEx(lab_image, lab_image, MORPH_OPEN, Mat(), Point(-1, -1), 1);
+}
+
+void Img_proc::saveParameters(const std::string &filename)
+{
+    cv::FileStorage fs(filename, cv::FileStorage::WRITE);
+    if (!fs.isOpened())
+    {
+        std::cerr << "Failed to open configuration file for writing." << std::endl;
+        return;
+    }
+
+    fs << "HSVParams"
+       << "{"
+       << "h_min" << h_min << "h_max" << h_max
+       << "s_min" << s_min << "s_max" << s_max << "v_min" << v_min << "v_max" << v_max << "}";
+
+    fs << "LABParams"
+       << "{"
+       << "l_min" << l_min << "l_max" << l_max
+       << "a_min" << a_min << "a_max" << a_max << "b_min" << b_min << "b_max" << b_max << "}";
+
+    fs.release();
+}
+
+void Img_proc::loadParameters(const std::string &filename)
+{
+    cv::FileStorage fs(filename, cv::FileStorage::READ);
+    if (!fs.isOpened())
+    {
+        std::cerr << "Failed to open configuration file for reading." << std::endl;
+        return;
+    }
+
+    cv::FileNode hsvParams = fs["HSVParams"];
+    h_min = hsvParams["h_min"];
+    h_max = hsvParams["h_max"];
+    s_min = hsvParams["s_min"];
+    s_max = hsvParams["s_max"];
+    v_min = hsvParams["v_min"];
+    v_max = hsvParams["v_max"];
+
+    cv::FileNode labParams = fs["LABParams"];
+    l_min = labParams["l_min"];
+    l_max = labParams["l_max"];
+    a_min = labParams["a_min"];
+    a_max = labParams["a_max"];
+    b_min = labParams["b_min"];
+    b_max = labParams["b_max"];
+
+    fs.release();
+}
+
+void Img_proc::onButtonSave(int, void* userdata) {
+    Img_proc* imgProc = static_cast<Img_proc*>(userdata);
+    imgProc->saveParameters("parameters.yml");
+}
+
+void Img_proc::onButtonLoad(int, void* userdata) {
+    Img_proc* imgProc = static_cast<Img_proc*>(userdata);
+    imgProc->loadParameters("parameters.yml");
 }
 
 void Img_proc::extractAndDisplayObject()
@@ -286,7 +346,6 @@ void Img_proc::extractAndDisplayObject()
 
     field = final_binary_mask.clone();
 
-    
     // Calculate object area
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Point> hull;
@@ -329,7 +388,7 @@ void Img_proc::extractAndDisplayObject()
         cv::putText(Origin_img, area_text, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 1, color, 2);
     }
 
-    if(contours.empty())
+    if (contours.empty())
     {
         this->Set_img_proc_no_line_det(true);
         // ROS_ERROR("img_proc_no_line_det : %d", Get_img_proc_no_line_det());
@@ -351,7 +410,6 @@ void Img_proc::init()
     vcap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
     vcap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
     vcap.set(cv::CAP_PROP_FPS, webcam_fps);
-    
 
     if (!vcap.isOpened())
     {
@@ -373,20 +431,27 @@ void Img_proc::init()
     cv::createTrackbar("B min", "Threshold Adjustments", nullptr, 255);
     cv::createTrackbar("B max", "Threshold Adjustments", nullptr, 255);
 
+    // Create buttons for save and load
+    cv::createButton("Save Parameters", onButtonSave, this, cv::QT_PUSH_BUTTON, false);
+    cv::createButton("Load Parameters", onButtonLoad, this, cv::QT_PUSH_BUTTON, false);
 
     cv::setTrackbarPos("H min", "Threshold Adjustments", 77);
-    cv::setTrackbarPos("S min", "Threshold Adjustments", 142);
-    cv::setTrackbarPos("V min", "Threshold Adjustments", 54);
-    cv::setTrackbarPos("L min", "Threshold Adjustments", 53);
-    cv::setTrackbarPos("A min", "Threshold Adjustments", 77);
-    cv::setTrackbarPos("B min", "Threshold Adjustments", 82);
-
     cv::setTrackbarPos("H max", "Threshold Adjustments", 235);
+
+    cv::setTrackbarPos("S min", "Threshold Adjustments", 131);
     cv::setTrackbarPos("S max", "Threshold Adjustments", 214);
+
+    cv::setTrackbarPos("V min", "Threshold Adjustments", 60);
     cv::setTrackbarPos("V max", "Threshold Adjustments", 156);
-    cv::setTrackbarPos("L max", "Threshold Adjustments", 130);
-    cv::setTrackbarPos("A max", "Threshold Adjustments", 143);
-    cv::setTrackbarPos("B max", "Threshold Adjustments", 134);
+
+    cv::setTrackbarPos("L min", "Threshold Adjustments", 16);
+    cv::setTrackbarPos("L max", "Threshold Adjustments", 151);
+
+    cv::setTrackbarPos("A min", "Threshold Adjustments", 115);
+    cv::setTrackbarPos("A max", "Threshold Adjustments", 177);
+
+    cv::setTrackbarPos("B min", "Threshold Adjustments", 66);
+    cv::setTrackbarPos("B max", "Threshold Adjustments", 173);
 }
 
 void Img_proc::LINE_imgprocessing()
@@ -397,11 +462,10 @@ void Img_proc::LINE_imgprocessing()
         double tmp_delta_x = 0;
         vector<vector<Point>> contours;
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
     }
-    
 }
 
 void Img_proc::webcam_thread()
@@ -419,8 +483,6 @@ void Img_proc::webcam_thread()
     vcap.release();
     cv::destroyAllWindows();
 }
-
-
 
 // ********************************************** GETTERS ************************************************** //
 
@@ -459,7 +521,6 @@ bool Img_proc::Get_img_proc_stop_det() const
     std::lock_guard<std::mutex> lock(mtx_img_proc_stop_det_);
     return img_proc_stop_det_;
 }
-
 
 // ********************************************** SETTERS ************************************************** //
 

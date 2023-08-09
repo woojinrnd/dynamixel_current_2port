@@ -2,7 +2,7 @@
 
 
 // Callback::callback()
-Callback::Callback(Motions *motionPtr, Dxl *dxlPtr) : motionPtr(motionPtr), dxlPtr(dxlPtr), SPIN_RATE(100)
+Callback::Callback(Motions *motionPtr, Dxl *dxlPtr) : motionPtr(motionPtr), dxlPtr(dxlPtr), SPIN_RATE(1)
 {
     ros::NodeHandle nh(ros::this_node::getName());
 

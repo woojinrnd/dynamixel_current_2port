@@ -9,6 +9,9 @@
 #include <librealsense2/rs.hpp>
 #include <vector>
 #include <mutex>
+#include <fstream>
+#include <yaml-cpp/yaml.h>
+
 
 using namespace cv;
 using namespace std;
@@ -41,7 +44,7 @@ public:
     const int webcam_width = 640;
     const int webcam_height = 480;
     const int webcam_fps = 30;
-    const int webcam_id = 2;
+    const int webcam_id = 0;
 
     int threshold_value_white = 127;
     int threshold_value_yellow = 127;
@@ -106,13 +109,19 @@ public:
     cv::VideoCapture vcap;
     Mat Origin_img;
 
-    void RGB2HSV(const cv::Mat& rgb_image, cv::Mat& hsv_image);
-    void RGB2LAB(const cv::Mat& rgb_image, cv::Mat& lab_image);
+    void RGB2HSV(const cv::Mat &rgb_image, cv::Mat &hsv_image);
+    void RGB2LAB(const cv::Mat &rgb_image, cv::Mat &lab_image);
+    void saveParameters(const std::string &filename);
+    void loadParameters(const std::string &filename);
+    static void onButtonSave(int, void *userdata);
+    static void onButtonLoad(int, void *userdata);
+
     void extractAndDisplayObject();
     // void extractAndDisplayObject2(cv::VideoCapture& cap, const cv::Scalar& hsv_lower, const cv::Scalar& hsv_upper, const cv::Scalar& lab_lower, const cv::Scalar& lab_upper);
 
     void init();
     void LINE_imgprocessing();
+
 
 
 
@@ -135,4 +144,8 @@ private:
     mutable std::mutex mtx_img_proc_huddle_det_;
     mutable std::mutex mtx_img_proc_wall_det_;
     mutable std::mutex mtx_img_proc_stop_det_;
+
+    // HSV and LAB parameter values
+    int h_min, h_max, s_min, s_max, v_min, v_max;
+    int l_min, l_max, a_min, a_max, b_min, b_max;
 };
