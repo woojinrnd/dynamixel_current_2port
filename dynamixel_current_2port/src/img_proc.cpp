@@ -3,7 +3,8 @@
 // Constructor
 Img_proc::Img_proc()
     : SPIN_RATE(30),
-      img_proc_line_det_(false)
+      img_proc_line_det_(false),
+      gradient_(0)
 {
 }
 
@@ -247,13 +248,15 @@ void Img_proc::saveParameters(const std::string &filename)
 
     fs << "HSVParams"
        << "{"
-       << "h_min" << h_min << "h_max" << h_max
-       << "s_min" << s_min << "s_max" << s_max << "v_min" << v_min << "v_max" << v_max << "}";
+       << "h_min" << static_cast<int>(h_min) << "h_max" << static_cast<int>(h_max)
+       << "s_min" << static_cast<int>(s_min) << "s_max" << static_cast<int>(s_max)
+       << "v_min" << static_cast<int>(v_min) << "v_max" << static_cast<int>(v_max) << "}";
 
     fs << "LABParams"
        << "{"
-       << "l_min" << l_min << "l_max" << l_max
-       << "a_min" << a_min << "a_max" << a_max << "b_min" << b_min << "b_max" << b_max << "}";
+       << "l_min" << static_cast<int>(l_min) << "l_max" << static_cast<int>(l_max)
+       << "a_min" << static_cast<int>(a_min) << "a_max" << static_cast<int>(a_max)
+       << "b_min" << static_cast<int>(b_min) << "b_max" << static_cast<int>(b_max) << "}";
 
     fs.release();
 }
@@ -268,32 +271,22 @@ void Img_proc::loadParameters(const std::string &filename)
     }
 
     cv::FileNode hsvParams = fs["HSVParams"];
-    h_min = hsvParams["h_min"];
-    h_max = hsvParams["h_max"];
-    s_min = hsvParams["s_min"];
-    s_max = hsvParams["s_max"];
-    v_min = hsvParams["v_min"];
-    v_max = hsvParams["v_max"];
+    h_min = static_cast<int>(hsvParams["h_min"]);
+    h_max = static_cast<int>(hsvParams["h_max"]);
+    s_min = static_cast<int>(hsvParams["s_min"]);
+    s_max = static_cast<int>(hsvParams["s_max"]);
+    v_min = static_cast<int>(hsvParams["v_min"]);
+    v_max = static_cast<int>(hsvParams["v_max"]);
 
     cv::FileNode labParams = fs["LABParams"];
-    l_min = labParams["l_min"];
-    l_max = labParams["l_max"];
-    a_min = labParams["a_min"];
-    a_max = labParams["a_max"];
-    b_min = labParams["b_min"];
-    b_max = labParams["b_max"];
+    l_min = static_cast<int>(labParams["l_min"]);
+    l_max = static_cast<int>(labParams["l_max"]);
+    a_min = static_cast<int>(labParams["a_min"]);
+    a_max = static_cast<int>(labParams["a_max"]);
+    b_min = static_cast<int>(labParams["b_min"]);
+    b_max = static_cast<int>(labParams["b_max"]);
 
     fs.release();
-}
-
-void Img_proc::onButtonSave(int, void* userdata) {
-    Img_proc* imgProc = static_cast<Img_proc*>(userdata);
-    imgProc->saveParameters("parameters.yml");
-}
-
-void Img_proc::onButtonLoad(int, void* userdata) {
-    Img_proc* imgProc = static_cast<Img_proc*>(userdata);
-    imgProc->loadParameters("parameters.yml");
 }
 
 void Img_proc::extractAndDisplayObject()
@@ -331,6 +324,7 @@ void Img_proc::extractAndDisplayObject()
     cv::Scalar hsv_upper_thresh(h_max, s_max, v_max);
     cv::Scalar lab_lower_thresh(l_min, a_min, b_min);
     cv::Scalar lab_upper_thresh(l_max, a_max, b_max);
+
 
     cv::inRange(hsv_image, hsv_lower_thresh, hsv_upper_thresh, hsv_binary_mask);
     cv::inRange(lab_image, lab_lower_thresh, lab_upper_thresh, lab_binary_mask);
@@ -398,10 +392,80 @@ void Img_proc::extractAndDisplayObject()
     cv::bitwise_and(field, ~final_binary_mask, field);
     cv::morphologyEx(field, field, cv::MORPH_OPEN, cv::Mat(), cv::Point(-1, -1), 2);
 
+    this->contours_ = contours;
+    LINE_imgprocessing();
+
     // Show the original frame and the final binary mask
     cv::imshow("Original Frame", Origin_img);
     cv::imshow("Final Binary Mask", final_binary_mask);
 }
+
+void Img_proc::LINE_imgprocessing()
+{
+    try
+    {
+        double tmp_delta_x = 0;
+
+        // Assuming you have the 'contours' variable containing detected contours
+
+        // Find the contour with the largest area (presumably the detected line)
+        double max_area = 0;
+        int max_area_idx = -1;
+        for (size_t i = 0; i < this->contours_.size(); i++)
+        {
+            double area = cv::contourArea(this->contours_[i]);
+            if (area > max_area)
+            {
+                max_area = area;
+                max_area_idx = static_cast<int>(i);
+            }
+        }
+
+        if (max_area_idx != -1)
+        {
+            // Calculate the center point of the largest contour
+            cv::Moments moments = cv::moments(this->contours_[max_area_idx]);
+            double center_x = moments.m10 / moments.m00;
+            double center_y = moments.m01 / moments.m00;
+
+
+            // Calculate the rotation angle based on the center point
+            int image_width = Origin_img.cols;
+            double base_y = Origin_img.rows - 1; // Bottom of the screen
+            double dx = center_x - (image_width / 2);
+            double dy = base_y - center_y;
+            double angle_rad = std::atan2(dy, dx);
+            double angle_deg = angle_rad * (180.0 / CV_PI);
+
+            if (center_x < (image_width / 2)) angle_deg -= 90;
+            else angle_deg = angle_deg - 90;
+
+            // Now you have the rotation angle in degrees
+            // Do something with 'angle_deg' (e.g., print it or use it for further processing)
+            // std::cout << "Rotation Angle: " << angle_deg << " degrees" << std::endl;
+
+            // Draw the center point
+            cv::Point center(static_cast<int>(center_x), static_cast<int>(center_y));
+            cv::drawContours(Origin_img, this->contours_, max_area_idx, cv::Scalar(0, 255, 0), 2);
+
+            // Draw a line connecting the center point at the bottom of the screen and the center of the object
+            cv::Point bottom_center(image_width / 2, static_cast<int>(base_y));
+            cv::line(Origin_img, bottom_center, cv::Point(static_cast<int>(center_x), static_cast<int>(center_y)), cv::Scalar(255, 0, 0), 2);
+            std::string strangle_deg = "Angle : " + std::to_string(angle_deg) + " Deg";
+            cv::putText(Origin_img, strangle_deg, cv::Point(320, 240), cv::FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2);
+
+            // ROS_WARN("center x : %f", center_x);
+            // ROS_WARN("center y : %f", center_y);
+            Set_gradient(angle_deg);
+
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+}
+
 
 void Img_proc::init()
 {
@@ -431,10 +495,6 @@ void Img_proc::init()
     cv::createTrackbar("B min", "Threshold Adjustments", nullptr, 255);
     cv::createTrackbar("B max", "Threshold Adjustments", nullptr, 255);
 
-    // Create buttons for save and load
-    cv::createButton("Save Parameters", onButtonSave, this, cv::QT_PUSH_BUTTON, false);
-    cv::createButton("Load Parameters", onButtonLoad, this, cv::QT_PUSH_BUTTON, false);
-
     cv::setTrackbarPos("H min", "Threshold Adjustments", 77);
     cv::setTrackbarPos("H max", "Threshold Adjustments", 235);
 
@@ -454,19 +514,6 @@ void Img_proc::init()
     cv::setTrackbarPos("B max", "Threshold Adjustments", 173);
 }
 
-void Img_proc::LINE_imgprocessing()
-{
-    try
-    {
-        /* code */
-        double tmp_delta_x = 0;
-        vector<vector<Point>> contours;
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << e.what() << '\n';
-    }
-}
 
 void Img_proc::webcam_thread()
 {
@@ -522,6 +569,12 @@ bool Img_proc::Get_img_proc_stop_det() const
     return img_proc_stop_det_;
 }
 
+double Img_proc::Get_gradient() const
+{
+    std::lock_guard<std::mutex> lock(mtx_gradient);
+    return gradient_;
+}
+
 // ********************************************** SETTERS ************************************************** //
 
 void Img_proc::Set_img_proc_line_det(bool img_proc_line_det)
@@ -558,4 +611,10 @@ void Img_proc::Set_img_proc_stop_det(bool img_proc_stop_det)
 {
     std::lock_guard<std::mutex> lock(mtx_img_proc_stop_det_);
     this->img_proc_stop_det_ = img_proc_stop_det;
+}
+
+void Img_proc::Set_gradient(double gradient)
+{
+    std::lock_guard<std::mutex> lock(mtx_gradient);
+    this->gradient_ = gradient;
 }

@@ -24,7 +24,7 @@
 
 using namespace std;
 
-class Move_Decision
+class Move_Decision 
 {
 public:
     enum Motion_Index
@@ -150,7 +150,6 @@ public:
     bool Get_wall_det_flg() const;
     bool Get_stop_det_flg() const;
 
-    double Get_gradient() const;
     double Get_delta_x() const;
 
     double Get_RL_NeckAngle() const;
@@ -178,7 +177,6 @@ public:
     void Set_wall_det_flg(bool wall_det_flg);
     void Set_stop_det_flg(bool stop_det_flg);
 
-    void Set_gradient(double gradient);
     void Set_delta_x(double delta_x);
     void Set_RL_NeckAngle(double RL_NeckAngle);
     void Set_UD_NeckAngle(double UD_NeckAngle);
@@ -191,7 +189,7 @@ public:
 
     // StraightLine
     bool straightLine;
-    double margin_gradient = 5; // margin of straight line
+    double margin_gradient = 15; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
     double Angle_toBeStraight = 40; // max or min
 
@@ -203,7 +201,8 @@ public:
     double Angle_ToFindLine = 10; // max or min
 
     // Actural send turn angle
-    double Actural_angle = 0;
+    double Actual_angle = 0;
+    double increment = 0;
 
     // check the variable sharing with multi thread
     int aaaa = 1;
@@ -258,9 +257,8 @@ private:
     bool MoveDecisionON_;
     bool CallbackON_;
 
-    /// Img_Proc ///
-    int8_t gradient_ = 0; // Line_angle
     double delta_x_ = 0;
+
 
 
     // ********************************************** MUTEX ************************************************** //
@@ -283,7 +281,6 @@ private:
     mutable std::mutex mtx_stand_status_;
     mutable std::mutex mtx_running_mode_;
 
-    mutable std::mutex mtx_gradient;
     mutable std::mutex mtx_delta_x;
 
     mutable std::mutex mtx_Emergency_;
