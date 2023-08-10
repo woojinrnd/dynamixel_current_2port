@@ -154,4 +154,8 @@ private:
 
 
     std::vector<std::vector<cv::Point>> contours_;
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> dbb2c26a0adf4d3c96a8883b7eec96bd7a66b0f8

@@ -110,7 +110,11 @@ void Move_Decision::process()
     // Gradient 추가(Line ~ center of frame )
     // Gradient -> Turn_angle_
     // Set_gradient(50);
+<<<<<<< HEAD
     // Set_turn_angle_(img_procPtr->Get_gradient());
+=======
+    Set_turn_angle_(img_procPtr->Get_gradient());
+>>>>>>> dbb2c26a0adf4d3c96a8883b7eec96bd7a66b0f8
 
     /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
     // else if (라인 인식 == false)
@@ -332,10 +336,14 @@ void Move_Decision::LINE_mode()
             increment = -2;
             ROS_WARN("RIGHT TURN");
         }
+<<<<<<< HEAD
         else
         {
             increment = 0;
         }
+=======
+        Set_turn_angle_(Actural_angle);
+>>>>>>> dbb2c26a0adf4d3c96a8883b7eec96bd7a66b0f8
         ROS_ERROR("NO STRAIGHT LINE");
         Actual_angle += increment;
         Set_motion_index_(Motion_Index::Forward_4step);
