@@ -11,7 +11,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
       stop_fallen_check_(false),
       Emergency_(1),
       turn_angle_(0),
-      gradient_(0),
+    //   gradient_(0),
       straightLine(1)
 
 // Move_Decision::Move_Decision()
@@ -110,6 +110,7 @@ void Move_Decision::process()
     // Gradient 추가(Line ~ center of frame )
     // Gradient -> Turn_angle_
     // Set_gradient(50);
+    Set_turn_angle_(img_procPtr->Get_gradient());
 
     /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
     // else if (라인 인식 == false)
@@ -148,7 +149,7 @@ void Move_Decision::processThread()
         Running_Info();
         Motion_Info();
         // ProccessThread(gradient) = callbackThread(turn_angle)
-        ROS_INFO("Gradient : %f", Get_gradient());
+        ROS_INFO("Gradient : %f", img_procPtr->Get_gradient());
         ROS_INFO("delta_x : %f", delta_x_);
         ROS_INFO("Move_decision img_proc_line_det : %d", img_procPtr->Get_img_proc_line_det());
         ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
@@ -240,7 +241,7 @@ void Move_Decision::LINE_mode()
 {
     // Set_motion_index_(Motion_Index::Right_2step);
 
-    int8_t tmp_gradient = Get_gradient();
+    int8_t tmp_gradient = img_procPtr->Get_gradient();
     StraightLineDecision(tmp_gradient, margin_gradient);
 
     // Straight Line
@@ -308,7 +309,6 @@ void Move_Decision::LINE_mode()
             Actural_angle -= 2;
             ROS_WARN("RIGHT TURN");
         }
-
         Set_turn_angle_(Actural_angle);
         ROS_ERROR("NO STRAIGHT LINE");
     }
@@ -413,7 +413,7 @@ void Move_Decision::callbackThread()
         Running_Mode_Decision();
         Running_Info();
         Motion_Info();
-        // ROS_INFO("angle : %f", Get_turn_angle_());
+        ROS_INFO("angle : %f", Get_turn_angle_());
         ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
         ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());
         ROS_INFO("Move_decision img_proc_line_det_flg : %d", img_procPtr->Get_img_proc_line_det());
@@ -655,12 +655,6 @@ bool Move_Decision::Get_stop_det_flg() const
     return stop_det_flg_;
 }
 
-double Move_Decision::Get_gradient() const
-{
-    std::lock_guard<std::mutex> lock(mtx_gradient);
-    return gradient_;
-}
-
 double Move_Decision::Get_delta_x() const
 {
     std::lock_guard<std::mutex> lock(mtx_delta_x);
@@ -773,12 +767,6 @@ void Move_Decision::Set_stop_det_flg(bool stop_det_flg)
 {
     std::lock_guard<std::mutex> lock(mtx_stop_det_flg);
     this->stop_det_flg_ = stop_det_flg;
-}
-
-void Move_Decision::Set_gradient(double gradient)
-{
-    std::lock_guard<std::mutex> lock(mtx_gradient);
-    this->gradient_ = gradient;
 }
 
 void Move_Decision::Set_delta_x(double delta_x)
