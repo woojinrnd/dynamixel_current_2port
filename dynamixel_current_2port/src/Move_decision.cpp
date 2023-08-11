@@ -9,10 +9,10 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::InitPose),
       stop_fallen_check_(false),
-      Emergency_(1),
+      Emergency_(true),
       turn_angle_(0),
     //   gradient_(0),
-      straightLine(1)
+      straightLine(true)
 
 // Move_Decision::Move_Decision()
 //     : FALL_FORWARD_LIMIT(60),
@@ -93,38 +93,31 @@ void Move_Decision::process()
     // ROS_INFO("MOVE_DECISION : %d",tmp_img_proc_line_det_flg_);
     // ROS_INFO("MOVE_DECISION : %d",img_procPtr->Get_img_proc_no_line_det());
 
+    // 영상처리를 통해 Gradient 값 가져오기
+    // Gradient 추가(Line ~ center of frame )
+    // Gradient -> Turn_angle_
     if (!tmp_img_proc_line_det_flg_)
     {
         Set_no_line_det_flg(true);
         Set_line_det_flg(false);
         ROS_ERROR("1번 : %d", Get_line_det_flg());
     }
-    if (tmp_img_proc_line_det_flg_)
+    else if (tmp_img_proc_line_det_flg_)
     {
         Set_no_line_det_flg(false);
         Set_line_det_flg(true);
         ROS_ERROR("2번 : %d", Get_line_det_flg());
     }
 
-    // 영상처리를 통해 Gradient 값 가져오기
-    // Gradient 추가(Line ~ center of frame )
-    // Gradient -> Turn_angle_
-    // Set_gradient(50);
-<<<<<<< HEAD
-    // Set_turn_angle_(img_procPtr->Get_gradient());
-=======
-    Set_turn_angle_(img_procPtr->Get_gradient());
->>>>>>> dbb2c26a0adf4d3c96a8883b7eec96bd7a66b0f8
-
     /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
-    // else if (라인 인식 == false)
-    // {
-    //     Set_no_line_det_flg(true);
-    // delta_x : Center of window.x - Center of last captured line.x
+    else if (img_procPtr->Get_img_proc_no_line_det())
+    {
+        Set_no_line_det_flg(true);
+        // delta_x : Center of window.x - Center of last captured line.x
+        // delta_x = ;
+    }
 
-    //     delta_x = ;
-    // }
-
+        
     /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
 
     // else if (장애물과 로봇이 접촉해 정지가 필요할 때)
@@ -154,7 +147,7 @@ void Move_Decision::processThread()
         Motion_Info();
         // ProccessThread(gradient) = callbackThread(turn_angle)
         ROS_INFO("Gradient : %f", img_procPtr->Get_gradient());
-        ROS_INFO("delta_x : %f", delta_x_);
+        ROS_INFO("delta_x : %f", img_procPtr->Get_delta_x());
         ROS_INFO("Move_decision img_proc_line_det : %d", img_procPtr->Get_img_proc_line_det());
         ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
         ROS_INFO("\n");
@@ -252,25 +245,21 @@ void Move_Decision::LINE_mode()
     if (straightLine == true)
     {
         // Left turn
-        // To be zero 
+        // To be zero
         if (Actual_angle > 0)
         {
-            do
-            {
-                Actual_angle -= 1;
-                Set_turn_angle_(Actual_angle);
-            } while (Actual_angle == 0);
+            Actual_angle -= 1;
+            if (Actual_angle < 0) Actual_angle = 0;
+            Set_turn_angle_(Actual_angle);
         }
 
         // Right turn
-        // To be zero 
+        // To be zero
         else if (Actual_angle < 0)
         {
-            do
-            {
-                Actual_angle += 1;
-                Set_turn_angle_(Actual_angle);
-            } while (Actual_angle == 0);
+            Actual_angle += 1;
+            if (Actual_angle > 0) Actual_angle = 0;
+            Set_turn_angle_(Actual_angle);
         }
         Set_motion_index_(Motion_Index::Forward_4step);
         ROS_ERROR("STRAIGHT LINE");
@@ -336,14 +325,10 @@ void Move_Decision::LINE_mode()
             increment = -2;
             ROS_WARN("RIGHT TURN");
         }
-<<<<<<< HEAD
         else
         {
             increment = 0;
         }
-=======
-        Set_turn_angle_(Actural_angle);
->>>>>>> dbb2c26a0adf4d3c96a8883b7eec96bd7a66b0f8
         ROS_ERROR("NO STRAIGHT LINE");
         Actual_angle += increment;
         Set_motion_index_(Motion_Index::Forward_4step);
@@ -357,7 +342,8 @@ void Move_Decision::NOLINE_mode()
     // Counter Clock wise(+) (Turn Angle sign)
     // delta_x > 0 : LEFT Window  ->  Left turn (-)
     // delta_x < 0 : RIGHT window ->  Right turn  (+)
-    double tmp_delta_x = Get_delta_x();
+   
+    double tmp_delta_x = img_procPtr->Get_delta_x();
     if (tmp_delta_x < 0) // Right
     {
         Actual_angle -= 1;
@@ -693,12 +679,6 @@ bool Move_Decision::Get_stop_det_flg() const
     return stop_det_flg_;
 }
 
-double Move_Decision::Get_delta_x() const
-{
-    std::lock_guard<std::mutex> lock(mtx_delta_x);
-    return delta_x_;
-}
-
 double Move_Decision::Get_UD_NeckAngle() const
 {
     std::lock_guard<std::mutex> lock(mtx_UD_NeckAngle_);
@@ -805,12 +785,6 @@ void Move_Decision::Set_stop_det_flg(bool stop_det_flg)
 {
     std::lock_guard<std::mutex> lock(mtx_stop_det_flg);
     this->stop_det_flg_ = stop_det_flg;
-}
-
-void Move_Decision::Set_delta_x(double delta_x)
-{
-    std::lock_guard<std::mutex> lock(mtx_delta_x);
-    this->delta_x_ = delta_x;
 }
 
 void Move_Decision::Set_RL_NeckAngle(double RL_NeckAngle)

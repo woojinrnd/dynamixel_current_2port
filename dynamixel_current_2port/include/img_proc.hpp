@@ -12,6 +12,28 @@
 #include <fstream>
 #include <yaml-cpp/yaml.h>
 
+
+#define TOP_BORDER_LINE   240	// == (IMG_H / 2)
+#define BOTTOM_BORDER_LINE 460  // == (IMG_H - 20) change this value when Up-Down Neck Angle changed or to adjust with RV value
+#define LEFT_BORDER_LINE  300	// == (IMG_W/2 - 20)
+#define RIGHT_BORDER_LINE 260	// == (IMG_W/2 + 20)
+
+#define CIRCLE_RADIUS 100 // 50 -> 60 -> 100
+
+#define LEFT_EDGE_BORDER_LINE 0 + 15
+#define RIGHT_EDGE_BORDER_LINE 640 - 15
+
+#define RR_LINE_CURVATURE 0.004 // 0.005 -> 0.004
+#define Y_VERTEX		  90
+
+#define NOISE_DELETE_DELTA_X 120
+
+#define IMG_W 640
+#define IMG_H 480
+
+
+
+
 using namespace cv;
 using namespace std;
 
@@ -87,9 +109,10 @@ public:
     bool Get_img_proc_huddle_det() const;
     bool Get_img_proc_wall_det() const;
     bool Get_img_proc_stop_det() const;
-    
-    double Get_gradient() const;
 
+    double Get_gradient() const;
+    double Get_delta_x() const;
+    
 
     // ********************************************** SETTERS ************************************************** //
 
@@ -99,9 +122,9 @@ public:
     void Set_img_proc_huddle_det(bool img_proc_huddle_det);
     void Set_img_proc_wall_det(bool img_proc_wall_det);
     void Set_img_proc_stop_det(bool img_proc_stop_det);
-    
-    void Set_gradient(double gradient);
 
+    void Set_gradient(double gradient);
+    void Set_delta_x(double delta_x);
 
     // ********************************************** running ************************************************** //
 
@@ -113,12 +136,27 @@ public:
     void saveParameters(const std::string &filename);
     void loadParameters(const std::string &filename);
 
-
     void extractAndDisplayObject();
     // void extractAndDisplayObject2(cv::VideoCapture& cap, const cv::Scalar& hsv_lower, const cv::Scalar& hsv_upper, const cv::Scalar& lab_lower, const cv::Scalar& lab_upper);
 
     void init();
     void LINE_imgprocessing();
+
+
+
+
+    /////////////////////LINE////////////////////
+    Point tmp_point_target = Point(IMG_W/2,IMG_H/2);
+    Point point_target = Point(IMG_W/2,IMG_H);
+    std::vector<std::vector<cv::Point>> contours_;
+    bool roi_line_flg = true;
+    double delta_x_list[3] = {0.f, 0.f, 0.f};
+    double delta_x_ = 0;
+    // cv::Mat final_binary_mask;
+    cv::Mat final_binary_mask = cv::Mat::zeros(IMG_H, IMG_W, CV_8UC1); 
+
+
+    
 
 private:
     ros::NodeHandle nh;
@@ -137,12 +175,16 @@ private:
     bool img_proc_wall_det_;
     bool img_proc_stop_det_;
 
-
-    //Line mode
+    // Line mode
     int8_t gradient_ = 0; // Line_angle
 
+    // No Line mode
+    // delta_x : Center of window.x - Center of last captured line.x
+    // delta_x > 0 : LEFT
+    // delta_x < 0 : RIGHT
 
-    //Mutex
+    /////////////////////////////////////////// Mutex ///////////////////////////////////////////
+    // LINE Determine flg from img_proc
     mutable std::mutex mtx_img_proc_line_det_;
     mutable std::mutex mtx_img_proc_no_line_det_;
     mutable std::mutex mtx_img_proc_goal_det_;
@@ -150,12 +192,9 @@ private:
     mutable std::mutex mtx_img_proc_wall_det_;
     mutable std::mutex mtx_img_proc_stop_det_;
 
+    //Line Mode
     mutable std::mutex mtx_gradient;
+    //No Line Mode
+    mutable std::mutex mtx_delta_x;
 
-
-    std::vector<std::vector<cv::Point>> contours_;
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> dbb2c26a0adf4d3c96a8883b7eec96bd7a66b0f8

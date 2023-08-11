@@ -150,7 +150,6 @@ public:
     bool Get_wall_det_flg() const;
     bool Get_stop_det_flg() const;
 
-    double Get_delta_x() const;
 
     double Get_RL_NeckAngle() const;
     double Get_UD_NeckAngle() const;
@@ -177,7 +176,6 @@ public:
     void Set_wall_det_flg(bool wall_det_flg);
     void Set_stop_det_flg(bool stop_det_flg);
 
-    void Set_delta_x(double delta_x);
     void Set_RL_NeckAngle(double RL_NeckAngle);
     void Set_UD_NeckAngle(double UD_NeckAngle);
     void Set_RL_Neck_on_flg(bool RL_Neck_on_flg);
@@ -257,7 +255,6 @@ private:
     bool MoveDecisionON_;
     bool CallbackON_;
 
-    double delta_x_ = 0;
 
 
 
@@ -281,7 +278,6 @@ private:
     mutable std::mutex mtx_stand_status_;
     mutable std::mutex mtx_running_mode_;
 
-    mutable std::mutex mtx_delta_x;
 
     mutable std::mutex mtx_Emergency_;
     mutable std::mutex mtx_ProcessON_;

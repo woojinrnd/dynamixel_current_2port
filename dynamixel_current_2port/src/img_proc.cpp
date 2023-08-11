@@ -325,12 +325,11 @@ void Img_proc::extractAndDisplayObject()
     cv::Scalar lab_lower_thresh(l_min, a_min, b_min);
     cv::Scalar lab_upper_thresh(l_max, a_max, b_max);
 
-
     cv::inRange(hsv_image, hsv_lower_thresh, hsv_upper_thresh, hsv_binary_mask);
     cv::inRange(lab_image, lab_lower_thresh, lab_upper_thresh, lab_binary_mask);
 
     // Combine binary masks from both color spaces
-    cv::Mat final_binary_mask;
+    // cv::Mat final_binary_mask;
     Mat field;
     cv::bitwise_and(hsv_binary_mask, lab_binary_mask, final_binary_mask);
 
@@ -394,78 +393,406 @@ void Img_proc::extractAndDisplayObject()
 
     this->contours_ = contours;
     LINE_imgprocessing();
+    
 
     // Show the original frame and the final binary mask
     cv::imshow("Original Frame", Origin_img);
     cv::imshow("Final Binary Mask", final_binary_mask);
 }
 
+// void Img_proc::LINE_imgprocessing()
+// {
+//     try
+//     {
+//         // Assuming you have the 'contours' variable containing detected contours
+
+//         // Find the contour with the largest area (presumably the detected line)
+//         double max_area = 0;
+//         int max_area_idx = -1;
+//         for (size_t i = 0; i < this->contours_.size(); i++)
+//         {
+//             double area = cv::contourArea(this->contours_[i]);
+//             if (area > max_area)
+//             {
+//                 max_area = area;
+//                 max_area_idx = static_cast<int>(i);
+//             }
+//         }
+
+//         if (max_area_idx != -1)
+//         {
+//             // Calculate the center point of the largest contour
+//             cv::Moments moments = cv::moments(this->contours_[max_area_idx]);
+//             double center_x = moments.m10 / moments.m00;
+//             double center_y = moments.m01 / moments.m00;
+
+//             // Calculate the rotation angle based on the center point
+//             int image_width = Origin_img.cols;
+//             double base_y = Origin_img.rows - 1; // Bottom of the screen
+//             double dx = center_x - (image_width / 2);
+//             double dy = base_y - center_y;
+//             double angle_rad = std::atan2(dy, dx);
+//             double angle_deg = angle_rad * (180.0 / CV_PI);
+
+//             if (center_x < (image_width / 2)) angle_deg -= 90;
+//             else angle_deg = angle_deg - 90;
+
+//             // Check if the center point is within the image boundaries
+//             if (center_x <= 0)
+//             {
+//                 Set_img_proc_no_line_det(true);
+//                 Set_delta_x(-dx);
+//                 ROS_INFO("LEFT");
+//                 center_x = 0; // Set the center_x to the boundary value
+//             }
+//             else if (center_x > image_width)
+//             {
+//                 Set_img_proc_no_line_det(true);
+//                 Set_delta_x(-dx);
+//                 ROS_INFO("RIGHT");
+//                 center_x = image_width - 1;
+//             }
+
+//             // Now you have the rotation angle in degrees
+//             // Do something with 'angle_deg' (e.g., print it or use it for further processing)
+//             // std::cout << "Rotation Angle: " << angle_deg << " degrees" << std::endl;
+
+//             // Draw the center point
+//             cv::Point center(static_cast<int>(center_x), static_cast<int>(center_y));
+//             cv::drawContours(Origin_img, this->contours_, max_area_idx, cv::Scalar(0, 255, 0), 2);
+
+//             // Draw a line connecting the center point at the bottom of the screen and the center of the object
+//             cv::Point bottom_center(image_width / 2, static_cast<int>(base_y));
+//             cv::line(Origin_img, bottom_center, cv::Point(static_cast<int>(center_x), static_cast<int>(center_y)), cv::Scalar(255, 0, 0), 2);
+//             std::string strangle_deg = "Angle : " + std::to_string(angle_deg) + " Deg";
+//             cv::putText(Origin_img, strangle_deg, cv::Point(IMG_W, IMG_H), cv::FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2);
+
+//             // ROS_WARN("center x : %f", center_x);
+//             // ROS_WARN("center y : %f", center_y);
+//             Set_gradient(angle_deg);
+//         }
+//     }
+//     catch (const std::exception &e)
+//     {
+//         std::cerr << e.what() << '\n';
+//     }
+// }
+
 void Img_proc::LINE_imgprocessing()
 {
-    try
+    double tmp_delta_x = 0;
+
+    Mat img_contour_tmp;
+    if (!final_binary_mask.empty())
     {
-        double tmp_delta_x = 0;
+        img_contour_tmp = final_binary_mask.clone();
+        // imshow("ddd", img_contour_tmp);
+    }
+    else
+    {
+        // Handle the case when final_binary_mask is empty
+        ROS_WARN("final_binary_mask is empty");
+    }
 
-        // Assuming you have the 'contours' variable containing detected contours
+    //    Parameter Setting Start    //
+    /*    setting border line    */
 
-        // Find the contour with the largest area (presumably the detected line)
-        double max_area = 0;
-        int max_area_idx = -1;
-        for (size_t i = 0; i < this->contours_.size(); i++)
+    /*** ROI SETTING ***/
+
+    /*** RR LINE SETTING ***/
+    float curvature = RR_LINE_CURVATURE;
+    float y_tip_point = Y_VERTEX;
+    for (int i = 0; i < IMG_W; ++i)
+    {
+        float x = i;
+        float y = curvature * (x - IMG_W/2) * (x - IMG_W/2) + y_tip_point;
+        circle(Origin_img, Point(int(x), int(y)), 2, Scalar(255, 0, 0), 2);
+    }
+
+    for (int i = 0; i < IMG_H; ++i) // i = y-axis , j = x-axis
+    {
+        for (int j = 0; j < IMG_W; ++j)
         {
-            double area = cv::contourArea(this->contours_[i]);
-            if (area > max_area)
+            //// delete top area
+            // if (i > BOTTOM_BORDER_LINE || i < TOP_BORDER_LINE)
+            //{
+            //	img_contour_tmp.at<char>(i, j) = 0;
+            //	if (roi_line_flg == true)
+            //	{
+            //		Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+            //		Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+            //		Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+            //	}
+            // }
+
+            // delete curvature line upper area
+            if (i < curvature * (j - IMG_W/2) * (j - IMG_W/2) + y_tip_point)
             {
-                max_area = area;
-                max_area_idx = static_cast<int>(i);
+                img_contour_tmp.at<char>(i, j) = 0;
+                if (roi_line_flg == true)
+                {
+                    Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+                    Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+                    Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+                }
+            }
+
+            else if (i > IMG_H - 10)
+            {
+                img_contour_tmp.at<char>(i, j) = 0;
+                if (roi_line_flg == true)
+                {
+                    Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+                    Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+                    Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+                }
+            }
+
+            // else if (i < 120)
+            //{
+            //	img_contour_tmp.at<char>(i, j) = 0;
+            //	if (roi_line_flg == true)
+            //	{
+            //		Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+            //		Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+            //		Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+            //	}
+            // }
+
+            // else if (i > BOTTOM_BORDER_LINE)
+            //{
+            //	img_contour_tmp.at<char>(i, j) = 0;
+            //	if (roi_line_flg == true)
+            //	{
+            //		Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+            //		Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+            //		Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+            //	}
+            // }
+
+            //// delete center-bottom circular area
+            // else if ((j - IMG_W/2)*(j - IMG_W/2) + (i - BOTTOM_BORDER_LINE)*(i - BOTTOM_BORDER_LINE) < CIRCLE_RADIUS*CIRCLE_RADIUS && i <= BOTTOM_BORDER_LINE)
+            //{
+            //	img_contour_tmp.at<char>(i, j) = 0;
+            //	if (roi_line_flg == true)
+            //	{
+            //		Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+            //		Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+            //		Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+            //	}
+            // }
+
+            // delete center-bottom curvature line lower area
+            else if (i > 0.015 * (j - IMG_W/2) * (j - IMG_W/2) + (IMG_H - CIRCLE_RADIUS))
+            {
+                img_contour_tmp.at<char>(i, j) = 0;
+                if (roi_line_flg == true)
+                {
+                    Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+                    Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+                    Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+                }
+            }
+
+            //// delete center area
+            // else if (j > LEFT_BORDER_LINE && j < RIGHT_BORDER_LINE && i >= TOP_BORDER_LINE)
+            //{
+            //	img_contour_tmp.at<char>(i, j) = 0;
+            //	if (roi_line_flg == true)
+            //	{
+            //		Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+            //		Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+            //		Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+            //	}
+            // }
+            //  delete both side edge area
+            else if (j < LEFT_EDGE_BORDER_LINE || j > RIGHT_EDGE_BORDER_LINE)
+            {
+                img_contour_tmp.at<char>(i, j) = 0;
+                if (roi_line_flg == true)
+                {
+                    Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+                    Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+                    Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+                }
+            }
+            //// delete additional side area when turn
+            // else if (j >= LEFT_EDGE_BORDER_LINE && j < LEFT_EDGE_BORDER_LINE + 60) // when turn right, delete additional left side
+            //{
+            //	if (delta_x < 0)
+            //	{
+            //		img_contour_tmp.at<char>(i, j) = 0;
+            //		if (roi_line_flg == true)
+            //		{
+            //			Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+            //			Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+            //			Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+            //		}
+            //	}
+            // }
+            // else if (j <= RIGHT_EDGE_BORDER_LINE && j > RIGHT_EDGE_BORDER_LINE - 60) // when turn left, delete additional right side
+            //{
+            //	if (delta_x > 0)
+            //	{
+            //		img_contour_tmp.at<char>(i, j) = 0;
+            //		if (roi_line_flg == true)
+            //		{
+            //			Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
+            //			Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
+            //			Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
+            //		}
+            //	}
+            // }
+        }
+    }
+    //    Parameter Setting Ends    //
+
+    //    Image Processing Start    //
+
+    // findContours(img_contour_tmp, this->contours_, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
+    findContours(final_binary_mask, this->contours_, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
+
+
+    int _size = (int)this->contours_.size();
+
+    vector<Moments> _moment(_size);
+    vector<Point2f> centerpoints(_size);
+
+    int line_count = 0;
+    float x_points[5], y_points[5];
+
+    if (_size > 0)
+    {
+        for (int i = 0; i < _size; i++)
+        {
+            if (contourArea(this->contours_[i]) > 50)
+            {
+                drawContours(Origin_img, this->contours_, i, Scalar(0, 255, 0), 2);
+
+                _moment[i] = moments(this->contours_[i], false);
+                centerpoints[i] = Point2f(_moment[i].m10 / _moment[i].m00, _moment[i].m01 / _moment[i].m00);
+
+                if (line_count < 5)
+                {
+                    x_points[line_count] = centerpoints[i].x;
+                    y_points[line_count] = centerpoints[i].y;
+                    line_count++;
+                }
             }
         }
+    }
 
-        if (max_area_idx != -1)
+    string str = to_string(line_count) + " Dot";
+    putText(Origin_img, str, Point(10, 30), 2, 0.8, CV_RGB(0, 255, 0), 2);
+
+    if (line_count > 0)
+    {
+        float min_distance = (IMG_W/2 * IMG_W/2) + (TOP_BORDER_LINE - IMG_H) * (TOP_BORDER_LINE - IMG_H);
+        int min_distance_index = 0;
+
+        for (int i = 0; i < line_count; i++)
         {
-            // Calculate the center point of the largest contour
-            cv::Moments moments = cv::moments(this->contours_[max_area_idx]);
-            double center_x = moments.m10 / moments.m00;
-            double center_y = moments.m01 / moments.m00;
-
-
-            // Calculate the rotation angle based on the center point
-            int image_width = Origin_img.cols;
-            double base_y = Origin_img.rows - 1; // Bottom of the screen
-            double dx = center_x - (image_width / 2);
-            double dy = base_y - center_y;
-            double angle_rad = std::atan2(dy, dx);
-            double angle_deg = angle_rad * (180.0 / CV_PI);
-
-            if (center_x < (image_width / 2)) angle_deg -= 90;
-            else angle_deg = angle_deg - 90;
-
-            // Now you have the rotation angle in degrees
-            // Do something with 'angle_deg' (e.g., print it or use it for further processing)
-            // std::cout << "Rotation Angle: " << angle_deg << " degrees" << std::endl;
-
-            // Draw the center point
-            cv::Point center(static_cast<int>(center_x), static_cast<int>(center_y));
-            cv::drawContours(Origin_img, this->contours_, max_area_idx, cv::Scalar(0, 255, 0), 2);
-
-            // Draw a line connecting the center point at the bottom of the screen and the center of the object
-            cv::Point bottom_center(image_width / 2, static_cast<int>(base_y));
-            cv::line(Origin_img, bottom_center, cv::Point(static_cast<int>(center_x), static_cast<int>(center_y)), cv::Scalar(255, 0, 0), 2);
-            std::string strangle_deg = "Angle : " + std::to_string(angle_deg) + " Deg";
-            cv::putText(Origin_img, strangle_deg, cv::Point(320, 240), cv::FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2);
-
-            // ROS_WARN("center x : %f", center_x);
-            // ROS_WARN("center y : %f", center_y);
-            Set_gradient(angle_deg);
-
+            float tmp_distance = (x_points[i] - IMG_W/2) * (x_points[i] - IMG_W/2) + (y_points[i] - IMG_H) * (y_points[i] - IMG_H);
+            if (tmp_distance < min_distance)
+            {
+                min_distance = tmp_distance;
+                min_distance_index = i;
+            }
+        }
+        tmp_point_target = Point(x_points[min_distance_index], y_points[min_distance_index]);
+        if (abs(tmp_point_target.x - point_target.x) > NOISE_DELETE_DELTA_X)
+        {
+            tmp_point_target.x = point_target.x;
+            tmp_point_target.y = point_target.y;
         }
     }
-    catch (const std::exception &e)
-    {
-        std::cerr << e.what() << '\n';
-    }
-}
 
+    if (line_count == 0 || tmp_point_target.x == point_target.x)
+    {
+        // when no dot found, move slope to center
+        if (point_target.x > IMG_W/2)
+        {
+            tmp_point_target = Point(point_target.x - 1, point_target.y);
+            Set_img_proc_no_line_det(true);
+        }
+        else if (point_target.x < IMG_W/2)
+        {
+            tmp_point_target = Point(point_target.x + 1, point_target.y);
+            Set_img_proc_no_line_det(true);
+        }
+        else
+        {
+            tmp_point_target = Point(IMG_W/2, point_target.y);
+            // Set_img_proc_no_line_det(false);
+        } // == point_target.x = IMG_W/2
+    }
+
+    float dydx = (tmp_point_target.y - IMG_H) / (tmp_point_target.x - IMG_W/2 + 0.0001);
+    // ROS_INFO("%f", dydx);
+    for (int i = IMG_H; i > 0; i--)
+    {
+        int y = i;
+        int x = 1 / dydx * (y - IMG_H) + IMG_W/2;
+        circle(Origin_img, Point(x, y), 2, Scalar(0, 255, 255), -1);
+
+        if (x < 2)
+        {
+            tmp_delta_x = IMG_W/2 - 0;
+            break;
+        }
+        else if (x > IMG_W - 2)
+        {
+            tmp_delta_x = IMG_W/2 - IMG_W;
+            break;
+        }
+        else if (abs(curvature * (x - IMG_W/2) * (x - IMG_W/2) + y_tip_point - y) < 2)
+        {
+            circle(Origin_img, Point(x, y), 4, Scalar(0, 255, 255), -1);
+            tmp_delta_x = IMG_W/2 - x;
+            break;
+        }
+    }
+    //////////////////////////////////////////////////
+        // float dydx = (tmp_point_target.y - IMG_H) / (tmp_point_target.x - IMG_W/2 + 0.0001);
+    double base_y = Origin_img.rows - 1; // Bottom of the screen
+    double center_x = tmp_point_target.x;
+    double center_y = tmp_point_target.y;
+    double dx = center_x - (IMG_W / 2);
+    double dy = base_y - center_y;
+    double angle_rad = std::atan2(dy, dx); //[rad]
+    double angle_deg = angle_rad * (180.0 / CV_PI); // [deg]
+
+    if (center_x < (IMG_W / 2))
+        angle_deg -= 90;
+    else
+        angle_deg = angle_deg - 90;
+
+    // Draw a line connecting the center point at the bottom of the screen and the center of the object
+    // std::string strangle_deg = "Angle : " + std::to_string(angle_deg) + " Deg";
+    // cv::putText(Origin_img, strangle_deg, cv::Point(IMG_W, IMG_H), cv::FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2);
+
+    // ROS_WARN("center x : %f", center_x);
+    // ROS_WARN("center y : %f", center_y);
+    // ROS_WARN("Angle_deg : %f" , angle_deg);
+
+
+    //////////////////////////////////////////////////
+
+    circle(Origin_img, tmp_point_target, 4, Scalar(0, 0, 255), -1);
+    point_target = tmp_point_target;
+
+    delta_x_list[2] = delta_x_list[1];
+    delta_x_list[1] = delta_x_list[0];
+    delta_x_list[0] = tmp_delta_x;
+    // delta_x = (delta_x_list[2] + delta_x_list[1] + delta_x_list[0]) / 3;
+    delta_x_ = tmp_delta_x;
+
+    Set_img_proc_line_det(true);
+    Set_gradient(angle_deg);
+    Set_delta_x(delta_x_);
+
+    //    image processing ends    //
+}
 
 void Img_proc::init()
 {
@@ -514,7 +841,6 @@ void Img_proc::init()
     cv::setTrackbarPos("B max", "Threshold Adjustments", 173);
 }
 
-
 void Img_proc::webcam_thread()
 {
     init();
@@ -524,6 +850,7 @@ void Img_proc::webcam_thread()
     while (cv::waitKey(1) != 27)
     {
         extractAndDisplayObject();
+        LINE_imgprocessing();
     }
 
     // Release the camera and close OpenCV windows
@@ -575,6 +902,12 @@ double Img_proc::Get_gradient() const
     return gradient_;
 }
 
+double Img_proc::Get_delta_x() const
+{
+    std::lock_guard<std::mutex> lock(mtx_delta_x);
+    return delta_x_;
+}
+
 // ********************************************** SETTERS ************************************************** //
 
 void Img_proc::Set_img_proc_line_det(bool img_proc_line_det)
@@ -617,4 +950,10 @@ void Img_proc::Set_gradient(double gradient)
 {
     std::lock_guard<std::mutex> lock(mtx_gradient);
     this->gradient_ = gradient;
+}
+
+void Img_proc::Set_delta_x(double delta_x)
+{
+    std::lock_guard<std::mutex> lock(mtx_delta_x);
+    this->delta_x_ = delta_x;
 }
