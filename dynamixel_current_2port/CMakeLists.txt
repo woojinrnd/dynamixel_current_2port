@@ -47,6 +47,7 @@ add_service_files(
   Turn_Angle.srv
   UD_NeckAngle.srv
   RL_NeckAngle.srv
+  Emergency.srv
 )
 
 generate_messages(

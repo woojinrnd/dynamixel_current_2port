@@ -289,7 +289,7 @@ void Img_proc::loadParameters(const std::string &filename)
     fs.release();
 }
 
-void Img_proc::extractAndDisplayObject()
+void Img_proc::running_process()
 {
     vcap >> Origin_img; // Read a frame from the camera
 
@@ -393,6 +393,7 @@ void Img_proc::extractAndDisplayObject()
 
     this->contours_ = contours;
     LINE_imgprocessing();
+    GOAL_LINE_recognition();
     
 
     // Show the original frame and the final binary mask
@@ -753,7 +754,7 @@ void Img_proc::LINE_imgprocessing()
         }
     }
     //////////////////////////////////////////////////
-        // float dydx = (tmp_point_target.y - IMG_H) / (tmp_point_target.x - IMG_W/2 + 0.0001);
+    // float dydx = (tmp_point_target.y - IMG_H) / (tmp_point_target.x - IMG_W/2 + 0.0001);
     double base_y = Origin_img.rows - 1; // Bottom of the screen
     double center_x = tmp_point_target.x;
     double center_y = tmp_point_target.y;
@@ -792,6 +793,117 @@ void Img_proc::LINE_imgprocessing()
     Set_delta_x(delta_x_);
 
     //    image processing ends    //
+}
+
+void Img_proc::GOAL_LINE_recognition()
+{
+    vector< vector<Point>> contours;
+    contours = this->contours_;
+    Mat img_contour_tmp;
+    if (!final_binary_mask.empty())
+    {
+        img_contour_tmp = final_binary_mask.clone();
+    }
+    else
+    {
+        // Handle the case when final_binary_mask is empty
+        ROS_WARN("final_binary_mask is empty");
+    }
+    Point2f corner[4];
+
+    findContours(img_contour_tmp, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
+    int _size = (int)contours.size();
+
+    vector<Moments> _moment(_size);
+    vector<Point2f> centerpoints(_size);
+    float x_points[5], y_points[5];
+
+    if (_size > 0)
+    {
+        for (int i = 0; i < _size; i++)
+        {
+            ////////////////////////////////////
+            ///    1.Draw the minAreaRect    ///
+            ////////////////////////////////////
+
+            if (contourArea(contours[i]) > CONTOUR_AREA)
+            {
+                RotatedRect rect = minAreaRect(contours[i]);
+
+                _moment[i] = moments(contours[i], false);
+                centerpoints[i] = Point2f(_moment[i].m10 / _moment[i].m00, _moment[i].m01 / _moment[i].m00);
+
+                if (_size < 1)
+                {
+                    x_points[_size] = centerpoints[i].x;
+                }
+
+                rect.points(corner);
+
+                vector<Point> boundingContour;
+                vector<vector<Point>> boxContours;
+
+                for (unsigned int j = 0; j < 4; j++)
+                {
+                    boundingContour.push_back(corner[j]);
+                }
+                
+                boxContours.push_back(boundingContour);
+                drawContours(Origin_img, boxContours, 0, Scalar(0, 255, 0), 2);
+                
+                for (unsigned int k = 0; k < 4; k++)
+                {
+                    circle(Origin_img, Point2f(corner[k]), 4, Scalar(255, 0, 0), -1);
+                }
+
+                /////////////////////////////////////
+
+                double height = rect.size.height; // get height
+                double width = rect.size.width;
+                int area = height * width;
+                string area_str = to_string((int)area);
+                double angle = rect.angle;
+
+                string height_str = to_string((int)height);
+                string width_str = to_string((int)width);
+
+                int min_goalSize = 50;
+                double fake_height;
+
+                // putText(Origin_img2, "H" + height_str + "W" + width_str + "A" + area_str, Point(corner[3]), 2, 0.5, CV_RGB(0, 255, 0), 1);
+
+                /////////////////////////////////////////////////
+                ///    2. Set height is larger than width     ///
+                /////////////////////////////////////////////////
+                if (height >= width)
+                {
+                    height = height;
+                }
+                else if (width > height)
+                {
+                    fake_height = height;
+                    height = width;
+                    width = fake_height;
+                }
+                ////////////////////////////////////////////////
+
+                //////////////////////////////////////////////////
+                ///    3. Determine the shape of the line      ///
+                //////////////////////////////////////////////////
+                if ((height > min_goalSize) && (width > min_goalSize))
+                {
+                    putText(Origin_img, "GOAL LINE", Point(100, 60), 2, 0.8, CV_RGB(255, 0, 0), 2);
+                    Set_img_proc_goal_line_det(true);
+                }
+                else
+                {
+                    putText(Origin_img, "Driving LINE", Point(100, 30), 2, 0.8, CV_RGB(0, 255, 0), 2);
+                    Set_img_proc_goal_line_det(false);
+                }
+                //////////////////////////////////////////////////
+            }
+        }
+    }
 }
 
 void Img_proc::init()
@@ -849,8 +961,8 @@ void Img_proc::webcam_thread()
 
     while (cv::waitKey(1) != 27)
     {
-        extractAndDisplayObject();
-        LINE_imgprocessing();
+        running_process();
+        // LINE_imgprocessing();
     }
 
     // Release the camera and close OpenCV windows

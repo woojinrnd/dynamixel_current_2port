@@ -17,6 +17,7 @@
 #include "dynamixel_current_2port/Turn_Angle.h"
 #include "dynamixel_current_2port/UD_NeckAngle.h"
 #include "dynamixel_current_2port/RL_NeckAngle.h"
+#include "dynamixel_current_2port/Emergency.h"
 
 #include "img_proc.hpp"
 // #include "IMG_PROC.hpp"
@@ -105,17 +106,18 @@ public:
     void startMode();
     // void stopMode();
     // void playMotion(float motion_index);
-    void EmergencyPublish(bool _emergency);
+    // void EmergencyPublish(bool _emergency);
 
     bool playMotion(dynamixel_current_2port::Select_Motion::Request &req, dynamixel_current_2port::Select_Motion::Response &res);
     bool turn_angle(dynamixel_current_2port::Turn_Angle::Request &req, dynamixel_current_2port::Turn_Angle::Response &res);
     bool Move_UD_NeckAngle(dynamixel_current_2port::UD_NeckAngle::Request &req, dynamixel_current_2port::UD_NeckAngle::Response &res);
     bool Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Request &req, dynamixel_current_2port::RL_NeckAngle::Response &res);
+    bool Emergency(dynamixel_current_2port::Emergency::Request &req, dynamixel_current_2port::Emergency::Response &res);
 
     void imuDataCallback(const sensor_msgs::Imu::ConstPtr &msg);
 
     // Publish & Subscribe
-    ros::Publisher Emergency_pub_;
+    // ros::Publisher Emergency_pub_;
     ros::Subscriber imu_data_sub_;
 
     // Server && Client
@@ -123,6 +125,7 @@ public:
     ros::ServiceServer turn_angle_server_;
     ros::ServiceServer UD_NeckAngle_server_;
     ros::ServiceServer RL_NeckAngle_server_;
+    ros::ServiceServer Emergency_server_;
 
     // ********************************************** FUNCTION ************************************************** //
 

@@ -27,11 +27,13 @@
 #define Y_VERTEX		  90
 
 #define NOISE_DELETE_DELTA_X 120
+#define CONTOUR_AREA 200
+#define MIN_CONTOUR_AREA 50
+#define NO_LINE_DETECT_DX 160
+
 
 #define IMG_W 640
 #define IMG_H 480
-
-
 
 
 using namespace cv;
@@ -136,11 +138,13 @@ public:
     void saveParameters(const std::string &filename);
     void loadParameters(const std::string &filename);
 
-    void extractAndDisplayObject();
+    void running_process();
     // void extractAndDisplayObject2(cv::VideoCapture& cap, const cv::Scalar& hsv_lower, const cv::Scalar& hsv_upper, const cv::Scalar& lab_lower, const cv::Scalar& lab_upper);
 
     void init();
     void LINE_imgprocessing();
+    void GOAL_LINE_recognition();
+    
 
 
 

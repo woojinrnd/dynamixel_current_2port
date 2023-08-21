@@ -20,6 +20,7 @@
 #include "dynamixel_current_2port/Turn_Angle.h"
 #include "dynamixel_current_2port/UD_NeckAngle.h"
 #include "dynamixel_current_2port/RL_NeckAngle.h"
+#include "dynamixel_current_2port/Emergency.h"
 
 
 
@@ -58,27 +59,31 @@ public:
   ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
   ros::ServiceClient client_UD_Neck = nh.serviceClient<dynamixel_current_2port::UD_NeckAngle>("/Move_decision/UD_NeckAngle");
   ros::ServiceClient client_RL_Neck = nh.serviceClient<dynamixel_current_2port::RL_NeckAngle>("/Move_decision/RL_NeckAngle");
+  ros::ServiceClient client_Emergency = nh.serviceClient<dynamixel_current_2port::Emergency>("/Move_decision/Emergency");
+
 
   dynamixel_current_2port::Select_Motion srv_SM;
   dynamixel_current_2port::Turn_Angle srv_TA;
   dynamixel_current_2port::UD_NeckAngle srv_UD_Neck;
   dynamixel_current_2port::RL_NeckAngle srv_RL_Neck;
+  dynamixel_current_2port::Emergency srv_Emergency;
 
 
   /////////Service callbacek
   virtual void SelectMotion();
   virtual void Move_UD_NeckAngle();
   virtual void Move_RL_NeckAngle();
+  virtual void Emergency();
 
 
   virtual void callbackThread();
-  virtual void Emergencycallback(const std_msgs::Bool &msg);
+  // virtual void Emergencycallback(const std_msgs::Bool &msg);
   ros::Publisher joint_state_publisher_; ///< Publishes joint states from reads
   ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
   ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
   ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
   ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
-  ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
+  // ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
 
 
   // Variable
@@ -93,6 +98,7 @@ public:
   VectorXd Gyro = VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
   double rl_neckangle = 0;
   double ud_neckangle = 0;
+  bool emergency = 1; // True : Keep going , False : Emergency
 
 
   int8_t mode = 0;

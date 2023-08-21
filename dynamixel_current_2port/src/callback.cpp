@@ -58,12 +58,13 @@ void Callback::callbackThread()
     FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, this);
     FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, this);
     IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, this);
-    Emergency_subscriber_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergencycallback, this);
+    // Emergency_subscriber_ = nh.subscribe("/Move_decision/Emergency", 1000, &Callback::Emergencycallback, this);
 
     srv_SM.request.finish = 1;
     srv_TA.request.finish = 1;
     srv_UD_Neck.request.finish = 1;
     srv_RL_Neck.request.finish = 1;
+    srv_Emergency.request.finish = 1;
 
 
     ros::Rate loop_rate(SPIN_RATE);
@@ -72,30 +73,37 @@ void Callback::callbackThread()
         // startMode();
         if (client_SM.call(srv_SM))
         {
-            ROS_INFO("#[MESSAGE] SM Request : %d#", srv_SM.request.finish);
+            ROS_INFO("#[MESSAGE] SM Request : %s#", srv_SM.request.finish ? "true" : "false");
             ROS_INFO("[MESSAGE] SM Response : %d", srv_SM.response.select_motion);
             SelectMotion();
         }
 
         if (client_TA.call(srv_TA))
         {
-            ROS_INFO("#[MESSAGE] TA Request : %d#", srv_TA.request.finish);
+            ROS_INFO("#[MESSAGE] TA Request : %s#", srv_TA.request.finish ? "true" : "false");
             ROS_INFO("[MESSAGE] TA Response : %f", srv_TA.response.turn_angle);
             // Turn Body Angle에 모션 해당하는 부분
         }
 
         if (client_UD_Neck.call(srv_UD_Neck))
         {
-            ROS_INFO("#[MESSAGE] UD Request : %d#", srv_UD_Neck.request.finish);
+            ROS_INFO("#[MESSAGE] UD Request : %s#", srv_UD_Neck.request.finish ? "true" : "false");
             ROS_INFO("[MESSAGE] UD Response : %f", srv_UD_Neck.response.ud_neckangle);
             Move_UD_NeckAngle();            
         }
 
         if (client_RL_Neck.call(srv_RL_Neck))
         {
-            ROS_INFO("#[MESSAGE] RL Request : %d#", srv_RL_Neck.request.finish);
+            ROS_INFO("#[MESSAGE] RL Request : %s#", srv_RL_Neck.request.finish ? "true" : "false");
             ROS_INFO("[MESSAGE] RL Response : %f", srv_RL_Neck.response.rl_neckangle);
-            Move_RL_NeckAngle();            
+            Move_RL_NeckAngle();
+        }
+
+        if (client_Emergency.call(srv_Emergency))
+        {
+            ROS_INFO("#[MESSAGE] EMG Request : %s#", srv_Emergency.request.finish ? "true" : "false");
+            ROS_INFO("[MESSAGE] EMG Response : %s", srv_Emergency.response.emergency ? "true" : "false");
+            Emergency();
         }
 
         else
@@ -109,14 +117,14 @@ void Callback::callbackThread()
     }
 }
 
-void Callback::Emergencycallback(const std_msgs::Bool &msg)
-{
-    // ROS_INFO("%d", msg.data);
-    if (msg.data == false)
-    {
-        ROS_ERROR("Emergency");
-    }
-}
+// void Callback::Emergencycallback(const std_msgs::Bool &msg)
+// {
+//     // ROS_INFO("%d", msg.data);
+//     if (msg.data == false)
+//     {
+//         ROS_ERROR("Emergency");
+//     }
+// }
 
 // About Subscribe
 //  void Callback::SelectMotion(const std_msgs::UInt8::ConstPtr &msg)
@@ -198,6 +206,17 @@ void Callback::Move_UD_NeckAngle()
         ud_neckangle = res_ud_neck;
         // All_Theta[22] = ud_neckangle;
         All_Theta[0] = ud_neckangle * DEG2RAD;
+    }
+}
+
+/// 재민이형 긴급정지에 대한 코드 여기다가 넣으면 됨 ///
+void Callback::Emergency()
+{
+    if (client_Emergency.call(srv_Emergency))
+    {
+        bool res_emergency = srv_Emergency.response.emergency;
+        emergency = res_emergency;
+        ROS_ERROR("EMERGENCY : %s", emergency ? "True" : "False");
     }
 }
 

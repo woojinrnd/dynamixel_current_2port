@@ -74,7 +74,7 @@ void Move_Decision::process()
 
     // stop mode
     // rostopic echo /Move_decision/Emergency
-    // Set_stop_det_flg(true);
+    // Set_stop_det_flg(false);
 
     // goal mode
     // Set_goal_line_det_flg(true);
@@ -102,6 +102,7 @@ void Move_Decision::process()
         Set_line_det_flg(false);
         ROS_ERROR("1번 : %d", Get_line_det_flg());
     }
+
     else if (tmp_img_proc_line_det_flg_)
     {
         Set_no_line_det_flg(false);
@@ -117,9 +118,7 @@ void Move_Decision::process()
         // delta_x = ;
     }
 
-        
     /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
-
     // else if (장애물과 로봇이 접촉해 정지가 필요할 때)
     // {
     // Set_stop_det_flg(true);
@@ -418,7 +417,7 @@ void Move_Decision::callbackThread()
     ros::NodeHandle nh(ros::this_node::getName());
 
     // Subscriber & Publisher
-    Emergency_pub_ = nh.advertise<std_msgs::Bool>("Emergency", 0);
+    // Emergency_pub_ = nh.advertise<std_msgs::Bool>("Emergency", 0);
     imu_data_sub_ = nh.subscribe("imu", 1, &Move_Decision::imuDataCallback, this);
 
     // Server
@@ -426,6 +425,7 @@ void Move_Decision::callbackThread()
     turn_angle_server_ = nh.advertiseService("Turn_Angle", &Move_Decision::turn_angle, this);
     UD_NeckAngle_server_ = nh.advertiseService("UD_NeckAngle", &Move_Decision::Move_UD_NeckAngle, this);
     RL_NeckAngle_server_ = nh.advertiseService("RL_NeckAngle", &Move_Decision::Move_RL_NeckAngle, this);
+    Emergency_server_ = nh.advertiseService("Emergency", &Move_Decision::Emergency, this);
 
     ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
@@ -440,6 +440,7 @@ void Move_Decision::callbackThread()
         ROS_INFO("angle : %f", Get_turn_angle_());
         ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
         ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());
+        ROS_INFO("EMG : %s", Get_Emergency_() ? "true" : "false");
         ROS_INFO("Move_decision img_proc_line_det_flg : %d", img_procPtr->Get_img_proc_line_det());
         ROS_INFO("-------------------------------------------------------------------");
         ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
@@ -496,7 +497,7 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
         }
     }
 
-    ROS_INFO("[MESSAGE] SM Request :   %d ", req.finish);
+    ROS_INFO("[MESSAGE] SM Request :   %s ", req.finish ? "true" : "false");
     ROS_INFO("#[MESSAGE] SM Response : %d#", res.select_motion);
     return true;
 }
@@ -509,7 +510,7 @@ bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req
         res.turn_angle = Get_turn_angle_();
     }
 
-    ROS_INFO("[MESSAGE] TA Request :   %d ", req.finish);
+    ROS_INFO("[MESSAGE] TA Request :   %s ", req.finish ? "true" : "false");
     ROS_INFO("#[MESSAGE] TA Response : %f#", res.turn_angle);
     return true;
 }
@@ -522,7 +523,7 @@ bool Move_Decision::Move_UD_NeckAngle(dynamixel_current_2port::UD_NeckAngle::Req
         res.ud_neckangle = Get_UD_NeckAngle();
     }
 
-    ROS_INFO("[MESSAGE] UD Request :   %d ", req.finish);
+    ROS_INFO("[MESSAGE] UD Request :   %s ", req.finish ? "true" : "false");
     ROS_INFO("#[MESSAGE] UD Response : %f#", res.ud_neckangle);
     return true;
 }
@@ -535,8 +536,23 @@ bool Move_Decision::Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Req
         res.rl_neckangle = Get_RL_NeckAngle();
     }
 
-    ROS_INFO("[MESSAGE] RL Request :   %d ", req.finish);
+    ROS_INFO("[MESSAGE] RL Request :   %s ", req.finish ? "true" : "false");
     ROS_INFO("#[MESSAGE] RL Response : %f#", res.rl_neckangle);
+    return true;
+}
+
+
+bool Move_Decision::Emergency(dynamixel_current_2port::Emergency::Request &req, dynamixel_current_2port::Emergency::Response &res)
+{
+    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand))
+    {
+        // 0 : Stop
+        // 1 : Keep Going (Option)
+        res.emergency = Get_Emergency_();
+    }
+
+    ROS_INFO("[MESSAGE] EMG Request :   %s ", req.finish ? "true" : "false");
+    ROS_INFO("#[MESSAGE] EMG Response : %s#", res.emergency ? "true" : "false");
     return true;
 }
 
@@ -544,7 +560,7 @@ bool Move_Decision::Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Req
 void Move_Decision::startMode()
 {
     bool send_emergency = Get_Emergency_();
-    EmergencyPublish(send_emergency);
+    // EmergencyPublish(send_emergency);
     Set_motion_index_(Motion_Index::InitPose);
 }
 
@@ -556,14 +572,14 @@ void Move_Decision::startMode()
 // Emergency Stop
 // 0 : Stop
 // 1 : Keep Going (Option)
-void Move_Decision::EmergencyPublish(bool _emergency)
-{
-    std_msgs::Bool A;
-    A.data = _emergency;
+// void Move_Decision::EmergencyPublish(bool _emergency)
+// {
+//     std_msgs::Bool A;
+//     A.data = _emergency;
 
-    Emergency_pub_.publish(A);
-    // ROS_INFO("%d",Emergency_);
-}
+//     Emergency_pub_.publish(A);
+//     // ROS_INFO("%d",Emergency_);
+// }
 
 // check fallen states
 void Move_Decision::imuDataCallback(const sensor_msgs::Imu::ConstPtr &msg)
