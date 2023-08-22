@@ -12,14 +12,12 @@
 
 #include "callback.hpp"
 #include "dynamixel.hpp"
-#include "Walkingpattern_generator.hpp"
 
 class Sensor
 {
 public:
-    Sensor(Motions *motionPtr, Callback *callbackPtr);
+    Sensor(Callback *callbackPtr);
 
-    Motions *motionPtr;
     Callback *callbackPtr;
 
     virtual ~Sensor();

@@ -31,9 +31,10 @@ class Callback
 {
 public:
   // Callback();
-  Callback(Motions *motionPtr, Dxl *dxlPtr);
+  Callback(Trajectory *trajectoryPtr, IK_Function *IK_Ptr, Dxl *dxlPtr);
 
-  Motions *motionPtr;
+  Trajectory *trajectoryPtr;
+  IK_Function *IK_Ptr;
   Dxl *dxlPtr;
 
   
@@ -42,10 +43,11 @@ public:
   virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
   virtual void FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
   virtual void IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU);
+  virtual void Check_FSR();
+
   
   // virtual void SelectMotion(const std_msgs::UInt8::ConstPtr &msg);
 
-  virtual void MotionMaker();
   virtual void Write_Leg_Theta();
   virtual void Write_Arm_Theta();
 
@@ -98,17 +100,16 @@ public:
   VectorXd Gyro = VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
   double rl_neckangle = 0;
   double ud_neckangle = 0;
-  bool emergency = 1; // True : Keep going , False : Emergency
+  bool emergency_ = 1; // True : Keep going , False : Emergency
 
 
   int8_t mode = 0;
   double walkfreq = 1.48114;
   double walktime = 2 / walkfreq;
-  int freq = 500;
-  int simt = walktime * freq;
-  double sim_time = 5 * walktime;
-  int sim_n = sim_time * freq;
+  int freq = 100;
   int indext = 0;
+  int stop_indext = 0;
+  int emergency = 0;
   MatrixXd RL_motion;
   MatrixXd LL_motion;
   MatrixXd RL_motion0;

@@ -31,7 +31,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
     boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
     // boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
-    boost::thread move_thread = boost::thread(boost::bind(&Move_Decision::MoveDecisionThread, this));
+    // boost::thread move_thread = boost::thread(boost::bind(&Move_Decision::MoveDecisionThread, this));
     boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
 }
 
@@ -114,21 +114,39 @@ void Move_Decision::process()
     else if (img_procPtr->Get_img_proc_no_line_det())
     {
         Set_no_line_det_flg(true);
-        // delta_x : Center of window.x - Center of last captured line.x
-        // delta_x = ;
     }
 
-    /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
+    /////////////////////////STOP MODE --- no_line_det_flg = true /////////////////////////
     // else if (장애물과 로봇이 접촉해 정지가 필요할 때)
-    // {
-    // Set_stop_det_flg(true);
-    // }
+    else if (img_procPtr->Get_img_proc_stop_det())
+    {
+        Set_stop_det_flg(true);
+    }
 
-    /////////////////////////NO_LINE_MODE --- goal_line_det_flg = true /////////////////////////
+    /////////////////////////GOAL LINE MODE --- goal_line_det_flg = true /////////////////////////
     // else if (골 라인 인식 == true)
     // {
     // Set_goal_line_det_flg(true);
     // }
+    else if (img_procPtr->Get_img_proc_goal_line_det())
+    {
+        Set_goal_line_det_flg(true);
+        Set_line_det_flg(true);
+    }
+
+    ///////////////////////// WALL MODE --- wall_det_flg = true /////////////////////////
+    else if (img_procPtr->Get_img_proc_wall_det())
+    {
+        Set_wall_det_flg(true);
+    }
+
+    ///////////////////////// CORNER MODE --- corner_det_flg = true /////////////////////////
+    else if (img_procPtr->Get_img_proc_corner_det())
+    {
+        Set_corner_det_flg(true);
+        Set_line_det_flg(true);
+    }
+    
 }
 
 void Move_Decision::processThread()
@@ -147,6 +165,7 @@ void Move_Decision::processThread()
         // ProccessThread(gradient) = callbackThread(turn_angle)
         ROS_INFO("Gradient : %f", img_procPtr->Get_gradient());
         ROS_INFO("delta_x : %f", img_procPtr->Get_delta_x());
+        ROS_INFO("distance : %f", img_procPtr->Get_distance());
         ROS_INFO("Move_decision img_proc_line_det : %d", img_procPtr->Get_img_proc_line_det());
         ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
         ROS_INFO("\n");
@@ -155,20 +174,20 @@ void Move_Decision::processThread()
     }
 }
 
-// ********************************************** MoveDecision THREAD ************************************************** //
+// ********************************************** CALLBACK THREAD ************************************************** //
 
-void Move_Decision::MoveDecisionThread()
-{
-    // set node loop rate
-    ros::Rate loop_rate(SPIN_RATE);
+// void Move_Decision::MoveDecisionThread()
+// {
+//     // set node loop rate
+//     ros::Rate loop_rate(SPIN_RATE);
 
-    // node loop
-    while (ros::ok())
-    {
-        // relax to fit output rate
-        loop_rate.sleep();
-    }
-}
+//     // node loop
+//     while (ros::ok())
+//     {
+//         // relax to fit output rate
+//         loop_rate.sleep();
+//     }
+// }
 
 void Move_Decision::Running_Mode_Decision()
 {
@@ -203,6 +222,10 @@ void Move_Decision::Running_Mode_Decision()
         {
             running_mode_ = STOP_MODE;
         }
+        else if (corner_det_flg_)
+        {
+            running_mode_ = CORNER_MODE;
+        }
     }
 
     switch (running_mode_)
@@ -228,15 +251,14 @@ void Move_Decision::Running_Mode_Decision()
     case WALL_MODE:
         WALL_mode();
         break;
+    case CORNER_MODE:
+        CORNER_mode();
+        break;
     }
-
-    // running_mode_ = Running_Mode::LINE_MODE;
 }
 
 void Move_Decision::LINE_mode()
 {
-    // Set_motion_index_(Motion_Index::Right_2step);
-
     int8_t tmp_gradient = img_procPtr->Get_gradient();
     StraightLineDecision(tmp_gradient, margin_gradient);
 
@@ -395,22 +417,124 @@ void Move_Decision::HUDDLE_mode()
     // 허들을 다시 본다면 멈추고 다시 걸음 수 계산
     // LineMode
 
-    double tmp_ud_neckangle = Get_UD_NeckAngle();
-    tmp_ud_neckangle = -45;
-    if (Get_UD_Neck_on_flg() == true)
+    while (!img_procPtr->Get_img_proc_huddle_det())
     {
-        Set_UD_NeckAngle(tmp_ud_neckangle);
-        Set_UD_Neck_on_flg(false);
+        double tmp_ud_neckangle = Get_UD_NeckAngle();
+        tmp_ud_neckangle = -45;
+        if (Get_UD_Neck_on_flg() == true)
+        {
+            Set_UD_NeckAngle(tmp_ud_neckangle);
+            Set_UD_Neck_on_flg(false);
+        }
+
+        Set_motion_index_(Motion_Index::Forward_Nstep);
+        Set_distance_(img_procPtr->Get_distance());
+        Set_motion_index_(Motion_Index::Huddle_Jump);
     }
 
+    Set_huddle_det_flg(false);
     Set_line_det_flg(true);
 }
 
 void Move_Decision::WALL_mode()
 {
+    while (!img_procPtr->Get_img_proc_wall_det())
+    {
+        switch (img_procPtr->Get_img_proc_wall_number())
+        {
+        case 1:
+            // 처음 벽 인식 후 일정 거리 안까지 직진
+            Set_motion_index_(Motion_Index::Forward_Nstep);
+            Set_distance_(img_procPtr->Get_distance());
+            Set_motion_index_(Motion_Index::InitPose);
+            break;
+        case 2:
+            // 일정 거리 앞에서 정지 후 멀리 있는 벽이 보일 때 까지 좌보행
+            Set_motion_index_(Motion_Index::Left_2step);
+            Set_motion_index_(Motion_Index::InitPose);
+            break;
+        case -2:
+            // 멀리 있는 벽의 일정 거리 앞까지 직진
+            Set_motion_index_(Motion_Index::Forward_Nstep);
+            Set_distance_(img_procPtr->Get_distance());
+            Set_motion_index_(Motion_Index::InitPose);
+            break;
+        case -3:
+            // 일정 거리 앞에서 정지 후 멀리 있는 벽이 보일 때 까지 우보행
+            Set_motion_index_(Motion_Index::Right_2step);
+            Set_motion_index_(Motion_Index::InitPose);
+            break;
+        case 10:
+            // 멀리 있는 벽의 일정 거리 앞까지 직진
+            Set_motion_index_(Motion_Index::Forward_Nstep);
+            Set_distance_(img_procPtr->Get_distance());
+            Set_motion_index_(Motion_Index::InitPose);
+
+            if (img_procPtr->Get_img_proc_line_det())
+            {
+                Set_line_det_flg(true);
+            }
+            break;
+
+        default:
+            Set_motion_index_(Motion_Index::InitPose);
+            break;
+        }
+    }
+    Set_wall_det_flg(false);
 }
 
-// ********************************************** CALLBACK THREAD ************************************************** //
+void Move_Decision::CORNER_mode()
+{
+    while (!img_procPtr->Get_img_proc_corner_det())
+    {
+        switch (img_procPtr->Get_img_proc_corner_number())
+        {
+        case 1:
+            // ㅓ shpae(Step in place + 90 LEFT)
+            // Realsense -> distance 값
+            // Webcam -> 코너의 중심점 발견할 때가지
+
+            Set_motion_index_(Motion_Index::Forward_Nstep);
+            Set_distance_(img_procPtr->Get_distance());
+            Set_motion_index_(Motion_Index::InitPose);
+
+            Set_motion_index_(Motion_Index::Step_in_place);
+            Actual_angle += 1;
+            if (Actual_angle > Angle_ToStartWall)
+            {
+                Actual_angle = Angle_ToStartWall;
+            }
+            Set_turn_angle_(Actual_angle);
+
+            break;
+
+        case 2:
+            // ㅜ shpae(Step in place + 90 LEFT)
+            // Realsense -> distance 값
+            // Webcam -> 코너의 중심점 발견할 때가지
+
+            Set_motion_index_(Motion_Index::Forward_Nstep);
+            Set_distance_(img_procPtr->Get_distance());
+            Set_motion_index_(Motion_Index::InitPose);
+
+            Set_motion_index_(Motion_Index::Step_in_place);
+            Actual_angle += 3;
+            if (Actual_angle > Angle_ToStartWall)
+            {
+                Actual_angle = Angle_ToStartWall;
+            }
+            Set_turn_angle_(Actual_angle);
+
+            break;
+
+        default:
+            break;
+        }
+    }
+    Set_corner_det_flg(false);
+    Set_line_det_flg(true);
+}
 
 void Move_Decision::callbackThread()
 {
@@ -431,7 +555,6 @@ void Move_Decision::callbackThread()
     while (nh.ok())
     {
         startMode();
-
         ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
         ROS_INFO("-------------------------------------------------------------------");
         Running_Mode_Decision();
@@ -440,6 +563,7 @@ void Move_Decision::callbackThread()
         ROS_INFO("angle : %f", Get_turn_angle_());
         ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
         ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());
+        ROS_INFO("Distance : %f", img_procPtr->Get_distance());
         ROS_INFO("EMG : %s", Get_Emergency_() ? "true" : "false");
         ROS_INFO("Move_decision img_proc_line_det_flg : %d", img_procPtr->Get_img_proc_line_det());
         ROS_INFO("-------------------------------------------------------------------");
@@ -481,6 +605,15 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
         case Motion_Index::Back_4step:
             res.select_motion = Motion_Index::Back_4step;
             break;
+
+        case Motion_Index::Forward_Nstep:
+            res.select_motion = Motion_Index::Forward_Nstep;
+            res.distance = img_procPtr->Get_distance();
+            break;
+
+        case Motion_Index::Huddle_Jump:
+            res.select_motion = Motion_Index::Huddle_Jump;
+            break;
         }
     }
     else if ((req.finish == true) && ((stand_status_ == Stand_Status::Fallen_Back)) || (stand_status_ == Stand_Status::Fallen_Forward))
@@ -498,7 +631,8 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
     }
 
     ROS_INFO("[MESSAGE] SM Request :   %s ", req.finish ? "true" : "false");
-    ROS_INFO("#[MESSAGE] SM Response : %d#", res.select_motion);
+    ROS_INFO("#[MESSAGE] SM Motion :   %d#", res.select_motion);
+    ROS_INFO("#[MESSAGE] SM Distance : %f#", res.distance);
     return true;
 }
 
@@ -641,6 +775,12 @@ double Move_Decision::Get_turn_angle_() const
     return turn_angle_;
 }
 
+double Move_Decision::Get_distance_() const
+{
+    std::lock_guard<std::mutex> lock(mtx_distance_);
+    return distance_;
+}
+
 bool Move_Decision::Get_ProcessON() const
 {
     std::lock_guard<std::mutex> lock(mtx_ProcessON_);
@@ -693,6 +833,12 @@ bool Move_Decision::Get_stop_det_flg() const
 {
     std::lock_guard<std::mutex> lock(mtx_stop_det_flg);
     return stop_det_flg_;
+}
+
+bool Move_Decision::Get_corner_det_flg() const
+{
+    std::lock_guard<std::mutex> lock(mtx_corner_det_flg);
+    return corner_det_flg_;
 }
 
 double Move_Decision::Get_UD_NeckAngle() const
@@ -751,6 +897,12 @@ void Move_Decision::Set_turn_angle_(double turn_angle)
     this->turn_angle_ = turn_angle;
 }
 
+void Move_Decision::Set_distance_(double distance)
+{
+    std::lock_guard<std::mutex> lock(mtx_distance_);
+    this->distance_ = distance;
+}
+
 void Move_Decision::Set_ProcessON(bool ProcessON)
 {
     std::lock_guard<std::mutex> lock(mtx_ProcessON_);
@@ -801,6 +953,12 @@ void Move_Decision::Set_stop_det_flg(bool stop_det_flg)
 {
     std::lock_guard<std::mutex> lock(mtx_stop_det_flg);
     this->stop_det_flg_ = stop_det_flg;
+}
+
+void Move_Decision::Set_corner_det_flg(bool corner_det_flg)
+{
+    std::lock_guard<std::mutex> lock(mtx_corner_det_flg);
+    this->corner_det_flg_ = corner_det_flg;
 }
 
 void Move_Decision::Set_RL_NeckAngle(double RL_NeckAngle)
@@ -891,6 +1049,14 @@ void Move_Decision::Motion_Info()
 
     case Motion_Index::Back_4step:
         tmp_motion = Str_Back_4step;
+        break;
+    
+    case Motion_Index::Forward_Nstep:
+        tmp_motion = Str_Forward_Nstep;
+        break;
+
+    case Motion_Index::Huddle_Jump:
+        tmp_motion = Str_Huddle_Jump;
         break;
 
     case Motion_Index::FWD_UP:

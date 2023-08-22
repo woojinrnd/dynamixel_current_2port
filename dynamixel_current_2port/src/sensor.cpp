@@ -1,8 +1,7 @@
 #include "sensor.hpp"
 
-Sensor::Sensor(Motions *motionPtr, Callback *callbackPtr)
-    : motionPtr(motionPtr),
-      callbackPtr(callbackPtr),
+Sensor::Sensor(Callback *callbackPtr)
+    : callbackPtr(callbackPtr),
       SPIN_RATE(100)
 {
     nh_ = ros::NodeHandle();

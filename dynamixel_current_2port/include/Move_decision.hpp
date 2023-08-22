@@ -36,8 +36,10 @@ public:
         Step_in_place = 3,
         Right_2step = 4,
         Back_4step = 5,
-        FWD_UP = 6,
-        BWD_UP = 7,
+        Forward_Nstep = 6,
+        Huddle_Jump = 7,
+        FWD_UP = 8,
+        BWD_UP = 9,
     };
 
     enum Running_Mode
@@ -49,6 +51,7 @@ public:
         GOAL_MODE = 4,
         HUDDLE_MODE = 5,
         WALL_MODE = 6,
+        CORNER_MODE = 7,
     };
 
     enum Stand_Status
@@ -64,6 +67,8 @@ public:
     string Str_Step_in_place = "Step_in_place";
     string Str_Right_2step = "Right_2step";
     string Str_Back_4step = "Back_4step";
+    string Str_Forward_Nstep = "Forward_Nstep";
+    string Str_Huddle_Jump = "Huddle_Jump";
     string Str_FWD_UP = "FWD_UP";
     string Str_BWD_UP = "BWD_UP";
 
@@ -74,6 +79,7 @@ public:
     string Str_GOAL_MODE = "GOAL_MODE";
     string Str_HUDDLE_MODE = "HUDDLE_MODE";
     string Str_WALL_MODE = "WALL_MODE";
+    string Str_CORNER_MODE = "CORNER_MODE";
 
     Move_Decision(Img_proc *img_procPtr);
     Img_proc *img_procPtr;
@@ -94,14 +100,11 @@ public:
     void GOAL_LINE_mode();
     void HUDDLE_mode();
     void WALL_mode();
-
-    // ********************************************** MoveDecision THREAD ************************************************** //
-
-    void Running_Mode_Decision();
-    void MoveDecisionThread();
+    void CORNER_mode();
 
     // ********************************************** CALLBACK THREAD ************************************************** //
 
+    void Running_Mode_Decision();
     void callbackThread();
     void startMode();
     // void stopMode();
@@ -141,17 +144,20 @@ public:
     int8_t Get_stand_status_() const;
     int8_t Get_running_mode_() const;
     double Get_turn_angle_() const;
+    double Get_distance_() const;
 
     bool Get_ProcessON() const;
     bool Get_MoveDecisionON() const;
     bool Get_CallbackON() const;
 
+    //RUNNING MODE
     bool Get_goal_line_det_flg() const;
     bool Get_line_det_flg() const;
     bool Get_no_line_det_flg() const;
     bool Get_huddle_det_flg() const;
     bool Get_wall_det_flg() const;
     bool Get_stop_det_flg() const;
+    bool Get_corner_det_flg() const;
 
 
     double Get_RL_NeckAngle() const;
@@ -167,6 +173,7 @@ public:
     void Set_stand_status_(int8_t stand_status);
     void Set_running_mode_(int8_t running_mode);
     void Set_turn_angle_(double turn_angle);
+    void Set_distance_(double distance);
 
     void Set_ProcessON(bool ProcessON);
     void Set_MoveDecisionON(bool MoveDecisionON);
@@ -178,6 +185,7 @@ public:
     void Set_huddle_det_flg(bool huddle_det_flg);
     void Set_wall_det_flg(bool wall_det_flg);
     void Set_stop_det_flg(bool stop_det_flg);
+    void Set_corner_det_flg(bool corner_det_flg);
 
     void Set_RL_NeckAngle(double RL_NeckAngle);
     void Set_UD_NeckAngle(double UD_NeckAngle);
@@ -205,6 +213,9 @@ public:
     double Actual_angle = 0;
     double increment = 0;
 
+    // Corner Mode 
+    double Angle_ToStartWall = 75;
+
     // check the variable sharing with multi thread
     int aaaa = 1;
     int b = aaaa % 2;
@@ -229,6 +240,9 @@ private:
     // LEFT(+) / RIGHT(-)
     double turn_angle_ = 0;
 
+    //Distance
+    double distance_ = 0;
+
     // Neck
     // Counter Clock Wise(+)
     // LEFT(+) / RIGHT(-)
@@ -244,8 +258,11 @@ private:
     bool line_det_flg_ = false;
     bool no_line_det_flg_ = false;
     bool huddle_det_flg_ = false;
-    bool wall_det_flg_ = false;
     bool stop_det_flg_ = false;
+    bool wall_det_flg_ = false;
+    bool corner_det_flg_ = false;
+    int8_t Wall_mode = 0;
+    
 
     bool stop_fallen_check_;
     double present_pitch_;
@@ -268,6 +285,7 @@ private:
     mutable std::mutex mtx_huddle_det_flg;
     mutable std::mutex mtx_wall_det_flg;
     mutable std::mutex mtx_stop_det_flg;
+    mutable std::mutex mtx_corner_det_flg;
 
     mutable std::mutex mtx_RL_NeckAngle_;
     mutable std::mutex mtx_UD_NeckAngle_;
@@ -276,6 +294,7 @@ private:
     mutable std::mutex mtx_UD_Neck_on_flg;
 
     mutable std::mutex mtx_turn_angle_;
+    mutable std::mutex mtx_distance_;
 
     mutable std::mutex mtx_motion_index_;
     mutable std::mutex mtx_stand_status_;

@@ -21,10 +21,12 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     
     Dxl dxl;
+    Trajectory trajectory;
+    IK_Function IK_;
+
     Dxl_Controller dxl_ctrl(&dxl);
-    Motions motion;
-    Callback callback(&motion, &dxl);
-    Sensor sensor(&motion, &callback);
+    Callback callback(&trajectory, &IK_, &dxl);
+    Sensor sensor(&callback);
 
 
     // ros::AsyncSpinner spinner(0); // Multi-threaded spinning

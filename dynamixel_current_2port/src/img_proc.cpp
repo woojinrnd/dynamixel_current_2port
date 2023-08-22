@@ -35,7 +35,7 @@ void Img_proc::create_color_range_trackbar(const std::string &window_name)
     cv::createTrackbar("Value Upper", window_name, &value_upper, 255, on_trackbar);
 }
 
-cv::Mat Img_proc::extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound)
+std::pair<cv::Mat, cv::Mat> Img_proc::extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound)
 {
     cv::Mat frame = input_frame.clone();
     cv::Mat hsv;
@@ -47,12 +47,13 @@ cv::Mat Img_proc::extract_color(const cv::Mat &input_frame, const cv::Scalar &lo
     cv::Mat color_extracted;
     cv::bitwise_and(frame, frame, color_extracted, mask);
 
-    return frame;
+    return {color_extracted, frame};
 }
 
-cv::Mat Img_proc::detect_color_areas(const cv::Mat &input_frame, const cv::Scalar &contour_color, int threshold_value)
+std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance, bool is_white_line)
 {
     cv::Mat frame = input_frame.clone();
+    cv::Mat ori_frame = origin_frame.clone();
     cv::Mat gray;
     cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
     cv::Mat binary;
@@ -64,14 +65,25 @@ cv::Mat Img_proc::detect_color_areas(const cv::Mat &input_frame, const cv::Scala
     // cv::cvtColor(gray, frame, cv::COLOR_GRAY2BGR);
 
     std::vector<cv::Point> top_contour;
+
+    bool foundLargeContour = false;
     double topmost_y = std::numeric_limits<double>::max();
+    double distance_huddle;
+    bool has_white_now = false;
+
+    float angle;
+
+    bool &has_prev = is_white_line ? has_white_prev : has_yellow_prev;
+    cv::Point &center_now = is_white_line ? center_now_white : center_now_yellow;
 
     for (const auto &contour : contours)
     {
+
         double area = cv::contourArea(contour);
-        if (area > 1000)
+        if (area > 500)
         {
             cv::Moments m = cv::moments(contour);
+            foundLargeContour = true;
             if (m.m00 == 0)
                 continue;
 
@@ -80,98 +92,275 @@ cv::Mat Img_proc::detect_color_areas(const cv::Mat &input_frame, const cv::Scala
             {
                 topmost_y = center.y;
                 top_contour = contour;
+                center_now = center;
+                distance_huddle = 480 - topmost_y;
             }
-            Set_img_proc_line_det(true);
+            has_white_now = true;
 
-            ROS_WARN("LINE_MODE ON");
+            // ROS_WARN("LINE_MODE ON");
         }
-        else
+        else if (area < 500)
         {
-            Set_img_proc_line_det(false);
-            ROS_ERROR("NO_LINE_MODE ON");
+            foundLargeContour = false;
+            has_white_now = false;
         }
     }
+    cv::putText(ori_frame, "distance : " + std::to_string(distance_huddle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+
+    if (check_disappearance)
+    {
+        if (has_prev && !has_white_now && center_now.x < 320)
+        {
+            double tmp_delta_x = 1;
+            delta_x_ = tmp_delta_x;
+            tmp_delta_x = 0;
+            std::cout << "Line area disappeared to the left\n";
+        }
+        else if (has_prev && !has_white_now && center_now.x > 320)
+        {
+            double tmp_delta_x = -1;
+            delta_x_ = tmp_delta_x;
+            tmp_delta_x = 0;
+            std::cout << "Line area disappeared to the right\n";
+        }
+    }
+
+    has_prev = has_white_now;
 
     if (!top_contour.empty())
     {
         cv::RotatedRect min_area_rect = cv::minAreaRect(top_contour);
+
+        float width = min_area_rect.size.width;
+        float height = min_area_rect.size.height;
+
+        // std::cout << "Width: " << width << " Height: " << height << std::endl;
+
         cv::Point2f vertices[4];
         min_area_rect.points(vertices);
         for (int i = 0; i < 4; ++i)
-            cv::line(frame, vertices[i], vertices[(i + 1) % 4], cv::Scalar(0, 255, 255), 3);
+            cv::line(ori_frame, vertices[i], vertices[(i + 1) % 4], contour_color, 3);
 
-        float angle;
         if (min_area_rect.size.width < min_area_rect.size.height)
         {
-            angle = min_area_rect.angle;
+            angle = -min_area_rect.angle;
+        }
+
+        else
+        {
+            angle = -min_area_rect.angle - 90;
+        }
+
+        if (is_white_line && min_area_rect.size.width * 1.5 > min_area_rect.size.height)
+        {
+            corner_condition_count++;
+            if (corner_condition_count >= 3)
+            {
+                Corner = true;
+            }
         }
         else
         {
-            angle = 90 + min_area_rect.angle;
+            corner_condition_count = 0;
         }
+        cv::putText(ori_frame, "Line angle : " + std::to_string(angle), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+
+        cv::Point center_dot(570, 50);
+
+        int length = 50;
+
+        float radian_angle = (angle - 90) * (CV_PI / 180.0f);
+
+        cv::Point end_point(center_dot.x + length * cos(radian_angle), center_dot.y + length * sin(radian_angle));
+
+        cv::line(ori_frame, center_dot, end_point, contour_color, 3);
         // std::cout << "Angle: " << angle << std::endl;
     }
-    return frame;
+    return std::make_tuple(ori_frame, foundLargeContour, angle, distance_huddle, Corner, delta_x_);
 }
 
-// void Img_proc::webcam_thread()
-// {
-//     cv::VideoCapture cap(webcam_id);
-//     cap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
-//     cap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
-//     cap.set(cv::CAP_PROP_FPS, webcam_fps);
+void Img_proc::webcam_thread()
+{
+    cv::VideoCapture cap(webcam_id);
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
+    cap.set(cv::CAP_PROP_FPS, webcam_fps);
 
-//     if (!cap.isOpened())
-//     {
-//         std::cerr << "Could not open the webcam\n";
-//         return;
-//     }
+    if (!cap.isOpened())
+    {
+        std::cerr << "Could not open the webcam\n";
+        return;
+    }
 
-//     const std::string window_name1 = "hsv Frame_white";
-//     const std::string window_name2 = "thresh Frame_white";
-//     // const std::string window_name3 = "hsv Frame_yellow";
-//     // const std::string window_name4 = "thresh Frame_yellow";
-//     cv::namedWindow(window_name1);
-//     cv::namedWindow(window_name2);
-//     // cv::namedWindow(window_name3);
-//     // cv::namedWindow(window_name4);
+    // const std::string window_name1 = "hsv Frame_white";
+    const std::string window_name2 = "thresh Frame_white";
+    // const std::string window_name3 = "hsv Frame_yellow";
+    const std::string window_name4 = "thresh Frame_yellow";
+    // cv::namedWindow(window_name1);
+    cv::namedWindow(window_name2);
+    // cv::namedWindow(window_name3);
+    cv::namedWindow(window_name4);
 
-//     create_color_range_trackbar(window_name1);
-//     create_threshold_trackbar_W(window_name2);
-//     // create_color_range_trackbar(window_name3);
-//     // create_threshold_trackbar_Y(window_name4);
+    // create_color_range_trackbar(window_name1);
+    create_threshold_trackbar_W(window_name2);
+    // create_color_range_trackbar(window_name3);
+    create_threshold_trackbar_Y(window_name4);
 
-//     cv::Mat frame, hsv_frame_white, hsv_frame_yellow, thresh_frame_white, thresh_frame_yellow, gray;
+    cv::Mat frame, hsv_frame_white, hsv_frame_yellow, thresh_frame_white, thresh_frame_yellow, gray;
 
-//     // // set node loop rate
-//     // ros::Rate loop_rate(SPIN_RATE);
+    while (ros::ok())
+    {
+        this->Set_distance(10);
 
-//     while (ros::ok())
-//     {
-//         cap >> frame;
-//         if (frame.empty())
-//             break;
+        cap >> frame;
+        if (frame.empty())
+            break;
 
-//         hsv_frame_white = extract_color(frame, lower_bound_white, upper_bound_white);
-//         hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
-//         thresh_frame_white = detect_color_areas(hsv_frame_white, green_color, threshold_value_white);
-//         thresh_frame_yellow = detect_color_areas(hsv_frame_yellow, blue_color, threshold_value_yellow);
+        auto hsv_frame_white = extract_color(frame, lower_bound_white, upper_bound_white);
+        auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
+        auto thresh_frame_white = detect_Line_areas(hsv_frame_white.first, frame, green_color, threshold_value_white, true, true);
+        auto thresh_frame_yellow = detect_Line_areas(hsv_frame_yellow.first, frame, blue_color, threshold_value_yellow, false, false);
+        bool WhiteContourDetected = std::get<1>(thresh_frame_white);
+        double gradient = std::get<2>(thresh_frame_white);
+        double tmp_delta_x = std::get<5>(thresh_frame_white);
 
-//         cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
+        bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
+        bool Corner_mode = std::get<4>(thresh_frame_yellow);
 
-//         // cv::imshow("origin", frame);
-//         // cv::imshow("gray", gray);
-//         cv::imshow("hsv Frame_white", hsv_frame_white);
-//         // cv::imshow("hsv Frame_yellow", hsv_frame_yellow);
-//         cv::imshow("thresh Frame_white", thresh_frame_white);
-//         // cv::imshow("thresh Frame_yellow", thresh_frame_yellow);
-//         if (cv::waitKey(1) == 27)
-//             break;
-//         // loop_rate.sleep();
-//     }
-// }
+        this->Set_img_proc_huddle_det(YellowContourDetected);
+        this->Set_img_proc_corner_det(Corner_mode);
+        this->Set_gradient(gradient);
+        this->Set_img_proc_line_det(WhiteContourDetected);
+
+        if (this->Get_img_proc_line_det() == true)
+        {
+            this->Set_img_proc_no_line_det(false);
+        }
+        else if (this->Get_img_proc_line_det() == false)
+        {
+            this->Set_img_proc_no_line_det(true);
+            this->Set_delta_x(tmp_delta_x);
+        }
+
+        // cv::imshow("origin", frame);
+        // cv::imshow("gray", gray);
+        cv::imshow("hsv Frame_white", std::get<0>(thresh_frame_white));
+        // cv::imshow("hsv Frame_yellow", hsv_frame_yellow);
+        // cv::imshow("thresh Frame_white", thresh_frame_white);
+        cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
+        if (cv::waitKey(1) == 27)
+            break;
+        // loop_rate.sleep();
+    }
+
+    vcap.release();
+    cv::destroyAllWindows();
+}
 
 // // ********************************************** 3D THREAD************************************************** //
+
+std::pair<int, float> Img_proc::applyPCA(const cv::Mat &depth, cv::Rect roi, cv::Mat &normal_vector, double &angle, float &center_distance)
+{
+    // 화면 중앙 픽셀의 실제 거리 값 (미터 단위로 변환)
+    center_distance = depth.at<uint16_t>(240, 320) * 0.001f;
+
+    cv::Rect left_roi(0, 100, 50, 280);
+    cv::Rect right_roi(590, 100, 50, 280);
+
+    int left_count = 0;
+    int right_count = 0;
+
+    // 왼쪽 영역의 픽셀 수 확인
+    for (int y = left_roi.y; y < left_roi.y + left_roi.height; y++)
+    {
+        for (int x = left_roi.x; x < left_roi.x + left_roi.width; x++)
+        {
+            if (depth.at<uint16_t>(y, x) > 0)
+            {
+                left_count++;
+            }
+        }
+    }
+
+    // 오른쪽 영역의 픽셀 수 확인
+    for (int y = right_roi.y; y < right_roi.y + right_roi.height; y++)
+    {
+        for (int x = right_roi.x; x < right_roi.x + right_roi.width; x++)
+        {
+            if (depth.at<uint16_t>(y, x) > 0)
+            {
+                right_count++;
+            }
+        }
+    }
+
+    bool left_plane = left_count > 3000;
+    bool right_plane = right_count > 3000;
+
+    cv::Mat roi_depth = depth(roi);
+
+    // 3D 좌표로 변환
+    std::vector<cv::Point3f> points;
+    for (int y = 0; y < roi_depth.rows; y++)
+    {
+        for (int x = 0; x < roi_depth.cols; x++)
+        {
+            float d = roi_depth.at<uint16_t>(y, x) * 0.001f;
+            if (d > 0)
+            {
+                float real_x = (x + roi.x - 320) * d / 600;
+                float real_y = (y + roi.y - 240) * d / 600;
+                points.push_back(cv::Point3f(real_x, real_y, d));
+            }
+        }
+    }
+
+    // PCA 계산
+    cv::PCA pca(points, cv::Mat(), cv::PCA::DATA_AS_ROW);
+
+    // 법선 벡터 (가장 작은 고유값에 해당하는 고유벡터)
+    normal_vector = pca.eigenvectors.row(pca.eigenvectors.rows - 1);
+
+    // 카메라와의 각도 계산
+    float Wall_angle = std::acos(normal_vector.at<float>(2)) * 180 / CV_PI;
+    
+    int8_t tmp_wall_number = 0;
+
+    if (center_distance > 0.6)
+    {
+        if (tmp_wall_number == 0)
+        {
+            tmp_wall_number = 1;
+        }
+        else if (tmp_wall_number == -3)
+        {
+            tmp_wall_number = 10;
+        }
+    }
+    else if (center_distance > 0.3 && center_distance < 0.6 && tmp_wall_number == 1)
+    {
+        if (right_plane)
+        {
+            tmp_wall_number = 2;
+        }
+        else if (left_plane)
+        {
+            tmp_wall_number = -2;
+        }
+    }
+    else if (center_distance < 0.3)
+    {
+        if (tmp_wall_number == 2)
+        {
+            tmp_wall_number = 3;
+        }
+        else if (tmp_wall_number == -2)
+        {
+            tmp_wall_number = -3;
+        }
+    }
+    return {tmp_wall_number, Wall_angle};
+}
 
 void Img_proc::realsense_thread()
 {
@@ -196,6 +385,12 @@ void Img_proc::realsense_thread()
 
     const auto window_name_color = "Realsense Color Frame";
     cv::namedWindow(window_name_color, cv::WINDOW_AUTOSIZE);
+    
+    
+    cv::Rect roi;
+    cv::Mat normal_vector;
+    double angle = 0;
+    float center_distance = 0;
 
     try
     {
@@ -212,8 +407,16 @@ void Img_proc::realsense_thread()
             cv::Mat depthMat(cv::Size(w, h), CV_16U, (void *)depth.get_data(), cv::Mat::AUTO_STEP);
             cv::Mat colorMat(cv::Size(w, h), CV_8UC3, (void *)color.get_data(), cv::Mat::AUTO_STEP);
 
-            // cv::imshow(window_name, depthMat);
-            // cv::imshow(window_name_color, colorMat);
+
+            auto pca = applyPCA(depthMat, roi, normal_vector, angle, center_distance);
+            int8_t tmp_wall_number = std::get<0>(pca);
+            double tmp_Wall_angle = std::get<1>(pca);
+            this->Set_img_proc_wall_number(tmp_wall_number);
+            this->Set_wall_angle(tmp_Wall_angle);
+
+
+            cv::imshow(window_name, depthMat);
+            cv::imshow(window_name_color, colorMat);
         }
     }
     catch (const rs2::error &e)
@@ -394,7 +597,6 @@ void Img_proc::running_process()
     this->contours_ = contours;
     LINE_imgprocessing();
     GOAL_LINE_recognition();
-    
 
     // Show the original frame and the final binary mask
     cv::imshow("Original Frame", Origin_img);
@@ -506,7 +708,7 @@ void Img_proc::LINE_imgprocessing()
     for (int i = 0; i < IMG_W; ++i)
     {
         float x = i;
-        float y = curvature * (x - IMG_W/2) * (x - IMG_W/2) + y_tip_point;
+        float y = curvature * (x - IMG_W / 2) * (x - IMG_W / 2) + y_tip_point;
         circle(Origin_img, Point(int(x), int(y)), 2, Scalar(255, 0, 0), 2);
     }
 
@@ -527,7 +729,7 @@ void Img_proc::LINE_imgprocessing()
             // }
 
             // delete curvature line upper area
-            if (i < curvature * (j - IMG_W/2) * (j - IMG_W/2) + y_tip_point)
+            if (i < curvature * (j - IMG_W / 2) * (j - IMG_W / 2) + y_tip_point)
             {
                 img_contour_tmp.at<char>(i, j) = 0;
                 if (roi_line_flg == true)
@@ -584,7 +786,7 @@ void Img_proc::LINE_imgprocessing()
             // }
 
             // delete center-bottom curvature line lower area
-            else if (i > 0.015 * (j - IMG_W/2) * (j - IMG_W/2) + (IMG_H - CIRCLE_RADIUS))
+            else if (i > 0.015 * (j - IMG_W / 2) * (j - IMG_W / 2) + (IMG_H - CIRCLE_RADIUS))
             {
                 img_contour_tmp.at<char>(i, j) = 0;
                 if (roi_line_flg == true)
@@ -653,7 +855,6 @@ void Img_proc::LINE_imgprocessing()
     // findContours(img_contour_tmp, this->contours_, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
     findContours(final_binary_mask, this->contours_, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
 
-
     int _size = (int)this->contours_.size();
 
     vector<Moments> _moment(_size);
@@ -688,12 +889,12 @@ void Img_proc::LINE_imgprocessing()
 
     if (line_count > 0)
     {
-        float min_distance = (IMG_W/2 * IMG_W/2) + (TOP_BORDER_LINE - IMG_H) * (TOP_BORDER_LINE - IMG_H);
+        float min_distance = (IMG_W / 2 * IMG_W / 2) + (TOP_BORDER_LINE - IMG_H) * (TOP_BORDER_LINE - IMG_H);
         int min_distance_index = 0;
 
         for (int i = 0; i < line_count; i++)
         {
-            float tmp_distance = (x_points[i] - IMG_W/2) * (x_points[i] - IMG_W/2) + (y_points[i] - IMG_H) * (y_points[i] - IMG_H);
+            float tmp_distance = (x_points[i] - IMG_W / 2) * (x_points[i] - IMG_W / 2) + (y_points[i] - IMG_H) * (y_points[i] - IMG_H);
             if (tmp_distance < min_distance)
             {
                 min_distance = tmp_distance;
@@ -711,45 +912,45 @@ void Img_proc::LINE_imgprocessing()
     if (line_count == 0 || tmp_point_target.x == point_target.x)
     {
         // when no dot found, move slope to center
-        if (point_target.x > IMG_W/2)
+        if (point_target.x > IMG_W / 2)
         {
             tmp_point_target = Point(point_target.x - 1, point_target.y);
             Set_img_proc_no_line_det(true);
         }
-        else if (point_target.x < IMG_W/2)
+        else if (point_target.x < IMG_W / 2)
         {
             tmp_point_target = Point(point_target.x + 1, point_target.y);
             Set_img_proc_no_line_det(true);
         }
         else
         {
-            tmp_point_target = Point(IMG_W/2, point_target.y);
+            tmp_point_target = Point(IMG_W / 2, point_target.y);
             // Set_img_proc_no_line_det(false);
         } // == point_target.x = IMG_W/2
     }
 
-    float dydx = (tmp_point_target.y - IMG_H) / (tmp_point_target.x - IMG_W/2 + 0.0001);
+    float dydx = (tmp_point_target.y - IMG_H) / (tmp_point_target.x - IMG_W / 2 + 0.0001);
     // ROS_INFO("%f", dydx);
     for (int i = IMG_H; i > 0; i--)
     {
         int y = i;
-        int x = 1 / dydx * (y - IMG_H) + IMG_W/2;
+        int x = 1 / dydx * (y - IMG_H) + IMG_W / 2;
         circle(Origin_img, Point(x, y), 2, Scalar(0, 255, 255), -1);
 
         if (x < 2)
         {
-            tmp_delta_x = IMG_W/2 - 0;
+            tmp_delta_x = IMG_W / 2 - 0;
             break;
         }
         else if (x > IMG_W - 2)
         {
-            tmp_delta_x = IMG_W/2 - IMG_W;
+            tmp_delta_x = IMG_W / 2 - IMG_W;
             break;
         }
-        else if (abs(curvature * (x - IMG_W/2) * (x - IMG_W/2) + y_tip_point - y) < 2)
+        else if (abs(curvature * (x - IMG_W / 2) * (x - IMG_W / 2) + y_tip_point - y) < 2)
         {
             circle(Origin_img, Point(x, y), 4, Scalar(0, 255, 255), -1);
-            tmp_delta_x = IMG_W/2 - x;
+            tmp_delta_x = IMG_W / 2 - x;
             break;
         }
     }
@@ -760,7 +961,7 @@ void Img_proc::LINE_imgprocessing()
     double center_y = tmp_point_target.y;
     double dx = center_x - (IMG_W / 2);
     double dy = base_y - center_y;
-    double angle_rad = std::atan2(dy, dx); //[rad]
+    double angle_rad = std::atan2(dy, dx);          //[rad]
     double angle_deg = angle_rad * (180.0 / CV_PI); // [deg]
 
     if (center_x < (IMG_W / 2))
@@ -775,7 +976,6 @@ void Img_proc::LINE_imgprocessing()
     // ROS_WARN("center x : %f", center_x);
     // ROS_WARN("center y : %f", center_y);
     // ROS_WARN("Angle_deg : %f" , angle_deg);
-
 
     //////////////////////////////////////////////////
 
@@ -797,7 +997,7 @@ void Img_proc::LINE_imgprocessing()
 
 void Img_proc::GOAL_LINE_recognition()
 {
-    vector< vector<Point>> contours;
+    vector<vector<Point>> contours;
     contours = this->contours_;
     Mat img_contour_tmp;
     if (!final_binary_mask.empty())
@@ -847,10 +1047,10 @@ void Img_proc::GOAL_LINE_recognition()
                 {
                     boundingContour.push_back(corner[j]);
                 }
-                
+
                 boxContours.push_back(boundingContour);
                 drawContours(Origin_img, boxContours, 0, Scalar(0, 255, 0), 2);
-                
+
                 for (unsigned int k = 0; k < 4; k++)
                 {
                     circle(Origin_img, Point2f(corner[k]), 4, Scalar(255, 0, 0), -1);
@@ -885,6 +1085,7 @@ void Img_proc::GOAL_LINE_recognition()
                     height = width;
                     width = fake_height;
                 }
+
                 ////////////////////////////////////////////////
 
                 //////////////////////////////////////////////////
@@ -908,67 +1109,127 @@ void Img_proc::GOAL_LINE_recognition()
 
 void Img_proc::init()
 {
-    // vcap = VideoCapture(CAP_DSHOW + webcam_id);
-    vcap = VideoCapture(webcam_id);
-    vcap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
-    vcap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
-    vcap.set(cv::CAP_PROP_FPS, webcam_fps);
 
-    if (!vcap.isOpened())
-    {
-        std::cerr << "Could not open the webcam\n";
-        return;
-    }
-
-    cv::namedWindow("Threshold Adjustments", cv::WINDOW_NORMAL);
-    cv::createTrackbar("H min", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("H max", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("S min", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("S max", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("V min", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("V max", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("L min", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("L max", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("A min", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("A max", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("B min", "Threshold Adjustments", nullptr, 255);
-    cv::createTrackbar("B max", "Threshold Adjustments", nullptr, 255);
-
-    cv::setTrackbarPos("H min", "Threshold Adjustments", 77);
-    cv::setTrackbarPos("H max", "Threshold Adjustments", 235);
-
-    cv::setTrackbarPos("S min", "Threshold Adjustments", 131);
-    cv::setTrackbarPos("S max", "Threshold Adjustments", 214);
-
-    cv::setTrackbarPos("V min", "Threshold Adjustments", 60);
-    cv::setTrackbarPos("V max", "Threshold Adjustments", 156);
-
-    cv::setTrackbarPos("L min", "Threshold Adjustments", 16);
-    cv::setTrackbarPos("L max", "Threshold Adjustments", 151);
-
-    cv::setTrackbarPos("A min", "Threshold Adjustments", 115);
-    cv::setTrackbarPos("A max", "Threshold Adjustments", 177);
-
-    cv::setTrackbarPos("B min", "Threshold Adjustments", 66);
-    cv::setTrackbarPos("B max", "Threshold Adjustments", 173);
-}
-
-void Img_proc::webcam_thread()
-{
-    init();
     // // set node loop rate
     // ros::Rate loop_rate(SPIN_RATE);
+    // // vcap = VideoCapture(CAP_DSHOW + webcam_id);
+    // vcap = VideoCapture(webcam_id);
+    // vcap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
+    // vcap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
+    // vcap.set(cv::CAP_PROP_FPS, webcam_fps);
 
-    while (cv::waitKey(1) != 27)
-    {
-        running_process();
-        // LINE_imgprocessing();
-    }
+    // if (!vcap.isOpened())
+    // {
+    //     std::cerr << "Could not open the webcam\n";
+    //     return;
+    // }
 
-    // Release the camera and close OpenCV windows
-    vcap.release();
-    cv::destroyAllWindows();
+    // cv::namedWindow("Threshold Adjustments", cv::WINDOW_NORMAL);
+    // cv::createTrackbar("H min", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("H max", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("S min", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("S max", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("V min", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("V max", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("L min", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("L max", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("A min", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("A max", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("B min", "Threshold Adjustments", nullptr, 255);
+    // cv::createTrackbar("B max", "Threshold Adjustments", nullptr, 255);
+
+    // cv::setTrackbarPos("H min", "Threshold Adjustments", 77);
+    // cv::setTrackbarPos("H max", "Threshold Adjustments", 235);
+
+    // cv::setTrackbarPos("S min", "Threshold Adjustments", 131);
+    // cv::setTrackbarPos("S max", "Threshold Adjustments", 214);
+
+    // cv::setTrackbarPos("V min", "Threshold Adjustments", 60);
+    // cv::setTrackbarPos("V max", "Threshold Adjustments", 156);
+
+    // cv::setTrackbarPos("L min", "Threshold Adjustments", 16);
+    // cv::setTrackbarPos("L max", "Threshold Adjustments", 151);
+
+    // cv::setTrackbarPos("A min", "Threshold Adjustments", 115);
+    // cv::setTrackbarPos("A max", "Threshold Adjustments", 177);
+
+    // cv::setTrackbarPos("B min", "Threshold Adjustments", 66);
+    // cv::setTrackbarPos("B max", "Threshold Adjustments", 173);
 }
+
+// void Img_proc::webcam_thread()
+// {
+//     // init();
+//     // // set node loop rate
+//     // ros::Rate loop_rate(SPIN_RATE);
+
+//     // while (cv::waitKey(1) != 27)
+//     // {
+//     //     running_process();
+//     //     // LINE_imgprocessing();
+//     // }
+
+//     // Release the camera and close OpenCV windows
+
+//     cv::VideoCapture cap(webcam_id);
+//     cap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
+//     cap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
+//     cap.set(cv::CAP_PROP_FPS, webcam_fps);
+
+//     if (!cap.isOpened())
+//     {
+//         std::cerr << "Could not open the webcam\n";
+//         return;
+//     }
+
+//     // const std::string window_name1 = "hsv Frame_white";
+//     const std::string window_name2 = "thresh Frame_white";
+//     // const std::string window_name3 = "hsv Frame_yellow";
+//     const std::string window_name4 = "thresh Frame_yellow";
+//     // cv::namedWindow(window_name1);
+//     cv::namedWindow(window_name2);
+//     // cv::namedWindow(window_name3);
+//     cv::namedWindow(window_name4);
+
+//     // create_color_range_trackbar(window_name1);
+//     create_threshold_trackbar_W(window_name2);
+//     // create_color_range_trackbar(window_name3);
+//     create_threshold_trackbar_Y(window_name4);
+
+//     cv::Mat frame, hsv_frame_white, hsv_frame_yellow, thresh_frame_white, thresh_frame_yellow, gray;
+
+//     while (ros::ok())
+//     {
+//         cap >> frame;
+//         if (frame.empty())
+//             break;
+
+//         auto hsv_frame_white = extract_color(frame, lower_bound_white, upper_bound_white);
+//         auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
+//         auto thresh_frame_white = detect_Line_areas(hsv_frame_white.first, frame, green_color, threshold_value_white, true, true);
+//         auto thresh_frame_yellow = detect_Line_areas(hsv_frame_yellow.first, frame, blue_color, threshold_value_yellow, false, false);
+//         bool WhiteContourDetected = std::get<1>(thresh_frame_white);
+//         bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
+//         bool Corner_mode = std::get<4>(thresh_frame_yellow);
+
+//         this->Set_img_proc_line_det(WhiteContourDetected);
+//         this->Set_img_proc_huddle_det(YellowContourDetected);
+//         this->Set_img_proc_corner_det(Corner_mode);
+
+//         // cv::imshow("origin", frame);
+//         // cv::imshow("gray", gray);
+//         cv::imshow("hsv Frame_white", std::get<0>(thresh_frame_white));
+//         // cv::imshow("hsv Frame_yellow", hsv_frame_yellow);
+//         // cv::imshow("thresh Frame_white", thresh_frame_white);
+//         cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
+//         if (cv::waitKey(1) == 27)
+//             break;
+//         // loop_rate.sleep();
+//     }
+
+//     vcap.release();
+//     cv::destroyAllWindows();
+// }
 
 // ********************************************** GETTERS ************************************************** //
 
@@ -982,6 +1243,18 @@ bool Img_proc::Get_img_proc_no_line_det() const
 {
     std::lock_guard<std::mutex> lock(mtx_img_proc_no_line_det_);
     return img_proc_no_line_det_;
+}
+
+bool Img_proc::Get_img_proc_corner_det() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_corner_det_);
+    return img_proc_corner_det_;
+}
+
+int8_t Img_proc::Get_img_proc_corner_number() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_corner_number_);
+    return img_proc_corner_number_;
 }
 
 bool Img_proc::Get_img_proc_goal_line_det() const
@@ -1002,6 +1275,12 @@ bool Img_proc::Get_img_proc_wall_det() const
     return img_proc_wall_det_;
 }
 
+int8_t Img_proc::Get_img_proc_wall_number() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_wall_number_);
+    return img_proc_wall_number_;
+}
+
 bool Img_proc::Get_img_proc_stop_det() const
 {
     std::lock_guard<std::mutex> lock(mtx_img_proc_stop_det_);
@@ -1020,6 +1299,18 @@ double Img_proc::Get_delta_x() const
     return delta_x_;
 }
 
+double Img_proc::Get_wall_angle() const
+{
+    std::lock_guard<std::mutex> lock(mtx_wall_angle);
+    return wall_angle_;
+}
+
+double Img_proc::Get_distance() const
+{
+    std::lock_guard<std::mutex> lock(mtx_distance);
+    return distance_;
+}
+
 // ********************************************** SETTERS ************************************************** //
 
 void Img_proc::Set_img_proc_line_det(bool img_proc_line_det)
@@ -1032,6 +1323,12 @@ void Img_proc::Set_img_proc_no_line_det(bool img_proc_no_line_det)
 {
     std::lock_guard<std::mutex> lock(mtx_img_proc_no_line_det_);
     this->img_proc_no_line_det_ = img_proc_no_line_det;
+}
+
+void Img_proc::Set_img_proc_corner_det(bool img_proc_corner_det)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_corner_det_);
+    this->img_proc_corner_det_ = img_proc_corner_det;
 }
 
 void Img_proc::Set_img_proc_goal_line_det(bool img_proc_goal_line_det)
@@ -1052,6 +1349,18 @@ void Img_proc::Set_img_proc_wall_det(bool img_proc_wall_det)
     this->img_proc_wall_det_ = img_proc_wall_det;
 }
 
+void Img_proc::Set_img_proc_corner_number(int8_t img_proc_corner_number)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_corner_number_);
+    this->img_proc_corner_number_ = img_proc_corner_number;
+}
+
+void Img_proc::Set_img_proc_wall_number(int8_t img_proc_wall_number)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_wall_number_);
+    this->img_proc_wall_number_ = img_proc_wall_number;
+}
+
 void Img_proc::Set_img_proc_stop_det(bool img_proc_stop_det)
 {
     std::lock_guard<std::mutex> lock(mtx_img_proc_stop_det_);
@@ -1068,4 +1377,16 @@ void Img_proc::Set_delta_x(double delta_x)
 {
     std::lock_guard<std::mutex> lock(mtx_delta_x);
     this->delta_x_ = delta_x;
+}
+
+void Img_proc::Set_wall_angle(double wall_angle)
+{
+    std::lock_guard<std::mutex> lock(mtx_wall_angle);
+    this->wall_angle_ = wall_angle;
+}
+
+void Img_proc::Set_distance(double distance)
+{
+    std::lock_guard<std::mutex> lock(mtx_distance);
+    this->distance_ = distance;
 }
