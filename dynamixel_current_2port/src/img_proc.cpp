@@ -187,7 +187,6 @@ void Img_proc::webcam_thread()
 {
     // // TEST
     // Set_img_proc_wall_det(true); 
-    // Set_img_proc_corner_det(true);
 
     // CAMERA INIT
     cv::VideoCapture cap(webcam_id);
@@ -244,7 +243,10 @@ void Img_proc::webcam_thread()
         bool Corner_mode = std::get<4>(thresh_frame_yellow);
 
         this->Set_img_proc_huddle_det(YellowContourDetected);
-        this->Set_img_proc_corner_det(Corner_mode);
+        // this->Set_img_proc_corner_det(Corner_mode);
+        this->Set_img_proc_corner_det(YellowContourDetected);
+        // Set_img_proc_corner_det(true);
+
         this->Set_gradient(gradient);
         this->Set_img_proc_line_det(WhiteContourDetected);
 
@@ -1157,80 +1159,6 @@ void Img_proc::init()
     // cv::setTrackbarPos("B min", "Threshold Adjustments", 66);
     // cv::setTrackbarPos("B max", "Threshold Adjustments", 173);
 }
-
-// void Img_proc::webcam_thread()
-// {
-//     // init();
-//     // // set node loop rate
-//     // ros::Rate loop_rate(SPIN_RATE);
-
-//     // while (cv::waitKey(1) != 27)
-//     // {
-//     //     running_process();
-//     //     // LINE_imgprocessing();
-//     // }
-
-//     // Release the camera and close OpenCV windows
-
-//     cv::VideoCapture cap(webcam_id);
-//     cap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
-//     cap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
-//     cap.set(cv::CAP_PROP_FPS, webcam_fps);
-
-//     if (!cap.isOpened())
-//     {
-//         std::cerr << "Could not open the webcam\n";
-//         return;
-//     }
-
-//     // const std::string window_name1 = "hsv Frame_white";
-//     const std::string window_name2 = "thresh Frame_white";
-//     // const std::string window_name3 = "hsv Frame_yellow";
-//     const std::string window_name4 = "thresh Frame_yellow";
-//     // cv::namedWindow(window_name1);
-//     cv::namedWindow(window_name2);
-//     // cv::namedWindow(window_name3);
-//     cv::namedWindow(window_name4);
-
-//     // create_color_range_trackbar(window_name1);
-//     create_threshold_trackbar_W(window_name2);
-//     // create_color_range_trackbar(window_name3);
-//     create_threshold_trackbar_Y(window_name4);
-
-//     cv::Mat frame, hsv_frame_white, hsv_frame_yellow, thresh_frame_white, thresh_frame_yellow, gray;
-
-//     while (ros::ok())
-//     {
-//         cap >> frame;
-//         if (frame.empty())
-//             break;
-
-//         auto hsv_frame_white = extract_color(frame, lower_bound_white, upper_bound_white);
-//         auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
-//         auto thresh_frame_white = detect_Line_areas(hsv_frame_white.first, frame, green_color, threshold_value_white, true, true);
-//         auto thresh_frame_yellow = detect_Line_areas(hsv_frame_yellow.first, frame, blue_color, threshold_value_yellow, false, false);
-//         bool WhiteContourDetected = std::get<1>(thresh_frame_white);
-//         bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
-//         bool Corner_mode = std::get<4>(thresh_frame_yellow);
-
-//         this->Set_img_proc_line_det(WhiteContourDetected);
-//         this->Set_img_proc_huddle_det(YellowContourDetected);
-//         this->Set_img_proc_corner_det(Corner_mode);
-
-//         // cv::imshow("origin", frame);
-//         // cv::imshow("gray", gray);
-//         cv::imshow("hsv Frame_white", std::get<0>(thresh_frame_white));
-//         // cv::imshow("hsv Frame_yellow", hsv_frame_yellow);
-//         // cv::imshow("thresh Frame_white", thresh_frame_white);
-//         cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
-//         if (cv::waitKey(1) == 27)
-//             break;
-//         // loop_rate.sleep();
-//     }
-
-//     vcap.release();
-//     cv::destroyAllWindows();
-// }
 
 // ********************************************** GETTERS ************************************************** //
 

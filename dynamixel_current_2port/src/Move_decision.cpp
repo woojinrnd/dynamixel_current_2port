@@ -87,8 +87,8 @@ void Move_Decision::process()
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
 
     //////영상처리를 통해 line_det_flg(T/F) 판별필요
+    ///////////////////////// No LINE_MODE --- no_line_det_flg = true /////////////////////////
 
-    ///////////////////////// LINE_MODE --- line_det_flg = true /////////////////////////
     bool tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
     if (!tmp_img_proc_line_det_flg_ && img_procPtr->Get_img_proc_wall_det() == false) // no line mode
     {
@@ -97,17 +97,18 @@ void Move_Decision::process()
         ROS_ERROR("1번 : %d", Get_line_det_flg());
     }
 
-    else if (tmp_img_proc_line_det_flg_) //line mode
+    ///////////////////////// LINE_MODE --- line_det_flg = true /////////////////////////
+    else if (tmp_img_proc_line_det_flg_) // line mode
     {
         Set_no_line_det_flg(false);
         Set_line_det_flg(true);
         ROS_ERROR("2번 : %d", Get_line_det_flg());
-    }
 
-    /////////////////////////NO_LINE_MODE --- no_line_det_flg = true /////////////////////////
-    else if (img_procPtr->Get_img_proc_no_line_det())
-    {
-        Set_no_line_det_flg(true);
+        if (img_procPtr->Get_img_proc_corner_det())
+        {
+            Set_corner_det_flg(true);
+        }
+        else Set_corner_det_stop_flg(true);
     }
 
     /////////////////////////STOP MODE --- no_line_det_flg = true /////////////////////////
@@ -138,7 +139,7 @@ void Move_Decision::process()
     else if (img_procPtr->Get_img_proc_corner_det())
     {
         Set_corner_det_flg(true);
-        Set_line_det_flg(true);
+        // Set_line_det_flg(true);
     }
 }
 
@@ -199,7 +200,7 @@ void Move_Decision::Running_Mode_Decision()
         {
             running_mode_ = NO_LINE_MODE;
         }
-        else if (line_det_flg_)
+        else if (line_det_flg_ && !corner_det_flg_)
         {
             running_mode_ = LINE_MODE;
         }
@@ -263,7 +264,8 @@ void Move_Decision::LINE_mode()
         if (Actual_angle > 0)
         {
             Actual_angle -= 1;
-            if (Actual_angle < 0) Actual_angle = 0;
+            if (Actual_angle < 0)
+                Actual_angle = 0;
             Set_turn_angle_(Actual_angle);
         }
 
@@ -272,11 +274,16 @@ void Move_Decision::LINE_mode()
         else if (Actual_angle < 0)
         {
             Actual_angle += 1;
-            if (Actual_angle > 0) Actual_angle = 0;
+            if (Actual_angle > 0)
+                Actual_angle = 0;
             Set_turn_angle_(Actual_angle);
         }
         Set_motion_index_(Motion_Index::Forward_4step);
         ROS_ERROR("STRAIGHT LINE");
+
+        //TEST
+        // Set_RL_Neck_on_flg(true);
+        // Set_RL_NeckAngle(Actual_angle);
     }
 
     // Non Straight Line
@@ -347,8 +354,11 @@ void Move_Decision::LINE_mode()
         Actual_angle += increment;
         Set_motion_index_(Motion_Index::Forward_4step);
         Set_turn_angle_(Actual_angle);
+        
+        //TEST
+        // Set_RL_Neck_on_flg(true);
+        // Set_RL_NeckAngle(Actual_angle);
     }
-
 }
 
 void Move_Decision::NOLINE_mode()
@@ -1137,6 +1147,10 @@ void Move_Decision::Running_Info()
 
     case Running_Mode::WALL_MODE:
         tmp_running = Str_WALL_MODE;
+        break;
+
+    case Running_Mode::CORNER_MODE:
+        tmp_running = Str_CORNER_MODE;
         break;
     }
     ROS_INFO("Running_Mode : %s", tmp_running.c_str());
