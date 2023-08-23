@@ -158,6 +158,9 @@ public:
     bool Get_wall_det_flg() const;
     bool Get_stop_det_flg() const;
     bool Get_corner_det_flg() const;
+    bool Get_huddle_det_stop_flg() const;
+    bool Get_corner_det_stop_flg() const;
+
 
 
     double Get_RL_NeckAngle() const;
@@ -186,6 +189,9 @@ public:
     void Set_wall_det_flg(bool wall_det_flg);
     void Set_stop_det_flg(bool stop_det_flg);
     void Set_corner_det_flg(bool corner_det_flg);
+    void Set_huddle_det_stop_flg(bool huddle_det_stop_flg);
+    void Set_corner_det_stop_flg(bool corner_det_stop_flg);
+
 
     void Set_RL_NeckAngle(double RL_NeckAngle);
     void Set_UD_NeckAngle(double UD_NeckAngle);
@@ -261,7 +267,12 @@ private:
     bool stop_det_flg_ = false;
     bool wall_det_flg_ = false;
     bool corner_det_flg_ = false;
+
+    bool huddle_det_stop_flg_ = false;
+    bool corner_det_stop_flg_ = false;
     int8_t Wall_mode = 0;
+
+
     
 
     bool stop_fallen_check_;
@@ -286,6 +297,8 @@ private:
     mutable std::mutex mtx_wall_det_flg;
     mutable std::mutex mtx_stop_det_flg;
     mutable std::mutex mtx_corner_det_flg;
+    mutable std::mutex mtx_huddle_det_stop_flg;
+    mutable std::mutex mtx_corner_det_stop_flg;
 
     mutable std::mutex mtx_RL_NeckAngle_;
     mutable std::mutex mtx_UD_NeckAngle_;

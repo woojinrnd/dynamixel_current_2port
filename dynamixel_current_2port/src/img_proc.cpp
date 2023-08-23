@@ -78,12 +78,12 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
 
     for (const auto &contour : contours)
     {
-
         double area = cv::contourArea(contour);
         if (area > 500)
         {
             cv::Moments m = cv::moments(contour);
             foundLargeContour = true;
+            line_condition_count = 0;
             if (m.m00 == 0)
                 continue;
 
@@ -101,8 +101,12 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
         }
         else if (area < 500)
         {
-            foundLargeContour = false;
-            has_white_now = false;
+            line_condition_count++;
+            if (line_condition_count >= 3)
+            {
+                foundLargeContour = false;
+                has_white_now = false;
+            }
         }
     }
     cv::putText(ori_frame, "distance : " + std::to_string(distance_huddle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
@@ -181,10 +185,24 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
 
 void Img_proc::webcam_thread()
 {
+    // // TEST
+    // Set_img_proc_wall_det(true); 
+    // Set_img_proc_corner_det(true);
+
+    // CAMERA INIT
     cv::VideoCapture cap(webcam_id);
     cap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
     cap.set(cv::CAP_PROP_FPS, webcam_fps);
+    cap.set(CAP_PROP_AUTOFOCUS, false);
+    cap.set(CAP_PROP_AUTO_EXPOSURE, false);
+
+    cap.set(CAP_PROP_EXPOSURE, PROP_EXPOSURE);
+    cap.set(CAP_PROP_GAIN, PROP_GAIN);
+    cap.set(CAP_PROP_BRIGHTNESS, PROP_BRIGHTNESS);
+    cap.set(CAP_PROP_CONTRAST, PROP_CONTRAST);
+    cap.set(CAP_PROP_SATURATION, PROP_SATURATION);
+    cap.set(CAP_PROP_TEMPERATURE, PROP_TEMPERATURE);
 
     if (!cap.isOpened())
     {
@@ -210,8 +228,6 @@ void Img_proc::webcam_thread()
 
     while (ros::ok())
     {
-        this->Set_distance(10);
-
         cap >> frame;
         if (frame.empty())
             break;
@@ -258,109 +274,84 @@ void Img_proc::webcam_thread()
 }
 
 // // ********************************************** 3D THREAD************************************************** //
+ std::tuple<int, float, float> Img_proc::applyPCA(const rs2::depth_frame& depth, int x1, int y1, int x2, int y2, int x3, int y3){
+     float z1 = depth.get_distance(x1, y1) * 20;
+     float z2 = depth.get_distance(x2, y2) * 20;
+     float z3 = depth.get_distance(x3, y3) * 20;
 
-std::pair<int, float> Img_proc::applyPCA(const cv::Mat &depth, cv::Rect roi, cv::Mat &normal_vector, double &angle, float &center_distance)
-{
-    // 화면 중앙 픽셀의 실제 거리 값 (미터 단위로 변환)
-    center_distance = depth.at<uint16_t>(240, 320) * 0.001f;
+     float distance_rect = depth.get_distance(320, 240);
+     float right_plane = depth.get_distance(600, 240);
+     float left_plane = depth.get_distance(40, 240);
 
-    cv::Rect left_roi(0, 100, 50, 280);
-    cv::Rect right_roi(590, 100, 50, 280);
+     bool left_plane_mode = false;
+     bool right_plane_mode = false;
 
-    int left_count = 0;
-    int right_count = 0;
+     if(right_plane - left_plane > 0.2){left_plane_mode = true;}
+     else if(right_plane - left_plane < -0.2){right_plane_mode = true;}
 
-    // 왼쪽 영역의 픽셀 수 확인
-    for (int y = left_roi.y; y < left_roi.y + left_roi.height; y++)
-    {
-        for (int x = left_roi.x; x < left_roi.x + left_roi.width; x++)
+     Eigen::Vector3f v1(x1 - x2, y1 - y2, z1 - z2);
+     Eigen::Vector3f v2(x1 - x3, y1 - y3, z1 - z3);
+
+     //std::cout << "v1: " << v1[0] << ", " << v1[1] << ", " << v1[2] << std::endl;
+     //std::cout << "v2: " << v2[0] << ", " << v2[1] << ", " << v2[2] << std::endl;
+
+
+     Eigen::Vector3f normal = v1.cross(v2);
+     normal.normalize();
+
+     // 카메라 벡터 정의
+     Eigen::Vector3f camera_vector(0, 0, -1);
+
+     // 법선 벡터와 카메라 벡터 사이의 각도 계산
+     float dot_product = normal.dot(camera_vector);
+     float normal_magnitude = normal.norm();
+     float camera_magnitude = camera_vector.norm();
+     float cos_theta = dot_product / (normal_magnitude * camera_magnitude);
+     float angle_degrees = std::acos(cos_theta) * 180.0 / M_PI;
+     float pitch = atan2(normal[1], normal[2]) * 180.0 / M_PI;
+     float yaw = atan2(normal[0], sqrt(normal[1] * normal[1] + normal[2] * normal[2])) * 180.0 / M_PI;// 라디안을 도로 변환
+
+     //std::cout << "Angle between normal vector and camera vector: " << angle_degrees << " degrees" << std::endl;
+     //std::cout << "normal: " << normal[0] << ", " << normal[1] << ", " << normal[2] << std::endl;
+    //  cout << yaw << endl;
+    int8_t tmp_img_proc_wall_number = Get_img_proc_wall_number();
+
+     if (distance_rect > 0.6)
+     {
+        if (tmp_img_proc_wall_number == 0)
         {
-            if (depth.at<uint16_t>(y, x) > 0)
-            {
-                left_count++;
-            }
+            tmp_img_proc_wall_number = 1;
         }
-    }
-
-    // 오른쪽 영역의 픽셀 수 확인
-    for (int y = right_roi.y; y < right_roi.y + right_roi.height; y++)
-    {
-        for (int x = right_roi.x; x < right_roi.x + right_roi.width; x++)
+        else if (tmp_img_proc_wall_number == -3)
         {
-            if (depth.at<uint16_t>(y, x) > 0)
-            {
-                right_count++;
-            }
+            tmp_img_proc_wall_number = 10;
         }
-    }
-
-    bool left_plane = left_count > 3000;
-    bool right_plane = right_count > 3000;
-
-    cv::Mat roi_depth = depth(roi);
-
-    // 3D 좌표로 변환
-    std::vector<cv::Point3f> points;
-    for (int y = 0; y < roi_depth.rows; y++)
-    {
-        for (int x = 0; x < roi_depth.cols; x++)
+     }
+     else if (distance_rect > 0.3 && distance_rect < 0.6 && tmp_img_proc_wall_number == 1)
+     {
+        if (right_plane_mode)
         {
-            float d = roi_depth.at<uint16_t>(y, x) * 0.001f;
-            if (d > 0)
-            {
-                float real_x = (x + roi.x - 320) * d / 600;
-                float real_y = (y + roi.y - 240) * d / 600;
-                points.push_back(cv::Point3f(real_x, real_y, d));
-            }
+            tmp_img_proc_wall_number = 2;
         }
-    }
+        else if (left_plane_mode)
+        {
+            tmp_img_proc_wall_number = -2;
+        }
+     }
+     else if (distance_rect < 0.3)
+     {
+        if (tmp_img_proc_wall_number == 2)
+        {
+            tmp_img_proc_wall_number = 3;
+        }
+        else if (tmp_img_proc_wall_number == -2)
+        {
+            tmp_img_proc_wall_number = -3;
+        }
+     }
 
-    // PCA 계산
-    cv::PCA pca(points, cv::Mat(), cv::PCA::DATA_AS_ROW);
-
-    // 법선 벡터 (가장 작은 고유값에 해당하는 고유벡터)
-    normal_vector = pca.eigenvectors.row(pca.eigenvectors.rows - 1);
-
-    // 카메라와의 각도 계산
-    float Wall_angle = std::acos(normal_vector.at<float>(2)) * 180 / CV_PI;
-    
-    int8_t tmp_wall_number = 0;
-
-    if (center_distance > 0.6)
-    {
-        if (tmp_wall_number == 0)
-        {
-            tmp_wall_number = 1;
-        }
-        else if (tmp_wall_number == -3)
-        {
-            tmp_wall_number = 10;
-        }
-    }
-    else if (center_distance > 0.3 && center_distance < 0.6 && tmp_wall_number == 1)
-    {
-        if (right_plane)
-        {
-            tmp_wall_number = 2;
-        }
-        else if (left_plane)
-        {
-            tmp_wall_number = -2;
-        }
-    }
-    else if (center_distance < 0.3)
-    {
-        if (tmp_wall_number == 2)
-        {
-            tmp_wall_number = 3;
-        }
-        else if (tmp_wall_number == -2)
-        {
-            tmp_wall_number = -3;
-        }
-    }
-    return {tmp_wall_number, Wall_angle};
-}
+     return std::make_tuple(tmp_img_proc_wall_number, yaw, distance_rect);
+ }
 
 void Img_proc::realsense_thread()
 {
@@ -385,12 +376,6 @@ void Img_proc::realsense_thread()
 
     const auto window_name_color = "Realsense Color Frame";
     cv::namedWindow(window_name_color, cv::WINDOW_AUTOSIZE);
-    
-    
-    cv::Rect roi;
-    cv::Mat normal_vector;
-    double angle = 0;
-    float center_distance = 0;
 
     try
     {
@@ -400,23 +385,40 @@ void Img_proc::realsense_thread()
 
             rs2::frame depth = data.get_depth_frame().apply_filter(color_map);
             rs2::frame color = data.get_color_frame();
+            rs2::depth_frame depth_frame = data.get_depth_frame();
+
+            float depth_scale = pipe.get_active_profile().get_device().first<rs2::depth_sensor>().get_depth_scale();
+            rs2_intrinsics intrinsics = depth_frame.get_profile().as<rs2::video_stream_profile>().get_intrinsics();
 
             const int w = depth.as<rs2::video_frame>().get_width();
             const int h = depth.as<rs2::video_frame>().get_height();
 
-            cv::Mat depthMat(cv::Size(w, h), CV_16U, (void *)depth.get_data(), cv::Mat::AUTO_STEP);
             cv::Mat colorMat(cv::Size(w, h), CV_8UC3, (void *)color.get_data(), cv::Mat::AUTO_STEP);
+            cv::Mat depthMat(cv::Size(w, h), CV_8UC3, (void *)depth.get_data(), cv::Mat::AUTO_STEP);
+            cv::Mat depth_dist(cv::Size(w, h), CV_16UC1, (void*)depth_frame.get_data(), cv::Mat::AUTO_STEP);
 
+            Eigen::Vector3f normal_vector;
 
-            auto pca = applyPCA(depthMat, roi, normal_vector, angle, center_distance);
-            int8_t tmp_wall_number = std::get<0>(pca);
-            double tmp_Wall_angle = std::get<1>(pca);
-            this->Set_img_proc_wall_number(tmp_wall_number);
-            this->Set_wall_angle(tmp_Wall_angle);
+            // Wall mode
+            auto pca = applyPCA(depth_frame, 300, 200, 320, 260, 340, 200);
 
+            int8_t wall_number_ = std::get<0>(pca);
+            double angle_ = std::get<1>(pca);
+            double distance_ = std::get<2>(pca);
+
+            Set_img_proc_wall_det(true);
+            if (Get_img_proc_wall_det() == true)
+            {
+                this->Set_img_proc_wall_number(wall_number_);
+                this->Set_gradient(angle_);
+                this->Set_distance(distance_);
+            }
 
             cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);
+
+            // cv::imshow(window_name, depthMat);
+            // cv::imshow(window_name_color, colorMat);
         }
     }
     catch (const rs2::error &e)
@@ -1109,7 +1111,6 @@ void Img_proc::GOAL_LINE_recognition()
 
 void Img_proc::init()
 {
-
     // // set node loop rate
     // ros::Rate loop_rate(SPIN_RATE);
     // // vcap = VideoCapture(CAP_DSHOW + webcam_id);

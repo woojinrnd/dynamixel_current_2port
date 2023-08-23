@@ -9,7 +9,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::InitPose),
       stop_fallen_check_(false),
-      Emergency_(true),
+      Emergency_(false),
       turn_angle_(0),
     //   gradient_(0),
       straightLine(true)
@@ -30,7 +30,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
 
     boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
     boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
-    // boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
+    boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
     // boost::thread move_thread = boost::thread(boost::bind(&Move_Decision::MoveDecisionThread, this));
     boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
 }
@@ -90,20 +90,14 @@ void Move_Decision::process()
 
     ///////////////////////// LINE_MODE --- line_det_flg = true /////////////////////////
     bool tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
-    // ROS_INFO("MOVE_DECISION : %d",tmp_img_proc_line_det_flg_);
-    // ROS_INFO("MOVE_DECISION : %d",img_procPtr->Get_img_proc_no_line_det());
-
-    // 영상처리를 통해 Gradient 값 가져오기
-    // Gradient 추가(Line ~ center of frame )
-    // Gradient -> Turn_angle_
-    if (!tmp_img_proc_line_det_flg_)
+    if (!tmp_img_proc_line_det_flg_ && img_procPtr->Get_img_proc_wall_det() == false) // no line mode
     {
         Set_no_line_det_flg(true);
         Set_line_det_flg(false);
         ROS_ERROR("1번 : %d", Get_line_det_flg());
     }
 
-    else if (tmp_img_proc_line_det_flg_)
+    else if (tmp_img_proc_line_det_flg_) //line mode
     {
         Set_no_line_det_flg(false);
         Set_line_det_flg(true);
@@ -135,7 +129,7 @@ void Move_Decision::process()
     }
 
     ///////////////////////// WALL MODE --- wall_det_flg = true /////////////////////////
-    else if (img_procPtr->Get_img_proc_wall_det())
+    if (img_procPtr->Get_img_proc_wall_det() && Get_no_line_det_flg() == true)
     {
         Set_wall_det_flg(true);
     }
@@ -146,7 +140,6 @@ void Move_Decision::process()
         Set_corner_det_flg(true);
         Set_line_det_flg(true);
     }
-    
 }
 
 void Move_Decision::processThread()
@@ -202,7 +195,7 @@ void Move_Decision::Running_Mode_Decision()
         {
             running_mode_ = GOAL_MODE;
         }
-        else if (no_line_det_flg_)
+        else if (no_line_det_flg_ && !wall_det_flg_)
         {
             running_mode_ = NO_LINE_MODE;
         }
@@ -390,7 +383,7 @@ void Move_Decision::NOLINE_mode()
 
 void Move_Decision::STOP_mode()
 {
-    Set_Emergency_(false);
+    Set_Emergency_(true);
 }
 
 void Move_Decision::WAKEUP_mode()
@@ -417,7 +410,7 @@ void Move_Decision::HUDDLE_mode()
     // 허들을 다시 본다면 멈추고 다시 걸음 수 계산
     // LineMode
 
-    while (!img_procPtr->Get_img_proc_huddle_det())
+    while (img_procPtr->Get_img_proc_huddle_det())
     {
         double tmp_ud_neckangle = Get_UD_NeckAngle();
         tmp_ud_neckangle = -45;
@@ -430,15 +423,18 @@ void Move_Decision::HUDDLE_mode()
         Set_motion_index_(Motion_Index::Forward_Nstep);
         Set_distance_(img_procPtr->Get_distance());
         Set_motion_index_(Motion_Index::Huddle_Jump);
-    }
 
-    Set_huddle_det_flg(false);
+        if (Get_huddle_det_stop_flg() == true)
+        {
+            Set_huddle_det_stop_flg(false);
+        }
+    }
     Set_line_det_flg(true);
 }
 
 void Move_Decision::WALL_mode()
 {
-    while (!img_procPtr->Get_img_proc_wall_det())
+    while (img_procPtr->Get_img_proc_wall_det())
     {
         switch (img_procPtr->Get_img_proc_wall_number())
         {
@@ -447,28 +443,40 @@ void Move_Decision::WALL_mode()
             Set_motion_index_(Motion_Index::Forward_Nstep);
             Set_distance_(img_procPtr->Get_distance());
             Set_motion_index_(Motion_Index::InitPose);
+            ROS_ERROR("FLAG 1 : START Straight");
             break;
         case 2:
+            // 처음 벽 인식 후 일정 거리 안까지 직진
+            Set_motion_index_(Motion_Index::Forward_Nstep);
+            Set_distance_(img_procPtr->Get_distance());
+            Set_motion_index_(Motion_Index::InitPose);
+            ROS_ERROR("FLAG 2 : Straight");
+            break;
+        case 3:
             // 일정 거리 앞에서 정지 후 멀리 있는 벽이 보일 때 까지 좌보행
             Set_motion_index_(Motion_Index::Left_2step);
             Set_motion_index_(Motion_Index::InitPose);
+            ROS_ERROR("FLAG 3 : LEFT");
             break;
         case -2:
             // 멀리 있는 벽의 일정 거리 앞까지 직진
             Set_motion_index_(Motion_Index::Forward_Nstep);
             Set_distance_(img_procPtr->Get_distance());
             Set_motion_index_(Motion_Index::InitPose);
+            ROS_ERROR("FLAG -2 : Straight");
             break;
         case -3:
             // 일정 거리 앞에서 정지 후 멀리 있는 벽이 보일 때 까지 우보행
             Set_motion_index_(Motion_Index::Right_2step);
             Set_motion_index_(Motion_Index::InitPose);
+            ROS_ERROR("FLAG -3 : RIGHT");
             break;
         case 10:
             // 멀리 있는 벽의 일정 거리 앞까지 직진
             Set_motion_index_(Motion_Index::Forward_Nstep);
             Set_distance_(img_procPtr->Get_distance());
             Set_motion_index_(Motion_Index::InitPose);
+            ROS_ERROR("FLAG 10 : END Straight");
 
             if (img_procPtr->Get_img_proc_line_det())
             {
@@ -486,7 +494,7 @@ void Move_Decision::WALL_mode()
 
 void Move_Decision::CORNER_mode()
 {
-    while (!img_procPtr->Get_img_proc_corner_det())
+    while (img_procPtr->Get_img_proc_corner_det())
     {
         switch (img_procPtr->Get_img_proc_corner_number())
         {
@@ -506,7 +514,6 @@ void Move_Decision::CORNER_mode()
                 Actual_angle = Angle_ToStartWall;
             }
             Set_turn_angle_(Actual_angle);
-
             break;
 
         case 2:
@@ -531,8 +538,12 @@ void Move_Decision::CORNER_mode()
         default:
             break;
         }
+
+        if (Get_corner_det_stop_flg() == true)
+        {
+            Set_corner_det_flg(false);
+        }
     }
-    Set_corner_det_flg(false);
     Set_line_det_flg(true);
 }
 
@@ -641,7 +652,7 @@ bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req
     if ((req.finish == true) && (stand_status_ == Stand_Status::Stand))
     {
         // img_procssing
-        res.turn_angle = Get_turn_angle_();
+        res.turn_angle = this->Get_turn_angle_();
     }
 
     ROS_INFO("[MESSAGE] TA Request :   %s ", req.finish ? "true" : "false");
@@ -680,8 +691,8 @@ bool Move_Decision::Emergency(dynamixel_current_2port::Emergency::Request &req, 
 {
     if ((req.finish == true) && (stand_status_ == Stand_Status::Stand))
     {
-        // 0 : Stop
-        // 1 : Keep Going (Option)
+        // 1 : Stop
+        // 0 : Keep Going (Option)
         res.emergency = Get_Emergency_();
     }
 
@@ -704,8 +715,8 @@ void Move_Decision::startMode()
 // }
 
 // Emergency Stop
-// 0 : Stop
-// 1 : Keep Going (Option)
+// 1 : Stop
+// 0 : Keep Going (Option)
 // void Move_Decision::EmergencyPublish(bool _emergency)
 // {
 //     std_msgs::Bool A;
@@ -823,6 +834,12 @@ bool Move_Decision::Get_huddle_det_flg() const
     return huddle_det_flg_;
 }
 
+bool Move_Decision::Get_huddle_det_stop_flg() const
+{
+    std::lock_guard<std::mutex> lock(mtx_huddle_det_stop_flg);
+    return huddle_det_stop_flg_;
+}
+
 bool Move_Decision::Get_wall_det_flg() const
 {
     std::lock_guard<std::mutex> lock(mtx_wall_det_flg);
@@ -839,6 +856,12 @@ bool Move_Decision::Get_corner_det_flg() const
 {
     std::lock_guard<std::mutex> lock(mtx_corner_det_flg);
     return corner_det_flg_;
+}
+
+bool Move_Decision::Get_corner_det_stop_flg() const
+{
+    std::lock_guard<std::mutex> lock(mtx_corner_det_stop_flg);
+    return corner_det_stop_flg_;
 }
 
 double Move_Decision::Get_UD_NeckAngle() const
@@ -959,6 +982,18 @@ void Move_Decision::Set_corner_det_flg(bool corner_det_flg)
 {
     std::lock_guard<std::mutex> lock(mtx_corner_det_flg);
     this->corner_det_flg_ = corner_det_flg;
+}
+
+void Move_Decision::Set_huddle_det_stop_flg(bool huddle_det_stop_flg)
+{
+    std::lock_guard<std::mutex> lock(mtx_huddle_det_stop_flg);
+    this->huddle_det_stop_flg_ = huddle_det_stop_flg;
+}
+
+void Move_Decision::Set_corner_det_stop_flg(bool corner_det_stop_flg)
+{
+    std::lock_guard<std::mutex> lock(mtx_corner_det_stop_flg);
+    this->corner_det_stop_flg_ = corner_det_stop_flg;
 }
 
 void Move_Decision::Set_RL_NeckAngle(double RL_NeckAngle)
