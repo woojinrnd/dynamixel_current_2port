@@ -2,7 +2,7 @@
 
 // Constructor
 Img_proc::Img_proc()
-    : SPIN_RATE(30),
+    : SPIN_RATE(1),
       img_proc_line_det_(false),
       gradient_(0)
 {
@@ -71,7 +71,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
     double distance_huddle;
     bool has_white_now = false;
 
-    float angle;
+    float angle = 0;
 
     bool &has_prev = is_white_line ? has_white_prev : has_yellow_prev;
     cv::Point &center_now = is_white_line ? center_now_white : center_now_yellow;
@@ -185,8 +185,9 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
 
 void Img_proc::webcam_thread()
 {
-    // // TEST
+    // // // TEST
     // Set_img_proc_wall_det(true); 
+    // Set_img_proc_corner_number(1);
 
     // CAMERA INIT
     cv::VideoCapture cap(webcam_id);
@@ -226,7 +227,7 @@ void Img_proc::webcam_thread()
     cv::Mat frame, hsv_frame_white, hsv_frame_yellow, thresh_frame_white, thresh_frame_yellow, gray;
 
     while (ros::ok())
-    {
+    {        
         cap >> frame;
         if (frame.empty())
             break;
@@ -242,22 +243,43 @@ void Img_proc::webcam_thread()
         bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
         bool Corner_mode = std::get<4>(thresh_frame_yellow);
 
-        this->Set_img_proc_huddle_det(YellowContourDetected);
-        // this->Set_img_proc_corner_det(Corner_mode);
-        this->Set_img_proc_corner_det(YellowContourDetected);
-        // Set_img_proc_corner_det(true);
 
-        this->Set_gradient(gradient);
+        // this->Set_img_proc_huddle_det(YellowContourDetected);
+        // this->Set_img_proc_corner_det(Corner_mode);
+
+
+        //TEST
+        // this->Set_img_proc_huddle_det(true);
+        // ROS_WARN("%d",Get_img_proc_huddle_det());
+        this->Set_img_proc_corner_det(YellowContourDetected);
+        this->Set_img_proc_corner_number(1);
+        // if (a == 0)
+        // {
+        //     this->Set_img_proc_corner_number(a);
+        //     a = !a;
+        // }
+        // else if (a == 1)
+        // {
+        //     this->Set_img_proc_corner_number(a);
+        //     a = !a;
+        // }
+
         this->Set_img_proc_line_det(WhiteContourDetected);
 
         if (this->Get_img_proc_line_det() == true)
         {
             this->Set_img_proc_no_line_det(false);
+            this->Set_gradient(gradient);
         }
         else if (this->Get_img_proc_line_det() == false)
         {
             this->Set_img_proc_no_line_det(true);
+            this->Set_gradient(gradient);
             this->Set_delta_x(tmp_delta_x);
+        }
+        else
+        {
+            this->Set_gradient(0);
         }
 
         // cv::imshow("origin", frame);
@@ -408,7 +430,6 @@ void Img_proc::realsense_thread()
             double angle_ = std::get<1>(pca);
             double distance_ = std::get<2>(pca);
 
-            Set_img_proc_wall_det(true);
             if (Get_img_proc_wall_det() == true)
             {
                 this->Set_img_proc_wall_number(wall_number_);

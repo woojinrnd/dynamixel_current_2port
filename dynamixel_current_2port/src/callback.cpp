@@ -87,6 +87,7 @@ void Callback::callbackThread()
             ROS_INFO("#[MESSAGE] TA Request : %s#", srv_TA.request.finish ? "true" : "false");
             ROS_WARN("[MESSAGE] TA Response : %f", srv_TA.response.turn_angle);
             // Turn Body Angle에 모션 해당하는 부분
+            TATA();
             ROS_INFO("------------------------- Turn Angle ----------------------------");
         }
 
@@ -141,7 +142,7 @@ void Callback::Move_RL_NeckAngle()
         rl_neckangle = res_rl_neck;
         // All_Theta[21] = rl_neckangle;
         All_Theta[1] = rl_neckangle * DEG2RAD;
-        ROS_INFO("RL_NECK : %f", rl_neckangle);
+        ROS_WARN("RL_NECK : %f", rl_neckangle);
         ROS_INFO("------------------------- RL NECK Angle ----------------------------");
         ROS_INFO("\n");
     }
@@ -157,8 +158,22 @@ void Callback::Move_UD_NeckAngle()
         ud_neckangle = -90 + res_ud_neck;
         // All_Theta[22] = ud_neckangle;
         All_Theta[0] = ud_neckangle * DEG2RAD;
-        ROS_INFO("UD_NECK : %f", ud_neckangle);
+        ROS_WARN("UD_NECK : %f", ud_neckangle);
         ROS_INFO("------------------------- UD NECK Angle ----------------------------");
+        ROS_INFO("\n");
+    }
+}
+
+void Callback::TATA()
+{
+    if (client_TA.call(srv_TA))
+    {
+        double res_turn_angle = srv_TA.response.turn_angle;
+        turn_angle = res_turn_angle;
+        // All_Theta[22] = ud_neckangle;
+        All_Theta[2] = turn_angle * DEG2RAD;
+        ROS_WARN("TURN_ANGLE : %f", turn_angle);
+        ROS_INFO("------------------------- TURN_ANGLE ----------------------------");
         ROS_INFO("\n");
     }
 }
@@ -319,13 +334,13 @@ void Callback::Motion_Info()
 
         if (Motion_Index::Forward_Nstep)
         {
-            ROS_INFO("Motion_Index : %s", tmp_motion.c_str());
-            ROS_INFO("Distance : %f", res_distance);
+            ROS_WARN("Motion_Index : %s", tmp_motion.c_str());
+            ROS_WARN("Distance : %f", res_distance);
             ROS_INFO("------------------------- Select Motion ----------------------------");
         }
         else
         {
-            ROS_INFO("Motion_Index : %s", tmp_motion.c_str());
+            ROS_WARN("Motion_Index : %s", tmp_motion.c_str());
             ROS_INFO("------------------------- Select Motion ----------------------------");
         }
     }

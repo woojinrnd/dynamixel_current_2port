@@ -11,7 +11,6 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
       stop_fallen_check_(false),
       Emergency_(false),
       turn_angle_(0),
-    //   gradient_(0),
       straightLine(true)
 
 // Move_Decision::Move_Decision()
@@ -86,61 +85,236 @@ void Move_Decision::process()
 
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
 
-    //////영상처리를 통해 line_det_flg(T/F) 판별필요
-    ///////////////////////// No LINE_MODE --- no_line_det_flg = true /////////////////////////
 
-    bool tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
-    if (!tmp_img_proc_line_det_flg_ && img_procPtr->Get_img_proc_wall_det() == false) // no line mode
+
+    // bool tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
+    // bool tmp_img_proc_no_line_det_flg_ = img_procPtr->Get_img_proc_no_line_det();
+    // bool tmp_img_proc_huddle_det_flg_ = img_procPtr->Get_img_proc_huddle_det();
+    // bool tmp_img_proc_wall_det_flg_ = img_procPtr->Get_img_proc_wall_det();
+    // bool tmp_img_proc_goal_det_flg_ = img_procPtr->Get_img_proc_goal_line_det();
+    // bool tmp_img_proc_corner_det_flg_ = img_procPtr->Get_img_proc_corner_det();
+
+    tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
+    tmp_img_proc_no_line_det_flg_ = img_procPtr->Get_img_proc_no_line_det();
+    tmp_img_proc_huddle_det_flg_ = img_procPtr->Get_img_proc_huddle_det();
+    tmp_img_proc_wall_det_flg_ = img_procPtr->Get_img_proc_wall_det();
+    tmp_img_proc_goal_det_flg_ = img_procPtr->Get_img_proc_goal_line_det();
+    tmp_img_proc_corner_det_flg_ = img_procPtr->Get_img_proc_corner_det();
+
+    //////////////////////////////////////   LINE MODE    //////////////////////////////////////
+    
+    if (tmp_img_proc_line_det_flg_)
     {
-        Set_no_line_det_flg(true);
-        Set_line_det_flg(false);
-        ROS_ERROR("1번 : %d", Get_line_det_flg());
+        if (tmp_img_proc_huddle_det_flg_)
+        {
+            Set_huddle_det_flg(true);
+            Set_line_det_flg(false);
+            Set_no_line_det_flg(false);
+        }
+        else if (tmp_img_proc_goal_det_flg_)
+        {
+            Set_goal_line_det_flg(true);
+            Set_line_det_flg(false);
+            Set_no_line_det_flg(false);
+        }
+        else if (tmp_img_proc_corner_det_flg_)
+        {
+            Set_corner_det_flg(true);
+            Set_line_det_flg(false);
+            Set_no_line_det_flg(false);
+        }
+        else
+        {
+            Set_line_det_flg(true);
+            Set_no_line_det_flg(false);
+        }
+    }
+    
+    //////////////////////////////////////   NO LINE MODE    //////////////////////////////////////
+
+    else if (tmp_img_proc_no_line_det_flg_)
+    {
+        if (tmp_img_proc_huddle_det_flg_)
+        {
+            Set_huddle_det_flg(true);
+            Set_line_det_flg(false);
+            Set_no_line_det_flg(false);
+        }
+        else if (tmp_img_proc_corner_det_flg_)
+        {
+            Set_corner_det_flg(true);
+            Set_line_det_flg(false);
+            Set_no_line_det_flg(false);
+        }
+        else if (tmp_img_proc_wall_det_flg_)
+        {
+            Set_wall_det_flg(true);
+            Set_line_det_flg(false);
+            Set_no_line_det_flg(false);
+        }
+        else if (tmp_img_proc_goal_det_flg_)
+        {
+            Set_goal_line_det_flg(true);
+            Set_line_det_flg(false);
+            Set_no_line_det_flg(false);
+        }
+        else
+        {
+            Set_no_line_det_flg(true);
+        }
     }
 
-    ///////////////////////// LINE_MODE --- line_det_flg = true /////////////////////////
-    else if (tmp_img_proc_line_det_flg_) // line mode
-    {
-        Set_no_line_det_flg(false);
-        Set_line_det_flg(true);
-        ROS_ERROR("2번 : %d", Get_line_det_flg());
+    //////////////////////////////////////   HUDDLE MODE    //////////////////////////////////////
 
-        if (img_procPtr->Get_img_proc_corner_det())
+    else if (tmp_img_proc_huddle_det_flg_)
+    {
+        if (tmp_img_proc_line_det_flg_)
+        {
+            Set_line_det_flg(false);
+        }
+        else if (tmp_img_proc_no_line_det_flg_)
+        {
+            Set_no_line_det_flg(false);
+        }
+        else
+        {
+            Set_huddle_det_flg(true);
+        }
+    }
+    
+    //////////////////////////////////////   CORNER MODE    //////////////////////////////////////
+
+    else if (tmp_img_proc_corner_det_flg_)
+    {
+        if (tmp_img_proc_line_det_flg_)
+        {
+            Set_line_det_flg(false);
+        }
+        else if (tmp_img_proc_no_line_det_flg_)
+        {
+            Set_no_line_det_flg(false);
+        }
+        else if (tmp_img_proc_wall_det_flg_)
+        {
+            Set_wall_det_flg(false);
+        }
+        else
         {
             Set_corner_det_flg(true);
         }
-        else Set_corner_det_stop_flg(true);
     }
 
-    /////////////////////////STOP MODE --- no_line_det_flg = true /////////////////////////
-    // else if (장애물과 로봇이 접촉해 정지가 필요할 때)
-    else if (img_procPtr->Get_img_proc_stop_det())
+    //////////////////////////////////////   WALL MODE    //////////////////////////////////////
+
+    else if (tmp_img_proc_wall_det_flg_)
     {
-        Set_stop_det_flg(true);
+        if (tmp_img_proc_line_det_flg_)
+        {
+            Set_line_det_flg(false);
+        }
+        else if (tmp_img_proc_no_line_det_flg_)
+        {
+            Set_no_line_det_flg(false);
+        }
+        else if (tmp_img_proc_corner_det_flg_)
+        {
+            Set_corner_det_flg(true);
+        }
+        else
+        {
+            Set_wall_det_flg(true);
+        }
     }
 
-    /////////////////////////GOAL LINE MODE --- goal_line_det_flg = true /////////////////////////
-    // else if (골 라인 인식 == true)
+    //////////////////////////////////////   GOAL MODE    //////////////////////////////////////
+
+    else if (tmp_img_proc_goal_det_flg_)
+    {
+        if (tmp_img_proc_line_det_flg_)
+        {
+            Set_line_det_flg(false);
+        }
+        else if (tmp_img_proc_no_line_det_flg_)
+        {
+            Set_no_line_det_flg(true);
+        }
+        else 
+        {
+            Set_goal_line_det_flg(true);
+        }
+    }
+
+
+
+    ///////////////////////// LINE_MODE --- line_det_flg = true /////////////////////////
+    // if (tmp_img_proc_line_det_flg_) // line mode
     // {
-    // Set_goal_line_det_flg(true);
+    //     Set_no_line_det_flg(false);
+    //     Set_line_det_flg(true);
+    //     ROS_ERROR("2번 : %d", Get_line_det_flg());
+
+    //     if (tmp_img_proc_corner_det_flg_)
+    //     {
+    //         Set_corner_det_flg(true);
+    //     }
+
+    //     else 
+    //     {
+    //         Set_corner_det_stop_flg(true);
+    //         Set_corner_det_flg(false);
+    //     }
     // }
-    else if (img_procPtr->Get_img_proc_goal_line_det())
-    {
-        Set_goal_line_det_flg(true);
-        Set_line_det_flg(true);
-    }
 
-    ///////////////////////// WALL MODE --- wall_det_flg = true /////////////////////////
-    if (img_procPtr->Get_img_proc_wall_det() && Get_no_line_det_flg() == true)
-    {
-        Set_wall_det_flg(true);
-    }
 
-    ///////////////////////// CORNER MODE --- corner_det_flg = true /////////////////////////
-    else if (img_procPtr->Get_img_proc_corner_det())
-    {
-        Set_corner_det_flg(true);
-        // Set_line_det_flg(true);
-    }
+    // //////////////////////////// No LINE_MODE --- no_line_det_flg = true ////////////////////////////
+    // else if (!tmp_img_proc_line_det_flg_ && !tmp_img_proc_wall_det_flg_) // no line mode
+    // {
+    //     Set_no_line_det_flg(true);
+    //     Set_line_det_flg(false);
+    //     ROS_ERROR("1번 : %d", Get_line_det_flg());
+        
+    //     if (tmp_img_proc_corner_det_flg_)
+    //     {
+    //         Set_corner_det_flg(true);
+    //     }
+
+    //     else
+    //     {
+    //         Set_corner_det_stop_flg(true);
+    //         Set_corner_det_flg(false);
+    //     }
+    // }
+
+    // /////////////////////////STOP MODE --- no_line_det_flg = true /////////////////////////
+    // // else if (장애물과 로봇이 접촉해 정지가 필요할 때)
+    // else if (img_procPtr->Get_img_proc_stop_det())
+    // {
+    //     Set_stop_det_flg(true);
+    // }
+
+    // /////////////////////////GOAL LINE MODE --- goal_line_det_flg = true /////////////////////////
+    // // else if (골 라인 인식 == true)
+    // // {
+    // // Set_goal_line_det_flg(true);
+    // // }
+    // else if (tmp_img_proc_goal_det_flg_)
+    // {
+    //     Set_goal_line_det_flg(true);
+    //     Set_line_det_flg(true);
+    // }
+
+    // ///////////////////////// WALL MODE --- wall_det_flg = true /////////////////////////
+    // if (tmp_img_proc_wall_det_flg_ && Get_no_line_det_flg() == true)
+    // {
+    //     Set_wall_det_flg(true);
+    // }
+
+    // ///////////////////////// CORNER MODE --- corner_det_flg = true /////////////////////////
+    // else if (tmp_img_proc_corner_det_flg_ && !Get_no_line_det_flg())
+    // {
+    //     Set_corner_det_flg(true);
+    //     // Set_line_det_flg(true);
+    // }
 }
 
 void Move_Decision::processThread()
@@ -253,31 +427,35 @@ void Move_Decision::Running_Mode_Decision()
 
 void Move_Decision::LINE_mode()
 {
-    int8_t tmp_gradient = img_procPtr->Get_gradient();
+    int8_t tmp_gradient = 0;
+    tmp_gradient = img_procPtr->Get_gradient();
     StraightLineDecision(tmp_gradient, margin_gradient);
+
+    double tmp_actual_angle = Get_turn_angle_();
 
     // Straight Line
     if (straightLine == true)
     {
         // Left turn
         // To be zero
-        if (Actual_angle > 0)
+        if (tmp_actual_angle > 0)
         {
-            Actual_angle -= 1;
-            if (Actual_angle < 0)
-                Actual_angle = 0;
-            Set_turn_angle_(Actual_angle);
+            tmp_actual_angle -= 1;
+            if (tmp_actual_angle < 0)
+                tmp_actual_angle = 0;
+            Set_turn_angle_(tmp_actual_angle);
         }
 
         // Right turn
         // To be zero
-        else if (Actual_angle < 0)
+        else if (tmp_actual_angle < 0)
         {
-            Actual_angle += 1;
-            if (Actual_angle > 0)
-                Actual_angle = 0;
-            Set_turn_angle_(Actual_angle);
+            tmp_actual_angle += 1;
+            if (tmp_actual_angle > 0)
+                tmp_actual_angle = 0;
+            Set_turn_angle_(tmp_actual_angle);
         }
+
         Set_motion_index_(Motion_Index::Forward_4step);
         ROS_ERROR("STRAIGHT LINE");
 
@@ -351,14 +529,17 @@ void Move_Decision::LINE_mode()
             increment = 0;
         }
         ROS_ERROR("NO STRAIGHT LINE");
-        Actual_angle += increment;
+        tmp_actual_angle += increment;
+
         Set_motion_index_(Motion_Index::Forward_4step);
-        Set_turn_angle_(Actual_angle);
+        Set_turn_angle_(tmp_actual_angle);
         
         //TEST
         // Set_RL_Neck_on_flg(true);
         // Set_RL_NeckAngle(Actual_angle);
     }
+    Set_turn_angle_on_flg(true);
+    Set_select_motion_on_flg(true);
 }
 
 void Move_Decision::NOLINE_mode()
@@ -368,27 +549,33 @@ void Move_Decision::NOLINE_mode()
     // delta_x < 0 : RIGHT window ->  Right turn  (+)
    
     double tmp_delta_x = img_procPtr->Get_delta_x();
+    double tmp_actual_angle = Get_turn_angle_();
+
     if (tmp_delta_x < 0) // Right
     {
-        Actual_angle -= 1;
-        if (Actual_angle < -Angle_ToFindLine)
+        tmp_actual_angle -= 1;
+        if (tmp_actual_angle < -Angle_ToFindLine)
         {
-            Actual_angle = -Angle_ToFindLine;
+            tmp_actual_angle = -Angle_ToFindLine;
         }
-        Set_turn_angle_(Actual_angle);
+        Set_turn_angle_(tmp_actual_angle);
+        Set_motion_index_(Motion_Index::Step_in_place);
         ROS_WARN("RIGHT TURN");
         // ROS_INFO("turn angle : %d", Get_turn_angle_());
     }
-    if (tmp_delta_x > 0) // LEFT
+    else if (tmp_delta_x > 0) // LEFT
     {
-        Actual_angle += 1;
-        if (Actual_angle > Angle_ToFindLine)
+        tmp_actual_angle += 1;
+        if (tmp_actual_angle > Angle_ToFindLine)
         {
-            Actual_angle = Angle_ToFindLine;
+            tmp_actual_angle = Angle_ToFindLine;
         }
-        Set_turn_angle_(Actual_angle);
+        Set_turn_angle_(tmp_actual_angle);
+        Set_motion_index_(Motion_Index::Step_in_place);
         ROS_WARN("LEFT_TURN");
     }
+    Set_select_motion_on_flg(true);
+    Set_turn_angle_on_flg(true);
 }
 
 void Move_Decision::STOP_mode()
@@ -398,23 +585,56 @@ void Move_Decision::STOP_mode()
 
 void Move_Decision::WAKEUP_mode()
 {
-    int8_t tmp_stand_status = Get_stand_status_();
-    if (tmp_stand_status == Stand_Status::Fallen_Back)
-        Set_motion_index_(Motion_Index::FWD_UP);
-    if (tmp_stand_status == Stand_Status::Fallen_Forward)
-        Set_motion_index_(Motion_Index::BWD_UP);
+    // WAKEUP_MODE
+    // WakeUp_seq = 0 : Initial
+    // WakeUp_seq = 1 : FWD_UP or BWD_UP
+    // WakeUp_seq = 2 : Motion_Index : Initial_pose
+    // WakeUp_seq = 3 : Line_mode()
+    
+    tmp_stand_status = Get_stand_status_();
+
+    if (WakeUp_seq == 0)
+    {
+        WakeUp_seq ++;
+    }
+
+    else if (WakeUp_seq == 1)
+    {
+        Set_select_motion_on_flg(true);
+        if (tmp_stand_status == Stand_Status::Fallen_Back)
+            Set_motion_index_(Motion_Index::FWD_UP);
+        else if (tmp_stand_status == Stand_Status::Fallen_Forward)
+            Set_motion_index_(Motion_Index::BWD_UP);
+
+        WakeUp_seq++;
+    }
+    
+    else if (WakeUp_seq == 2)
+    {
+        Set_select_motion_on_flg(true);
+        Set_motion_index_(Motion_Index::InitPose);
+        WakeUp_seq++;
+    }
+    
+    else if (WakeUp_seq == 3)
+    {
+        Set_select_motion_on_flg(true);
+        Set_motion_index_(Motion_Index::InitPose);
+        Set_running_mode_(Running_Mode::LINE_MODE);
+    }
+
     // Motion_Info();
 }
 
 void Move_Decision::GOAL_LINE_mode()
 {
     // longer width 활용하고 싶음
+    Set_select_motion_on_flg(true);
     Set_motion_index_(Motion_Index::Forward_4step);
 }
 
 void Move_Decision::HUDDLE_mode()
 {
-
     // 고개를 들고 허들의 거리값 받아와 걸음 수 계산
     // 걸음수 전달 후, LineMode로 진입
     // 허들을 다시 본다면 멈추고 다시 걸음 수 계산
@@ -439,7 +659,7 @@ void Move_Decision::HUDDLE_mode()
             Set_huddle_det_stop_flg(false);
         }
     }
-    Set_line_det_flg(true);
+    Set_huddle_det_flg(false);
 }
 
 void Move_Decision::WALL_mode()
@@ -503,58 +723,145 @@ void Move_Decision::WALL_mode()
 }
 
 void Move_Decision::CORNER_mode()
-{
-    while (img_procPtr->Get_img_proc_corner_det())
+{   
+    // corner shape ㅓ / ㅜ
+    // tmp_corner_shape ㅓ(1)
+    // tmp_corner_shape ㅜ(2) 
+
+    // Corner seq
+    // 0 : corner_shape dicision (From img_proc_corner_number) (Depth)
+    // 1 : Motion : InitPose (For getting distance) (Depth)
+    // 2 : Motion : Forward_Nstep (Far)
+    // 3 : Motion : InitPose (For getting distance) (Depth)
+    // 4 : Motion : Forward_Nstep (Approach)
+    // 5 : Motion : Step in place
+    // 6 : Motion : Turn Angle 90(ㅓ) or -90(ㅜ) 
+    // 7 : Initializing
+
+    tmp_actual_angle = Get_turn_angle_();
+
+    if (tmp_img_proc_corner_det_flg_)
     {
-        switch (img_procPtr->Get_img_proc_corner_number())
+        // 0 : corner_shape dicision (From img_procPtr) (Depth)
+        if (tmp_corner_seq == 0)
         {
-        case 1:
-            // ㅓ shpae(Step in place + 90 LEFT)
-            // Realsense -> distance 값
-            // Webcam -> 코너의 중심점 발견할 때가지
-
-            Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(img_procPtr->Get_distance());
-            Set_motion_index_(Motion_Index::InitPose);
-
-            Set_motion_index_(Motion_Index::Step_in_place);
-            Actual_angle += 1;
-            if (Actual_angle > Angle_ToStartWall)
+            tmp_corner_shape = img_procPtr->Get_img_proc_corner_number();
+            if (tmp_corner_shape == 1)
             {
-                Actual_angle = Angle_ToStartWall;
+                ROS_WARN("ㅓ Type : CORNER NUMBER 1");
+                tmp_corner_seq++;
             }
-            Set_turn_angle_(Actual_angle);
-            break;
-
-        case 2:
-            // ㅜ shpae(Step in place + 90 LEFT)
-            // Realsense -> distance 값
-            // Webcam -> 코너의 중심점 발견할 때가지
-
-            Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(img_procPtr->Get_distance());
-            Set_motion_index_(Motion_Index::InitPose);
-
-            Set_motion_index_(Motion_Index::Step_in_place);
-            Actual_angle += 3;
-            if (Actual_angle > Angle_ToStartWall)
+            else if (tmp_corner_shape == 2)
             {
-                Actual_angle = Angle_ToStartWall;
+                ROS_WARN("ㅜ Type : CORNER NUMBER 2");
+                tmp_corner_seq++;
             }
-            Set_turn_angle_(Actual_angle);
+            Set_corner_det_flg(false);
+        }
 
-            break;
+        // 1 : Motion : InitPose (For getting distance) (Depth)
+        else if (tmp_corner_seq == 1)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::InitPose);
+            tmp_distance = img_procPtr->Get_distance();
+            tmp_corner_seq++;
+            Set_corner_det_flg(false);
+        }
 
-        default:
-            break;
+        // 2 : Motion : Forward_Nstep (Far) 
+        else if (tmp_corner_seq == 2)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::Forward_Nstep);
+            Set_distance_(tmp_distance);
+            tmp_corner_seq++;
+            Set_line_det_flg(true);
+            Set_corner_det_flg(false);
+        }
+
+        // 3 : Motion : InitPose (For getting distance) (Depth)
+        else if (tmp_corner_seq == 3)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::InitPose);
+            tmp_distance = img_procPtr->Get_distance();
+            tmp_corner_seq++;
+            Set_corner_det_flg(false);
+        }
+
+        // 4 : Motion : Forward_Nstep (Approach)
+        else if (tmp_corner_seq == 4)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::Forward_Nstep);
+            Set_distance_(tmp_distance);
+            tmp_corner_seq++;
+            Set_line_det_flg(true);
+            Set_corner_det_flg(false);
+        }
+
+        // 5 : Motion : Step in place
+        else if (tmp_corner_seq == 5)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::Step_in_place);
+            tmp_corner_seq++;
+            Set_corner_det_flg(false);
+        }
+
+        // 6 : Motion : Turn Angle 90(ㅓ) or -90(ㅜ)
+        else if (tmp_corner_seq == 6)
+        {
+            //Rotate 90
+            if (tmp_turn90 == 0)
+            {
+                tmp_actual_angle += 5;
+                Set_turn_angle_on_flg(true);
+                Set_turn_angle_(tmp_actual_angle);
+                
+                if (tmp_actual_angle > Angle_ToStartWall)
+                {
+                    tmp_actual_angle = Angle_ToStartWall;
+
+                    if (tmp_actual_angle == Angle_ToStartWall)
+                    {
+                        Turn90 = true;
+                        tmp_turn90++;
+                    }
+                }
+            }
+
+            //Rotate 90->0
+            else if (tmp_turn90 == 1)
+            {
+                if (Turn90)
+                {
+                    tmp_actual_angle = 0;
+                    Set_turn_angle_(tmp_actual_angle);
+                    Turn90 = false;
+                }
+                // Set_turn_angle_(tmp_actual_angle);
+                tmp_corner_seq++;
+            }
+            Set_corner_det_flg(false);
+        }
+
+        else if (tmp_corner_seq == 7)
+        {
+            tmp_turn90 = 0;
+            tmp_corner_seq = 0;
+            Set_corner_det_flg(false);
         }
 
         if (Get_corner_det_stop_flg() == true)
         {
             Set_corner_det_flg(false);
         }
+
+        ROS_ERROR("CORNER_SEQ : %d", tmp_corner_seq);
     }
-    Set_line_det_flg(true);
+    // Set_line_det_flg(true);
 }
 
 void Move_Decision::callbackThread()
@@ -599,7 +906,7 @@ void Move_Decision::callbackThread()
 //////////////////////////////////////////////////////////// Server Part ////////////////////////////////////////////////////////////////
 bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &req, dynamixel_current_2port::Select_Motion::Response &res)
 {
-    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand))
+    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) /*&& (Get_select_motion_on_flg() == true)*/)
     {
         switch (Get_motion_index_())
         {
@@ -636,8 +943,9 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
             res.select_motion = Motion_Index::Huddle_Jump;
             break;
         }
+        Set_select_motion_on_flg(false);
     }
-    else if ((req.finish == true) && ((stand_status_ == Stand_Status::Fallen_Back)) || (stand_status_ == Stand_Status::Fallen_Forward))
+    else if ((req.finish == true) && ((stand_status_ == Stand_Status::Fallen_Back)) || (stand_status_ == Stand_Status::Fallen_Forward) /*&& (Get_select_motion_on_flg() == true)*/)
     {
         switch (Get_motion_index_())
         {
@@ -649,6 +957,7 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
             res.select_motion = Motion_Index::BWD_UP;
             break;
         }
+        Set_select_motion_on_flg(false);
     }
 
     ROS_INFO("[MESSAGE] SM Request :   %s ", req.finish ? "true" : "false");
@@ -659,10 +968,11 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
 
 bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req, dynamixel_current_2port::Turn_Angle::Response &res)
 {
-    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand))
+    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) /*&& Get_turn_angle_on_flg()*/)
     {
         // img_procssing
         res.turn_angle = this->Get_turn_angle_();
+        Set_turn_angle_on_flg(false);
     }
 
     ROS_INFO("[MESSAGE] TA Request :   %s ", req.finish ? "true" : "false");
@@ -874,6 +1184,18 @@ bool Move_Decision::Get_corner_det_stop_flg() const
     return corner_det_stop_flg_;
 }
 
+bool Move_Decision::Get_select_motion_on_flg() const
+{
+    std::lock_guard<std::mutex> lock(mtx_select_motion_on_flg_);
+    return select_motion_on_flg_;
+}
+
+bool Move_Decision::Get_turn_angle_on_flg() const
+{
+    std::lock_guard<std::mutex> lock(mtx_turn_angle_on_flg_);
+    return turn_angle_on_flg_;
+}
+
 double Move_Decision::Get_UD_NeckAngle() const
 {
     std::lock_guard<std::mutex> lock(mtx_UD_NeckAngle_);
@@ -1000,12 +1322,23 @@ void Move_Decision::Set_huddle_det_stop_flg(bool huddle_det_stop_flg)
     this->huddle_det_stop_flg_ = huddle_det_stop_flg;
 }
 
+void Move_Decision::Set_select_motion_on_flg(bool select_motion_on_flg)
+{
+    std::lock_guard<std::mutex> lock(mtx_select_motion_on_flg_);
+    this->select_motion_on_flg_ = select_motion_on_flg;
+}
+
+void Move_Decision::Set_turn_angle_on_flg(bool turn_angle_on_flg)
+{
+    std::lock_guard<std::mutex> lock(mtx_turn_angle_on_flg_);
+    this->turn_angle_on_flg_ = turn_angle_on_flg;
+}
+
 void Move_Decision::Set_corner_det_stop_flg(bool corner_det_stop_flg)
 {
     std::lock_guard<std::mutex> lock(mtx_corner_det_stop_flg);
     this->corner_det_stop_flg_ = corner_det_stop_flg;
 }
-
 void Move_Decision::Set_RL_NeckAngle(double RL_NeckAngle)
 {
     std::lock_guard<std::mutex> lock(mtx_RL_NeckAngle_);

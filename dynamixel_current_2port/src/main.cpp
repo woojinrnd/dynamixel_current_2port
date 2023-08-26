@@ -11,7 +11,30 @@
 FILE *imu_accel;
 FILE *imu_gyro;
 
-
+// ///////////////////TEST
+VectorXd A(3);
+// int i = 0;
+// void add() { A(1) = 0; }  // 0
+// void add1() { A(1) = 45*DEG2RAD; } // 45
+// void add2() { A(1) = 90*DEG2RAD; } // 90
+// void process()
+// {
+//     if (i == 0)
+//     {
+//         add();
+//         i++;
+//     }
+//     else if (i == 1)
+//     {
+//         add1();
+//         i++;
+//     }
+//     else if (i == 2)
+//     {
+//         add2();
+//         i = 0;
+//     }
+// }
 
 int main(int argc, char **argv)
 {
@@ -65,15 +88,10 @@ int main(int argc, char **argv)
     double run_time;
     clock_gettime(CLOCK_REALTIME, &start); // Wall-clock time
     
-    // VectorXd A(3); 
-    // for (int i = 0; i<3; i++)
-    // {
-    //     A(i) = 30*DEG2RAD;
-    // }
-    
-
     while (ros::ok())
     {
+        // process();
+        // ROS_WARN("//////////////////////TEST//////////////////////// %d", i);
         // dxl.SetThetaRef(A);
         // dxl.syncWriteTheta();
 

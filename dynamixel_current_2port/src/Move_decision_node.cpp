@@ -33,9 +33,11 @@ int main(int argc, char **argv)
         // callback.Write_Leg_Theta();
         // dxl.SetThetaRef(callback.All_Theta);
         // dxl.syncWriteTheta();
+        
 
         ros::spinOnce();
         loop_rate.sleep();
+        
     }
 
     clock_gettime(CLOCK_REALTIME, &end);                                                         // Wall-clock time

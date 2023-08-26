@@ -100,6 +100,7 @@ public:
   virtual void SelectMotion();
   virtual void Move_UD_NeckAngle();
   virtual void Move_RL_NeckAngle();
+  virtual void TATA();
   virtual void Emergency();
   virtual void Motion_Info();
 
@@ -126,6 +127,7 @@ public:
   VectorXd Gyro = VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
   double rl_neckangle = 0;
   double ud_neckangle = 0;
+  double turn_angle = 0;
   bool emergency_ = 1; // True : Keep going , False : Emergency
 
 

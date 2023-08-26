@@ -103,6 +103,8 @@ public:
     int corner_condition_count = 0;
     int line_condition_count = 0;
 
+    bool a = 0;
+
     bool left = false;
     bool right = false;
 

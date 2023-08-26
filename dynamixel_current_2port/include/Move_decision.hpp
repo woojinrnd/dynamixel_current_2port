@@ -102,6 +102,13 @@ public:
     void WALL_mode();
     void CORNER_mode();
 
+    bool tmp_img_proc_line_det_flg_ = false;
+    bool tmp_img_proc_no_line_det_flg_ = false;
+    bool tmp_img_proc_huddle_det_flg_ = false;
+    bool tmp_img_proc_wall_det_flg_ = false;
+    bool tmp_img_proc_goal_det_flg_ = false;
+    bool tmp_img_proc_corner_det_flg_ = false;
+
     // ********************************************** CALLBACK THREAD ************************************************** //
 
     void Running_Mode_Decision();
@@ -161,6 +168,9 @@ public:
     bool Get_huddle_det_stop_flg() const;
     bool Get_corner_det_stop_flg() const;
 
+    bool Get_select_motion_on_flg() const;
+    bool Get_turn_angle_on_flg() const;
+
 
 
     double Get_RL_NeckAngle() const;
@@ -192,6 +202,9 @@ public:
     void Set_huddle_det_stop_flg(bool huddle_det_stop_flg);
     void Set_corner_det_stop_flg(bool corner_det_stop_flg);
 
+    void Set_select_motion_on_flg(bool select_motion_on_flg);
+    void Set_turn_angle_on_flg(bool turn_angle_on_flg);
+
 
     void Set_RL_NeckAngle(double RL_NeckAngle);
     void Set_UD_NeckAngle(double UD_NeckAngle);
@@ -202,12 +215,14 @@ public:
 
     // ********************************************** IMG_PROC ************************************************** //
 
+    /////////////////////// Line Mode /////////////////////// 
     // StraightLine
     bool straightLine;
     double margin_gradient = 15; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
     double Angle_toBeStraight = 40; // max or min
 
+    /////////////////////// No Line Mode /////////////////////// 
     // If no find line (NO_LINE_MODE)
     // delta_x : Center of window.x - Center of last captured line.x
     // delta_x > 0 : LEFT
@@ -219,8 +234,51 @@ public:
     double Actual_angle = 0;
     double increment = 0;
 
-    // Corner Mode 
-    double Angle_ToStartWall = 75;
+    /////////////////////// Corner Mode ///////////////////////
+
+    // Corner Sequence
+    // 0 : corner_shape dicision (From img_proc_corner_number) (Depth)
+    // 1 : Motion : InitPose (For getting distance) (Depth)
+    // 2 : Motion : Forward_Nstep (Far)
+    // 3 : Motion : InitPose (For getting distance) (Depth)
+    // 4 : Motion : Forward_Nstep (Approach)
+    // 5 : Motion : Step in place
+    // 6 : Motion : Turn Angle 90(ㅓ) or -90(ㅜ)
+    double Angle_ToStartWall = 90;
+    bool Turn90 = false;
+
+    // corner shape ㅓ / ㅜ
+    int8_t tmp_corner_shape = 0;
+
+    int8_t tmp_corner_seq = 0;
+    int8_t tmp_turn90 = 0;
+    double tmp_distance = 0;
+    double tmp_actual_angle = 0;
+
+    /////////////////////// Huddle Mode ///////////////////////
+    
+    // Huddle Sequence
+    // 0 : Motion : InitPose (for Getting distance) (Depth)
+    // 1 : Motion : Forward_Nstep (Far)
+    // 2 : Motion : InitPose (for Getting distance) (Depth)
+    // 3 : Motion : Forward_Nstep (Approach)
+    // 4 : Motion : Huddle Jump
+    int8_t tmp_huddle_seq = 0;
+    double tmp_distance = 0;
+    double tmp_actual_angle = 0;
+    
+
+
+
+
+
+    /////////////////////// WAKEUP_MODE ///////////////////////
+    // WakeUp_seq = 0 : Initial
+    // WakeUp_seq = 1 : FWD_UP or BWD_UP
+    // WakeUp_seq = 2 : Motion_Index : Initial_pose
+    // WakeUp_seq = 3 : Line_mode()
+    int8_t WakeUp_seq = 0;
+    int8_t tmp_stand_status = 0;
 
     // check the variable sharing with multi thread
     int aaaa = 1;
@@ -268,6 +326,9 @@ private:
     bool wall_det_flg_ = false;
     bool corner_det_flg_ = false;
 
+    bool select_motion_on_flg_ = false;
+    bool turn_angle_on_flg_ = false;
+
     bool huddle_det_stop_flg_ = false;
     bool corner_det_stop_flg_ = false;
     int8_t Wall_mode = 0;
@@ -312,6 +373,8 @@ private:
     mutable std::mutex mtx_motion_index_;
     mutable std::mutex mtx_stand_status_;
     mutable std::mutex mtx_running_mode_;
+    mutable std::mutex mtx_select_motion_on_flg_;
+    mutable std::mutex mtx_turn_angle_on_flg_;
 
 
     mutable std::mutex mtx_Emergency_;
