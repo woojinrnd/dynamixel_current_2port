@@ -137,12 +137,27 @@ public:
     ros::ServiceServer RL_NeckAngle_server_;
     ros::ServiceServer Emergency_server_;
 
+
+    bool srv_SM_finish = false;
+    bool srv_TA_finish = false;
+    bool srv_UD_Neck_finish = false;
+    bool srv_RL_Neck_finish = false;
+    bool srv_Emergency_finish = false;
+
+
     // ********************************************** FUNCTION ************************************************** //
 
     Eigen::Vector3d convertRotationToRPY(const Eigen::Matrix3d &rotation);
     Eigen::Vector3d convertQuaternionToRPY(const Eigen::Quaterniond &quaternion);
     void Motion_Info();
     void Running_Info();
+
+    void FinishCheck(bool _finish);
+
+    struct Select_Motion
+    {
+        bool finish;
+    } srv_SM;
 
     // ********************************************** GETTERS ************************************************** //
 
@@ -252,8 +267,8 @@ public:
 
     int8_t tmp_corner_seq = 0;
     int8_t tmp_turn90 = 0;
-    double tmp_distance = 0;
-    double tmp_actual_angle = 0;
+    double corner_distance = 0;
+    double corner_actual_angle = 0;
 
     /////////////////////// Huddle Mode ///////////////////////
     
@@ -262,15 +277,14 @@ public:
     // 1 : Motion : Forward_Nstep (Far)
     // 2 : Motion : InitPose (for Getting distance) (Depth)
     // 3 : Motion : Forward_Nstep (Approach)
-    // 4 : Motion : Huddle Jump
+    // 4 : Motion : Step in place (Pose Control)
+    // 5 : Motion : InitPose
+    // 6 : Motion : Huddle Jump
+    // 7 : Initializing
     int8_t tmp_huddle_seq = 0;
-    double tmp_distance = 0;
-    double tmp_actual_angle = 0;
+    double huddle_distance = 0;
+    double huddle_actual_angle = 0;
     
-
-
-
-
 
     /////////////////////// WAKEUP_MODE ///////////////////////
     // WakeUp_seq = 0 : Initial

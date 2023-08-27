@@ -1,3 +1,44 @@
+# DEPENDENCIES
+xsens mti driver  
+dynamixel_sdk  
+
+# INSTALL
+## xsens mti driver  
+#2-1. MT 소프트웨어 다운로드  
+https://www.xsens.com/setup  
+
+#2-2. 소프트웨어 설치  
+좌측의 Xsens MTi  클릭 → 자동으로 MT_Software_Suite_linux_x64_2020.0.2 다운로드  
+cd Downloads && sudo ./mtsdk_linux-x64_2020.0.2.sh  
+sudo apt-get install sharutils  
+default 경로 설정 : /usr/local/xsens  
+cd /usr/local/xsens  
+
+#2-3. catkin_ws 빌드 작업  
+cd /usr/local/xsens  
+sudo cp -r xsens_ros_mti_driver ~/catkin_ws/src  
+cd ~/catkin_ws/src  
+sudo chmod 777 -R xsens_ros_mti_driver  
+cd  
+pushd ~/catkin_ws/src/xsens_ros_mti_driver/lib/xspublic && make && popd  
+catkin_make    
+source devel/setup.bash  
+roslaunch xsens_mti_driver display.launch  
+
+#2-4. Permission Denied Error 해결  
+ls -l /dev/ttyUSB0  
+id  
+sudo usermod -a -G dialout [username]  
+* 컴퓨터를 재부팅해야 적용됨  
+
+#3-2. ROS 노드 실행  
+roslaunch xsens_mti_driver xsens_mti_node.launch  
+rostopic echo /imu/data  
+
+## dynamixel_sdk
+sudo apt-get install ros-[version]-dynamixel-sdk
+
+
 # BUILD
 mkdir -p [what you want folder name]/[src]  
 cd [what you want folder name]/[src]  

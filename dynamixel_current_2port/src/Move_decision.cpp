@@ -640,26 +640,106 @@ void Move_Decision::HUDDLE_mode()
     // 허들을 다시 본다면 멈추고 다시 걸음 수 계산
     // LineMode
 
-    while (img_procPtr->Get_img_proc_huddle_det())
+    // Huddle Sequence
+    // 0 : Motion : InitPose (for Getting distance) (Depth)
+    // 1 : Motion : Forward_Nstep (Far)
+    // 2 : Motion : InitPose (for Getting distance) (Depth)
+    // 3 : Motion : Forward_Nstep (Approach)
+    // 4 : Motion : Step in place (Pose Control)
+    // 5 : Motion : InitPose
+    // 6 : Motion : Huddle Jump
+    // 7 : Initializing
+
+    huddle_actual_angle = Get_turn_angle_();
+
+    if (tmp_img_proc_huddle_det_flg_)
     {
-        double tmp_ud_neckangle = Get_UD_NeckAngle();
-        tmp_ud_neckangle = -45;
-        if (Get_UD_Neck_on_flg() == true)
+        // 0 : Motion : InitPose (For getting distance) (Depth)
+        if (tmp_huddle_seq == 0)
         {
-            Set_UD_NeckAngle(tmp_ud_neckangle);
-            Set_UD_Neck_on_flg(false);
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::InitPose);
+            huddle_distance = img_procPtr->Get_distance();
+            tmp_huddle_seq++;
+            Set_huddle_det_flg(false);
         }
 
-        Set_motion_index_(Motion_Index::Forward_Nstep);
-        Set_distance_(img_procPtr->Get_distance());
-        Set_motion_index_(Motion_Index::Huddle_Jump);
+        // 1 : Motion : Forward_Nstep (Far)
+        else if (tmp_corner_seq == 1)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::Forward_Nstep);
+            Set_distance_(huddle_distance);
+            tmp_huddle_seq++;
+            Set_line_det_flg(true);
+            Set_huddle_det_flg(false);
+        }
+
+        // 2 : Motion : InitPose (For getting distance) (Depth)
+        else if (tmp_huddle_seq == 2)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::InitPose);
+            huddle_distance = img_procPtr->Get_distance();
+            tmp_huddle_seq++;
+            Set_huddle_det_flg(false);
+        }
+
+        // 3 : Motion : Forward_Nstep (Approach)
+        else if (tmp_huddle_seq == 3)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::Forward_Nstep);
+            Set_distance_(huddle_distance);
+            tmp_corner_seq++;
+            Set_line_det_flg(true);
+            Set_huddle_det_flg(false);
+        }
+
+        // 4 : Motion : Step in place (Pose Control)
+        else if (tmp_huddle_seq == 4)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::Step_in_place);
+            huddle_actual_angle = img_procPtr->Get_gradient();
+            Set_turn_angle_(huddle_actual_angle);
+            tmp_huddle_seq++;
+            Set_huddle_det_flg(false);
+        }
+
+        // 5 : Motion : InitPose
+        else if (tmp_huddle_seq == 5)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::InitPose);
+            tmp_huddle_seq++;
+            Set_huddle_det_flg(false);
+        }
+        
+        // 6 : Motion : Huddle Jump
+        else if (tmp_huddle_seq == 6)
+        {
+            Set_select_motion_on_flg(true);
+            Set_motion_index_(Motion_Index::Huddle_Jump);
+            tmp_huddle_seq++;
+            Set_huddle_det_flg(false);
+        }
+
+        else if (tmp_huddle_seq == 7)
+        {
+            Set_select_motion_on_flg(true);
+            tmp_huddle_seq = 0;
+            Set_huddle_det_flg(false);
+        }
 
         if (Get_huddle_det_stop_flg() == true)
         {
-            Set_huddle_det_stop_flg(false);
+            Set_huddle_det_flg(false);
+            tmp_huddle_seq = 0;
         }
+
+        ROS_ERROR("HUDDLE_SEQ : %d", tmp_huddle_seq);
     }
-    Set_huddle_det_flg(false);
 }
 
 void Move_Decision::WALL_mode()
@@ -738,7 +818,7 @@ void Move_Decision::CORNER_mode()
     // 6 : Motion : Turn Angle 90(ㅓ) or -90(ㅜ) 
     // 7 : Initializing
 
-    tmp_actual_angle = Get_turn_angle_();
+    corner_actual_angle = Get_turn_angle_();
 
     if (tmp_img_proc_corner_det_flg_)
     {
@@ -764,7 +844,7 @@ void Move_Decision::CORNER_mode()
         {
             Set_select_motion_on_flg(true);
             Set_motion_index_(Motion_Index::InitPose);
-            tmp_distance = img_procPtr->Get_distance();
+            corner_distance = img_procPtr->Get_distance();
             tmp_corner_seq++;
             Set_corner_det_flg(false);
         }
@@ -774,7 +854,7 @@ void Move_Decision::CORNER_mode()
         {
             Set_select_motion_on_flg(true);
             Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(tmp_distance);
+            Set_distance_(corner_distance);
             tmp_corner_seq++;
             Set_line_det_flg(true);
             Set_corner_det_flg(false);
@@ -785,7 +865,7 @@ void Move_Decision::CORNER_mode()
         {
             Set_select_motion_on_flg(true);
             Set_motion_index_(Motion_Index::InitPose);
-            tmp_distance = img_procPtr->Get_distance();
+            corner_distance = img_procPtr->Get_distance();
             tmp_corner_seq++;
             Set_corner_det_flg(false);
         }
@@ -795,7 +875,7 @@ void Move_Decision::CORNER_mode()
         {
             Set_select_motion_on_flg(true);
             Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(tmp_distance);
+            Set_distance_(corner_distance);
             tmp_corner_seq++;
             Set_line_det_flg(true);
             Set_corner_det_flg(false);
@@ -816,15 +896,15 @@ void Move_Decision::CORNER_mode()
             //Rotate 90
             if (tmp_turn90 == 0)
             {
-                tmp_actual_angle += 5;
+                corner_actual_angle += 5;
                 Set_turn_angle_on_flg(true);
-                Set_turn_angle_(tmp_actual_angle);
+                Set_turn_angle_(corner_actual_angle);
                 
-                if (tmp_actual_angle > Angle_ToStartWall)
+                if (corner_actual_angle > Angle_ToStartWall)
                 {
-                    tmp_actual_angle = Angle_ToStartWall;
+                    corner_actual_angle = Angle_ToStartWall;
 
-                    if (tmp_actual_angle == Angle_ToStartWall)
+                    if (corner_actual_angle == Angle_ToStartWall)
                     {
                         Turn90 = true;
                         tmp_turn90++;
@@ -837,16 +917,17 @@ void Move_Decision::CORNER_mode()
             {
                 if (Turn90)
                 {
-                    tmp_actual_angle = 0;
-                    Set_turn_angle_(tmp_actual_angle);
+                    corner_actual_angle = 0;
+                    Set_turn_angle_(corner_actual_angle);
                     Turn90 = false;
                 }
-                // Set_turn_angle_(tmp_actual_angle);
+                // Set_turn_angle_(corner_actual_angle);
                 tmp_corner_seq++;
             }
             Set_corner_det_flg(false);
         }
 
+        // 7 : Initializing
         else if (tmp_corner_seq == 7)
         {
             tmp_turn90 = 0;
@@ -906,7 +987,7 @@ void Move_Decision::callbackThread()
 //////////////////////////////////////////////////////////// Server Part ////////////////////////////////////////////////////////////////
 bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &req, dynamixel_current_2port::Select_Motion::Response &res)
 {
-    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) /*&& (Get_select_motion_on_flg() == true)*/)
+    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) && (Get_select_motion_on_flg() == true))
     {
         switch (Get_motion_index_())
         {
@@ -945,6 +1026,7 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
         }
         Set_select_motion_on_flg(false);
     }
+
     else if ((req.finish == true) && ((stand_status_ == Stand_Status::Fallen_Back)) || (stand_status_ == Stand_Status::Fallen_Forward) /*&& (Get_select_motion_on_flg() == true)*/)
     {
         switch (Get_motion_index_())
@@ -968,6 +1050,7 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
 
 bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req, dynamixel_current_2port::Turn_Angle::Response &res)
 {
+    srv_TA_finish = req.finish;
     if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) /*&& Get_turn_angle_on_flg()*/)
     {
         // img_procssing
@@ -982,6 +1065,7 @@ bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req
 
 bool Move_Decision::Move_UD_NeckAngle(dynamixel_current_2port::UD_NeckAngle::Request &req, dynamixel_current_2port::UD_NeckAngle::Response &res)
 {
+    srv_UD_Neck_finish = req.finish;
     if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) && (Get_UD_Neck_on_flg() == true))
     {
         // img_procssing
@@ -995,6 +1079,7 @@ bool Move_Decision::Move_UD_NeckAngle(dynamixel_current_2port::UD_NeckAngle::Req
 
 bool Move_Decision::Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Request &req, dynamixel_current_2port::RL_NeckAngle::Response &res)
 {
+    srv_RL_Neck_finish = req.finish;
     if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) && (Get_RL_Neck_on_flg() == true))
     {
         // img_procssing
@@ -1009,6 +1094,7 @@ bool Move_Decision::Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Req
 
 bool Move_Decision::Emergency(dynamixel_current_2port::Emergency::Request &req, dynamixel_current_2port::Emergency::Response &res)
 {
+    srv_Emergency_finish = req.finish;
     if ((req.finish == true) && (stand_status_ == Stand_Status::Stand))
     {
         // 1 : Stop
@@ -1487,4 +1573,11 @@ void Move_Decision::Running_Info()
         break;
     }
     ROS_INFO("Running_Mode : %s", tmp_running.c_str());
+}
+
+void Move_Decision::FinishCheck(bool _finish)
+{
+    srv_SM.finish = _finish;
+    srv_SM_finish = srv_SM.finish;
+    ROS_ERROR("123132131312 %d", srv_SM_finish);
 }
