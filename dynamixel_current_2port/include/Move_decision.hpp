@@ -138,12 +138,6 @@ public:
     ros::ServiceServer Emergency_server_;
 
 
-    bool srv_SM_finish = false;
-    bool srv_TA_finish = false;
-    bool srv_UD_Neck_finish = false;
-    bool srv_RL_Neck_finish = false;
-    bool srv_Emergency_finish = false;
-
 
     // ********************************************** FUNCTION ************************************************** //
 
@@ -152,12 +146,6 @@ public:
     void Motion_Info();
     void Running_Info();
 
-    void FinishCheck(bool _finish);
-
-    struct Select_Motion
-    {
-        bool finish;
-    } srv_SM;
 
     // ********************************************** GETTERS ************************************************** //
 
@@ -185,13 +173,16 @@ public:
 
     bool Get_select_motion_on_flg() const;
     bool Get_turn_angle_on_flg() const;
-
+    bool Get_emergency_on_flg() const;
 
 
     double Get_RL_NeckAngle() const;
     double Get_UD_NeckAngle() const;
     bool Get_RL_Neck_on_flg() const;
     bool Get_UD_Neck_on_flg() const;
+
+
+    int8_t Get_req_finish() const;
 
 
     // ********************************************** SETTERS ************************************************** //
@@ -219,12 +210,15 @@ public:
 
     void Set_select_motion_on_flg(bool select_motion_on_flg);
     void Set_turn_angle_on_flg(bool turn_angle_on_flg);
+    void Set_emergency_on_flg(bool emergency_on_flg);
 
 
     void Set_RL_NeckAngle(double RL_NeckAngle);
     void Set_UD_NeckAngle(double UD_NeckAngle);
     void Set_RL_Neck_on_flg(bool RL_Neck_on_flg);
     void Set_UD_Neck_on_flg(bool UD_Neck_on_flg);
+
+    void Set_req_finish(int8_t req_finish);
 
 
 
@@ -236,6 +230,10 @@ public:
     double margin_gradient = 15; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
     double Angle_toBeStraight = 40; // max or min
+    int8_t line_gradient = 0;
+    double line_actual_angle = 0;
+    int8_t line_motion = 0;
+
 
     /////////////////////// No Line Mode /////////////////////// 
     // If no find line (NO_LINE_MODE)
@@ -243,11 +241,14 @@ public:
     // delta_x > 0 : LEFT
     // delta_x < 0 : RIGHT
     // Out of Range -> A straight trun walking
+    int8_t tmp_delta_x = 0;
+    double noline_actual_angle = 0;
     double Angle_ToFindLine = 10; // max or min
 
     // Actural send turn angle
     double Actual_angle = 0;
     double increment = 0;
+
 
     /////////////////////// Corner Mode ///////////////////////
 
@@ -300,6 +301,7 @@ public:
 
 
 
+
 private:
 
     ros::NodeHandle nh;
@@ -340,15 +342,17 @@ private:
     bool wall_det_flg_ = false;
     bool corner_det_flg_ = false;
 
+    //True : unEnable to write the value
+    //False : Enable to write the value
     bool select_motion_on_flg_ = false;
     bool turn_angle_on_flg_ = false;
+    bool emergency_on_flg_ = false;
+
 
     bool huddle_det_stop_flg_ = false;
     bool corner_det_stop_flg_ = false;
     int8_t Wall_mode = 0;
 
-
-    
 
     bool stop_fallen_check_;
     double present_pitch_;
@@ -361,6 +365,10 @@ private:
     bool MoveDecisionON_;
     bool CallbackON_;
 
+    // true -> req.finish is true
+    // false -> req.finish is false
+    // bool req_finish = true;
+    int8_t req_finish_ = 100;
 
 
 
@@ -387,14 +395,18 @@ private:
     mutable std::mutex mtx_motion_index_;
     mutable std::mutex mtx_stand_status_;
     mutable std::mutex mtx_running_mode_;
+
+
     mutable std::mutex mtx_select_motion_on_flg_;
     mutable std::mutex mtx_turn_angle_on_flg_;
-
+    mutable std::mutex mtx_emergency_on_flg_;
 
     mutable std::mutex mtx_Emergency_;
     mutable std::mutex mtx_ProcessON_;
     mutable std::mutex mtx_MoveDecisionON_;
     mutable std::mutex mtx_CallbackON_;
+
+    mutable std::mutex mtx_req_finish_;
 };
 
 #endif // MOVE_DECISION_H

@@ -427,119 +427,141 @@ void Move_Decision::Running_Mode_Decision()
 
 void Move_Decision::LINE_mode()
 {
-    int8_t tmp_gradient = 0;
-    tmp_gradient = img_procPtr->Get_gradient();
-    StraightLineDecision(tmp_gradient, margin_gradient);
+    line_gradient = img_procPtr->Get_gradient();
+    StraightLineDecision(line_gradient, margin_gradient);
+    line_actual_angle = Get_turn_angle_();
+    line_motion = Get_motion_index_();
 
-    double tmp_actual_angle = Get_turn_angle_();
-
-    // Straight Line
-    if (straightLine == true)
+    if (!Get_UD_Neck_on_flg() || !Get_RL_Neck_on_flg() || !Get_emergency_on_flg())
     {
-        // Left turn
-        // To be zero
-        if (tmp_actual_angle > 0)
+        // Straight Line
+        if (straightLine == true)
         {
-            tmp_actual_angle -= 1;
-            if (tmp_actual_angle < 0)
-                tmp_actual_angle = 0;
-            Set_turn_angle_(tmp_actual_angle);
+            if (!Get_turn_angle_on_flg())
+            {
+                // Left turn
+                // To be zero
+                if (line_actual_angle > 0)
+                {
+                    line_actual_angle -= 1;
+                    if (line_actual_angle < 0)
+                        line_actual_angle = 0;
+                    Set_turn_angle_(line_actual_angle);
+                    Set_turn_angle_on_flg(true);
+                }
+
+                // Right turn
+                // To be zero
+                else if (line_actual_angle < 0)
+                {
+                    line_actual_angle += 1;
+                    if (line_actual_angle > 0)
+                        line_actual_angle = 0;
+                    Set_turn_angle_(line_actual_angle);
+                    Set_turn_angle_on_flg(true);
+                }
+            }
+
+            if (!Get_select_motion_on_flg())
+            {
+                line_motion = Motion_Index::Forward_4step;
+                Set_motion_index_(line_motion);
+                Set_select_motion_on_flg(true);
+            }
+
+            ROS_ERROR("STRAIGHT LINE");
+
+            // TEST
+            //  Set_RL_Neck_on_flg(true);
+            //  Set_RL_NeckAngle(Actual_angle);
         }
 
-        // Right turn
-        // To be zero
-        else if (tmp_actual_angle < 0)
+        // Non Straight Line
+        else if (straightLine == false)
         {
-            tmp_actual_angle += 1;
-            if (tmp_actual_angle > 0)
-                tmp_actual_angle = 0;
-            Set_turn_angle_(tmp_actual_angle);
+            if (!Get_turn_angle_on_flg())
+            {
+                // Increase Actual_angle more quickly for larger line_gradient values
+                // Counter Clock wise(+) (Turn Angle sign)
+                // Gradient : Angle from center of window.x to center of line.x
+                // LEFT TURN
+                if (line_gradient >= margin_gradient * 5)
+                {
+                    increment = 4;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient >= margin_gradient * 4)
+                {
+                    increment = 3;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient >= margin_gradient * 3)
+                {
+                    increment = 2;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient >= margin_gradient * 2)
+                {
+                    increment = 2;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient > margin_gradient * 1)
+                {
+                    increment = 2;
+                    ROS_WARN("LEFT_TURN");
+                }
+
+                // Decrease Actual_angle relatively slowly for smaller line_gradient values
+                // Right Turn
+                else if (line_gradient <= -margin_gradient * 5)
+                {
+                    increment = -4;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient <= -margin_gradient * 4)
+                {
+                    increment = -3;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient <= -margin_gradient * 3)
+                {
+                    increment = -2;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient <= -margin_gradient * 2)
+                {
+                    increment = -2;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient < -margin_gradient * 1)
+                {
+                    increment = -2;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else
+                {
+                    increment = 0;
+                }
+
+                line_actual_angle += increment;
+                Set_turn_angle_on_flg(true);
+                Set_turn_angle_(line_actual_angle);
+            }
+
+            if (!Get_select_motion_on_flg())
+            {
+                line_motion = Motion_Index::Forward_4step;
+                Set_motion_index_(line_motion);
+                Set_select_motion_on_flg(true);
+            }
+
+            ROS_ERROR("NO STRAIGHT LINE");
+
+            // TEST
+            //  Set_RL_Neck_on_flg(true);
+            //  Set_RL_NeckAngle(Actual_angle);
         }
-
-        Set_motion_index_(Motion_Index::Forward_4step);
-        ROS_ERROR("STRAIGHT LINE");
-
-        //TEST
-        // Set_RL_Neck_on_flg(true);
-        // Set_RL_NeckAngle(Actual_angle);
     }
-
-    // Non Straight Line
-    else if (straightLine == false)
-    {
-        // Increase Actual_angle more quickly for larger tmp_gradient values
-        // Counter Clock wise(+) (Turn Angle sign)
-        // Gradient : Angle from center of window.x to center of line.x
-        // LEFT TURN
-        if (tmp_gradient >= margin_gradient * 5)
-        {
-            increment = 4;
-            ROS_WARN("LEFT_TURN");
-        }
-        else if (tmp_gradient >= margin_gradient * 4)
-        {
-            increment = 3;
-            ROS_WARN("LEFT_TURN");
-        }
-        else if (tmp_gradient >= margin_gradient * 3)
-        {
-            increment = 2;
-            ROS_WARN("LEFT_TURN");
-        }
-        else if (tmp_gradient >= margin_gradient * 2)
-        {
-            increment = 2;
-            ROS_WARN("LEFT_TURN");
-        }
-        else if (tmp_gradient > margin_gradient * 1)
-        {
-            increment = 2;
-            ROS_WARN("LEFT_TURN");
-        }
-
-        // Decrease Actual_angle relatively slowly for smaller tmp_gradient values
-        // Right Turn
-        else if (tmp_gradient <= -margin_gradient * 5)
-        {
-            increment = -4;
-            ROS_WARN("RIGHT TURN");
-        }
-        else if (tmp_gradient <= -margin_gradient * 4)
-        {
-            increment = -3;
-            ROS_WARN("RIGHT TURN");
-        }
-        else if (tmp_gradient <= -margin_gradient * 3)
-        {
-            increment = -2;
-            ROS_WARN("RIGHT TURN");
-        }
-        else if (tmp_gradient <= -margin_gradient * 2)
-        {
-            increment = -2;
-            ROS_WARN("RIGHT TURN");
-        }
-        else if (tmp_gradient < -margin_gradient * 1)
-        {
-            increment = -2;
-            ROS_WARN("RIGHT TURN");
-        }
-        else
-        {
-            increment = 0;
-        }
-        ROS_ERROR("NO STRAIGHT LINE");
-        tmp_actual_angle += increment;
-
-        Set_motion_index_(Motion_Index::Forward_4step);
-        Set_turn_angle_(tmp_actual_angle);
-        
-        //TEST
-        // Set_RL_Neck_on_flg(true);
-        // Set_RL_NeckAngle(Actual_angle);
-    }
-    Set_turn_angle_on_flg(true);
-    Set_select_motion_on_flg(true);
 }
 
 void Move_Decision::NOLINE_mode()
@@ -548,34 +570,46 @@ void Move_Decision::NOLINE_mode()
     // delta_x > 0 : LEFT Window  ->  Left turn (-)
     // delta_x < 0 : RIGHT window ->  Right turn  (+)
    
-    double tmp_delta_x = img_procPtr->Get_delta_x();
-    double tmp_actual_angle = Get_turn_angle_();
+    tmp_delta_x = img_procPtr->Get_delta_x();
+    noline_actual_angle = Get_turn_angle_();
 
-    if (tmp_delta_x < 0) // Right
+    if (tmp_delta_x < 0 && !Get_turn_angle_on_flg()) // Right
     {
-        tmp_actual_angle -= 1;
-        if (tmp_actual_angle < -Angle_ToFindLine)
+        noline_actual_angle -= 3;
+        if (noline_actual_angle < -Angle_ToFindLine)
         {
-            tmp_actual_angle = -Angle_ToFindLine;
+            noline_actual_angle = -Angle_ToFindLine;
         }
-        Set_turn_angle_(tmp_actual_angle);
-        Set_motion_index_(Motion_Index::Step_in_place);
+        Set_turn_angle_(noline_actual_angle);
+        Set_turn_angle_on_flg(true);
+
+        if (!Get_select_motion_on_flg())
+        {
+            Set_motion_index_(Motion_Index::Step_in_place);
+            Set_select_motion_on_flg(true);
+        }
+
         ROS_WARN("RIGHT TURN");
         // ROS_INFO("turn angle : %d", Get_turn_angle_());
     }
-    else if (tmp_delta_x > 0) // LEFT
+
+    else if (tmp_delta_x > 0 && !Get_turn_angle_on_flg()) // LEFT
     {
-        tmp_actual_angle += 1;
-        if (tmp_actual_angle > Angle_ToFindLine)
+        noline_actual_angle += 3;
+        if (noline_actual_angle > Angle_ToFindLine)
         {
-            tmp_actual_angle = Angle_ToFindLine;
+            noline_actual_angle = Angle_ToFindLine;
         }
-        Set_turn_angle_(tmp_actual_angle);
-        Set_motion_index_(Motion_Index::Step_in_place);
+        Set_turn_angle_(noline_actual_angle);
+        Set_turn_angle_on_flg(true);
+        
+        if (!Get_select_motion_on_flg())
+        {
+            Set_motion_index_(Motion_Index::Step_in_place);
+            Set_select_motion_on_flg(true);
+        }
         ROS_WARN("LEFT_TURN");
     }
-    Set_select_motion_on_flg(true);
-    Set_turn_angle_on_flg(true);
 }
 
 void Move_Decision::STOP_mode()
@@ -963,6 +997,8 @@ void Move_Decision::callbackThread()
     ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
     {
+        ROS_ERROR("req_finish : %d", Get_req_finish());
+    
         startMode();
         ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
         ROS_INFO("-------------------------------------------------------------------");
@@ -1027,7 +1063,7 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
         Set_select_motion_on_flg(false);
     }
 
-    else if ((req.finish == true) && ((stand_status_ == Stand_Status::Fallen_Back)) || (stand_status_ == Stand_Status::Fallen_Forward) /*&& (Get_select_motion_on_flg() == true)*/)
+    else if ((req.finish == true) && ((stand_status_ == Stand_Status::Fallen_Back)) || (stand_status_ == Stand_Status::Fallen_Forward) && (Get_select_motion_on_flg() == true))
     {
         switch (Get_motion_index_())
         {
@@ -1042,7 +1078,7 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
         Set_select_motion_on_flg(false);
     }
 
-    ROS_INFO("[MESSAGE] SM Request :   %s ", req.finish ? "true" : "false");
+    ROS_WARN("[MESSAGE] SM Request :   %s ", req.finish ? "true" : "false");
     ROS_INFO("#[MESSAGE] SM Motion :   %d#", res.select_motion);
     ROS_INFO("#[MESSAGE] SM Distance : %f#", res.distance);
     return true;
@@ -1050,43 +1086,69 @@ bool Move_Decision::playMotion(dynamixel_current_2port::Select_Motion::Request &
 
 bool Move_Decision::turn_angle(dynamixel_current_2port::Turn_Angle::Request &req, dynamixel_current_2port::Turn_Angle::Response &res)
 {
-    srv_TA_finish = req.finish;
-    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) /*&& Get_turn_angle_on_flg()*/)
+    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) && Get_turn_angle_on_flg())
     {
         // img_procssing
         res.turn_angle = this->Get_turn_angle_();
         Set_turn_angle_on_flg(false);
     }
 
-    ROS_INFO("[MESSAGE] TA Request :   %s ", req.finish ? "true" : "false");
+    ROS_WARN("[MESSAGE] TA Request :   %s ", req.finish ? "true" : "false");
     ROS_INFO("#[MESSAGE] TA Response : %f#", res.turn_angle);
     return true;
 }
 
 bool Move_Decision::Move_UD_NeckAngle(dynamixel_current_2port::UD_NeckAngle::Request &req, dynamixel_current_2port::UD_NeckAngle::Response &res)
 {
-    srv_UD_Neck_finish = req.finish;
     if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) && (Get_UD_Neck_on_flg() == true))
     {
         // img_procssing
         res.ud_neckangle = Get_UD_NeckAngle();
+        Set_UD_Neck_on_flg(false);
+
+        Set_req_finish(1111);
     }
 
-    ROS_INFO("[MESSAGE] UD Request :   %s ", req.finish ? "true" : "false");
+    else if (req.finish == false)
+    {
+        Set_req_finish(2222);
+        // ROS_ERROR("UD Request False --> Motion_Index : %d", Get_motion_index_());
+        // ROS_ERROR("UD Request False --> Turn_Angle : %d", line_actual_angle);
+
+
+        // if (!Get_select_motion_on_flg())
+        // {
+        //     Set_select_motion_on_flg(true);
+        //     Set_motion_index_(Get_motion_index_());
+        //     ROS_ERROR("TA Request False --> Motion_Index : %d", Get_motion_index_());
+        //     Set_select_motion_on_flg(false);
+        // }
+        // if (!Get_turn_angle_on_flg())
+        // {
+        //     Set_turn_angle_on_flg(true);
+        //     Set_turn_angle_(Get_turn_angle_());
+        //     ROS_ERROR("TA Request False --> Turn_Angle : %d", Get_turn_angle_());
+        //     Set_turn_angle_on_flg(false);
+        // }
+    }
+
+    
+
+    ROS_WARN("[MESSAGE] UD Request :   %s ", req.finish ? "true" : "false");
     ROS_INFO("#[MESSAGE] UD Response : %f#", res.ud_neckangle);
     return true;
 }
 
 bool Move_Decision::Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Request &req, dynamixel_current_2port::RL_NeckAngle::Response &res)
 {
-    srv_RL_Neck_finish = req.finish;
     if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) && (Get_RL_Neck_on_flg() == true))
     {
         // img_procssing
         res.rl_neckangle = Get_RL_NeckAngle();
+        Set_RL_Neck_on_flg(false);
     }
 
-    ROS_INFO("[MESSAGE] RL Request :   %s ", req.finish ? "true" : "false");
+    ROS_WARN("[MESSAGE] RL Request :   %s ", req.finish ? "true" : "false");
     ROS_INFO("#[MESSAGE] RL Response : %f#", res.rl_neckangle);
     return true;
 }
@@ -1094,16 +1156,16 @@ bool Move_Decision::Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Req
 
 bool Move_Decision::Emergency(dynamixel_current_2port::Emergency::Request &req, dynamixel_current_2port::Emergency::Response &res)
 {
-    srv_Emergency_finish = req.finish;
-    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand))
+    if ((req.finish == true) && (stand_status_ == Stand_Status::Stand) && Get_emergency_on_flg())
     {
         // 1 : Stop
         // 0 : Keep Going (Option)
         res.emergency = Get_Emergency_();
+        Set_emergency_on_flg(false);
     }
 
-    ROS_INFO("[MESSAGE] EMG Request :   %s ", req.finish ? "true" : "false");
-    ROS_INFO("#[MESSAGE] EMG Response : %s#", res.emergency ? "true" : "false");
+    ROS_ERROR("[MESSAGE] EMG Request :   %s ", req.finish ? "true" : "false");
+    ROS_ERROR("#[MESSAGE] EMG Response : %s#", res.emergency ? "true" : "false");
     return true;
 }
 
@@ -1166,6 +1228,12 @@ bool Move_Decision::Get_Emergency_() const
 {
     std::lock_guard<std::mutex> lock(mtx_Emergency_);
     return Emergency_;
+}
+
+bool Move_Decision::Get_emergency_on_flg() const
+{
+    std::lock_guard<std::mutex> lock(mtx_emergency_on_flg_);
+    return emergency_on_flg_;
 }
 
 int8_t Move_Decision::Get_motion_index_() const
@@ -1306,12 +1374,24 @@ bool Move_Decision::Get_RL_Neck_on_flg() const
     return RL_Neck_on_flg_;
 }
 
+int8_t Move_Decision::Get_req_finish() const
+{
+    std::lock_guard<std::mutex> lock(mtx_req_finish_);
+    return req_finish_;
+}
+
 // ********************************************** SETTERS ************************************************** //
 
 void Move_Decision::Set_Emergency_(bool Emergency)
 {
     std::lock_guard<std::mutex> lock(mtx_Emergency_);
     this->Emergency_ = Emergency;
+}
+
+void Move_Decision::Set_emergency_on_flg(bool emergency_on_flg)
+{
+    std::lock_guard<std::mutex> lock(mtx_emergency_on_flg_);
+    this->emergency_on_flg_ = emergency_on_flg;
 }
 
 void Move_Decision::Set_motion_index_(int8_t motion_index)
@@ -1449,6 +1529,12 @@ void Move_Decision::Set_UD_Neck_on_flg(bool UD_Neck_on_flg)
     this->UD_Neck_on_flg_ = UD_Neck_on_flg;
 }
 
+void Move_Decision::Set_req_finish(int8_t req_finish)
+{
+    std::lock_guard<std::mutex> lock(mtx_req_finish_);
+    this->req_finish_ = req_finish;
+}   
+
 // ********************************************** FUNCTION ************************************************** //
 
 Eigen::Vector3d Move_Decision::convertRotationToRPY(const Eigen::Matrix3d &rotation)
@@ -1573,11 +1659,4 @@ void Move_Decision::Running_Info()
         break;
     }
     ROS_INFO("Running_Mode : %s", tmp_running.c_str());
-}
-
-void Move_Decision::FinishCheck(bool _finish)
-{
-    srv_SM.finish = _finish;
-    srv_SM_finish = srv_SM.finish;
-    ROS_ERROR("123132131312 %d", srv_SM_finish);
 }
