@@ -21,6 +21,7 @@
 #include "dynamixel_current_2port/UD_NeckAngle.h"
 #include "dynamixel_current_2port/RL_NeckAngle.h"
 #include "dynamixel_current_2port/Emergency.h"
+#include "dynamixel_current_2port/SendMotion.h"
 
 
 
@@ -83,17 +84,19 @@ public:
 
   // Client (재민이형 코드에 들어감)
   ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
-  ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
-  ros::ServiceClient client_UD_Neck = nh.serviceClient<dynamixel_current_2port::UD_NeckAngle>("/Move_decision/UD_NeckAngle");
-  ros::ServiceClient client_RL_Neck = nh.serviceClient<dynamixel_current_2port::RL_NeckAngle>("/Move_decision/RL_NeckAngle");
-  ros::ServiceClient client_Emergency = nh.serviceClient<dynamixel_current_2port::Emergency>("/Move_decision/Emergency");
+  // ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
+  // ros::ServiceClient client_UD_Neck = nh.serviceClient<dynamixel_current_2port::UD_NeckAngle>("/Move_decision/UD_NeckAngle");
+  // ros::ServiceClient client_RL_Neck = nh.serviceClient<dynamixel_current_2port::RL_NeckAngle>("/Move_decision/RL_NeckAngle");
+  // ros::ServiceClient client_Emergency = nh.serviceClient<dynamixel_current_2port::Emergency>("/Move_decision/Emergency");
+  ros::ServiceClient client_SendMotion = nh.serviceClient<dynamixel_current_2port::SendMotion>("/Move_decision/SendMotion");
 
 
-  dynamixel_current_2port::Select_Motion srv_SM;
-  dynamixel_current_2port::Turn_Angle srv_TA;
-  dynamixel_current_2port::UD_NeckAngle srv_UD_Neck;
-  dynamixel_current_2port::RL_NeckAngle srv_RL_Neck;
-  dynamixel_current_2port::Emergency srv_Emergency;
+  // dynamixel_current_2port::Select_Motion srv_SM;
+  // dynamixel_current_2port::Turn_Angle srv_TA;
+  // dynamixel_current_2port::UD_NeckAngle srv_UD_Neck;
+  // dynamixel_current_2port::RL_NeckAngle srv_RL_Neck;
+  // dynamixel_current_2port::Emergency srv_Emergency;
+  dynamixel_current_2port::SendMotion srv_SendMotion;
 
 
   /////////Service callbacek
@@ -103,6 +106,7 @@ public:
   virtual void TATA();
   virtual void Emergency();
   virtual void Motion_Info();
+  virtual void RecieveMotion();
 
 
   virtual void callbackThread();

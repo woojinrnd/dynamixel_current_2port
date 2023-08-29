@@ -18,6 +18,7 @@
 #include "dynamixel_current_2port/UD_NeckAngle.h"
 #include "dynamixel_current_2port/RL_NeckAngle.h"
 #include "dynamixel_current_2port/Emergency.h"
+#include "dynamixel_current_2port/SendMotion.h"
 
 #include "img_proc.hpp"
 // #include "IMG_PROC.hpp"
@@ -40,6 +41,7 @@ public:
         Huddle_Jump = 7,
         FWD_UP = 8,
         BWD_UP = 9,
+        NONE = 99,
     };
 
     enum Running_Mode
@@ -71,6 +73,7 @@ public:
     string Str_Huddle_Jump = "Huddle_Jump";
     string Str_FWD_UP = "FWD_UP";
     string Str_BWD_UP = "BWD_UP";
+    string Str_NONE = "NONE";
 
     string Str_LINE_MODE = "LINE_MODE";
     string Str_NO_LINE_MODE = "NO_LINE_MODE";
@@ -118,11 +121,20 @@ public:
     // void playMotion(float motion_index);
     // void EmergencyPublish(bool _emergency);
 
-    bool playMotion(dynamixel_current_2port::Select_Motion::Request &req, dynamixel_current_2port::Select_Motion::Response &res);
-    bool turn_angle(dynamixel_current_2port::Turn_Angle::Request &req, dynamixel_current_2port::Turn_Angle::Response &res);
-    bool Move_UD_NeckAngle(dynamixel_current_2port::UD_NeckAngle::Request &req, dynamixel_current_2port::UD_NeckAngle::Response &res);
-    bool Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Request &req, dynamixel_current_2port::RL_NeckAngle::Response &res);
-    bool Emergency(dynamixel_current_2port::Emergency::Request &req, dynamixel_current_2port::Emergency::Response &res);
+    // bool playMotion(dynamixel_current_2port::Select_Motion::Request &req, dynamixel_current_2port::Select_Motion::Response &res);
+    // bool turn_angle(dynamixel_current_2port::Turn_Angle::Request &req, dynamixel_current_2port::Turn_Angle::Response &res);
+    // bool Move_UD_NeckAngle(dynamixel_current_2port::UD_NeckAngle::Request &req, dynamixel_current_2port::UD_NeckAngle::Response &res);
+    // bool Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Request &req, dynamixel_current_2port::RL_NeckAngle::Response &res);
+    // bool Emergency(dynamixel_current_2port::Emergency::Request &req, dynamixel_current_2port::Emergency::Response &res);
+    bool SendMotion(dynamixel_current_2port::SendMotion::Request &req, dynamixel_current_2port::SendMotion::Response &res);
+
+    std::tuple<int8_t, double> playMotion();
+    double turn_angle();
+    double Move_UD_NeckAngle();
+    double Move_RL_NeckAngle();
+    bool Emergency();
+
+
 
     void imuDataCallback(const sensor_msgs::Imu::ConstPtr &msg);
 
@@ -131,11 +143,13 @@ public:
     ros::Subscriber imu_data_sub_;
 
     // Server && Client
-    ros::ServiceServer motion_index_server_;
-    ros::ServiceServer turn_angle_server_;
-    ros::ServiceServer UD_NeckAngle_server_;
-    ros::ServiceServer RL_NeckAngle_server_;
-    ros::ServiceServer Emergency_server_;
+    // ros::ServiceServer motion_index_server_;
+    // ros::ServiceServer turn_angle_server_;
+    // ros::ServiceServer UD_NeckAngle_server_;
+    // ros::ServiceServer RL_NeckAngle_server_;
+    // ros::ServiceServer Emergency_server_;
+    ros::ServiceServer SendMotion_server_;
+
 
 
 
@@ -145,7 +159,7 @@ public:
     Eigen::Vector3d convertQuaternionToRPY(const Eigen::Quaterniond &quaternion);
     void Motion_Info();
     void Running_Info();
-
+    
 
     // ********************************************** GETTERS ************************************************** //
 
@@ -182,7 +196,11 @@ public:
     bool Get_UD_Neck_on_flg() const;
 
 
-    int8_t Get_req_finish() const;
+    bool Get_SM_req_finish() const;
+    bool Get_TA_req_finish() const;
+    bool Get_UD_req_finish() const;
+    bool Get_RL_req_finish() const;
+    bool Get_EM_req_finish() const;
 
 
     // ********************************************** SETTERS ************************************************** //
@@ -218,8 +236,11 @@ public:
     void Set_RL_Neck_on_flg(bool RL_Neck_on_flg);
     void Set_UD_Neck_on_flg(bool UD_Neck_on_flg);
 
-    void Set_req_finish(int8_t req_finish);
-
+    void Set_SM_req_finish(bool SM_req_finish);
+    void Set_TA_req_finish(bool TA_req_finish);
+    void Set_UD_req_finish(bool UD_req_finish);
+    void Set_RL_req_finish(bool RL_req_finish);
+    void Set_EM_req_finish(bool EM_req_finish);
 
 
     // ********************************************** IMG_PROC ************************************************** //
@@ -368,8 +389,11 @@ private:
     // true -> req.finish is true
     // false -> req.finish is false
     // bool req_finish = true;
-    int8_t req_finish_ = 100;
-
+    bool SM_req_finish_ = false;
+    bool TA_req_finish_ = false;
+    bool UD_req_finish_ = false;
+    bool RL_req_finish_ = false;
+    bool EM_req_finish_ = false;
 
 
     // ********************************************** MUTEX ************************************************** //
@@ -406,7 +430,12 @@ private:
     mutable std::mutex mtx_MoveDecisionON_;
     mutable std::mutex mtx_CallbackON_;
 
-    mutable std::mutex mtx_req_finish_;
+    mutable std::mutex mtx_SM_req_finish_;
+    mutable std::mutex mtx_TA_req_finish_;
+    mutable std::mutex mtx_UD_req_finish_;
+    mutable std::mutex mtx_RL_req_finish_;
+    mutable std::mutex mtx_EM_req_finish_;
+
 };
 
 #endif // MOVE_DECISION_H

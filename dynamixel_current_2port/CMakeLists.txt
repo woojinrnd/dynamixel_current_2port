@@ -48,6 +48,7 @@ add_service_files(
   UD_NeckAngle.srv
   RL_NeckAngle.srv
   Emergency.srv
+  SendMotion.srv
 )
 
 generate_messages(
