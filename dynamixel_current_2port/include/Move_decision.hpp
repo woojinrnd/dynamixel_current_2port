@@ -159,6 +159,10 @@ public:
     Eigen::Vector3d convertQuaternionToRPY(const Eigen::Quaterniond &quaternion);
     void Motion_Info();
     void Running_Info();
+
+    std::vector<int> receivedNumbers;
+    void SaveMotion(int number);
+    int8_t GetLastReceivedNumber();
     
 
     // ********************************************** GETTERS ************************************************** //
@@ -263,6 +267,7 @@ public:
     // delta_x < 0 : RIGHT
     // Out of Range -> A straight trun walking
     int8_t tmp_delta_x = 0;
+    int8_t noline_motion = 0;
     double noline_actual_angle = 0;
     double Angle_ToFindLine = 10; // max or min
 

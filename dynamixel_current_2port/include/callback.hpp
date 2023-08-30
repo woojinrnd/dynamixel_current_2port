@@ -43,6 +43,7 @@ public:
     Huddle_Jump = 7,
     FWD_UP = 8,
     BWD_UP = 9,
+    NONE = 99,
   };
 
   string Str_InitPose = "InitPose";
@@ -55,6 +56,8 @@ public:
   string Str_Huddle_Jump = "Huddle_Jump";
   string Str_FWD_UP = "FWD_UP";
   string Str_BWD_UP = "BWD_UP";
+  string Str_NONE = "NONE";
+
 
   // Callback();
   Callback(Trajectory *trajectoryPtr, IK_Function *IK_Ptr, Dxl *dxlPtr);

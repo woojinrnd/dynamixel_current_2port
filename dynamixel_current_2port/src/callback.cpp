@@ -67,16 +67,15 @@ void Callback::callbackThread()
     // srv_RL_Neck.request.finish = 1;
     // srv_Emergency.request.finish = 1;
 
-    srv_SendMotion.request.SM_finish = 1;
+    srv_SendMotion.request.SM_finish = 0;
     srv_SendMotion.request.TA_finish = 1;
-    srv_SendMotion.request.UD_finish = 1;
-    srv_SendMotion.request.RL_finish = 1;
-    srv_SendMotion.request.EM_finish = 1;
+    srv_SendMotion.request.UD_finish = 0;
+    srv_SendMotion.request.RL_finish = 0;
+    srv_SendMotion.request.EM_finish = 0;
 
     ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
     {
-        // startMode();
         // if (client_SM.call(srv_SM))
         // {
         //     ROS_INFO("\n");
@@ -149,10 +148,15 @@ void Callback::RecieveMotion()
 {
     if (client_SendMotion.call(srv_SendMotion))
     {
+        ROS_INFO("#[MESSAGE] SM Request : %s#", srv_SendMotion.request.SM_finish ? "true" : "false");
+        ROS_INFO("#[MESSAGE] TA Request : %s#", srv_SendMotion.request.TA_finish ? "true" : "false");
+        ROS_INFO("#[MESSAGE] UD Request : %s#", srv_SendMotion.request.UD_finish ? "true" : "false");
+        ROS_INFO("#[MESSAGE] RL Request : %s#", srv_SendMotion.request.RL_finish ? "true" : "false");
+        ROS_INFO("#[MESSAGE] EM Request : %s#", srv_SendMotion.request.EM_finish ? "true" : "false");
         SelectMotion();
+        TATA();
         Move_UD_NeckAngle();
         Move_RL_NeckAngle();
-        TATA();
         Emergency();
     }
 }
@@ -352,6 +356,10 @@ void Callback::Motion_Info()
 
         case Motion_Index::BWD_UP:
             tmp_motion = Str_BWD_UP;
+            break;
+
+        case Motion_Index::NONE:
+            tmp_motion = Str_NONE;
             break;
         }
 
