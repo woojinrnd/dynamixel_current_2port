@@ -651,7 +651,10 @@ void Move_Decision::WAKEUP_mode()
     // WakeUp_seq = 1 : FWD_UP or BWD_UP
     // WakeUp_seq = 2 : Motion_Index : Initial_pose
     // WakeUp_seq = 3 : Line_mode()
-    
+
+    wakeup_motion = Get_motion_index_();
+    wakeup_running = 0;
+
     tmp_stand_status = Get_stand_status_();
 
     if (WakeUp_seq == 0)
@@ -665,7 +668,8 @@ void Move_Decision::WAKEUP_mode()
         {
             if (!Get_select_motion_on_flg() && Get_SM_req_finish())
             {
-                Set_motion_index_(Motion_Index::FWD_UP);
+                wakeup_motion = Motion_Index::FWD_UP;
+                Set_motion_index_(wakeup_motion);
                 Set_select_motion_on_flg(true);
                 WakeUp_seq++;
             }
@@ -675,7 +679,8 @@ void Move_Decision::WAKEUP_mode()
         {
             if (!Get_select_motion_on_flg() && Get_SM_req_finish())
             {
-                Set_motion_index_(Motion_Index::BWD_UP);
+                wakeup_motion = Motion_Index::BWD_UP;
+                Set_motion_index_(wakeup_motion);
                 Set_select_motion_on_flg(true);
                 WakeUp_seq++;
             }
@@ -686,7 +691,8 @@ void Move_Decision::WAKEUP_mode()
     {
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
-            Set_motion_index_(Motion_Index::InitPose);
+            wakeup_motion = InitPose;
+            Set_motion_index_(wakeup_motion);
             Set_select_motion_on_flg(true);
             WakeUp_seq++;
         }
@@ -696,7 +702,8 @@ void Move_Decision::WAKEUP_mode()
     {
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
-            Set_motion_index_(Motion_Index::InitPose);
+            wakeup_motion = Motion_Index::InitPose;
+            Set_motion_index_(wakeup_motion);
             Set_select_motion_on_flg(true);
             WakeUp_seq++;
         }
@@ -704,7 +711,8 @@ void Move_Decision::WAKEUP_mode()
 
     else if (WakeUp_seq == 4)
     {
-        Set_running_mode_(Running_Mode::LINE_MODE);
+        wakeup_running = Running_Mode::LINE_MODE;
+        Set_running_mode_(wakeup_motion);
         WakeUp_seq = 0;
     }
 
@@ -745,52 +753,72 @@ void Move_Decision::HUDDLE_mode()
         // 0 : Motion : InitPose (For getting distance) (Depth)
         if (tmp_huddle_seq == 0)
         {
-            Set_select_motion_on_flg(true);
-            Set_motion_index_(Motion_Index::InitPose);
-            huddle_distance = img_procPtr->Get_distance();
-            tmp_huddle_seq++;
-            Set_huddle_det_flg(false);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_motion_index_(Motion_Index::InitPose);
+                huddle_distance = img_procPtr->Get_distance();
+                Set_select_motion_on_flg(true);
+                tmp_huddle_seq++;
+                Set_huddle_det_flg(false);
+            }
         }
 
         // 1 : Motion : Forward_Nstep (Far)
         else if (tmp_corner_seq == 1)
         {
-            Set_select_motion_on_flg(true);
-            Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(huddle_distance);
-            tmp_huddle_seq++;
-            Set_line_det_flg(true);
-            Set_huddle_det_flg(false);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_motion_index_(Motion_Index::Forward_Nstep);
+                Set_distance_(huddle_distance);
+                Set_select_motion_on_flg(true);
+                tmp_huddle_seq++;
+                Set_line_det_flg(true);
+                Set_huddle_det_flg(false);
+            }
         }
 
         // 2 : Motion : InitPose (For getting distance) (Depth)
         else if (tmp_huddle_seq == 2)
         {
-            Set_select_motion_on_flg(true);
-            Set_motion_index_(Motion_Index::InitPose);
-            huddle_distance = img_procPtr->Get_distance();
-            tmp_huddle_seq++;
-            Set_huddle_det_flg(false);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_motion_index_(Motion_Index::InitPose);
+                huddle_distance = img_procPtr->Get_distance();
+                Set_select_motion_on_flg(true);
+                tmp_huddle_seq++;
+                Set_huddle_det_flg(false);
+            }
         }
 
         // 3 : Motion : Forward_Nstep (Approach)
         else if (tmp_huddle_seq == 3)
         {
-            Set_select_motion_on_flg(true);
-            Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(huddle_distance);
-            tmp_corner_seq++;
-            Set_line_det_flg(true);
-            Set_huddle_det_flg(false);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_motion_index_(Motion_Index::Forward_Nstep);
+                Set_distance_(huddle_distance);
+                Set_select_motion_on_flg(true);
+                tmp_corner_seq++;
+                Set_line_det_flg(true);
+                Set_huddle_det_flg(false);
+            }
         }
 
         // 4 : Motion : Step in place (Pose Control)
         else if (tmp_huddle_seq == 4)
         {
-            Set_select_motion_on_flg(true);
-            Set_motion_index_(Motion_Index::Step_in_place);
-            huddle_actual_angle = img_procPtr->Get_gradient();
-            Set_turn_angle_(huddle_actual_angle);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_motion_index_(Motion_Index::Step_in_place);
+                Set_select_motion_on_flg(true);
+            }
+
+            if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+            {
+                huddle_actual_angle = img_procPtr->Get_gradient();
+                Set_turn_angle_(huddle_actual_angle);
+                Set_turn_angle_on_flg(true);
+            }
             tmp_huddle_seq++;
             Set_huddle_det_flg(false);
         }
@@ -798,26 +826,36 @@ void Move_Decision::HUDDLE_mode()
         // 5 : Motion : InitPose
         else if (tmp_huddle_seq == 5)
         {
-            Set_select_motion_on_flg(true);
-            Set_motion_index_(Motion_Index::InitPose);
-            tmp_huddle_seq++;
-            Set_huddle_det_flg(false);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_select_motion_on_flg(true);
+                Set_motion_index_(Motion_Index::InitPose);
+                tmp_huddle_seq++;
+                Set_huddle_det_flg(false);
+            }
         }
-        
+
         // 6 : Motion : Huddle Jump
         else if (tmp_huddle_seq == 6)
         {
-            Set_select_motion_on_flg(true);
-            Set_motion_index_(Motion_Index::Huddle_Jump);
-            tmp_huddle_seq++;
-            Set_huddle_det_flg(false);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_select_motion_on_flg(true);
+                Set_motion_index_(Motion_Index::Huddle_Jump);
+                tmp_huddle_seq++;
+                Set_huddle_det_flg(false);
+            }
         }
 
+        // 7 : Initializeing
         else if (tmp_huddle_seq == 7)
         {
-            Set_select_motion_on_flg(true);
-            tmp_huddle_seq = 0;
-            Set_huddle_det_flg(false);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_select_motion_on_flg(true);
+                tmp_huddle_seq = 0;
+                Set_huddle_det_flg(false);
+            }
         }
 
         if (Get_huddle_det_stop_flg() == true)
@@ -832,48 +870,128 @@ void Move_Decision::HUDDLE_mode()
 
 void Move_Decision::WALL_mode()
 {
-    while (img_procPtr->Get_img_proc_wall_det())
+    wall_motion = Get_motion_index_();
+    img_wall_number_case = img_procPtr->Get_img_proc_wall_number();
+    if (img_procPtr->Get_img_proc_wall_det())
     {
         switch (img_procPtr->Get_img_proc_wall_number())
         {
         case 1:
             // 처음 벽 인식 후 일정 거리 안까지 직진
-            Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(img_procPtr->Get_distance());
-            Set_motion_index_(Motion_Index::InitPose);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 0)
+            {
+                Set_motion_index_(Motion_Index::Forward_Nstep);
+                Set_distance_(img_procPtr->Get_distance());
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+                
+            }
+            else if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 1)
+            {
+                Set_motion_index_(Motion_Index::InitPose);
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
             ROS_ERROR("FLAG 1 : START Straight");
             break;
         case 2:
             // 처음 벽 인식 후 일정 거리 안까지 직진
-            Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(img_procPtr->Get_distance());
-            Set_motion_index_(Motion_Index::InitPose);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 2)
+            {
+                Set_motion_index_(Motion_Index::Forward_Nstep);
+                Set_distance_(img_procPtr->Get_distance());
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
+
+            else if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 3)
+            {
+                Set_motion_index_(Motion_Index::InitPose);
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
             ROS_ERROR("FLAG 2 : Straight");
             break;
         case 3:
             // 일정 거리 앞에서 정지 후 멀리 있는 벽이 보일 때 까지 좌보행
-            Set_motion_index_(Motion_Index::Left_2step);
-            Set_motion_index_(Motion_Index::InitPose);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 4)
+            {
+                Set_motion_index_(Motion_Index::Left_2step);
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
+
+            else if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 5)
+            {
+                Set_motion_index_(Motion_Index::InitPose);
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
             ROS_ERROR("FLAG 3 : LEFT");
             break;
         case -2:
             // 멀리 있는 벽의 일정 거리 앞까지 직진
-            Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(img_procPtr->Get_distance());
-            Set_motion_index_(Motion_Index::InitPose);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 6)
+            {
+                Set_motion_index_(Motion_Index::Forward_Nstep);
+                Set_distance_(img_procPtr->Get_distance());
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
+
+            else if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 7)
+            {
+                Set_motion_index_(Motion_Index::InitPose);
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
+
             ROS_ERROR("FLAG -2 : Straight");
             break;
         case -3:
             // 일정 거리 앞에서 정지 후 멀리 있는 벽이 보일 때 까지 우보행
-            Set_motion_index_(Motion_Index::Right_2step);
-            Set_motion_index_(Motion_Index::InitPose);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 8)
+            {
+                Set_motion_index_(Motion_Index::Right_2step);
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
+
+            else if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 9)
+            {
+                Set_motion_index_(Motion_Index::InitPose);
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
             ROS_ERROR("FLAG -3 : RIGHT");
             break;
         case 10:
             // 멀리 있는 벽의 일정 거리 앞까지 직진
-            Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(img_procPtr->Get_distance());
-            Set_motion_index_(Motion_Index::InitPose);
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 10)
+            {
+                Set_motion_index_(Motion_Index::Forward_Nstep);
+                Set_distance_(img_procPtr->Get_distance());
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
+            else if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 11)
+            {
+                Set_motion_index_(Motion_Index::InitPose);
+                Set_select_motion_on_flg(true);
+                wall_number_seq++;
+                Set_wall_det_flg(false);
+            }
             ROS_ERROR("FLAG 10 : END Straight");
 
             if (img_procPtr->Get_img_proc_line_det())

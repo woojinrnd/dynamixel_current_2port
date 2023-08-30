@@ -313,6 +313,13 @@ public:
     double huddle_actual_angle = 0;
     
 
+    /////////////////////// Wall Mode ///////////////////////
+    int8_t wall_motion = 0;
+    int8_t img_wall_number_case = 0;
+    int8_t wall_number_seq = 0;
+    
+
+
     /////////////////////// WAKEUP_MODE ///////////////////////
     // WakeUp_seq = 0 : Initial
     // WakeUp_seq = 1 : FWD_UP or BWD_UP
@@ -320,6 +327,8 @@ public:
     // WakeUp_seq = 3 : Line_mode()
     int8_t WakeUp_seq = 0;
     int8_t tmp_stand_status = 0;
+    int8_t wakeup_motion = 0;
+    int8_t wakeup_running = 0;
 
     // check the variable sharing with multi thread
     int aaaa = 1;
