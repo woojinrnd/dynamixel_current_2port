@@ -19,6 +19,7 @@ private:
 	double g;
 	double T_prev;
 	int NL;
+	int sim_n;
 	Matrix3d A;
 	Vector3d B;
 	RowVector3d C;
@@ -36,7 +37,7 @@ private:
 	Matrix4d Ac_p;
 	MatrixXd Gd;
 	double sim_time;
-	int sim_n;
+	
 	RowVectorXd zmp_ref;
 	RowVectorXd zmp_ref_fifo;
 	RowVectorXd u;
@@ -99,6 +100,7 @@ public:
 	void Side_Right2();
 	void Step_in_place(double step, double distance);
 	void Stop_Trajectory_straightwalk(double step);
+	void Stop_Trajectory_stepinplace(double step);
 	MatrixXd Ref_RL_x;
 	MatrixXd Ref_RL_y;
 	MatrixXd Ref_RL_z;
@@ -118,7 +120,7 @@ public:
 	MatrixXd rsRef_LL_x;
 	MatrixXd rsRef_LL_y;
 	MatrixXd rsRef_LL_z;
-
+	
 	VectorXd Turn_Trajectory;
 };
 
@@ -137,10 +139,10 @@ private:
 	double L0 = 60;
 	double L1 = 35.64;
 	double L2 = 36.07;
-	double L3 = 136.29;
+	double L3 = 122.32;
 	double L4 = 111.76;
 	double L5 = 36.10;
-	double L6 = 29.79;
+	double L6 = 42.58;
 
 	double FW = 92.8;
 	double FL = 137.8;
@@ -155,15 +157,20 @@ private:
 	Matrix<double, 6, 1> RL_Compensation_Swing_Leg_down;
 	Matrix<double, 6, 1> RL_Compensation_Support_knee_up;
 	Matrix<double, 6, 1> RL_Compensation_Support_knee_down;
+	Matrix<double, 6, 1> RL_Compensation_Support_ankle_up;
+	Matrix<double, 6, 1> RL_Compensation_Support_ankle_down;
 	double RL_Swing_Leg_Compensation_up(double t);
 	double RL_Swing_Leg_Compensation_down(double t);
 	double RL_Support_Leg_Compensation_up(double t);
 	double RL_Support_Leg_Compensation_down(double t);
 	double RL_Support_Knee_Compensation_up(double t);
 	double RL_Support_Knee_Compensation_down(double t);
+	double RL_Support_Ankle_Compensation_up(double t);
+	double RL_Support_Ankle_Compensation_down(double t);
 	double RL_Support_Leg;
 	double RL_Swing_Leg;
 	double RL_Support_Knee;
+	double RL_Support_Ankle;
 
 	Matrix<double, 6, 1> LL_Compensation_Support_Leg_up;
 	Matrix<double, 6, 1> LL_Compensation_Support_Leg_down;
@@ -171,15 +178,21 @@ private:
 	Matrix<double, 6, 1> LL_Compensation_Swing_Leg_down;
 	Matrix<double, 6, 1> LL_Compensation_Support_knee_up;
 	Matrix<double, 6, 1> LL_Compensation_Support_knee_down;
+	Matrix<double, 6, 1> LL_Compensation_Support_ankle_up;
+	Matrix<double, 6, 1> LL_Compensation_Support_ankle_down;
 	double LL_Swing_Leg_Compensation_up(double t);
 	double LL_Swing_Leg_Compensation_down(double t);
 	double LL_Support_Leg_Compensation_up(double t);
 	double LL_Support_Leg_Compensation_down(double t);
 	double LL_Support_Knee_Compensation_up(double t);
 	double LL_Support_Knee_Compensation_down(double t);
+	double LL_Support_Ankle_Compensation_up(double t);
+	double LL_Support_Ankle_Compensation_down(double t);
 	double LL_Support_Leg;
 	double LL_Swing_Leg;
 	double LL_Support_Knee;
+	double LL_Support_Ankle;
+
 public:
 	IK_Function();
 	void Get_Step_n(double a);
@@ -193,8 +206,11 @@ public:
 	MatrixXd BRP_LL_Simulation(MatrixXd RFx, MatrixXd RFy, MatrixXd RFz);
 	void BRP_Simulation(MatrixXd RFx, MatrixXd RFy, MatrixXd RFz, MatrixXd LFx, MatrixXd LFy, MatrixXd LFz, int time);
 	void Angle_Compensation(int indext);
+	void Fast_Angle_Compensation(int indext);
 	void Set_Angle_Compensation();
-	double RL_th[6] = { 0.,0.,0.,0.,0.,0. }, LL_th[6] = { 0.,0.,0.,0.,0.,0. };
+	void Angle_Compensation_Leftwalk(int indext);
+	double RL_th[6] = { 0.,0.,-0.610865,1.22173,0.610865,0. }, LL_th[6] = { 0.,0.,-0.610865,1.22173,0.610865, 0.};
+    
 	double check_index;
 
 };

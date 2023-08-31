@@ -250,9 +250,11 @@ void Img_proc::webcam_thread()
 
         //TEST
         // this->Set_img_proc_huddle_det(true);
+        this->Set_img_proc_corner_det(true);
+        this->Set_img_proc_corner_number(1);
+        // this->Set_img_proc_wall_det(true);
         // ROS_WARN("%d",Get_img_proc_huddle_det());
         // this->Set_img_proc_corner_det(YellowContourDetected);
-        // this->Set_img_proc_corner_number(1);
         // if (a == 0)
         // {
         //     this->Set_img_proc_corner_number(a);

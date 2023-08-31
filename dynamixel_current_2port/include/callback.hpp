@@ -72,13 +72,13 @@ public:
   virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
   virtual void FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
   virtual void IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU);
-  virtual void Check_FSR();
 
   
   // virtual void SelectMotion(const std_msgs::UInt8::ConstPtr &msg);
 
   virtual void Write_Leg_Theta();
   virtual void Write_Arm_Theta();
+  virtual void Check_FSR();
 
   sensor_msgs::JointState joint_state;
 
@@ -137,14 +137,24 @@ public:
   double turn_angle = 0;
   bool emergency_ = 1; // True : Keep going , False : Emergency
 
+  bool a = false;
+  int b = 1;
+
 
   int8_t mode = 0;
   double walkfreq = 1.48114;
   double walktime = 2 / walkfreq;
   int freq = 100;
+  int walktime_n = walktime*freq;
   int indext = 0;
+  int check_indext = 0;
   int stop_indext = 0;
+  bool on_angle = false;
   int emergency = 0;
+  bool on_emergency = false;
+  double angle = 0;
+  int index_angle = 0;
+
   MatrixXd RL_motion;
   MatrixXd LL_motion;
   MatrixXd RL_motion0;
@@ -163,7 +173,7 @@ public:
   MatrixXd LL_motion6;
   MatrixXd RL_motion7;
   MatrixXd LL_motion7;
-  VectorXd All_Theta = VectorXd::Zero(NUMBER_OF_DYNAMIXELS);
+  VectorXd All_Theta = MatrixXd::Zero(NUMBER_OF_DYNAMIXELS, 1);
 
   // tf2::Quaternion quaternion;
 };

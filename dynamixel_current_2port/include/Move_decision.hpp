@@ -161,8 +161,7 @@ public:
     void Running_Info();
 
     std::vector<int> receivedNumbers;
-    void SaveMotion(int number);
-    int8_t GetLastReceivedNumber();
+
     
 
     // ********************************************** GETTERS ************************************************** //
@@ -296,6 +295,7 @@ public:
     int8_t tmp_turn90 = 0;
     double corner_distance = 0;
     double corner_actual_angle = 0;
+    int8_t corner_motion = 0;
 
     /////////////////////// Huddle Mode ///////////////////////
     
@@ -311,6 +311,7 @@ public:
     int8_t tmp_huddle_seq = 0;
     double huddle_distance = 0;
     double huddle_actual_angle = 0;
+    int8_t huddle_motion = 0;
     
 
     /////////////////////// Wall Mode ///////////////////////
