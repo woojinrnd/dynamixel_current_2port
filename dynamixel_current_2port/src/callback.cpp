@@ -10,6 +10,7 @@ Callback::Callback(Trajectory *trajectoryPtr, IK_Function *IK_Ptr, Dxl *dxlPtr)
     ros::NodeHandle nh(ros::this_node::getName());
 
     boost::thread queue_thread = boost::thread(boost::bind(&Callback::callbackThread, this));
+    boost::thread imu_thread = boost::thread(boost::bind(&Callback::IMUThread, this));
 }
 
 void Callback::JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command)
@@ -27,28 +28,53 @@ void Callback::FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR)
     R_value = FSR->data; // Right_foot_FSR
 }
 
-void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
+void Callback::VelocityCallback(const std_msgs::Float32::ConstPtr &IMU)
 {
-    // ROS_INFO("Accel: %.3f,%.3f,%.3f [m/s^2] - Ang. vel: %.3f,%.3f,%.3f [deg/sec] - Orient. Quat: %.3f,%.3f,%.3f,%.3f",
-    //  IMU->linear_acceleration.x, IMU->linear_acceleration.y, IMU->linear_acceleration.z,
-    //  IMU->angular_velocity.x, IMU->angular_velocity.y, IMU->angular_velocity.z,
-    //  IMU->orientation.x, IMU->orientation.y, IMU->orientation.z, IMU->orientation.w);
-    IMU->linear_acceleration.x, IMU->linear_acceleration.y, IMU->linear_acceleration.z,
-        IMU->angular_velocity.x, IMU->angular_velocity.y, IMU->angular_velocity.z,
-        IMU->orientation.x, IMU->orientation.y, IMU->orientation.z, IMU->orientation.w;
+    vel_x = IMU->data;
+    vel_y = IMU->data;
+    vel_z = IMU->data;
 
-    Accel(0) = IMU->linear_acceleration.x;
-    Accel(1) = IMU->linear_acceleration.y;
-    Accel(2) = IMU->linear_acceleration.z;
+    // ROS_ERROR("X : %f", vel_x);
+    // ROS_ERROR("Y : %f", vel_y);
+    // ROS_ERROR("Z : %f", vel_z);
+}
 
-    Gyro(0) = IMU->angular_velocity.x;
-    Gyro(1) = IMU->angular_velocity.y;
-    Gyro(2) = IMU->angular_velocity.z;
+// void Callback::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
+// {
+//     // ROS_INFO("Accel: %.3f,%.3f,%.3f [m/s^2] - Ang. vel: %.3f,%.3f,%.3f [deg/sec] - Orient. Quat: %.3f,%.3f,%.3f,%.3f",
+//     //  IMU->linear_acceleration.x, IMU->linear_acceleration.y, IMU->linear_acceleration.z,
+//     //  IMU->angular_velocity.x, IMU->angular_velocity.y, IMU->angular_velocity.z,
+//     //  IMU->orientation.x, IMU->orientation.y, IMU->orientation.z, IMU->orientation.w);
+//     IMU->linear_acceleration.x, IMU->linear_acceleration.y, IMU->linear_acceleration.z,
+//         IMU->angular_velocity.x, IMU->angular_velocity.y, IMU->angular_velocity.z,
+//         IMU->orientation.x, IMU->orientation.y, IMU->orientation.z, IMU->orientation.w;
 
-    quaternion(0) = IMU->orientation.x;
-    quaternion(1) = IMU->orientation.y;
-    quaternion(2) = IMU->orientation.z;
-    quaternion(3) = IMU->orientation.w;
+//     Accel(0) = IMU->linear_acceleration.x;
+//     Accel(1) = IMU->linear_acceleration.y;
+//     Accel(2) = IMU->linear_acceleration.z;
+
+//     Gyro(0) = IMU->angular_velocity.x;
+//     Gyro(1) = IMU->angular_velocity.y;
+//     Gyro(2) = IMU->angular_velocity.z;
+
+//     quaternion(0) = IMU->orientation.x;
+//     quaternion(1) = IMU->orientation.y;
+//     quaternion(2) = IMU->orientation.z;
+//     quaternion(3) = IMU->orientation.w;
+// }
+
+void Callback::IMUThread()
+{
+    IMU_Velocity_Complementary_x_subscriber_ = nh.subscribe("/filtered/Velocity_Complementary/x", 1000, &Callback::VelocityCallback, this);
+    IMU_Velocity_Complementary_y_subscriber_ = nh.subscribe("/filtered/Velocity_Complementary/y", 1000, &Callback::VelocityCallback, this);
+    IMU_Velocity_Complementary_z_subscriber_ = nh.subscribe("/filtered/Velocity_Complementary/z", 1000, &Callback::VelocityCallback, this);
+
+    ros::Rate loop_rate(200);
+    while (nh.ok())
+    {
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
 }
 
 void Callback::callbackThread()
@@ -57,9 +83,11 @@ void Callback::callbackThread()
 
     joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
     joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, this);
+
     FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, this);
     FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, this);
-    IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, this);
+    
+    // IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, this);
 
     // srv_SM.request.finish = 1;
     // srv_TA.request.finish = 1;
@@ -67,75 +95,30 @@ void Callback::callbackThread()
     // srv_RL_Neck.request.finish = 1;
     // srv_Emergency.request.finish = 1;
 
-    // srv_SendMotion.request.SM_finish = 1;
-    // srv_SendMotion.request.TA_finish = 1;
-    // srv_SendMotion.request.UD_finish = 0;
-    // srv_SendMotion.request.RL_finish = 0;
-    // srv_SendMotion.request.EM_finish = 0;
+    srv_SendMotion.request.SM_finish = 1;
+    srv_SendMotion.request.TA_finish = 1;
+    srv_SendMotion.request.UD_finish = 1;
+    srv_SendMotion.request.RL_finish = 1;
+    srv_SendMotion.request.EM_finish = 1;
 
-        ros::Rate loop_rate(SPIN_RATE);
+    ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
     {
-        b++;
-        if (a == false)
-        {
-            a = true;
-        }
-        else if (a == true)
-        {
-            a = false;
-        }
-        srv_SendMotion.request.SM_finish = a;
-        srv_SendMotion.request.TA_finish = a;
-        srv_SendMotion.request.UD_finish = a;
-        srv_SendMotion.request.RL_finish = a;
-        srv_SendMotion.request.EM_finish = a;
-        // if (client_SM.call(srv_SM))
+        // b++;
+        // if (a == false)
         // {
-        //     ROS_INFO("\n");
-        //     ROS_INFO("------------------------- Select Motion ----------------------------");
-        //     ROS_INFO("#[MESSAGE] SM Request : %s#", srv_SM.request.finish ? "true" : "false");
-        //     SelectMotion();
-        //     Motion_Info();
+        //     a = true;
         // }
+        // else if (a == true)
+        // {
+        //     a = false;
+        // }
+        // srv_SendMotion.request.SM_finish = a;
+        // srv_SendMotion.request.TA_finish = a;
+        // srv_SendMotion.request.UD_finish = a;
+        // srv_SendMotion.request.RL_finish = a;
+        // srv_SendMotion.request.EM_finish = a;
 
-        // if (client_TA.call(srv_TA))
-        // {
-        //     ROS_INFO("\n");
-        //     ROS_INFO("------------------------- Turn Angle ----------------------------");
-        //     ROS_INFO("#[MESSAGE] TA Request : %s#", srv_TA.request.finish ? "true" : "false");
-        //     ROS_WARN("[MESSAGE] TA Response : %f", srv_TA.response.turn_angle);
-        //     // Turn Body Angle에 모션 해당하는 부분
-        //     TATA();
-        //     ROS_INFO("------------------------- Turn Angle ----------------------------");
-        // }
-
-        // if (client_UD_Neck.call(srv_UD_Neck))
-        // {
-        //     ROS_INFO("\n");
-        //     ROS_INFO("------------------------- UD NECK Angle ----------------------------");
-        //     ROS_INFO("#[MESSAGE] UD Request : %s#", srv_UD_Neck.request.finish ? "true" : "false");
-        //     // ROS_INFO("[MESSAGE] UD Response : %f", srv_UD_Neck.response.ud_neckangle);
-        //     Move_UD_NeckAngle();
-        // }
-
-        // if (client_RL_Neck.call(srv_RL_Neck))
-        // {
-        //     ROS_INFO("\n");
-        //     ROS_INFO("------------------------- RL NECK Angle ----------------------------");
-        //     ROS_INFO("#[MESSAGE] RL Request : %s#", srv_RL_Neck.request.finish ? "true" : "false");
-        //     // ROS_INFO("[MESSAGE] RL Response : %f", srv_RL_Neck.response.rl_neckangle);
-        //     Move_RL_NeckAngle();
-        // }
-
-        // if (client_Emergency.call(srv_Emergency))
-        // {
-        //     ROS_INFO("\n");
-        //     ROS_INFO("------------------------- EMERGENCY ----------------------------");
-        //     ROS_ERROR("#[MESSAGE] EMG Request : %s#", srv_Emergency.request.finish ? "true" : "false");
-        //     // ROS_INFO("[MESSAGE] EMG Response : %s", srv_Emergency.response.emergency ? "true" : "false");
-        //     Emergency();
-        // }
 
         if (client_SendMotion.call(srv_SendMotion))
         {
@@ -214,6 +197,7 @@ void Callback::TATA()
         // All_Theta[22] = ud_neckangle;
         trajectoryPtr->Make_turn_trajectory(turn_angle);
         index_angle = 0;
+        ROS_WARN("TURN_ANGLE : %f", turn_angle);
         ROS_INFO("------------------------- TURN_ANGLE ----------------------------");
         ROS_INFO("\n");
     }

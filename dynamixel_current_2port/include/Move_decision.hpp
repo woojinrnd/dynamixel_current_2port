@@ -10,6 +10,7 @@
 #include <sensor_msgs/Imu.h>
 #include <opencv2/opencv.hpp>
 #include <string.h>
+#include <tf/tf.h>
 
 
 
@@ -21,7 +22,7 @@
 #include "dynamixel_current_2port/SendMotion.h"
 
 #include "img_proc.hpp"
-// #include "IMG_PROC.hpp"
+// #include "sensor.hpp"
 
 
 using namespace std;
@@ -84,11 +85,14 @@ public:
     string Str_WALL_MODE = "WALL_MODE";
     string Str_CORNER_MODE = "CORNER_MODE";
 
+
+    //Constructor
+    // Move_Decision(Img_proc *img_procPtr, Sensor *sensorPtr);
     Move_Decision(Img_proc *img_procPtr);
     Img_proc *img_procPtr;
-    
+    // Sensor *sensorPtr;
 
-    // Move_Decision();
+    //Destructor
     ~Move_Decision();
 
 
@@ -134,13 +138,27 @@ public:
     double Move_RL_NeckAngle();
     bool Emergency();
 
-
-
-    void imuDataCallback(const sensor_msgs::Imu::ConstPtr &msg);
-
     // Publish & Subscribe
     // ros::Publisher Emergency_pub_;
-    ros::Subscriber imu_data_sub_;
+    // IMU
+    // void IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU);
+    void IMUsensorCallback(const std_msgs::Float32::ConstPtr &IMU);
+    ros::Subscriber IMU_sensor_x_subscriber_; ///< Gets IMU Sensor data from Sensor_node
+    ros::Subscriber IMU_sensor_y_subscriber_; ///< Gets IMU Sensor data from Sensor_node
+    ros::Subscriber IMU_sensor_z_subscriber_; ///< Gets IMU Sensor data from Sensor_node
+    void StatusCheck();
+
+    bool stop_fallen_check_;
+    double present_pitch_;
+    double present_roll_;
+
+    geometry_msgs::Vector3 gyro;
+    geometry_msgs::Vector3 accel;
+
+    Eigen::VectorXd quaternion = Eigen::VectorXd::Zero(4);
+    Eigen::VectorXd RPY = Eigen::VectorXd::Zero(3);   // Roll Pitch Yaw
+    Eigen::VectorXd Accel = Eigen::VectorXd::Zero(3); // Accel_x, Accel_y, Accel_z
+    Eigen::VectorXd Gyro = Eigen::VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
 
     // Server && Client
     // ros::ServiceServer motion_index_server_;
@@ -150,20 +168,17 @@ public:
     // ros::ServiceServer Emergency_server_;
     ros::ServiceServer SendMotion_server_;
 
-
-
-
     // ********************************************** FUNCTION ************************************************** //
 
     Eigen::Vector3d convertRotationToRPY(const Eigen::Matrix3d &rotation);
     Eigen::Vector3d convertQuaternionToRPY(const Eigen::Quaterniond &quaternion);
+    void Quaternino2RPY(); // library
     void Motion_Info();
     void Running_Info();
 
     std::vector<int> receivedNumbers;
 
     
-
     // ********************************************** GETTERS ************************************************** //
 
     bool Get_Emergency_() const;
@@ -389,10 +404,6 @@ private:
     bool corner_det_stop_flg_ = false;
     int8_t Wall_mode = 0;
 
-
-    bool stop_fallen_check_;
-    double present_pitch_;
-    double present_roll_;
 
     bool Emergency_;
 

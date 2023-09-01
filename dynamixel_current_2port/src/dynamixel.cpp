@@ -1,7 +1,4 @@
 #include "dynamixel.hpp"
-#include "callback.hpp"
-
-extern Callback callback;
 
 //Constructor
 Dxl::Dxl()

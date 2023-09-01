@@ -1,53 +1,98 @@
 #include "sensor.hpp"
 
-Sensor::Sensor(Callback *callbackPtr)
-    : callbackPtr(callbackPtr),
-      SPIN_RATE(100)
+Sensor::Sensor()
+    : SPIN_RATE(200)
 {
     nh_ = ros::NodeHandle();
-    ////////////////Origin////////////////
 
     ros::NodeHandle nh(ros::this_node::getName());
-    boost::thread queue_thread = boost::thread(boost::bind(&Sensor::callbackThead, this));
+    boost::thread queue_thread = boost::thread(boost::bind(&Sensor::SensorcallbackThead, this));
+    boost::thread imu_thread = boost::thread(boost::bind(&Sensor::IMUcallbackThread, this));
 }
 
 Sensor::~Sensor()
 {
 }
 
+// ********************************************** SUBSCRIBER ************************************************** //
+void Sensor::IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU)
+{
+    // ROS_INFO("Accel: %.3f,%.3f,%.3f [m/s^2] - Ang. vel: %.3f,%.3f,%.3f [deg/sec] - Orient. Quat: %.3f,%.3f,%.3f,%.3f",
+    //  IMU->linear_acceleration.x, IMU->linear_acceleration.y, IMU->linear_acceleration.z,
+    //  IMU->angular_velocity.x, IMU->angular_velocity.y, IMU->angular_velocity.z,
+    //  IMU->orientation.x, IMU->orientation.y, IMU->orientation.z, IMU->orientation.w);
+    IMU->linear_acceleration.x, IMU->linear_acceleration.y, IMU->linear_acceleration.z,
+        IMU->angular_velocity.x, IMU->angular_velocity.y, IMU->angular_velocity.z,
+        IMU->orientation.x, IMU->orientation.y, IMU->orientation.z, IMU->orientation.w;
+
+    Accel(0) = IMU->linear_acceleration.x;
+    Accel(1) = IMU->linear_acceleration.y;
+    Accel(2) = IMU->linear_acceleration.z;
+
+    Gyro(0) = IMU->angular_velocity.x;
+    Gyro(1) = IMU->angular_velocity.y;
+    Gyro(2) = IMU->angular_velocity.z;
+
+    quaternion(0) = IMU->orientation.x;
+    quaternion(1) = IMU->orientation.y;
+    quaternion(2) = IMU->orientation.z;
+    quaternion(3) = IMU->orientation.w;
+}
+
+void Sensor::IMUcallbackThread()
+{
+    ros::NodeHandle nh(ros::this_node::getName());
+    IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Sensor::IMUsensorCallback, this);
+    ros::Rate loop_rate(400);
+    while (nh.ok())
+    {
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+}
+
 // ********************************************** PUBLISHER ************************************************** //
 // **********************************************  TRHEAD ************************************************** //
 
-void Sensor::callbackThead()
+void Sensor::SensorcallbackThead()
 {
     ros::NodeHandle nh(ros::this_node::getName());
-    IMU_Gryo_x_publisher_ = nh_.advertise<std_msgs::Float32>("/Gyro/x", 100);
-    IMU_Gryo_y_publisher_ = nh_.advertise<std_msgs::Float32>("/Gyro/y", 100);
-    IMU_Gryo_z_publisher_ = nh_.advertise<std_msgs::Float32>("/Gyro/z", 100);
 
-    IMU_Accel_x_publisher_ = nh_.advertise<std_msgs::Float32>("/Accel/x", 100);
-    IMU_Accel_y_publisher_ = nh_.advertise<std_msgs::Float32>("/Accel/y", 100);
-    IMU_Accel_z_publisher_ = nh_.advertise<std_msgs::Float32>("/Accel/z", 100);
+    // IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Sensor::IMUsensorCallback, this);
 
-    // /////////////Filterd Gyro (LPF)////////////////
-    IMU_Gryo_filtered_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Gyro/x", 100);
-    IMU_Gryo_filtered_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Gyro/y", 100);
-    IMU_Gryo_filtered_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Gyro/z", 100);
+    ////////////////ANGLE////////////////
+    IMU_Angle_X_publisher_ = nh_.advertise<std_msgs::Float32>("/Angle/x", 100);
+    IMU_Angle_Y_publisher_ = nh_.advertise<std_msgs::Float32>("/Angle/y", 100);
+    IMU_Angle_Z_publisher_ = nh_.advertise<std_msgs::Float32>("/Angle/z", 100);
 
-    //////////////// Filterd Accel (Integral)/////////////////
-    IMU_Velocity_x_publisher_ = nh_.advertise<std_msgs::Float32>("/Velocity/x", 100);
-    IMU_Velocity_y_publisher_ = nh_.advertise<std_msgs::Float32>("/Velocity/y", 100);
-    IMU_Velocity_z_publisher_ = nh_.advertise<std_msgs::Float32>("/Velocity/z", 100);
+    ////////////////Origin////////////////
+    // IMU_Gryo_x_publisher_ = nh_.advertise<std_msgs::Float32>("/Gyro/x", 100);
+    // IMU_Gryo_y_publisher_ = nh_.advertise<std_msgs::Float32>("/Gyro/y", 100);
+    // IMU_Gryo_z_publisher_ = nh_.advertise<std_msgs::Float32>("/Gyro/z", 100);
 
-    //////////////// Filterd Accel (HPF)/////////////////
-    IMU_Accel_filtered_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Accel/x", 100);
-    IMU_Accel_filtered_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Accel/y", 100);
-    IMU_Accel_filtered_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Accel/z", 100);
+    // IMU_Accel_x_publisher_ = nh_.advertise<std_msgs::Float32>("/Accel/x", 100);
+    // IMU_Accel_y_publisher_ = nh_.advertise<std_msgs::Float32>("/Accel/y", 100);
+    // IMU_Accel_z_publisher_ = nh_.advertise<std_msgs::Float32>("/Accel/z", 100);
 
-    /////////////// Filterd Accel (HPF_Integral) ///////////////////
-    IMU_Velocity_filtered_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/x", 100);
-    IMU_Velocity_filtered_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/y", 100);
-    IMU_Velocity_filtered_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/z", 100);
+    // // /////////////Filterd Gyro (LPF)////////////////
+    // IMU_Gryo_filtered_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Gyro/x", 100);
+    // IMU_Gryo_filtered_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Gyro/y", 100);
+    // IMU_Gryo_filtered_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Gyro/z", 100);
+
+    // //////////////// Filterd Accel (Integral)/////////////////
+    // IMU_Velocity_x_publisher_ = nh_.advertise<std_msgs::Float32>("/Velocity/x", 100);
+    // IMU_Velocity_y_publisher_ = nh_.advertise<std_msgs::Float32>("/Velocity/y", 100);
+    // IMU_Velocity_z_publisher_ = nh_.advertise<std_msgs::Float32>("/Velocity/z", 100);
+
+    // //////////////// Filterd Accel (HPF)/////////////////
+    // IMU_Accel_filtered_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Accel/x", 100);
+    // IMU_Accel_filtered_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Accel/y", 100);
+    // IMU_Accel_filtered_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Accel/z", 100);
+
+    // /////////////// Filterd Accel (HPF_Integral) ///////////////////
+    // IMU_Velocity_filtered_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/x", 100);
+    // IMU_Velocity_filtered_y_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/y", 100);
+    // IMU_Velocity_filtered_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity/z", 100);
 
     /////////////// Filterd Accel (HPF_Integral) ///////////////////
     IMU_Velocity_Complementary_x_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity_Complementary/x", 100);
@@ -57,11 +102,25 @@ void Sensor::callbackThead()
     ros::Rate loop_rate(SPIN_RATE);
     while(nh.ok())
     {   
+        Publish_Angle();
         Publish_Velocity_Complementary();
         ros::spinOnce();
         loop_rate.sleep();
     }
 }
+
+
+void Sensor::Quaternino2RPY()
+{
+    tf::Quaternion q(
+        quaternion(0),
+        quaternion(1),
+        quaternion(2),
+        quaternion(3));
+    tf::Matrix3x3 m(q);
+    m.getRPY(RPY(0), RPY(1), RPY(2));
+}
+
 
 // Low Pass Filter
 // x_k     input value
@@ -151,6 +210,28 @@ float Sensor::Complementary(float gyro, float HPF_Int, float alpha)
 
 ///////////////////////////////////////// Publish //////////////////////////////////////////
 
+
+///////////// IMU Angle ///////////////
+void Sensor::Publish_Angle()
+{
+    std_msgs::Float32 wx;
+    std_msgs::Float32 wy;
+    std_msgs::Float32 wz;
+    
+    Quaternino2RPY();
+    
+    wx.data = RPY(0);
+    wy.data = RPY(1);
+    wz.data = RPY(2);
+
+    // publish the message
+    IMU_Angle_X_publisher_.publish(wx);
+    IMU_Angle_Y_publisher_.publish(wy);
+    // IMU_Angle_Z_publisher_.publish(wz);
+}
+
+
+
 ///////////// IMU Origin ///////////////
 void Sensor::Publish_Gyro_Origin()
 {
@@ -160,9 +241,9 @@ void Sensor::Publish_Gyro_Origin()
     std_msgs::Float32 wy;
     std_msgs::Float32 wz;
 
-    gyro.x = callbackPtr->Gyro(0);
-    gyro.y = callbackPtr->Gyro(1);
-    gyro.z = callbackPtr->Gyro(2);
+    gyro.x = Gyro(0);
+    gyro.y = Gyro(1);
+    gyro.z = Gyro(2);
     wx.data = gyro.x;
     wy.data = gyro.y;
     wz.data = gyro.z;
@@ -180,9 +261,9 @@ void Sensor::Publish_Accel_Origin()
     std_msgs::Float32 ay;
     std_msgs::Float32 az;
 
-    accel.x = callbackPtr->Accel(0);
-    accel.y = callbackPtr->Accel(1);
-    accel.z = callbackPtr->Accel(2);
+    accel.x = Accel(0);
+    accel.y = Accel(1);
+    accel.z = Accel(2);
     ax.data = accel.x;
     ay.data = accel.y;
     az.data = accel.z;
@@ -316,9 +397,9 @@ void Sensor::Publish_Velocity_Complementary()
     std_msgs::Float32 ay_c;
     std_msgs::Float32 az_c;
 
-    gyro.x = callbackPtr->Gyro(0);
-    gyro.y = callbackPtr->Gyro(1);
-    gyro.z = callbackPtr->Gyro(2);
+    gyro.x = Gyro(0);
+    gyro.y = Gyro(1);
+    gyro.z = Gyro(2);
 
     float HPF_Intx = HPF_Integral(accel.x, hpf_y_pre_x, Ts, tau_HPF_Integral);
     float HPF_Inty = HPF_Integral(accel.y, hpf_y_pre_y, Ts, tau_HPF_Integral);
@@ -341,16 +422,3 @@ void Sensor::Publish_Velocity_Complementary()
     IMU_Velocity_Complementary_y_publisher_.publish(ay_c);
     IMU_Velocity_Complementary_z_publisher_.publish(az_c);
 }
-
-//////////////////////////////FUNCTION//////////////////////////
-// argument : motion
-//  MatrixXd Sensor::GetCapturePoint()
-//  {
-
-// }
-
-// MatrixXd Reference_CP_CM(MatrixXd &_motion)
-// {
-//     uint8_t a = callbackPtr->mode;
-//     if (a == 0) return //CP_CM
-// }

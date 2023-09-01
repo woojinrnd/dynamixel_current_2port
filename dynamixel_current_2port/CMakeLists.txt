@@ -109,7 +109,7 @@ add_executable(
   src/callback.cpp ${callback.hpp}
   src/dynamixel_controller.cpp ${dynamixel_controller.hpp}
   src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
-  src/sensor.cpp ${sensor.hpp}
+  # src/sensor.cpp ${sensor.hpp}
 )
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(dynamixel_current_2port ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${realsense2_LIBRARY})
@@ -124,12 +124,29 @@ add_executable(
   # src/callback.cpp ${callback.hpp}
   # src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
   src/img_proc.cpp ${img_proc.hpp}
+  # src/sensor.cpp ${sensor.hpp}
 )
 
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(Move_decision_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${realsense2_LIBRARY} yaml-cpp)
 
-install(TARGETS dynamixel_current_2port Move_decision_node
+#Sensor node
+add_executable(
+  Sensor_node
+  src/Sensor_node.cpp
+  src/sensor.cpp ${sensor.hpp}
+  # src/dynamixel.cpp ${dynamixel.hpp}
+  # src/Move_decision.cpp ${Move_decision.hpp} 
+  # src/callback.cpp ${callback.hpp}
+  # src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
+  # src/img_proc.cpp ${img_proc.hpp}
+)
+
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(Sensor_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} ${realsense2_LIBRARY} yaml-cpp)
+
+
+install(TARGETS dynamixel_current_2port Move_decision_node Sensor_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

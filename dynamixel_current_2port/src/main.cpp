@@ -2,7 +2,6 @@
 #include "callback.hpp"
 #include "dynamixel_controller.hpp"
 #include "Walkingpattern_generator.hpp"
-#include "sensor.hpp"
 
 #include "dynamixel_current_2port/Select_Motion.h"
 #include "dynamixel_current_2port/Turn_Angle.h"
@@ -49,7 +48,7 @@ int main(int argc, char **argv)
 
     Dxl_Controller dxl_ctrl(&dxl);
     Callback callback(&trajectory, &IK_, &dxl);
-    Sensor sensor(&callback);
+    // Sensor sensor(&callback);
 
 
     // ros::AsyncSpinner spinner(0); // Multi-threaded spinning

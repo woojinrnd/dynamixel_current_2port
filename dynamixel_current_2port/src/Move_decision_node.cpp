@@ -1,6 +1,7 @@
 #include <iostream>
 #include <time.h>
 #include "Move_decision.hpp"
+// #include "sensor.hpp"
 // #include "img_proc.hpp"
 
 int main(int argc, char **argv)
@@ -11,9 +12,10 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
 
     Img_proc img_proc;
+    // Sensor sensor;
+    // Move_Decision move_decision(&img_proc, &sensor);
     Move_Decision move_decision(&img_proc);
     // Move_Decision move_decision;
-
 
 
     // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision

@@ -1,6 +1,7 @@
 # DEPENDENCIES
 xsens mti driver  
 dynamixel_sdk  
+realsense_sdk
 
 # INSTALL
 ## xsens mti driver  
@@ -48,17 +49,20 @@ catkin_make
 
 # RUN
 source devel/setup.bash  
-split 3 terminal  
-[terminal 1] roscore  
+split 4 terminal  
+<!-- [terminal 1] roscore   -->
 [terminal 2] rosrun dynamixel_current_2port Move_decision_node  
 [terminal 3] rosrun dynamixel_current_2port dynamixel_current_2port  
+[terminal 4] rosrun dynamixel_current_2port Sensor_node  
+[terminal 5] roslaunch xsens_mti_driver xsens_mti_node.launch  
+
 
 # VSCODE
 ctrl+shift+p --> Project Tree  
 ctrl+shift+v --> README.md   
 
 # ROS GRPAH
-![0730(2)_rosgraph](https://github.com/woojinrnd/dynamixel_current_2port/assets/122770475/a4cfefc6-b8cb-490b-95da-91e7643174ce)
+![0901(2)_rosgraph](https://github.com/woojinrnd/dynamixel_current_2port/assets/122770475/e200799a-3900-4e65-bb6a-d9b0a7ae3a8f)
 
 # Souce Tree
 ```
@@ -70,9 +74,13 @@ src
 ├── 0721_rosgraph.png
 ├── 0730(2)_rosgraph.png
 ├── 0730_rosgraph.png
+├── 0901(2)_rosgraph.png
+├── 0901_rosgraph.png
 ├── CMakeLists.txt -> /opt/ros/noetic/share/catkin/cmake/toplevel.cmake
 ├── dynamixel_current_2port
 │   ├── CMakeLists.txt
+│   ├── config
+│   │   └── parameters.yml
 │   ├── include
 │   │   ├── callback.hpp
 │   │   ├── dynamixel_controller.hpp
@@ -82,7 +90,8 @@ src
 │   │   ├── sensor.hpp
 │   │   └── Walkingpattern_generator.hpp
 │   ├── launch
-│   │   └── dynamixel_current_2port.launch
+│   │   ├── dynamixel_current_2port.launch
+│   │   └── Move_decision.launch
 │   ├── package.xml
 │   ├── src
 │   │   ├── callback.cpp
@@ -95,10 +104,13 @@ src
 │   │   ├── Move_decision.cpp
 │   │   ├── Move_decision_node.cpp
 │   │   ├── sensor.cpp
+│   │   ├── Sensor_node.cpp
 │   │   └── Walkingpattern_generator.cc
 │   └── srv
+│       ├── Emergency.srv
 │       ├── RL_NeckAngle.srv
 │       ├── Select_Motion.srv
+│       ├── SendMotion.srv
 │       ├── Turn_Angle.srv
 │       └── UD_NeckAngle.srv
 └── README.md

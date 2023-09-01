@@ -23,9 +23,6 @@
 #include "dynamixel_current_2port/Emergency.h"
 #include "dynamixel_current_2port/SendMotion.h"
 
-
-
-
 using Eigen::VectorXd;
 
 class Callback
@@ -58,7 +55,6 @@ public:
   string Str_BWD_UP = "BWD_UP";
   string Str_NONE = "NONE";
 
-
   // Callback();
   Callback(Trajectory *trajectoryPtr, IK_Function *IK_Ptr, Dxl *dxlPtr);
 
@@ -66,14 +62,12 @@ public:
   IK_Function *IK_Ptr;
   Dxl *dxlPtr;
 
-  
   ros::NodeHandle nh;
   // Function
   virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
   virtual void FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
-  virtual void IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU);
 
-  
+
   // virtual void SelectMotion(const std_msgs::UInt8::ConstPtr &msg);
 
   virtual void Write_Leg_Theta();
@@ -83,16 +77,23 @@ public:
   sensor_msgs::JointState joint_state;
 
 
+  //////////////////////////////IMU Thread
+  void IMUThread();
+  ros::Subscriber IMU_Velocity_Complementary_x_subscriber_; ///< Gets IMU Sensor data from Move_Decision_node
+  ros::Subscriber IMU_Velocity_Complementary_y_subscriber_; ///< Gets IMU Sensor data from Move_Decision_node
+  ros::Subscriber IMU_Velocity_Complementary_z_subscriber_; ///< Gets IMU Sensor data from Move_Decision_node
+  virtual void VelocityCallback(const std_msgs::Float32::ConstPtr &IMU);
+
   //////////////////////////////Callback Thread
 
   // Client (재민이형 코드에 들어감)
-  ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
+  // ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
   // ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
   // ros::ServiceClient client_UD_Neck = nh.serviceClient<dynamixel_current_2port::UD_NeckAngle>("/Move_decision/UD_NeckAngle");
   // ros::ServiceClient client_RL_Neck = nh.serviceClient<dynamixel_current_2port::RL_NeckAngle>("/Move_decision/RL_NeckAngle");
   // ros::ServiceClient client_Emergency = nh.serviceClient<dynamixel_current_2port::Emergency>("/Move_decision/Emergency");
-  ros::ServiceClient client_SendMotion = nh.serviceClient<dynamixel_current_2port::SendMotion>("/Move_decision/SendMotion");
 
+  ros::ServiceClient client_SendMotion = nh.serviceClient<dynamixel_current_2port::SendMotion>("/Move_decision/SendMotion");
 
   // dynamixel_current_2port::Select_Motion srv_SM;
   // dynamixel_current_2port::Turn_Angle srv_TA;
@@ -100,7 +101,6 @@ public:
   // dynamixel_current_2port::RL_NeckAngle srv_RL_Neck;
   // dynamixel_current_2port::Emergency srv_Emergency;
   dynamixel_current_2port::SendMotion srv_SendMotion;
-
 
   /////////Service callbacek
   virtual void SelectMotion();
@@ -111,16 +111,14 @@ public:
   virtual void Motion_Info();
   virtual void RecieveMotion();
 
-
   virtual void callbackThread();
   // virtual void Emergencycallback(const std_msgs::Bool &msg);
-  ros::Publisher joint_state_publisher_; ///< Publishes joint states from reads
-  ros::Subscriber joint_state_subscriber_; ///< Gets joint states for writes
+  ros::Publisher joint_state_publisher_;    ///< Publishes joint states from reads
+  ros::Subscriber joint_state_subscriber_;  ///< Gets joint states for writes
   ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
   ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
-  ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
+  // ros::Subscriber IMU_sensor_subscriber_;   ///< Gets IMU Sensor data from Move_Decision_node
   // ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
-
 
   // Variable
   const int SPIN_RATE;
@@ -128,24 +126,23 @@ public:
   uint8_t L_value = 0;
   uint8_t R_value = 0;
   uint8_t fsr_value[2] = {L_value, R_value};
-  VectorXd quaternion = VectorXd::Zero(4);
-  VectorXd RPY = VectorXd::Zero(3);   // Roll Pitch Yaw
-  VectorXd Accel = VectorXd::Zero(3); // Accel_x, Accel_y, Accel_z
-  VectorXd Gyro = VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
   double rl_neckangle = 0;
   double ud_neckangle = 0;
   double turn_angle = 0;
   bool emergency_ = 1; // True : Keep going , False : Emergency
 
+  double vel_x = 0;
+  double vel_y = 0;
+  double vel_z = 0;
+
   bool a = false;
   int b = 1;
-
 
   int8_t mode = 0;
   double walkfreq = 1.48114;
   double walktime = 2 / walkfreq;
   int freq = 100;
-  int walktime_n = walktime*freq;
+  int walktime_n = walktime * freq;
   int indext = 0;
   int check_indext = 0;
   int stop_indext = 0;
