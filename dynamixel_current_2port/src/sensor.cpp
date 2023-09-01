@@ -6,7 +6,7 @@ Sensor::Sensor()
     nh_ = ros::NodeHandle();
 
     ros::NodeHandle nh(ros::this_node::getName());
-    boost::thread queue_thread = boost::thread(boost::bind(&Sensor::SensorcallbackThead, this));
+    boost::thread queue_thread = boost::thread(boost::bind(&Sensor::SensorPublishThread, this));
     boost::thread imu_thread = boost::thread(boost::bind(&Sensor::IMUcallbackThread, this));
 }
 
@@ -54,7 +54,7 @@ void Sensor::IMUcallbackThread()
 // ********************************************** PUBLISHER ************************************************** //
 // **********************************************  TRHEAD ************************************************** //
 
-void Sensor::SensorcallbackThead()
+void Sensor::SensorPublishThread()
 {
     ros::NodeHandle nh(ros::this_node::getName());
 
@@ -100,15 +100,14 @@ void Sensor::SensorcallbackThead()
     IMU_Velocity_Complementary_z_publisher_ = nh_.advertise<std_msgs::Float32>("/filtered/Velocity_Complementary/z", 100);
 
     ros::Rate loop_rate(SPIN_RATE);
-    while(nh.ok())
-    {   
+    while (nh.ok())
+    {
         Publish_Angle();
         Publish_Velocity_Complementary();
         ros::spinOnce();
         loop_rate.sleep();
     }
 }
-
 
 void Sensor::Quaternino2RPY()
 {
@@ -120,7 +119,6 @@ void Sensor::Quaternino2RPY()
     tf::Matrix3x3 m(q);
     m.getRPY(RPY(0), RPY(1), RPY(2));
 }
-
 
 // Low Pass Filter
 // x_k     input value
@@ -210,16 +208,15 @@ float Sensor::Complementary(float gyro, float HPF_Int, float alpha)
 
 ///////////////////////////////////////// Publish //////////////////////////////////////////
 
-
 ///////////// IMU Angle ///////////////
 void Sensor::Publish_Angle()
 {
     std_msgs::Float32 wx;
     std_msgs::Float32 wy;
     std_msgs::Float32 wz;
-    
+
     Quaternino2RPY();
-    
+
     wx.data = RPY(0);
     wy.data = RPY(1);
     wz.data = RPY(2);
@@ -229,8 +226,6 @@ void Sensor::Publish_Angle()
     IMU_Angle_Y_publisher_.publish(wy);
     // IMU_Angle_Z_publisher_.publish(wz);
 }
-
-
 
 ///////////// IMU Origin ///////////////
 void Sensor::Publish_Gyro_Origin()

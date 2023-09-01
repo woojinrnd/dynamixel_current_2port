@@ -16,16 +16,6 @@ public:
     Sensor();
     ~Sensor();
 
-    geometry_msgs::Vector3 gyro;
-    geometry_msgs::Vector3 accel;
-
-    Eigen::VectorXd quaternion = Eigen::VectorXd::Zero(4);
-    Eigen::VectorXd RPY = Eigen::VectorXd::Zero(3);   // Roll Pitch Yaw
-    Eigen::VectorXd Accel = Eigen::VectorXd::Zero(3); // Accel_x, Accel_y, Accel_z
-    Eigen::VectorXd Gyro = Eigen::VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
-    void Quaternino2RPY();
-
-
     // ********************************************** FILTER ************************************************** //
 
     virtual float LPF(float x_k, float y_pre, float Ts, float tau_LPF);
@@ -36,10 +26,17 @@ public:
     virtual float Integral(float x_k, float y_pre, float Ts);
     virtual float Complementary(float gyro, float HPF_Int, float alpha);
 
-    // ********************************************** PUBLISHER ************************************************** //
+    // ********************************************** SUBSCRIBER ************************************************** //
     // **********************************************  TRHEAD ************************************************** //
 
-    virtual void SensorcallbackThead();
+    virtual void SensorPublishThread();
+    Eigen::VectorXd quaternion = Eigen::VectorXd::Zero(4);
+    Eigen::VectorXd RPY = Eigen::VectorXd::Zero(3);   // Roll Pitch Yaw
+    Eigen::VectorXd Accel = Eigen::VectorXd::Zero(3); // Accel_x, Accel_y, Accel_z
+    Eigen::VectorXd Gyro = Eigen::VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
+
+    // ********************************************** PUBLISHER ************************************************** //
+    // **********************************************  TRHEAD ************************************************** //
     virtual void IMUcallbackThread();
     virtual void IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU);
     ros::Subscriber IMU_sensor_subscriber_; ///< Gets IMU Sensor data from XSENSE mti_driver_node
@@ -53,11 +50,13 @@ public:
     virtual void Publish_Velocity_HPF_Integral();
     virtual void Publish_Velocity_Complementary();
 
-    //Angle
+    geometry_msgs::Vector3 gyro;
+    geometry_msgs::Vector3 accel;
+
+    // Angle
     ros::Publisher IMU_Angle_X_publisher_;
     ros::Publisher IMU_Angle_Y_publisher_;
     ros::Publisher IMU_Angle_Z_publisher_;
-
 
     // Origin Gyro
     ros::Publisher IMU_Gryo_x_publisher_; ///< Publishes Imu/gyro.x from reads
@@ -95,6 +94,8 @@ public:
     ros::Publisher IMU_Velocity_Complementary_z_publisher_; ///< Publishes Imu/accel.z from reads
 
     // ********************************************** FUNCTION ************************************************** //
+    void Quaternino2RPY();
+
 
     // virtual MatrixXd GetCapturePoint();
     // virtual MatrixXd Reference_CP_CM(MatrixXd &_motion);

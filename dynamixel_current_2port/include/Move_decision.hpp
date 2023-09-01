@@ -146,19 +146,12 @@ public:
     ros::Subscriber IMU_sensor_x_subscriber_; ///< Gets IMU Sensor data from Sensor_node
     ros::Subscriber IMU_sensor_y_subscriber_; ///< Gets IMU Sensor data from Sensor_node
     ros::Subscriber IMU_sensor_z_subscriber_; ///< Gets IMU Sensor data from Sensor_node
-    void StatusCheck();
+    // void StatusCheck();
 
     bool stop_fallen_check_;
     double present_pitch_;
     double present_roll_;
-
-    geometry_msgs::Vector3 gyro;
-    geometry_msgs::Vector3 accel;
-
-    Eigen::VectorXd quaternion = Eigen::VectorXd::Zero(4);
     Eigen::VectorXd RPY = Eigen::VectorXd::Zero(3);   // Roll Pitch Yaw
-    Eigen::VectorXd Accel = Eigen::VectorXd::Zero(3); // Accel_x, Accel_y, Accel_z
-    Eigen::VectorXd Gyro = Eigen::VectorXd::Zero(3);  // Gyro_x, Gyro_y, Gyro_z
 
     // Server && Client
     // ros::ServiceServer motion_index_server_;
@@ -170,9 +163,9 @@ public:
 
     // ********************************************** FUNCTION ************************************************** //
 
-    Eigen::Vector3d convertRotationToRPY(const Eigen::Matrix3d &rotation);
-    Eigen::Vector3d convertQuaternionToRPY(const Eigen::Quaterniond &quaternion);
-    void Quaternino2RPY(); // library
+    // Eigen::Vector3d convertRotationToRPY(const Eigen::Matrix3d &rotation);
+    // Eigen::Vector3d convertQuaternionToRPY(const Eigen::Quaterniond &quaternion);
+    // void Quaternino2RPY(); // library
     void Motion_Info();
     void Running_Info();
 

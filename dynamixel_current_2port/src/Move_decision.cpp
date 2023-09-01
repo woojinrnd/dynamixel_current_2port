@@ -1292,7 +1292,7 @@ std::tuple<int8_t, double> Move_Decision::playMotion()
     int8_t total = Get_TA_req_finish() + Get_UD_req_finish() + Get_RL_req_finish() + Get_EM_req_finish();
     if (Get_SM_req_finish())
     {
-        if ((Get_stand_status_() == Stand_Status::Stand) && (Get_select_motion_on_flg() == true) /*&& total <=4*/ )
+        if ((Get_stand_status_() == Stand_Status::Stand) && (Get_select_motion_on_flg() == true) /*&& total <=4*/)
         {
             switch (Get_motion_index_())
             {
@@ -1441,12 +1441,6 @@ bool Move_Decision::Emergency()
 }
 
 ///////////////////////////////////////// About Publish & Subscribe /////////////////////////////////////////
-void Move_Decision::startMode()
-{
-    bool send_emergency = Get_Emergency_();
-    // EmergencyPublish(send_emergency);
-    Set_motion_index_(Motion_Index::InitPose);
-}
 
 // void Move_Decision::stopMode()
 // {
@@ -1569,6 +1563,13 @@ void Move_Decision::IMUsensorCallback(const std_msgs::Float32::ConstPtr &IMU)
 
 //     return rpy;
 // }
+
+void Move_Decision::startMode()
+{
+    bool send_emergency = Get_Emergency_();
+    // EmergencyPublish(send_emergency);
+    Set_motion_index_(Motion_Index::InitPose);
+}
 
 /*            -mg_gra        mg_gra              */
 /*      False    |     True    |     False       */

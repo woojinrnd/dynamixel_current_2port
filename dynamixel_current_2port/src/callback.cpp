@@ -28,6 +28,9 @@ void Callback::FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR)
     R_value = FSR->data; // Right_foot_FSR
 }
 
+
+/////////////////////////////////////////////// About Subscribe IMUThread ///////////////////////////////////////////////
+
 void Callback::VelocityCallback(const std_msgs::Float32::ConstPtr &IMU)
 {
     vel_x = IMU->data;
@@ -86,7 +89,7 @@ void Callback::callbackThread()
 
     FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, this);
     FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, this);
-    
+
     // IMU_sensor_subscriber_ = nh.subscribe("/imu/data", 1000, &Callback::IMUsensorCallback, this);
 
     // srv_SM.request.finish = 1;
@@ -118,7 +121,6 @@ void Callback::callbackThread()
         // srv_SendMotion.request.UD_finish = a;
         // srv_SendMotion.request.RL_finish = a;
         // srv_SendMotion.request.EM_finish = a;
-
 
         if (client_SendMotion.call(srv_SendMotion))
         {
