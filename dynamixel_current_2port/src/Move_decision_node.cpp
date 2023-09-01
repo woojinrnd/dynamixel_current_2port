@@ -17,7 +17,6 @@ int main(int argc, char **argv)
     Move_Decision move_decision(&img_proc);
     // Move_Decision move_decision;
 
-
     // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
     // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
 
@@ -35,11 +34,9 @@ int main(int argc, char **argv)
         // callback.Write_Leg_Theta();
         // dxl.SetThetaRef(callback.All_Theta);
         // dxl.syncWriteTheta();
-        
 
         ros::spinOnce();
         loop_rate.sleep();
-        
     }
 
     clock_gettime(CLOCK_REALTIME, &end);                                                         // Wall-clock time
