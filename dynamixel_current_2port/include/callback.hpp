@@ -64,9 +64,6 @@ public:
 
   ros::NodeHandle nh;
   // Function
-  virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
-  virtual void FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
-
 
   // virtual void SelectMotion(const std_msgs::UInt8::ConstPtr &msg);
 
@@ -76,33 +73,29 @@ public:
 
   sensor_msgs::JointState joint_state;
 
-
-  //////////////////////////////IMU Thread
+  // ********************************************** IMU Thread ************************************************** //
   void IMUThread();
   ros::Subscriber IMU_Velocity_Complementary_x_subscriber_; ///< Gets IMU Sensor data from Move_Decision_node
   ros::Subscriber IMU_Velocity_Complementary_y_subscriber_; ///< Gets IMU Sensor data from Move_Decision_node
   ros::Subscriber IMU_Velocity_Complementary_z_subscriber_; ///< Gets IMU Sensor data from Move_Decision_node
   virtual void VelocityCallback(const std_msgs::Float32::ConstPtr &IMU);
 
-  //////////////////////////////Callback Thread
+  // ********************************************** Callback Thread ************************************************** //
 
-  // Client (재민이형 코드에 들어감)
-  // ros::ServiceClient client_SM = nh.serviceClient<dynamixel_current_2port::Select_Motion>("/Move_decision/Select_Motion");
-  // ros::ServiceClient client_TA = nh.serviceClient<dynamixel_current_2port::Turn_Angle>("/Move_decision/Turn_Angle");
-  // ros::ServiceClient client_UD_Neck = nh.serviceClient<dynamixel_current_2port::UD_NeckAngle>("/Move_decision/UD_NeckAngle");
-  // ros::ServiceClient client_RL_Neck = nh.serviceClient<dynamixel_current_2port::RL_NeckAngle>("/Move_decision/RL_NeckAngle");
-  // ros::ServiceClient client_Emergency = nh.serviceClient<dynamixel_current_2port::Emergency>("/Move_decision/Emergency");
+  virtual void callbackThread();
+  ros::Publisher joint_state_publisher_;    ///< Publishes joint states from reads
+  ros::Subscriber joint_state_subscriber_;  ///< Gets joint states for writes
+  ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
+  ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
 
-  ros::ServiceClient client_SendMotion = nh.serviceClient<dynamixel_current_2port::SendMotion>("/Move_decision/SendMotion");
-
-  // dynamixel_current_2port::Select_Motion srv_SM;
-  // dynamixel_current_2port::Turn_Angle srv_TA;
-  // dynamixel_current_2port::UD_NeckAngle srv_UD_Neck;
-  // dynamixel_current_2port::RL_NeckAngle srv_RL_Neck;
-  // dynamixel_current_2port::Emergency srv_Emergency;
-  dynamixel_current_2port::SendMotion srv_SendMotion;
+  virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
+  virtual void FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
 
   /////////Service callbacek
+  ros::ServiceClient client_SendMotion = nh.serviceClient<dynamixel_current_2port::SendMotion>("/Move_decision/SendMotion");
+  dynamixel_current_2port::SendMotion srv_SendMotion;
+  virtual int generateUniqueRequestID();
+
   virtual void SelectMotion();
   virtual void Move_UD_NeckAngle();
   virtual void Move_RL_NeckAngle();
@@ -110,15 +103,6 @@ public:
   virtual void Emergency();
   virtual void Motion_Info();
   virtual void RecieveMotion();
-
-  virtual void callbackThread();
-  // virtual void Emergencycallback(const std_msgs::Bool &msg);
-  ros::Publisher joint_state_publisher_;    ///< Publishes joint states from reads
-  ros::Subscriber joint_state_subscriber_;  ///< Gets joint states for writes
-  ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
-  ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
-  // ros::Subscriber IMU_sensor_subscriber_;   ///< Gets IMU Sensor data from Move_Decision_node
-  // ros::Subscriber Emergency_subscriber_; ///< Emergency Subscribe
 
   // Variable
   const int SPIN_RATE;
@@ -135,10 +119,15 @@ public:
   double vel_y = 0;
   double vel_z = 0;
 
+  //TEST
   bool a = false;
   int b = 1;
+  
+  //PRINT
+  int error_counter = 0;
+  bool error_printed = false;
 
-  int8_t mode = 0;
+  int8_t mode = 99; // NONE
   double walkfreq = 1.48114;
   double walktime = 2 / walkfreq;
   int freq = 100;

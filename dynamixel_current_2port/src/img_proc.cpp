@@ -630,84 +630,6 @@ void Img_proc::running_process()
     cv::imshow("Final Binary Mask", final_binary_mask);
 }
 
-// void Img_proc::LINE_imgprocessing()
-// {
-//     try
-//     {
-//         // Assuming you have the 'contours' variable containing detected contours
-
-//         // Find the contour with the largest area (presumably the detected line)
-//         double max_area = 0;
-//         int max_area_idx = -1;
-//         for (size_t i = 0; i < this->contours_.size(); i++)
-//         {
-//             double area = cv::contourArea(this->contours_[i]);
-//             if (area > max_area)
-//             {
-//                 max_area = area;
-//                 max_area_idx = static_cast<int>(i);
-//             }
-//         }
-
-//         if (max_area_idx != -1)
-//         {
-//             // Calculate the center point of the largest contour
-//             cv::Moments moments = cv::moments(this->contours_[max_area_idx]);
-//             double center_x = moments.m10 / moments.m00;
-//             double center_y = moments.m01 / moments.m00;
-
-//             // Calculate the rotation angle based on the center point
-//             int image_width = Origin_img.cols;
-//             double base_y = Origin_img.rows - 1; // Bottom of the screen
-//             double dx = center_x - (image_width / 2);
-//             double dy = base_y - center_y;
-//             double angle_rad = std::atan2(dy, dx);
-//             double angle_deg = angle_rad * (180.0 / CV_PI);
-
-//             if (center_x < (image_width / 2)) angle_deg -= 90;
-//             else angle_deg = angle_deg - 90;
-
-//             // Check if the center point is within the image boundaries
-//             if (center_x <= 0)
-//             {
-//                 Set_img_proc_no_line_det(true);
-//                 Set_delta_x(-dx);
-//                 ROS_INFO("LEFT");
-//                 center_x = 0; // Set the center_x to the boundary value
-//             }
-//             else if (center_x > image_width)
-//             {
-//                 Set_img_proc_no_line_det(true);
-//                 Set_delta_x(-dx);
-//                 ROS_INFO("RIGHT");
-//                 center_x = image_width - 1;
-//             }
-
-//             // Now you have the rotation angle in degrees
-//             // Do something with 'angle_deg' (e.g., print it or use it for further processing)
-//             // std::cout << "Rotation Angle: " << angle_deg << " degrees" << std::endl;
-
-//             // Draw the center point
-//             cv::Point center(static_cast<int>(center_x), static_cast<int>(center_y));
-//             cv::drawContours(Origin_img, this->contours_, max_area_idx, cv::Scalar(0, 255, 0), 2);
-
-//             // Draw a line connecting the center point at the bottom of the screen and the center of the object
-//             cv::Point bottom_center(image_width / 2, static_cast<int>(base_y));
-//             cv::line(Origin_img, bottom_center, cv::Point(static_cast<int>(center_x), static_cast<int>(center_y)), cv::Scalar(255, 0, 0), 2);
-//             std::string strangle_deg = "Angle : " + std::to_string(angle_deg) + " Deg";
-//             cv::putText(Origin_img, strangle_deg, cv::Point(IMG_W, IMG_H), cv::FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2);
-
-//             // ROS_WARN("center x : %f", center_x);
-//             // ROS_WARN("center y : %f", center_y);
-//             Set_gradient(angle_deg);
-//         }
-//     }
-//     catch (const std::exception &e)
-//     {
-//         std::cerr << e.what() << '\n';
-//     }
-// }
-
 void Img_proc::LINE_imgprocessing()
 {
     double tmp_delta_x = 0;
@@ -778,40 +700,7 @@ void Img_proc::LINE_imgprocessing()
                 }
             }
 
-            // else if (i < 120)
-            //{
-            //	img_contour_tmp.at<char>(i, j) = 0;
-            //	if (roi_line_flg == true)
-            //	{
-            //		Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
-            //		Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
-            //		Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
-            //	}
-            // }
-
-            // else if (i > BOTTOM_BORDER_LINE)
-            //{
-            //	img_contour_tmp.at<char>(i, j) = 0;
-            //	if (roi_line_flg == true)
-            //	{
-            //		Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
-            //		Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
-            //		Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
-            //	}
-            // }
-
-            //// delete center-bottom circular area
-            // else if ((j - IMG_W/2)*(j - IMG_W/2) + (i - BOTTOM_BORDER_LINE)*(i - BOTTOM_BORDER_LINE) < CIRCLE_RADIUS*CIRCLE_RADIUS && i <= BOTTOM_BORDER_LINE)
-            //{
-            //	img_contour_tmp.at<char>(i, j) = 0;
-            //	if (roi_line_flg == true)
-            //	{
-            //		Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
-            //		Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
-            //		Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
-            //	}
-            // }
-
+            
             // delete center-bottom curvature line lower area
             else if (i > 0.015 * (j - IMG_W / 2) * (j - IMG_W / 2) + (IMG_H - CIRCLE_RADIUS))
             {
@@ -824,17 +713,7 @@ void Img_proc::LINE_imgprocessing()
                 }
             }
 
-            //// delete center area
-            // else if (j > LEFT_BORDER_LINE && j < RIGHT_BORDER_LINE && i >= TOP_BORDER_LINE)
-            //{
-            //	img_contour_tmp.at<char>(i, j) = 0;
-            //	if (roi_line_flg == true)
-            //	{
-            //		Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
-            //		Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
-            //		Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
-            //	}
-            // }
+      
             //  delete both side edge area
             else if (j < LEFT_EDGE_BORDER_LINE || j > RIGHT_EDGE_BORDER_LINE)
             {
@@ -846,33 +725,6 @@ void Img_proc::LINE_imgprocessing()
                     Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
                 }
             }
-            //// delete additional side area when turn
-            // else if (j >= LEFT_EDGE_BORDER_LINE && j < LEFT_EDGE_BORDER_LINE + 60) // when turn right, delete additional left side
-            //{
-            //	if (delta_x < 0)
-            //	{
-            //		img_contour_tmp.at<char>(i, j) = 0;
-            //		if (roi_line_flg == true)
-            //		{
-            //			Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
-            //			Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
-            //			Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
-            //		}
-            //	}
-            // }
-            // else if (j <= RIGHT_EDGE_BORDER_LINE && j > RIGHT_EDGE_BORDER_LINE - 60) // when turn left, delete additional right side
-            //{
-            //	if (delta_x > 0)
-            //	{
-            //		img_contour_tmp.at<char>(i, j) = 0;
-            //		if (roi_line_flg == true)
-            //		{
-            //			Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
-            //			Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
-            //			Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
-            //		}
-            //	}
-            // }
         }
     }
     //    Parameter Setting Ends    //
@@ -1149,38 +1001,6 @@ void Img_proc::init()
     //     std::cerr << "Could not open the webcam\n";
     //     return;
     // }
-
-    // cv::namedWindow("Threshold Adjustments", cv::WINDOW_NORMAL);
-    // cv::createTrackbar("H min", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("H max", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("S min", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("S max", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("V min", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("V max", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("L min", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("L max", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("A min", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("A max", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("B min", "Threshold Adjustments", nullptr, 255);
-    // cv::createTrackbar("B max", "Threshold Adjustments", nullptr, 255);
-
-    // cv::setTrackbarPos("H min", "Threshold Adjustments", 77);
-    // cv::setTrackbarPos("H max", "Threshold Adjustments", 235);
-
-    // cv::setTrackbarPos("S min", "Threshold Adjustments", 131);
-    // cv::setTrackbarPos("S max", "Threshold Adjustments", 214);
-
-    // cv::setTrackbarPos("V min", "Threshold Adjustments", 60);
-    // cv::setTrackbarPos("V max", "Threshold Adjustments", 156);
-
-    // cv::setTrackbarPos("L min", "Threshold Adjustments", 16);
-    // cv::setTrackbarPos("L max", "Threshold Adjustments", 151);
-
-    // cv::setTrackbarPos("A min", "Threshold Adjustments", 115);
-    // cv::setTrackbarPos("A max", "Threshold Adjustments", 177);
-
-    // cv::setTrackbarPos("B min", "Threshold Adjustments", 66);
-    // cv::setTrackbarPos("B max", "Threshold Adjustments", 173);
 }
 
 // ********************************************** GETTERS ************************************************** //

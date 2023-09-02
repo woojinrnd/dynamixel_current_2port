@@ -8,25 +8,11 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "Move_decision");
     ros::Time::init();
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(100);
     ros::NodeHandle nh;
 
     Img_proc img_proc;
-    // Sensor sensor;
-    // Move_Decision move_decision(&img_proc, &sensor);
     Move_Decision move_decision(&img_proc);
-    // Move_Decision move_decision;
-
-    // ros::Subscriber Motion_Selector_; ///< Gets Motion number from motion_decision
-    // Motion_Selector_ = nh.subscribe("/Move_decision/Select_Motion", 1000, &Callback::SelectMotion, &callback);
-
-    // Timer
-    struct timespec start, end;
-    double run_time;
-    clock_gettime(CLOCK_REALTIME, &start); // Wall-clock time
-
-    // callback.Write_Arm_Theta();
-    // callback.MotionMaker();
 
     while (ros::ok())
     {
@@ -39,11 +25,7 @@ int main(int argc, char **argv)
         loop_rate.sleep();
     }
 
-    clock_gettime(CLOCK_REALTIME, &end);                                                         // Wall-clock time
-    run_time = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0; // 단위는 ms
-
     move_decision.~Move_Decision();
-    cout << run_time << endl;
     return 0;
 }
 

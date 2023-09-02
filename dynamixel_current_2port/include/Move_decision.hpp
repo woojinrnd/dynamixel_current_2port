@@ -12,8 +12,6 @@
 #include <string.h>
 #include <tf/tf.h>
 
-
-
 #include "dynamixel_current_2port/Select_Motion.h"
 #include "dynamixel_current_2port/Turn_Angle.h"
 #include "dynamixel_current_2port/UD_NeckAngle.h"
@@ -22,12 +20,24 @@
 #include "dynamixel_current_2port/SendMotion.h"
 
 #include "img_proc.hpp"
-// #include "sensor.hpp"
 
+
+#define UD_MAX  90
+#define UD_MIN   0
+#define UD_CENTER 30
+
+#define RL_MAX  90
+#define RL_MIN  -90
+#define RL_CENTER 30
+
+#define TURN_MAX  45
+#define TURN_MIN  -45
 
 using namespace std;
 
-class Move_Decision 
+
+
+class Move_Decision
 {
 public:
     enum Motion_Index
@@ -85,16 +95,12 @@ public:
     string Str_WALL_MODE = "WALL_MODE";
     string Str_CORNER_MODE = "CORNER_MODE";
 
-
-    //Constructor
-    // Move_Decision(Img_proc *img_procPtr, Sensor *sensorPtr);
+    // Constructor
     Move_Decision(Img_proc *img_procPtr);
     Img_proc *img_procPtr;
-    // Sensor *sensorPtr;
 
-    //Destructor
+    // Destructor
     ~Move_Decision();
-
 
     // ********************************************** PROCESS THREAD************************************************** //
 
@@ -121,15 +127,7 @@ public:
     void Running_Mode_Decision();
     void callbackThread();
     void startMode();
-    // void stopMode();
-    // void playMotion(float motion_index);
-    // void EmergencyPublish(bool _emergency);
 
-    // bool playMotion(dynamixel_current_2port::Select_Motion::Request &req, dynamixel_current_2port::Select_Motion::Response &res);
-    // bool turn_angle(dynamixel_current_2port::Turn_Angle::Request &req, dynamixel_current_2port::Turn_Angle::Response &res);
-    // bool Move_UD_NeckAngle(dynamixel_current_2port::UD_NeckAngle::Request &req, dynamixel_current_2port::UD_NeckAngle::Response &res);
-    // bool Move_RL_NeckAngle(dynamixel_current_2port::RL_NeckAngle::Request &req, dynamixel_current_2port::RL_NeckAngle::Response &res);
-    // bool Emergency(dynamixel_current_2port::Emergency::Request &req, dynamixel_current_2port::Emergency::Response &res);
     bool SendMotion(dynamixel_current_2port::SendMotion::Request &req, dynamixel_current_2port::SendMotion::Response &res);
 
     std::tuple<int8_t, double> playMotion();
@@ -141,37 +139,24 @@ public:
     // Publish & Subscribe
     // ros::Publisher Emergency_pub_;
     // IMU
-    // void IMUsensorCallback(const sensor_msgs::Imu::ConstPtr &IMU);
     void IMUsensorCallback(const std_msgs::Float32::ConstPtr &IMU);
     ros::Subscriber IMU_sensor_x_subscriber_; ///< Gets IMU Sensor data from Sensor_node
     ros::Subscriber IMU_sensor_y_subscriber_; ///< Gets IMU Sensor data from Sensor_node
     ros::Subscriber IMU_sensor_z_subscriber_; ///< Gets IMU Sensor data from Sensor_node
-    // void StatusCheck();
 
     bool stop_fallen_check_;
     double present_pitch_;
     double present_roll_;
-    Eigen::VectorXd RPY = Eigen::VectorXd::Zero(3);   // Roll Pitch Yaw
+    Eigen::VectorXd RPY = Eigen::VectorXd::Zero(3); // Roll Pitch Yaw
 
     // Server && Client
-    // ros::ServiceServer motion_index_server_;
-    // ros::ServiceServer turn_angle_server_;
-    // ros::ServiceServer UD_NeckAngle_server_;
-    // ros::ServiceServer RL_NeckAngle_server_;
-    // ros::ServiceServer Emergency_server_;
     ros::ServiceServer SendMotion_server_;
 
     // ********************************************** FUNCTION ************************************************** //
 
-    // Eigen::Vector3d convertRotationToRPY(const Eigen::Matrix3d &rotation);
-    // Eigen::Vector3d convertQuaternionToRPY(const Eigen::Quaterniond &quaternion);
-    // void Quaternino2RPY(); // library
     void Motion_Info();
     void Running_Info();
 
-    std::vector<int> receivedNumbers;
-
-    
     // ********************************************** GETTERS ************************************************** //
 
     bool Get_Emergency_() const;
@@ -185,7 +170,7 @@ public:
     bool Get_MoveDecisionON() const;
     bool Get_CallbackON() const;
 
-    //RUNNING MODE
+    // RUNNING MODE
     bool Get_goal_line_det_flg() const;
     bool Get_line_det_flg() const;
     bool Get_no_line_det_flg() const;
@@ -199,20 +184,19 @@ public:
     bool Get_select_motion_on_flg() const;
     bool Get_turn_angle_on_flg() const;
     bool Get_emergency_on_flg() const;
-
+    
+    bool Get_response_sent_() const;
 
     double Get_RL_NeckAngle() const;
     double Get_UD_NeckAngle() const;
     bool Get_RL_Neck_on_flg() const;
     bool Get_UD_Neck_on_flg() const;
 
-
     bool Get_SM_req_finish() const;
     bool Get_TA_req_finish() const;
     bool Get_UD_req_finish() const;
     bool Get_RL_req_finish() const;
     bool Get_EM_req_finish() const;
-
 
     // ********************************************** SETTERS ************************************************** //
 
@@ -226,6 +210,8 @@ public:
     void Set_ProcessON(bool ProcessON);
     void Set_MoveDecisionON(bool MoveDecisionON);
     void Set_CallbackON(bool CallbackON);
+
+    void Set_response_sent_(bool response_sent);
 
     void Set_line_det_flg(bool line_det_flg);
     void Set_no_line_det_flg(bool no_line_det_flg);
@@ -241,7 +227,6 @@ public:
     void Set_turn_angle_on_flg(bool turn_angle_on_flg);
     void Set_emergency_on_flg(bool emergency_on_flg);
 
-
     void Set_RL_NeckAngle(double RL_NeckAngle);
     void Set_UD_NeckAngle(double UD_NeckAngle);
     void Set_RL_Neck_on_flg(bool RL_Neck_on_flg);
@@ -253,10 +238,9 @@ public:
     void Set_RL_req_finish(bool RL_req_finish);
     void Set_EM_req_finish(bool EM_req_finish);
 
-
     // ********************************************** IMG_PROC ************************************************** //
 
-    /////////////////////// Line Mode /////////////////////// 
+    /////////////////////// Line Mode ///////////////////////
     // StraightLine
     bool straightLine;
     double margin_gradient = 15; // margin of straight line
@@ -265,9 +249,9 @@ public:
     int8_t line_gradient = 0;
     double line_actual_angle = 0;
     int8_t line_motion = 0;
+    double line_ud_neckangle = 0;
 
-
-    /////////////////////// No Line Mode /////////////////////// 
+    /////////////////////// No Line Mode ///////////////////////
     // If no find line (NO_LINE_MODE)
     // delta_x : Center of window.x - Center of last captured line.x
     // delta_x > 0 : LEFT
@@ -276,12 +260,38 @@ public:
     int8_t tmp_delta_x = 0;
     int8_t noline_motion = 0;
     double noline_actual_angle = 0;
-    double Angle_ToFindLine = 10; // max or min
+    double Angle_ToFindLine = 30; // max or min
 
     // Actural send turn angle
     double Actual_angle = 0;
     double increment = 0;
 
+    /////////////////////// WAKEUP_MODE ///////////////////////
+    // WakeUp_seq = 0 : Initial
+    // WakeUp_seq = 1 : FWD_UP or BWD_UP
+    // WakeUp_seq = 2 : Motion_Index : Initial_pose
+    // WakeUp_seq = 3 : Line_mode()
+    int8_t WakeUp_seq = 0;
+    int8_t tmp_stand_status = 0;
+    int8_t wakeup_motion = 0;
+    int8_t wakeup_running = 0;
+
+    /////////////////////// Huddle Mode ///////////////////////
+
+    // Huddle Sequence
+    // 0 : Motion : InitPose (for Getting distance) (Depth)
+    // 1 : Motion : Forward_Nstep (Far)
+    // 2 : Motion : InitPose (for Getting distance) (Depth)
+    // 3 : Motion : Forward_Nstep (Approach)
+    // 4 : Motion : Step in place (Pose Control)
+    // 5 : Motion : InitPose
+    // 6 : Motion : Huddle Jump
+    // 7 : Initializing
+    int8_t tmp_huddle_seq = 0;
+    double huddle_distance = 0;
+    double huddle_actual_angle = 0;
+    int8_t huddle_motion = 0;
+    double huddle_ud_neck_angle = 0;
 
     /////////////////////// Corner Mode ///////////////////////
 
@@ -305,57 +315,41 @@ public:
     double corner_actual_angle = 0;
     int8_t corner_motion = 0;
 
-    /////////////////////// Huddle Mode ///////////////////////
-    
-    // Huddle Sequence
-    // 0 : Motion : InitPose (for Getting distance) (Depth)
-    // 1 : Motion : Forward_Nstep (Far)
-    // 2 : Motion : InitPose (for Getting distance) (Depth)
-    // 3 : Motion : Forward_Nstep (Approach)
-    // 4 : Motion : Step in place (Pose Control)
-    // 5 : Motion : InitPose
-    // 6 : Motion : Huddle Jump
-    // 7 : Initializing
-    int8_t tmp_huddle_seq = 0;
-    double huddle_distance = 0;
-    double huddle_actual_angle = 0;
-    int8_t huddle_motion = 0;
-    
-
     /////////////////////// Wall Mode ///////////////////////
     int8_t wall_motion = 0;
     int8_t img_wall_number_case = 0;
     int8_t wall_number_seq = 0;
-    
-
-
-    /////////////////////// WAKEUP_MODE ///////////////////////
-    // WakeUp_seq = 0 : Initial
-    // WakeUp_seq = 1 : FWD_UP or BWD_UP
-    // WakeUp_seq = 2 : Motion_Index : Initial_pose
-    // WakeUp_seq = 3 : Line_mode()
-    int8_t WakeUp_seq = 0;
-    int8_t tmp_stand_status = 0;
-    int8_t wakeup_motion = 0;
-    int8_t wakeup_running = 0;
 
     // check the variable sharing with multi thread
     int aaaa = 1;
     int b = aaaa % 2;
 
-
-
+    int warning_counter = 0;
+    bool warning_printed = false;
 
 private:
-
     ros::NodeHandle nh;
     ros::Publisher pub;
-    
+
+    bool response_sent_ = false;
+    std::set<int> processed_requests_;
+
+    void recordProcessedRequest(int request_id)
+    {
+        processed_requests_.insert(request_id);
+    }
+   
+    // Check if the request ID has already been processed
+    bool isRequestProcessed(int request_id)
+    {
+        return processed_requests_.find(request_id) != processed_requests_.end();
+    }
+
     const double FALL_FORWARD_LIMIT;
     const double FALL_BACK_LIMIT;
     const int SPIN_RATE;
 
-    int8_t motion_index_;
+    int8_t motion_index_ = 99;
     int8_t stand_status_;
     int8_t running_mode_;
 
@@ -364,7 +358,7 @@ private:
     // LEFT(+) / RIGHT(-)
     double turn_angle_ = 0;
 
-    //Distance
+    // Distance
     double distance_ = 0;
 
     // Neck
@@ -386,17 +380,15 @@ private:
     bool wall_det_flg_ = false;
     bool corner_det_flg_ = false;
 
-    //True : unEnable to write the value
-    //False : Enable to write the value
+    // True : unEnable to write the value
+    // False : Enable to write the value
     bool select_motion_on_flg_ = false;
     bool turn_angle_on_flg_ = false;
     bool emergency_on_flg_ = false;
 
-
     bool huddle_det_stop_flg_ = false;
     bool corner_det_stop_flg_ = false;
     int8_t Wall_mode = 0;
-
 
     bool Emergency_;
 
@@ -407,13 +399,11 @@ private:
 
     // true -> req.finish is true
     // false -> req.finish is false
-    // bool req_finish = true;
     bool SM_req_finish_ = false;
     bool TA_req_finish_ = false;
     bool UD_req_finish_ = false;
     bool RL_req_finish_ = false;
     bool EM_req_finish_ = false;
-
 
     // ********************************************** MUTEX ************************************************** //
     mutable std::mutex mtx_goal_line_det_flg;
@@ -438,7 +428,7 @@ private:
     mutable std::mutex mtx_motion_index_;
     mutable std::mutex mtx_stand_status_;
     mutable std::mutex mtx_running_mode_;
-
+    mutable std::mutex mtx_response_sent_;
 
     mutable std::mutex mtx_select_motion_on_flg_;
     mutable std::mutex mtx_turn_angle_on_flg_;
@@ -454,7 +444,5 @@ private:
     mutable std::mutex mtx_UD_req_finish_;
     mutable std::mutex mtx_RL_req_finish_;
     mutable std::mutex mtx_EM_req_finish_;
-
 };
-
 #endif // MOVE_DECISION_H

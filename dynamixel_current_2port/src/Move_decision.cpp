@@ -5,13 +5,14 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(1),
+      SPIN_RATE(100),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::NONE),
       stop_fallen_check_(false),
       Emergency_(false),
       turn_angle_(0),
-      straightLine(true)
+      straightLine(true),
+      UD_NeckAngle_(UD_CENTER)
 {
     // Init ROS
     ros::NodeHandle nh(ros::this_node::getName());
@@ -19,7 +20,6 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
     boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
     boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
-    // boost::thread move_thread = boost::thread(boost::bind(&Move_Decision::MoveDecisionThread, this));
     boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
 }
 
@@ -73,13 +73,6 @@ void Move_Decision::process()
     // Set_UD_Neck_on_flg(true);
 
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
-
-    // bool tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
-    // bool tmp_img_proc_no_line_det_flg_ = img_procPtr->Get_img_proc_no_line_det();
-    // bool tmp_img_proc_huddle_det_flg_ = img_procPtr->Get_img_proc_huddle_det();
-    // bool tmp_img_proc_wall_det_flg_ = img_procPtr->Get_img_proc_wall_det();
-    // bool tmp_img_proc_goal_det_flg_ = img_procPtr->Get_img_proc_goal_line_det();
-    // bool tmp_img_proc_corner_det_flg_ = img_procPtr->Get_img_proc_corner_det();
 
     tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
     tmp_img_proc_no_line_det_flg_ = img_procPtr->Get_img_proc_no_line_det();
@@ -230,75 +223,6 @@ void Move_Decision::process()
             Set_goal_line_det_flg(true);
         }
     }
-
-    ///////////////////////// LINE_MODE --- line_det_flg = true /////////////////////////
-    // if (tmp_img_proc_line_det_flg_) // line mode
-    // {
-    //     Set_no_line_det_flg(false);
-    //     Set_line_det_flg(true);
-    //     ROS_ERROR("2번 : %d", Get_line_det_flg());
-
-    //     if (tmp_img_proc_corner_det_flg_)
-    //     {
-    //         Set_corner_det_flg(true);
-    //     }
-
-    //     else
-    //     {
-    //         Set_corner_det_stop_flg(true);
-    //         Set_corner_det_flg(false);
-    //     }
-    // }
-
-    // //////////////////////////// No LINE_MODE --- no_line_det_flg = true ////////////////////////////
-    // else if (!tmp_img_proc_line_det_flg_ && !tmp_img_proc_wall_det_flg_) // no line mode
-    // {
-    //     Set_no_line_det_flg(true);
-    //     Set_line_det_flg(false);
-    //     ROS_ERROR("1번 : %d", Get_line_det_flg());
-
-    //     if (tmp_img_proc_corner_det_flg_)
-    //     {
-    //         Set_corner_det_flg(true);
-    //     }
-
-    //     else
-    //     {
-    //         Set_corner_det_stop_flg(true);
-    //         Set_corner_det_flg(false);
-    //     }
-    // }
-
-    // /////////////////////////STOP MODE --- no_line_det_flg = true /////////////////////////
-    // // else if (장애물과 로봇이 접촉해 정지가 필요할 때)
-    // else if (img_procPtr->Get_img_proc_stop_det())
-    // {
-    //     Set_stop_det_flg(true);
-    // }
-
-    // /////////////////////////GOAL LINE MODE --- goal_line_det_flg = true /////////////////////////
-    // // else if (골 라인 인식 == true)
-    // // {
-    // // Set_goal_line_det_flg(true);
-    // // }
-    // else if (tmp_img_proc_goal_det_flg_)
-    // {
-    //     Set_goal_line_det_flg(true);
-    //     Set_line_det_flg(true);
-    // }
-
-    // ///////////////////////// WALL MODE --- wall_det_flg = true /////////////////////////
-    // if (tmp_img_proc_wall_det_flg_ && Get_no_line_det_flg() == true)
-    // {
-    //     Set_wall_det_flg(true);
-    // }
-
-    // ///////////////////////// CORNER MODE --- corner_det_flg = true /////////////////////////
-    // else if (tmp_img_proc_corner_det_flg_ && !Get_no_line_det_flg())
-    // {
-    //     Set_corner_det_flg(true);
-    //     // Set_line_det_flg(true);
-    // }
 }
 
 void Move_Decision::processThread()
@@ -309,37 +233,23 @@ void Move_Decision::processThread()
     // node loop
     while (ros::ok())
     {
-        ROS_INFO("\n");
-        ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
+        // ROS_INFO("\n");
+        // ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
         process();
-        Running_Info();
-        Motion_Info();
-        // ProccessThread(gradient) = callbackThread(turn_angle)
-        ROS_INFO("Gradient : %f", img_procPtr->Get_gradient());
-        ROS_INFO("delta_x : %f", img_procPtr->Get_delta_x());
-        ROS_INFO("distance : %f", img_procPtr->Get_distance());
-        ROS_INFO("Move_decision img_proc_line_det : %d", img_procPtr->Get_img_proc_line_det());
-        ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
-        ROS_INFO("\n");
+        // Running_Info();
+        // Motion_Info();
+        // ROS_INFO("Gradient : %f", img_procPtr->Get_gradient());
+        // ROS_INFO("delta_x : %f", img_procPtr->Get_delta_x());
+        // ROS_INFO("distance : %f", img_procPtr->Get_distance());
+        // ROS_INFO("Move_decision img_proc_line_det : %d", img_procPtr->Get_img_proc_line_det());
+        // ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
+        // ROS_INFO("\n");
         // relax to fit output rate
         loop_rate.sleep();
     }
 }
 
 // ********************************************** CALLBACK THREAD ************************************************** //
-
-// void Move_Decision::MoveDecisionThread()
-// {
-//     // set node loop rate
-//     ros::Rate loop_rate(SPIN_RATE);
-
-//     // node loop
-//     while (ros::ok())
-//     {
-//         // relax to fit output rate
-//         loop_rate.sleep();
-//     }
-// }
 
 void Move_Decision::Running_Mode_Decision()
 {
@@ -415,6 +325,7 @@ void Move_Decision::LINE_mode()
     StraightLineDecision(line_gradient, margin_gradient);
     line_actual_angle = Get_turn_angle_();
     line_motion = Get_motion_index_();
+    line_ud_neckangle = Get_UD_NeckAngle();
 
     // If SM_req_finish = false -> InitPose
     // Straight Line
@@ -454,12 +365,19 @@ void Move_Decision::LINE_mode()
             Set_motion_index_(line_motion);
             Set_select_motion_on_flg(true);
         }
-
+        
+        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            line_ud_neckangle = UD_CENTER;
+            Set_UD_NeckAngle(line_ud_neckangle);
+            Set_UD_Neck_on_flg(true);
+        }
+        
         else if (!Get_SM_req_finish())
         {
             Set_motion_index_(Motion_Index::NONE);
         }
-        ROS_ERROR("STRAIGHT LINE");
+        // ROS_ERROR("STRAIGHT LINE");
 
         // TEST
         //  Set_RL_Neck_on_flg(true);
@@ -534,8 +452,16 @@ void Move_Decision::LINE_mode()
             }
 
             line_actual_angle += increment;
-            Set_turn_angle_on_flg(true);
+            if (line_actual_angle > 15)
+            {
+                line_actual_angle = TURN_MAX;
+            }
+            else if (line_actual_angle < -15)
+            {
+                line_actual_angle = TURN_MIN;
+            }
             Set_turn_angle_(line_actual_angle);
+            Set_turn_angle_on_flg(true);
         }
 
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
@@ -545,11 +471,18 @@ void Move_Decision::LINE_mode()
             Set_select_motion_on_flg(true);
         }
 
+        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            line_ud_neckangle = UD_CENTER;
+            Set_UD_NeckAngle(line_ud_neckangle);
+            Set_UD_Neck_on_flg(true);
+        }
+
         else if (!Get_SM_req_finish())
         {
             Set_motion_index_(Motion_Index::NONE);
         }
-        ROS_ERROR("NO STRAIGHT LINE");
+        // ROS_ERROR("NO STRAIGHT LINE");
 
         // TEST
         //  Set_RL_Neck_on_flg(true);
@@ -694,7 +627,7 @@ void Move_Decision::WAKEUP_mode()
     else if (WakeUp_seq == 4)
     {
         wakeup_running = Running_Mode::LINE_MODE;
-        Set_running_mode_(wakeup_motion);
+        Set_running_mode_(wakeup_running);
         WakeUp_seq = 0;
     }
     ROS_ERROR("WAKE_UP SEQ : %d", WakeUp_seq);
@@ -724,8 +657,14 @@ void Move_Decision::HUDDLE_mode()
 
     // Huddle Sequence
     // 0 : Motion : InitPose (for Getting distance) (Depth)
+    // (0->1) huddle_det_stop_flg_ = true
+    
     // 1 : Motion : Forward_Nstep (Far)
+    // (1->2) huddle_det_stop_flg_ = true
+    
     // 2 : Motion : InitPose (for Getting distance) (Depth)
+    // (2->3) huddle_det_stop_flg_ = true
+    
     // 3 : Motion : Forward_Nstep (Approach)
     // 4 : Motion : Step in place (Pose Control)
     // 5 : Motion : InitPose
@@ -1212,39 +1151,30 @@ void Move_Decision::callbackThread()
 {
     ros::NodeHandle nh(ros::this_node::getName());
 
-    // Subscriber & Publisher
-    // Emergency_pub_ = nh.advertise<std_msgs::Bool>("Emergency", 0);
-    // imu_data_sub_ = nh.subscribe("imu", 1, &Move_Decision::imuDataCallback, this);
-    // IMU_Gryo_x_publisher_ = nh_.advertise<std_msgs::Float32>("/Gyro/x", 100);
+    // Subscriber
     // IMU_sensor_x_subscriber_ = nh.subscribe("/Angle/x", 1000, &Move_Decision::IMUsensorCallback, this);
     IMU_sensor_y_subscriber_ = nh.subscribe("/Angle/y", 1000, &Move_Decision::IMUsensorCallback, this);
     // IMU_sensor_z_subscriber_ = nh.subscribe("/Angle/z", 1000, &Move_Decision::IMUsensorCallback, this);
 
     // Server
-    // motion_index_server_ = nh.advertiseService("Select_Motion", &Move_Decision::playMotion, this);
-    // turn_angle_server_ = nh.advertiseService("Turn_Angle", &Move_Decision::turn_angle, this);
-    // UD_NeckAngle_server_ = nh.advertiseService("UD_NeckAngle", &Move_Decision::Move_UD_NeckAngle, this);
-    // RL_NeckAngle_server_ = nh.advertiseService("RL_NeckAngle", &Move_Decision::Move_RL_NeckAngle, this);
-    // Emergency_server_ = nh.advertiseService("Emergency", &Move_Decision::Emergency, this);
     SendMotion_server_ = nh.advertiseService("SendMotion", &Move_Decision::SendMotion, this);
 
     ros::Rate loop_rate(SPIN_RATE);
     startMode();
     while (nh.ok())
     {
-        ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
-        ROS_INFO("-------------------------------------------------------------------");
-        // StatusCheck();
+        // ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
+        // ROS_INFO("-------------------------------------------------------------------");
         Running_Mode_Decision();
-        Running_Info();
-        Motion_Info();
-        ROS_INFO("angle : %f", Get_turn_angle_());
-        ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
-        ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());
-        ROS_INFO("Distance : %f", img_procPtr->Get_distance());
-        ROS_INFO("EMG : %s", Get_Emergency_() ? "true" : "false");
-        ROS_INFO("-------------------------------------------------------------------");
-        ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
+        // Running_Info();
+        // Motion_Info();
+        // ROS_INFO("angle : %f", Get_turn_angle_());
+        // ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
+        // ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());
+        // ROS_INFO("Distance : %f", img_procPtr->Get_distance());
+        // ROS_INFO("EMG : %s", Get_Emergency_() ? "true" : "false");
+        // ROS_INFO("-------------------------------------------------------------------");
+        // ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
 
         ros::spinOnce();
         loop_rate.sleep();
@@ -1255,6 +1185,21 @@ void Move_Decision::callbackThread()
 //////////////////////////////////////////////////////////// Server Part ////////////////////////////////////////////////////////////////
 bool Move_Decision::SendMotion(dynamixel_current_2port::SendMotion::Request &req, dynamixel_current_2port::SendMotion::Response &res)
 {
+    // Extract the unique ID included in the request
+    int request_id = req.request_id;
+
+    // Check if the request has already been processed
+    if (isRequestProcessed(request_id) && !warning_printed)
+    {
+        if (warning_counter < 50) // Check the counter
+        {
+            ROS_WARN("Duplicate service response prevented for request ID: %d", request_id);
+            warning_printed = true; // Set the flag to true
+            warning_counter++;      // Increase the counter
+        }
+        return false;
+    }
+
     // Finish Check
     bool req_SM_finish = req.SM_finish;
     bool req_TA_finish = req.TA_finish;
@@ -1274,13 +1219,16 @@ bool Move_Decision::SendMotion(dynamixel_current_2port::SendMotion::Request &req
     double res_UD = Move_UD_NeckAngle();
     double res_RL = Move_RL_NeckAngle();
     bool res_EM = Emergency();
-
+    
     res.select_motion = std::get<0>(res_SM);
     res.distance = std::get<1>(res_SM);
     res.turn_angle = res_TA;
     res.ud_neckangle = res_UD;
     res.rl_neckangle = res_RL;
     res.emergency = res_EM;
+
+    res.success = true;
+    recordProcessedRequest(request_id);
 
     return true;
 }
@@ -1372,6 +1320,8 @@ double Move_Decision::turn_angle()
         {
             // img_procssing
             res_turn_angle = this->Get_turn_angle_();
+            if (res_turn_angle > TURN_MAX) res_turn_angle = TURN_MAX;
+            else if (res_turn_angle < TURN_MIN) res_turn_angle = TURN_MIN;
             Set_turn_angle_on_flg(false);
         }
     }
@@ -1387,10 +1337,12 @@ double Move_Decision::Move_UD_NeckAngle()
     double res_ud_neckangle = 0;
     if (Get_UD_req_finish())
     {
-        if ((Get_stand_status_() == Stand_Status::Stand) && (Get_UD_Neck_on_flg() == true))
+        if ((Get_stand_status_() == Stand_Status::Stand) && Get_UD_Neck_on_flg())
         {
             // img_procssing
-            res_ud_neckangle = Get_UD_NeckAngle();
+            res_ud_neckangle = this->Get_UD_NeckAngle();
+            if (res_ud_neckangle > UD_MAX) res_ud_neckangle = UD_MAX;
+            else if (res_ud_neckangle < UD_MIN) res_ud_neckangle = UD_MIN;
             Set_UD_Neck_on_flg(false);
         }
     }
@@ -1406,10 +1358,14 @@ double Move_Decision::Move_RL_NeckAngle()
     double res_rl_neckangle = 0;
     if (Get_RL_req_finish())
     {
-        if ((Get_stand_status_() == Stand_Status::Stand) && (Get_RL_Neck_on_flg() == true))
+        if ((Get_stand_status_() == Stand_Status::Stand) && Get_RL_Neck_on_flg())
         {
             // img_procssing
-            res_rl_neckangle = Get_RL_NeckAngle();
+            res_rl_neckangle = this->Get_RL_NeckAngle();
+            if (res_rl_neckangle > RL_MAX)
+                res_rl_neckangle = RL_MAX;
+            else if (res_rl_neckangle < RL_MIN)
+                res_rl_neckangle = RL_MIN;
             Set_RL_Neck_on_flg(false);
         }
     }
@@ -1442,23 +1398,6 @@ bool Move_Decision::Emergency()
 
 ///////////////////////////////////////// About Publish & Subscribe /////////////////////////////////////////
 
-// void Move_Decision::stopMode()
-// {
-//     playMotion(Motion_Index::Foward_4step);
-// }
-
-// Emergency Stop
-// 1 : Stop
-// 0 : Keep Going (Option)
-// void Move_Decision::EmergencyPublish(bool _emergency)
-// {
-//     std_msgs::Bool A;
-//     A.data = _emergency;
-
-//     Emergency_pub_.publish(A);
-//     // ROS_INFO("%d",Emergency_);
-// }
-
 void Move_Decision::IMUsensorCallback(const std_msgs::Float32::ConstPtr &IMU)
 {
     if (stop_fallen_check_ == true)
@@ -1479,8 +1418,8 @@ void Move_Decision::IMUsensorCallback(const std_msgs::Float32::ConstPtr &IMU)
     double alpha = 0.4;
     if (present_pitch_ == 0)
         present_pitch_ = pitch;
-    // else
-    //     present_pitch_ = present_pitch_ * (1 - alpha) + pitch * alpha;
+    else
+        present_pitch_ = present_pitch_ * (1 - alpha) + pitch * alpha;
 
     if (present_pitch_ > FALL_FORWARD_LIMIT)
         Set_stand_status_(Stand_Status::Fallen_Forward);
@@ -1495,79 +1434,8 @@ void Move_Decision::IMUsensorCallback(const std_msgs::Float32::ConstPtr &IMU)
 
 // ********************************************** FUNCTION ************************************************** //
 
-// // // check fallen states
-// void Move_Decision::StatusCheck()
-// {
-//     if (stop_fallen_check_ == true)
-//         return;
-
-//     // Eigen::Quaterniond orientation(msg->orientation.w, msg->orientation.x, msg->orientation.y, msg->orientation.z);
-//     Eigen::Quaterniond orientation(quaternion(3), quaternion(0), quaternion(1), quaternion(2));
-//     Eigen::MatrixXd rpy_orientation = convertQuaternionToRPY(orientation);
-//     rpy_orientation *= (180 / M_PI);
-
-//     ROS_ERROR("Roll : %3.2f, Pitch : %2.2f", rpy_orientation.coeff(0, 0), rpy_orientation.coeff(1, 0));
-
-//     double pitch = rpy_orientation.coeff(1, 0);
-
-//     // Quaternino2RPY();
-//     // sensorPtr->RPY *= (180 / M_PI);
-//     // double roll = sensorPtr->RPY(0);
-//     // double pitch = sensorPtr->RPY(1);
-//     // double yaw = sensorPtr->RPY(2);
-
-//     double alpha = 0.4;
-//     if (present_pitch_ == 0)
-//         present_pitch_ = pitch;
-//     else
-//         present_pitch_ = present_pitch_ * (1 - alpha) + pitch * alpha;
-
-//     if (present_pitch_ > FALL_FORWARD_LIMIT)
-//         Set_stand_status_(Stand_Status::Fallen_Forward);
-//     else if (present_pitch_ < FALL_BACK_LIMIT)
-//         Set_stand_status_(Stand_Status::Fallen_Back);
-//     else
-//         Set_stand_status_(Stand_Status::Stand);
-
-//     ROS_ERROR("STAND_STAUS : %d", Get_stand_status_());
-// }
-
-// void Move_Decision::Quaternino2RPY()
-// {
-//     tf::Quaternion q(
-//         quaternion(0),
-//         quaternion(1),
-//         quaternion(2),
-//         quaternion(3));
-//     tf::Matrix3x3 m(q);
-//     m.getRPY(RPY(0), RPY(1), RPY(2));
-//     // ROS_INFO("roll : %.3f", sensorPtr->RPY(0) * 57.2958);
-//     // ROS_INFO("pitch : %.3f", sensorPtr->RPY(1) * 57.2958);
-//     // ROS_INFO("yaw : %.3f", sensorPtr->RPY(2) * 57.2958);
-// }
-
-// Eigen::Vector3d Move_Decision::convertRotationToRPY(const Eigen::Matrix3d &rotation)
-// {
-//     Eigen::Vector3d rpy; // = Eigen::MatrixXd::Zero(3,1);
-
-//     rpy.coeffRef(0, 0) = atan2(rotation.coeff(2, 1), rotation.coeff(2, 2));
-//     rpy.coeffRef(1, 0) = atan2(-rotation.coeff(2, 0), sqrt(pow(rotation.coeff(2, 1), 2) + pow(rotation.coeff(2, 2), 2)));
-//     rpy.coeffRef(2, 0) = atan2(rotation.coeff(1, 0), rotation.coeff(0, 0));
-
-//     return rpy;
-// }
-
-// Eigen::Vector3d Move_Decision::convertQuaternionToRPY(const Eigen::Quaterniond &quaternion)
-// {
-//     Eigen::Vector3d rpy = convertRotationToRPY(quaternion.toRotationMatrix());
-
-//     return rpy;
-// }
-
 void Move_Decision::startMode()
 {
-    bool send_emergency = Get_Emergency_();
-    // EmergencyPublish(send_emergency);
     Set_motion_index_(Motion_Index::InitPose);
 }
 
@@ -1740,6 +1608,12 @@ bool Move_Decision::Get_CallbackON() const
 {
     std::lock_guard<std::mutex> lock(mtx_CallbackON_);
     return CallbackON_;
+}
+
+bool Move_Decision::Get_response_sent_() const
+{
+    std::lock_guard<std::mutex> lock(mtx_response_sent_);
+    return response_sent_;
 }
 
 bool Move_Decision::Get_line_det_flg() const
@@ -1920,11 +1794,19 @@ void Move_Decision::Set_MoveDecisionON(bool MoveDecisionON)
 
 void Move_Decision::Set_CallbackON(bool CallbackON)
 {
+    std::lock_guard<std::mutex> lock(mtx_CallbackON_);
     this->CallbackON_ = CallbackON;
+}
+
+void Move_Decision::Set_response_sent_(bool response_sent)
+{
+    std::lock_guard<std::mutex> lock(mtx_response_sent_);
+    this->response_sent_ = response_sent;
 }
 
 void Move_Decision::Set_goal_line_det_flg(bool goal_line_det_flg)
 {
+    std::lock_guard<std::mutex> lock(mtx_goal_line_det_flg);
     this->goal_line_det_flg_ = goal_line_det_flg;
 }
 

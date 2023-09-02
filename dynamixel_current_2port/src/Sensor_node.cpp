@@ -11,10 +11,6 @@ int main(int argc, char **argv)
 
     Sensor sensor;
 
-    // Timer
-    struct timespec start, end;
-    double run_time;
-    clock_gettime(CLOCK_REALTIME, &start); // Wall-clock time
 
     // callback.Write_Arm_Theta();
     // callback.MotionMaker();
@@ -24,9 +20,5 @@ int main(int argc, char **argv)
         ros::spinOnce();
         loop_rate.sleep();
     }
-
-    clock_gettime(CLOCK_REALTIME, &end);                                                         // Wall-clock time
-    run_time = (end.tv_sec - start.tv_sec) * 1000.0 + (end.tv_nsec - start.tv_nsec) / 1000000.0; // 단위는 ms
-
     return 0;
 }
