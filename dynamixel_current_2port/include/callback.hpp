@@ -89,7 +89,8 @@ public:
   ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
 
   virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
-  virtual void FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
+  virtual void L_FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
+  virtual void R_FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
 
   /////////Service callbacek
   ros::ServiceClient client_SendMotion = nh.serviceClient<dynamixel_current_2port::SendMotion>("/Move_decision/SendMotion");

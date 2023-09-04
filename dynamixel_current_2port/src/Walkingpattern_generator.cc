@@ -1638,7 +1638,7 @@ void IK_Function::Set_Angle_Compensation()
 	RL_Support_Leg = 3.5 * deg2rad;
 	RL_Swing_Leg = 3.5 * deg2rad;
 	RL_Support_Knee = 0; // 5 * deg2rad;
-	RL_Support_Ankle = 4.5 * deg2rad;
+	RL_Support_Ankle = 3.5 * deg2rad;
 	RL_Compensation_Support_Leg_up = traj.Equation_solver(0, walktime_n * 0.075, 0, RL_Support_Leg);
 	RL_Compensation_Support_Leg_down = traj.Equation_solver(0, walktime_n * 0.075, RL_Support_Leg, 0);
 	RL_Compensation_Swing_Leg_up = traj.Equation_solver(0, walktime_n * 0.075, 0, RL_Swing_Leg);
@@ -1651,7 +1651,7 @@ void IK_Function::Set_Angle_Compensation()
 	LL_Support_Leg = 3.5 * deg2rad;
 	LL_Swing_Leg = 3.5 * deg2rad;
 	LL_Support_Knee = 0; //-5 * deg2rad;
-	LL_Support_Ankle = 2.5 * deg2rad;
+	LL_Support_Ankle = 3.5 * deg2rad;
 	LL_Compensation_Support_Leg_up = traj.Equation_solver(0, walktime_n * 0.075, 0, LL_Support_Leg);
 	LL_Compensation_Support_Leg_down = traj.Equation_solver(0, walktime_n * 0.075, LL_Support_Leg, 0);
 	LL_Compensation_Swing_Leg_up = traj.Equation_solver(0, walktime_n * 0.075, 0, LL_Swing_Leg);

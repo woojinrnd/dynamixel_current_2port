@@ -5,7 +5,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(100),
+      SPIN_RATE(1),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::NONE),
       stop_fallen_check_(false),
@@ -673,6 +673,7 @@ void Move_Decision::HUDDLE_mode()
 
     huddle_actual_angle = Get_turn_angle_();
     huddle_motion = Get_motion_index_();
+    huddle_ud_neck_angle = Get_UD_NeckAngle();
 
     // 0 : Motion : InitPose (For getting distance) (Depth)
     if (tmp_huddle_seq == 0)
@@ -681,13 +682,20 @@ void Move_Decision::HUDDLE_mode()
         {
             huddle_motion = Motion_Index::InitPose;
             Set_motion_index_(huddle_motion);
-            huddle_distance = img_procPtr->Get_distance();
             Set_select_motion_on_flg(true);
+            huddle_distance = img_procPtr->Get_distance();
             tmp_huddle_seq++;
             // Set_huddle_det_flg(false);
         }
 
-        if (Get_select_motion_on_flg() && !Get_SM_req_finish())
+        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            huddle_ud_neck_angle = 10;
+            Set_UD_NeckAngle(huddle_ud_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
+
+        else if (!Get_SM_req_finish())
         {
             Set_motion_index_(Motion_Index::NONE);
         }
@@ -702,6 +710,14 @@ void Move_Decision::HUDDLE_mode()
             Set_distance_(huddle_distance);
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
+            
+            if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+            {
+                huddle_ud_neck_angle = UD_CENTER;
+                Set_UD_NeckAngle(huddle_ud_neck_angle);
+                Set_UD_Neck_on_flg(true);
+            }
+            
             tmp_huddle_seq++;
             // Set_line_det_flg(true);
             Set_huddle_det_flg(false);
@@ -723,6 +739,12 @@ void Move_Decision::HUDDLE_mode()
             Set_motion_index_(huddle_motion);
             huddle_distance = img_procPtr->Get_distance();
             Set_select_motion_on_flg(true);
+            if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+            {
+                huddle_ud_neck_angle = 40;
+                Set_UD_NeckAngle(huddle_ud_neck_angle);
+                Set_UD_Neck_on_flg(true);
+            }
             tmp_huddle_seq++;
             Set_huddle_det_flg(false);
         }
@@ -786,7 +808,16 @@ void Move_Decision::HUDDLE_mode()
             huddle_motion = Motion_Index::InitPose;
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
-            tmp_huddle_seq++;
+            huddle_actual_angle = img_procPtr->Get_gradient();
+            ROS_ERROR("huddle_actual_angle : %f", huddle_actual_angle);
+            if (huddle_actual_angle > 10 || huddle_actual_angle < -10)
+            {
+                tmp_huddle_seq = 4;
+            }
+            else
+            {
+                tmp_huddle_seq++;
+            }
             Set_huddle_det_flg(false);
         }
 
@@ -824,6 +855,13 @@ void Move_Decision::HUDDLE_mode()
             Set_huddle_det_flg(false);
         }
 
+        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            huddle_ud_neck_angle = UD_CENTER;
+            Set_UD_NeckAngle(huddle_ud_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
+
         else if (!Get_SM_req_finish())
         {
             Set_motion_index_(Motion_Index::NONE);
@@ -834,6 +872,7 @@ void Move_Decision::HUDDLE_mode()
     {
         Set_huddle_det_flg(false);
         tmp_huddle_seq = 0;
+        
     }
 
     ROS_ERROR("HUDDLE_SEQ : %d", tmp_huddle_seq);
@@ -1166,8 +1205,8 @@ void Move_Decision::callbackThread()
         // ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
         // ROS_INFO("-------------------------------------------------------------------");
         Running_Mode_Decision();
-        // Running_Info();
-        // Motion_Info();
+        Running_Info();
+        Motion_Info();
         // ROS_INFO("angle : %f", Get_turn_angle_());
         // ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
         // ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());

@@ -15,7 +15,7 @@
 // ros::Publisher pub_fsr_R("FSR_R", &fsr_msg_R);
 
 // char SensorPin_L = A0; //analog pin 0
-// char SensorPin_R = A1; //analog pin 1
+// char SensorPin_R = A2; //analog pin 2
  
 // void setup(){
 //   nh.getHardware()->setBaud(57600);

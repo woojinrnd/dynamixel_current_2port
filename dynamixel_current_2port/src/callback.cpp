@@ -5,7 +5,7 @@ Callback::Callback(Trajectory *trajectoryPtr, IK_Function *IK_Ptr, Dxl *dxlPtr)
     : trajectoryPtr(trajectoryPtr),
       IK_Ptr(IK_Ptr),
       dxlPtr(dxlPtr),
-      SPIN_RATE(100)
+      SPIN_RATE(1)
 {
     ros::NodeHandle nh(ros::this_node::getName());
 
@@ -22,9 +22,13 @@ void Callback::JointStatesCallback(const sensor_msgs::JointState::ConstPtr &join
     }
 }
 
-void Callback::FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR)
+void Callback::L_FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR)
 {
     L_value = FSR->data; // Left_foot_FSR
+}
+
+void Callback::R_FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR)
+{
     R_value = FSR->data; // Right_foot_FSR
 }
 
@@ -73,8 +77,8 @@ void Callback::callbackThread()
     joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
     joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, this);
 
-    FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::FSRsensorCallback, this);
-    FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::FSRsensorCallback, this);
+    FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::L_FSRsensorCallback, this);
+    FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::R_FSRsensorCallback, this);
 
     srv_SendMotion.request.SM_finish = 1;
     srv_SendMotion.request.TA_finish = 1;
@@ -106,7 +110,6 @@ void Callback::callbackThread()
         {
             if (srv_SendMotion.response.success)
             {
-                // ROS_INFO("Service call successful.");
                 RecieveMotion();
                 Motion_Info();
             }
@@ -391,7 +394,7 @@ void Callback::Write_Leg_Theta()
     {
         emergency = 0;
     }
-
+    Check_FSR();
     if (emergency == 0)
     {
         indext += 1;
@@ -490,12 +493,12 @@ void Callback::Write_Leg_Theta()
     }
 
     All_Theta[0] = IK_Ptr->RL_th[0];
-    All_Theta[1] = IK_Ptr->RL_th[1] - 2 * DEG2RAD;
+    All_Theta[1] = IK_Ptr->RL_th[1] - 1 * DEG2RAD;
     All_Theta[2] = IK_Ptr->RL_th[2] - 10.74 * DEG2RAD;
     All_Theta[3] = -IK_Ptr->RL_th[3] + 38.34 * DEG2RAD;
     All_Theta[4] = -IK_Ptr->RL_th[4] + 24.22 * DEG2RAD;
     All_Theta[5] = -IK_Ptr->RL_th[5];
-    All_Theta[6] = IK_Ptr->LL_th[0] + 1 * DEG2RAD;
+    All_Theta[6] = IK_Ptr->LL_th[0] + 2 * DEG2RAD;
     All_Theta[7] = IK_Ptr->LL_th[1];
     All_Theta[8] = -IK_Ptr->LL_th[2] + 10.74 * DEG2RAD;
     All_Theta[9] = IK_Ptr->LL_th[3] - 36.34 * DEG2RAD;
@@ -507,7 +510,7 @@ void Callback::Write_Leg_Theta()
     }
 
     ROS_INFO("%d  %lf %d", indext, All_Theta[3], emergency);
-    // Check_FSR();
+    Check_FSR();
 }
 
 void Callback::Write_Arm_Theta()

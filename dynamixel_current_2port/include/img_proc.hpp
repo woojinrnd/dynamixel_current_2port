@@ -112,13 +112,15 @@ public:
     void create_threshold_trackbar_W(const std::string &window_name);
     void create_threshold_trackbar_Y(const std::string &window_name);
     void create_color_range_trackbar(const std::string &window_name);
-    std::pair<cv::Mat, cv::Mat> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
+    std::tuple<cv::Mat, cv::Mat, int> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
     std::tuple<cv::Mat, bool, int, int, bool, double> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
 
     // ********************************************** 3D THREAD************************************************** //
 
-    std::tuple<int, float, float> applyPCA(const rs2::depth_frame& depth, int x1, int y1, int x2, int y2, int x3, int y3);
+    std::tuple<int, float, float> applyPCA(cv::Mat& color, const rs2::depth_frame& depth, int x1, int y1, int x2, int y2, int x3, int y3);
     void realsense_thread();
+    int8_t Athletics_FLAG = 0;
+    int8_t tmp_img_proc_wall_number = 0;
 
     // Cam set
     const int realsense_width = 640;
@@ -185,6 +187,7 @@ public:
     double delta_x_ = 0;
     // cv::Mat final_binary_mask;
     cv::Mat final_binary_mask = cv::Mat::zeros(IMG_H, IMG_W, CV_8UC1);
+    double Calc_angle(double _x, Point _pt);
 
 private:
     ros::NodeHandle nh;
