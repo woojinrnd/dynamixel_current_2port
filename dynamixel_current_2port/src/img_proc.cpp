@@ -454,6 +454,20 @@ void Img_proc::realsense_thread()
             cv::Mat depth_dist(cv::Size(w, h), CV_16UC1, (void*)depth_frame.get_data(), cv::Mat::AUTO_STEP);
 
             Eigen::Vector3f normal_vector;
+            
+            ////////////////////////////////// TEST ////////////////////////////////// 
+            
+            // Block program until frames arrive
+            rs2::frameset frames_ = pipe.wait_for_frames();
+
+            // Try to get a frame of a depth image
+            rs2::depth_frame depth_ = frames_.get_depth_frame();
+
+            Set_img_proc_huddle_det(true);
+            float dist_to_center = depth_.get_distance(webcam_width / 2, webcam_height / 2);
+            this->Set_distance(dist_to_center);
+
+            ////////////////////////////////// TEST ////////////////////////////////// 
 
             // Wall mode
             if (Athletics_FLAG == 3){
@@ -474,8 +488,8 @@ void Img_proc::realsense_thread()
                 cv::imshow(window_name_color, colorMat);
             }
 
-            // cv::imshow(window_name, depthMat);
-            // cv::imshow(window_name_color, colorMat);
+            cv::imshow(window_name, depthMat);
+            cv::imshow(window_name_color, colorMat);
         }
     }
     catch (const rs2::error &e)

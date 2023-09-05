@@ -184,6 +184,7 @@ public:
     bool Get_select_motion_on_flg() const;
     bool Get_turn_angle_on_flg() const;
     bool Get_emergency_on_flg() const;
+    bool Get_distance_on_flg() const;
     
     bool Get_response_sent_() const;
 
@@ -226,6 +227,7 @@ public:
     void Set_select_motion_on_flg(bool select_motion_on_flg);
     void Set_turn_angle_on_flg(bool turn_angle_on_flg);
     void Set_emergency_on_flg(bool emergency_on_flg);
+    void Set_distance_on_flg(bool distance_on_flg);
 
     void Set_RL_NeckAngle(double RL_NeckAngle);
     void Set_UD_NeckAngle(double UD_NeckAngle);
@@ -261,6 +263,7 @@ public:
     int8_t noline_motion = 0;
     double noline_actual_angle = 0;
     double Angle_ToFindLine = 30; // max or min
+    double noline_neckangle = 0;
 
     // Actural send turn angle
     double Actual_angle = 0;
@@ -292,6 +295,10 @@ public:
     double huddle_actual_angle = 0;
     int8_t huddle_motion = 0;
     double huddle_ud_neck_angle = 0;
+    std::vector<double> huddle_distance_save;
+    std::vector<double> tmp_huddle_distance_save;
+    bool finish_past = false;
+    int8_t req_finish_count = 0;
 
     /////////////////////// Corner Mode ///////////////////////
 
@@ -385,6 +392,7 @@ private:
     bool select_motion_on_flg_ = false;
     bool turn_angle_on_flg_ = false;
     bool emergency_on_flg_ = false;
+    bool distance_on_flg_ = false;
 
     bool huddle_det_stop_flg_ = false;
     bool corner_det_stop_flg_ = false;
@@ -433,6 +441,7 @@ private:
     mutable std::mutex mtx_select_motion_on_flg_;
     mutable std::mutex mtx_turn_angle_on_flg_;
     mutable std::mutex mtx_emergency_on_flg_;
+    mutable std::mutex mtx_distance_on_flg_;
 
     mutable std::mutex mtx_Emergency_;
     mutable std::mutex mtx_ProcessON_;

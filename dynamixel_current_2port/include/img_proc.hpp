@@ -72,7 +72,7 @@ public:
     const int webcam_width = 640;
     const int webcam_height = 480;
     const int webcam_fps = 30;
-    const int webcam_id = 0;
+    const int webcam_id = 6;
 
     int threshold_value_white = 180;
     int threshold_value_yellow = 127;

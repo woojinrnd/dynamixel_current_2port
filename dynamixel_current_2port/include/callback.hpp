@@ -69,6 +69,8 @@ public:
 
   virtual void Write_Leg_Theta();
   virtual void Write_Arm_Theta();
+  virtual void Set_Callback();
+
   virtual void Check_FSR();
 
   sensor_msgs::JointState joint_state;
@@ -116,13 +118,21 @@ public:
   double turn_angle = 0;
   bool emergency_ = 1; // True : Keep going , False : Emergency
 
+  bool SM_finish = 0;
+  bool TA_finish = true;
+  bool UD_finish = true;
+  bool RL_finish = true;
+  bool EM_finish = true;
+
   double vel_x = 0;
   double vel_y = 0;
   double vel_z = 0;
 
   //TEST
-  bool a = false;
+  bool a = 0;
   int b = 1;
+
+
   
   //PRINT
   int error_counter = 0;
