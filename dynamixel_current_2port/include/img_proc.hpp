@@ -12,7 +12,8 @@
 #include <fstream>
 #include <yaml-cpp/yaml.h>
 #include <eigen3/Eigen/Dense>
-
+// #include <cmath.hpp>
+#include <cmath>
 
 #define TOP_BORDER_LINE 240    // == (IMG_H / 2)
 #define BOTTOM_BORDER_LINE 460 // == (IMG_H - 20) change this value when Up-Down Neck Angle changed or to adjust with RV value
@@ -42,6 +43,20 @@
 #define PROP_CONTRAST 128
 #define PROP_SATURATION 128
 
+// ********************************************** BASKETBALL ************************************************** //
+
+#define SCN_UP screen_divide[0]
+#define SCN_DOWN screen_divide[1]
+#define SCN_LEFT screen_divide[2]
+#define SCN_RIGHT screen_divide[3]
+
+#define DIR_UP		50
+#define DIR_DOWN	100
+#define DIR_LEFT	150
+#define DIR_RIGHT	200
+#define DIR_NONE	250
+
+// ********************************************** BASKETBALL ************************************************** //
 
 using namespace cv;
 using namespace std;
@@ -72,7 +87,7 @@ public:
     const int webcam_width = 640;
     const int webcam_height = 480;
     const int webcam_fps = 30;
-    const int webcam_id = 0;
+    const int webcam_id = 1;
 
     int threshold_value_white = 180;
     int threshold_value_yellow = 127;
@@ -117,7 +132,7 @@ public:
 
     // ********************************************** 3D THREAD************************************************** //
 
-    std::tuple<int, float, float> applyPCA(cv::Mat& color, const rs2::depth_frame& depth, int x1, int y1, int x2, int y2, int x3, int y3);
+    std::tuple<int, float, float> applyPCA(cv::Mat &color, const rs2::depth_frame &depth, int x1, int y1, int x2, int y2, int x3, int y3);
     void realsense_thread();
     int8_t Athletics_FLAG = 0;
     int8_t tmp_img_proc_wall_number = 0;
@@ -189,6 +204,73 @@ public:
     cv::Mat final_binary_mask = cv::Mat::zeros(IMG_H, IMG_W, CV_8UC1);
     double Calc_angle(double _x, Point _pt);
 
+    // ********************************************** BASKETBALL ************************************************** //
+    typedef struct _goal_
+    {
+        Rect Goal_rt;
+
+        Point ct;
+        Point _last_ct;
+        int vote = 0;
+
+        void _LPF(double _tau, double _ts)
+        {
+            double tmp_y = (double)ct.y;
+            double tmp_x = (double)ct.x;
+
+            tmp_y = _tau / (_tau + _ts) * (double)_last_ct.y + _ts / (_tau + _ts) * tmp_y;
+            tmp_x = _tau / (_tau + _ts) * (double)_last_ct.x + _ts / (_tau + _ts) * tmp_x;
+
+            ct.y = cvFloor(0.5 + tmp_y);
+            ct.x = cvFloor(0.5 + tmp_x);
+        }
+
+    } _goal_;
+
+    struct _circle_
+    {
+        Point ct; // center
+        int rad; // radius
+
+        bool contains(Point _pt) // 
+        {
+            double tmp_dist = sqrt(pow((double)(ct.x - _pt.x), 2) + pow((double)(ct.y - _pt.y), 2));
+
+            if ((double)rad - tmp_dist >= DBL_EPSILON)
+                return true;
+            else
+                return false;
+        }
+
+        bool contains(int xy, int _case)
+        {
+            bool result = false;
+            switch (_case)
+            {
+            case 0:
+                result = Point(ct.x, xy).inside(Rect(ct.x - 1, ct.y - rad, 3, rad * 2));
+                break;
+            default:
+                result = Point(xy, ct.y).inside(Rect(ct.x - rad, ct.y - 1, rad * 2, 3));
+            }
+            return result;
+        }
+    };
+
+    vector<_goal_> goal_cdt;
+
+
+    Rect Shoot_Box;
+    Rect tmp_Shoot_Box;
+    Rect Goal_Box;
+    Rect tmp_Goal_Box;
+
+	vector< vector< Point > > screen_divide = vector<vector<Point>>(4);
+
+    int Goal_trace_direction = DIR_NONE;
+	vector<Point> goal_trace;
+
+
 private:
     ros::NodeHandle nh;
     ros::Publisher pub;
@@ -207,12 +289,12 @@ private:
     bool img_proc_wall_det_ = false;
     bool img_proc_stop_det_ = false;
     int8_t img_proc_wall_number_ = 0;
-    int8_t img_proc_corner_number_ = 0; //1번 ㅓ(좌90) 2번 ㅜ(우90)
+    int8_t img_proc_corner_number_ = 0; // 1번 ㅓ(좌90) 2번 ㅜ(우90)
 
     // Line mode
-    double gradient_ = 0; // Line_angle
+    double gradient_ = 0;   // Line_angle
     double wall_angle_ = 0; // wall angle
-    double distance_ = 0; // huddle / wall mode
+    double distance_ = 0;   // huddle / wall mode
 
     // No Line mode
     // delta_x : Center of window.x - Center of last captured line.x

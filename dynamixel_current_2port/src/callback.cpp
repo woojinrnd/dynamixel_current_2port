@@ -5,7 +5,7 @@ Callback::Callback(Trajectory *trajectoryPtr, IK_Function *IK_Ptr, Dxl *dxlPtr)
     : trajectoryPtr(trajectoryPtr),
       IK_Ptr(IK_Ptr),
       dxlPtr(dxlPtr),
-      SPIN_RATE(1)
+      SPIN_RATE(100)
 {
     ros::NodeHandle nh(ros::this_node::getName());
 

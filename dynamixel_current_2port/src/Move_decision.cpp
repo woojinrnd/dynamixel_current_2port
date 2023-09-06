@@ -6,7 +6,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(1),
+      SPIN_RATE(100),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::NONE),
       stop_fallen_check_(false),
@@ -1634,7 +1634,7 @@ bool Move_Decision::SendMotion(dynamixel_current_2port::SendMotion::Request &req
     // Check if the request has already been processed
     if (isRequestProcessed(request_id) && !warning_printed)
     {
-        if (warning_counter < 50) // Check the counter
+        if (warning_counter) // Check the counter
         {
             ROS_WARN("Duplicate service response prevented for request ID: %d", request_id);
             warning_printed = true; // Set the flag to true
@@ -2334,6 +2334,7 @@ void Move_Decision::Set_corner_det_stop_flg(bool corner_det_stop_flg)
     std::lock_guard<std::mutex> lock(mtx_corner_det_stop_flg);
     this->corner_det_stop_flg_ = corner_det_stop_flg;
 }
+
 void Move_Decision::Set_RL_NeckAngle(double RL_NeckAngle)
 {
     std::lock_guard<std::mutex> lock(mtx_RL_NeckAngle_);

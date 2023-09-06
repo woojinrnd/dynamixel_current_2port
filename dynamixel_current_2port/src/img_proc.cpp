@@ -457,17 +457,17 @@ void Img_proc::realsense_thread()
             
             ////////////////////////////////// TEST ////////////////////////////////// 
             
-            // Block program until frames arrive
-            rs2::frameset frames_ = pipe.wait_for_frames();
+            // // Block program until frames arrive
+            // rs2::frameset frames_ = pipe.wait_for_frames();
 
-            // Try to get a frame of a depth image
-            rs2::depth_frame depth_ = frames_.get_depth_frame();
+            // // Try to get a frame of a depth image
+            // rs2::depth_frame depth_ = frames_.get_depth_frame();
 
-            Set_img_proc_corner_det(true);
-            // Set_img_proc_huddle_det(true);
-            Set_img_proc_corner_number(1);
-            float dist_to_center = depth_.get_distance(webcam_width / 2, webcam_height / 2);
-            this->Set_distance(dist_to_center);
+            // Set_img_proc_corner_det(true);
+            // // Set_img_proc_huddle_det(true);
+            // Set_img_proc_corner_number(1);
+            // float dist_to_center = depth_.get_distance(webcam_width / 2, webcam_height / 2);
+            // this->Set_distance(dist_to_center);
 
             ////////////////////////////////// TEST ////////////////////////////////// 
 
@@ -1049,6 +1049,26 @@ void Img_proc::init()
     //     std::cerr << "Could not open the webcam\n";
     //     return;
     // }
+
+    SCN_UP = vector<Point>(3);
+    SCN_UP[0] = Point(0, 0);
+    SCN_UP[1] = Point(IMG_W - 1, 0);
+    SCN_UP[2] = Point(IMG_W / 2, IMG_H / 2);
+
+    SCN_DOWN = vector<Point>(3);
+    SCN_DOWN[0] = Point(0, IMG_H - 1);
+    SCN_DOWN[1] = Point(IMG_W - 1, IMG_H - 1);
+    SCN_DOWN[2] = Point(IMG_W / 2, IMG_H / 2);
+
+    SCN_LEFT = vector<Point>(3);
+    SCN_LEFT[0] = Point(0, 0);
+    SCN_LEFT[1] = Point(0, IMG_H - 1);
+    SCN_LEFT[2] = Point(IMG_W / 2, IMG_H / 2);
+
+    SCN_RIGHT = vector<Point>(3);
+    SCN_RIGHT[0] = Point(IMG_W - 1, 0);
+    SCN_RIGHT[1] = Point(IMG_W - 1, IMG_H - 1);
+    SCN_RIGHT[2] = Point(IMG_W / 2, IMG_H / 2);
 }
 
 double Img_proc::Calc_angle(double _x, Point _pt)
