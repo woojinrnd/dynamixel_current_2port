@@ -123,6 +123,7 @@ void Callback::callbackThread()
                 RecieveMotion();
                 Motion_Info();
             }
+            
             else if (!error_printed)
             {
                 if (error_counter < 50) // Check the counter

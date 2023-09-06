@@ -463,7 +463,9 @@ void Img_proc::realsense_thread()
             // Try to get a frame of a depth image
             rs2::depth_frame depth_ = frames_.get_depth_frame();
 
-            Set_img_proc_huddle_det(true);
+            Set_img_proc_corner_det(true);
+            // Set_img_proc_huddle_det(true);
+            Set_img_proc_corner_number(1);
             float dist_to_center = depth_.get_distance(webcam_width / 2, webcam_height / 2);
             this->Set_distance(dist_to_center);
 

@@ -30,8 +30,8 @@
 #define RL_MIN  -90
 #define RL_CENTER 30
 
-#define TURN_MAX  45
-#define TURN_MIN  -45
+#define TURN_MAX  90
+#define TURN_MIN  -90
 
 using namespace std;
 
@@ -245,7 +245,7 @@ public:
     /////////////////////// Line Mode ///////////////////////
     // StraightLine
     bool straightLine;
-    double margin_gradient = 15; // margin of straight line
+    double margin_gradient = 10; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
     double Angle_toBeStraight = 40; // max or min
     int8_t line_gradient = 0;
@@ -296,9 +296,7 @@ public:
     int8_t huddle_motion = 0;
     double huddle_ud_neck_angle = 0;
     std::vector<double> huddle_distance_save;
-    std::vector<double> tmp_huddle_distance_save;
-    bool finish_past = false;
-    int8_t req_finish_count = 0;
+
 
     /////////////////////// Corner Mode ///////////////////////
 
@@ -314,18 +312,28 @@ public:
     bool Turn90 = false;
 
     // corner shape ㅓ / ㅜ
-    int8_t tmp_corner_shape = 0;
-
     int8_t tmp_corner_seq = 0;
-    int8_t tmp_turn90 = 0;
-    double corner_distance = 0;
+
     double corner_actual_angle = 0;
+    int8_t tmp_corner_shape = 0;
+    int8_t tmp_turn90 = 0;
+    
+    double corner_distance = 0;
+    std::vector<double> corner_distance_save;
+
     int8_t corner_motion = 0;
+    double corner_ud_neck_angle = 0;
 
     /////////////////////// Wall Mode ///////////////////////
     int8_t wall_motion = 0;
     int8_t img_wall_number_case = 0;
     int8_t wall_number_seq = 0;
+
+
+    /////////////////////// Sequence++ ///////////////////////
+    bool finish_past = false;
+    int8_t req_finish_count = 0;
+
 
     // check the variable sharing with multi thread
     int aaaa = 1;
