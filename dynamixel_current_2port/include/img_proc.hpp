@@ -259,7 +259,6 @@ public:
 
     vector<_goal_> goal_cdt;
 
-
     Rect Shoot_Box;
     Rect tmp_Shoot_Box;
     Rect Goal_Box;
@@ -269,6 +268,7 @@ public:
 
     int Goal_trace_direction = DIR_NONE;
 	vector<Point> goal_trace;
+    
 
 
 private:

@@ -8,7 +8,7 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "Move_decision");
     ros::Time::init();
-    ros::Rate loop_rate(100);
+    ros::Rate loop_rate(1);
     ros::NodeHandle nh;
 
     Img_proc img_proc;

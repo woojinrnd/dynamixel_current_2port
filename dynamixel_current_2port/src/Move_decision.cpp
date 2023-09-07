@@ -6,7 +6,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(100),
+      SPIN_RATE(1),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::NONE),
       stop_fallen_check_(false),
