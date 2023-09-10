@@ -18,10 +18,11 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     // Init ROS
     ros::NodeHandle nh(ros::this_node::getName());
 
-    boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
-    boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
-    boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
+    // boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
+    // boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
+    // boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
     boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
+    boost::thread basketball_thread = boost::thread(boost::bind(&Img_proc::basketball_thread, img_procPtr));
 }
 
 Move_Decision::~Move_Decision()
@@ -377,6 +378,12 @@ void Move_Decision::LINE_mode()
         else if (!Get_SM_req_finish())
         {
             Set_motion_index_(Motion_Index::NONE);
+            if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+            {
+                line_ud_neckangle = UD_CENTER;
+                Set_UD_NeckAngle(line_ud_neckangle);
+                Set_UD_Neck_on_flg(true);
+            }
         }
         // ROS_ERROR("STRAIGHT LINE");
 
@@ -482,6 +489,12 @@ void Move_Decision::LINE_mode()
         else if (!Get_SM_req_finish())
         {
             Set_motion_index_(Motion_Index::NONE);
+            if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+            {
+                line_ud_neckangle = UD_CENTER;
+                Set_UD_NeckAngle(line_ud_neckangle);
+                Set_UD_Neck_on_flg(true);
+            }
         }
         // ROS_ERROR("NO STRAIGHT LINE");
 
@@ -557,6 +570,12 @@ void Move_Decision::NOLINE_mode()
         else if (!Get_SM_req_finish())
         {
             Set_motion_index_(Motion_Index::NONE);
+            if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+            {
+                line_ud_neckangle = UD_CENTER;
+                Set_UD_NeckAngle(line_ud_neckangle);
+                Set_UD_Neck_on_flg(true);
+            }
         }
         ROS_WARN("LEFT_TURN");
     }
@@ -761,7 +780,7 @@ void Move_Decision::HUDDLE_mode()
             Set_motion_index_(Motion_Index::NONE);
         }
 
-        //Sequence++
+        // Sequence++
         if (finish_past != Get_SM_req_finish())
         {
             req_finish_count++;
@@ -810,7 +829,7 @@ void Move_Decision::HUDDLE_mode()
             Set_motion_index_(Motion_Index::NONE);
         }
 
-        //Sequence++
+        // Sequence++
         if (finish_past != Get_SM_req_finish())
         {
             req_finish_count++;
@@ -892,7 +911,7 @@ void Move_Decision::HUDDLE_mode()
             Set_motion_index_(Motion_Index::NONE);
         }
 
-        //Sequence++
+        // Sequence++
         if (finish_past != Get_SM_req_finish())
         {
             req_finish_count++;
@@ -913,11 +932,10 @@ void Move_Decision::HUDDLE_mode()
             huddle_motion = Motion_Index::InitPose;
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
-            
+
             huddle_actual_angle = img_procPtr->Get_gradient();
             ROS_ERROR("huddle_actual_angle : %f", huddle_actual_angle);
-            
-            
+
             if (huddle_actual_angle > 10 || huddle_actual_angle < -10)
             {
                 tmp_huddle_seq = 4;
@@ -953,7 +971,7 @@ void Move_Decision::HUDDLE_mode()
         {
             Set_motion_index_(Motion_Index::NONE);
         }
-        
+
         // Sequence++
         if (finish_past != Get_SM_req_finish())
         {
@@ -1303,7 +1321,7 @@ void Move_Decision::CORNER_mode()
     // 0 : corner_shape dicision (From img_procPtr) (Depth)
     if (tmp_corner_seq == 0)
     {
-        tmp_corner_shape = img_procPtr->Get_img_proc_corner_number();   
+        tmp_corner_shape = img_procPtr->Get_img_proc_corner_number();
         if (tmp_corner_shape == 1)
         {
             ROS_WARN("ㅓ Type : CORNER NUMBER 1");
@@ -1328,7 +1346,7 @@ void Move_Decision::CORNER_mode()
             corner_distance = img_procPtr->Get_distance();
             corner_distance_save.push_back(corner_distance);
 
-            if (corner_distance_save.size() == SPIN_RATE*3)
+            if (corner_distance_save.size() == SPIN_RATE * 3)
             {
                 corner_distance = accumulate(corner_distance_save.begin(), corner_distance_save.end(), 0.0) / corner_distance_save.size();
                 corner_distance = std::floor(corner_distance * 1000.0) / 1000.0;
@@ -1608,9 +1626,10 @@ void Move_Decision::callbackThread()
     {
         // ROS_INFO("-------------------------CALLBACKTHREAD----------------------------");
         // ROS_INFO("-------------------------------------------------------------------");
-        Running_Mode_Decision();
-        Running_Info();
+        // Running_Mode_Decision();
+        // Running_Info();
         Motion_Info();
+        Basketball_process();
         // ROS_INFO("angle : %f", Get_turn_angle_());
         // ROS_INFO("RL_Neck : %f", Get_RL_NeckAngle());
         // ROS_INFO("UD_Neck : %f", Get_UD_NeckAngle());
@@ -2388,3 +2407,117 @@ void Move_Decision::Set_EM_req_finish(bool EM_req_finish)
     std::lock_guard<std::mutex> lock(mtx_EM_req_finish_);
     this->EM_req_finish_ = EM_req_finish;
 }
+
+// ********************************************** BASKETBALL ************************************************** //
+
+void Move_Decision::Basketball_process()
+{
+    goal_trace_motion = Get_motion_index_();
+    tmp_goal_trace_direction = img_procPtr->Get_img_proc_Goal_trace_direction();
+    cout << tmp_goal_trace_direction << endl;
+
+    // DIR_UP 10
+    // DIR_DOWN 20
+    // DIR_LEFT 30
+    // DIR_RIGHT 40
+    // DIR_NONE 50
+    // DIR_UP_LEFT 60
+    // DIR_UP_RIGHT 70
+    // DIR_DOWN_LEFT 80
+    // DIR_DOWN_RIGHT 90
+
+    switch (tmp_goal_trace_direction)
+    {
+    // DIR_UP 10
+    case 10:
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            goal_trace_motion = Motion_Index::Forward_4step;
+            Set_motion_index_(goal_trace_motion);
+            Set_select_motion_on_flg(true);
+        }
+    // DIR_DOWN 20
+    case 20:
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            goal_trace_motion = Motion_Index::Back_4step;
+            Set_motion_index_(goal_trace_motion);
+            Set_select_motion_on_flg(true);
+        }
+    // DIR_LEFT 30
+    case 30:
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            goal_trace_motion = Motion_Index::Left_2step;
+            Set_motion_index_(goal_trace_motion);
+            Set_select_motion_on_flg(true);
+        }
+    // DIR_RIGHT 40
+    case 40:
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            goal_trace_motion = Motion_Index::Right_2step;
+            Set_motion_index_(goal_trace_motion);
+            Set_select_motion_on_flg(true);
+        }
+    // DIR_NONE 50
+    case 50:
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            goal_trace_motion = Motion_Index::InitPose;
+            Set_motion_index_(goal_trace_motion);
+            Set_select_motion_on_flg(true);
+        }
+    // DIR_UP_LEFT 60
+    case 60:
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            goal_trace_motion = Motion_Index::Forward_4step;
+            Set_motion_index_(goal_trace_motion);
+            Set_select_motion_on_flg(true);
+        }
+        if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+        {
+            goal_trace_angle = img_procPtr->Get_gradient();
+            Set_turn_angle_(goal_trace_angle);
+            Set_turn_angle_on_flg(true);
+        }
+    // DIR_UP_RIGHT 70
+    case 70:
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            goal_trace_motion = Motion_Index::Forward_4step;
+            Set_motion_index_(goal_trace_motion);
+            Set_select_motion_on_flg(true);
+        }
+        if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+        {
+            goal_trace_angle = img_procPtr->Get_gradient();
+            Set_turn_angle_(goal_trace_angle);
+            Set_turn_angle_on_flg(true);
+        }
+    // DIR_DOWN_LEFT 80
+    case 80:
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            goal_trace_motion = Motion_Index::Back_4step;
+            Set_motion_index_(goal_trace_motion);
+            Set_select_motion_on_flg(true);
+        }
+    // DIR_DOWN_RIGHT 90
+    case 90:
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            goal_trace_motion = Motion_Index::Back_4step;
+            Set_motion_index_(goal_trace_motion);
+            Set_select_motion_on_flg(true);
+        }
+
+        break;
+
+    default:
+        break;
+    }
+}
+
+// ********************************************** BASKETBALL ************************************************** //

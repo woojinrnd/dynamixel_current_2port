@@ -45,16 +45,25 @@
 
 // ********************************************** BASKETBALL ************************************************** //
 
+// Define the screen division macros and directions
 #define SCN_UP screen_divide[0]
 #define SCN_DOWN screen_divide[1]
 #define SCN_LEFT screen_divide[2]
 #define SCN_RIGHT screen_divide[3]
 
-#define DIR_UP		50
-#define DIR_DOWN	100
-#define DIR_LEFT	150
-#define DIR_RIGHT	200
-#define DIR_NONE	250
+#define DIR_UP 10
+#define DIR_DOWN 20
+#define DIR_LEFT 30
+#define DIR_RIGHT 40
+#define DIR_NONE 50
+#define DIR_UP_LEFT 60
+#define DIR_UP_RIGHT 70
+#define DIR_DOWN_LEFT 80
+#define DIR_DOWN_RIGHT 90
+
+#define Shoot_Box_Width 100
+#define Shoot_Box_Height 100
+
 
 // ********************************************** BASKETBALL ************************************************** //
 
@@ -87,7 +96,7 @@ public:
     const int webcam_width = 640;
     const int webcam_height = 480;
     const int webcam_fps = 30;
-    const int webcam_id = 1;
+    const int webcam_id = 0;
 
     int threshold_value_white = 180;
     int threshold_value_yellow = 127;
@@ -205,71 +214,39 @@ public:
     double Calc_angle(double _x, Point _pt);
 
     // ********************************************** BASKETBALL ************************************************** //
-    typedef struct _goal_
-    {
-        Rect Goal_rt;
-
-        Point ct;
-        Point _last_ct;
-        int vote = 0;
-
-        void _LPF(double _tau, double _ts)
-        {
-            double tmp_y = (double)ct.y;
-            double tmp_x = (double)ct.x;
-
-            tmp_y = _tau / (_tau + _ts) * (double)_last_ct.y + _ts / (_tau + _ts) * tmp_y;
-            tmp_x = _tau / (_tau + _ts) * (double)_last_ct.x + _ts / (_tau + _ts) * tmp_x;
-
-            ct.y = cvFloor(0.5 + tmp_y);
-            ct.x = cvFloor(0.5 + tmp_x);
-        }
-
-    } _goal_;
-
-    struct _circle_
-    {
-        Point ct; // center
-        int rad; // radius
-
-        bool contains(Point _pt) // 
-        {
-            double tmp_dist = sqrt(pow((double)(ct.x - _pt.x), 2) + pow((double)(ct.y - _pt.y), 2));
-
-            if ((double)rad - tmp_dist >= DBL_EPSILON)
-                return true;
-            else
-                return false;
-        }
-
-        bool contains(int xy, int _case)
-        {
-            bool result = false;
-            switch (_case)
-            {
-            case 0:
-                result = Point(ct.x, xy).inside(Rect(ct.x - 1, ct.y - rad, 3, rad * 2));
-                break;
-            default:
-                result = Point(xy, ct.y).inside(Rect(ct.x - rad, ct.y - 1, rad * 2, 3));
-            }
-            return result;
-        }
-    };
-
-    vector<_goal_> goal_cdt;
-
-    Rect Shoot_Box;
-    Rect tmp_Shoot_Box;
-    Rect Goal_Box;
-    Rect tmp_Goal_Box;
-
-	vector< vector< Point > > screen_divide = vector<vector<Point>>(4);
-
-    int Goal_trace_direction = DIR_NONE;
-	vector<Point> goal_trace;
     
+    /////Variable
 
+    int basketball_thread();
+    bool Goal_det_flg = false;
+    // Real Goal box
+    Rect Goal_Box;
+
+
+    // virtual Goal box (for shooting)
+    Rect Shoot_Box;
+
+    vector<vector<Point>> screen_divide = vector<vector<Point>>(4);
+
+    // Define HSV color range variables
+    int lowerH = 94;
+    int upperH = 128;
+    int lowerS = 64;
+    int upperS = 153;
+    int lowerV = 37;
+    int upperV = 255;
+
+    Point calculateCenter(Rect rect);
+    Point extractColorAndFindCenter(Mat &inputFrame, Mat &binaryImage);
+    int calculateRelativePositionAndDirection(const Point &goalCenter, const Point &shootCenter, int &traceDirection);
+    int8_t DrawObj(Mat &image);
+
+    /// Getter / Setter / Mutex
+    int8_t Goal_trace_direction = DIR_NONE; // private variable
+    mutable std::mutex mtx_img_proc_Goal_trace_direction;
+    int Get_img_proc_Goal_trace_direction() const;
+    void Set_img_proc_Goal_trace_direction(int Goal_trace_direction_);
+    
 
 private:
     ros::NodeHandle nh;

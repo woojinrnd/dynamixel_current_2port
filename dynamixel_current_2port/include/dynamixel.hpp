@@ -16,7 +16,7 @@
 #define PROTOCOL_VERSION         2.0
 
 //Default setting
-#define NUMBER_OF_DYNAMIXELS     3
+#define NUMBER_OF_DYNAMIXELS     23
 #define BAUDRATE                 4000000 
 #define DEVICE_NAME              "/dev/ttyUSB2"
 
@@ -117,8 +117,8 @@ class Dxl
     private:
         dynamixel::PortHandler* portHandler;
         dynamixel::PacketHandler* packetHandler;
-        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {12,18,2};
-        // const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {10, 8, 6, 4, 2, 0, 11, 9, 7, 5, 3, 1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24};
+        // const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {12,18,2};
+        const uint8_t dxl_id[NUMBER_OF_DYNAMIXELS] = {10, 8, 6, 4, 2, 0, 11, 9, 7, 5, 3, 1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24};
         float zero_manual_offset[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t position[NUMBER_OF_DYNAMIXELS] = { 0 };
         uint32_t velocity[NUMBER_OF_DYNAMIXELS] = { 0 };

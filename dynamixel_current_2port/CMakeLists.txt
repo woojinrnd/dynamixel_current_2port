@@ -8,9 +8,9 @@ add_compile_options(-std=c++11)
 # Find catkin packages and libraries for catkin and system dependencies
 ################################################################################
 
-set(dynamixel_current_2port src/dynamixel.cpp ${src/dynamixel.hpp})
-set(dynamixel_current_2port src/dynamixel_controller.cpp ${src/dynamixel_controller.hpp})
-set(dynamixel_current_2port src/callback.cpp ${src/callback.hpp})
+# set(dynamixel_current_2port src/dynamixel.cpp ${src/dynamixel.hpp})
+# set(dynamixel_current_2port src/dynamixel_controller.cpp ${src/dynamixel_controller.hpp})
+# set(dynamixel_current_2port src/callback.cpp ${src/callback.hpp})
 set(dynamixel_current_2port src/sensor.cpp ${src/sensor.hpp})
 set(dynamixel_current_2port src/Move_decision.cpp ${src/Move_decision.hpp})
 
@@ -133,8 +133,9 @@ target_link_libraries(Move_decision_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
 #Sensor node
 add_executable(
   Sensor_node
-  src/Sensor_node.cpp
+  # src/Sensor_node.cpp
   src/sensor.cpp ${sensor.hpp}
+  src/img_proc_basketball.cpp
   # src/dynamixel.cpp ${dynamixel.hpp}
   # src/Move_decision.cpp ${Move_decision.hpp} 
   # src/callback.cpp ${callback.hpp}

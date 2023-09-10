@@ -69,7 +69,6 @@ public:
 
   virtual void Write_Leg_Theta();
   virtual void Write_Arm_Theta();
-  virtual void Set_Callback();
 
   virtual void Check_FSR();
 

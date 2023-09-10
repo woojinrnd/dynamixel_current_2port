@@ -5,7 +5,7 @@ Callback::Callback(Trajectory *trajectoryPtr, IK_Function *IK_Ptr, Dxl *dxlPtr)
     : trajectoryPtr(trajectoryPtr),
       IK_Ptr(IK_Ptr),
       dxlPtr(dxlPtr),
-      SPIN_RATE(100)
+      SPIN_RATE(1)
 {
     ros::NodeHandle nh(ros::this_node::getName());
     boost::thread queue_thread = boost::thread(boost::bind(&Callback::callbackThread, this));
@@ -96,6 +96,21 @@ void Callback::callbackThread()
     while (nh.ok())
     {
 
+        b++;
+        if (a == false && b % 5 == 0)
+        {
+            a = true;
+        }
+        else if (a == true && b % 5 == 0)
+        {
+            a = false;
+        }
+        srv_SendMotion.request.SM_finish = a;
+        srv_SendMotion.request.TA_finish = a;
+        srv_SendMotion.request.UD_finish = a;
+        srv_SendMotion.request.RL_finish = a;
+        srv_SendMotion.request.EM_finish = a;
+
         srv_SendMotion.request.request_id = generateUniqueRequestID(); // generate a unique request ID
 
         if (client_SendMotion.call(srv_SendMotion))
@@ -109,9 +124,9 @@ void Callback::callbackThread()
             {
                 if (error_counter < 50) // Check the counter
                 {
-                    //ros_info("\n");
+                    //ROS_INFO("\n");
                     //ROS_ERROR("Failed to call service");
-                    //ros_info("\n");
+                    //ROS_INFO("\n");
                     error_printed = true; // Set the flag to true
                     error_counter++;      // Increase the counter
                 }
@@ -129,16 +144,16 @@ void Callback::callbackThread()
 void Callback::RecieveMotion()
 {
 
-    // //ros_info("#[MESSAGE] SM Request : %s#", srv_SendMotion.request.SM_finish ? "true" : "false");
-    // //ros_info("#[MESSAGE] TA Request : %s#", srv_SendMotion.request.TA_finish ? "true" : "false");
-    // //ros_info("#[MESSAGE] UD Request : %s#", srv_SendMotion.request.UD_finish ? "true" : "false");
-    // //ros_info("#[MESSAGE] RL Request : %s#", srv_SendMotion.request.RL_finish ? "true" : "false");
-    // //ros_info("#[MESSAGE] EM Request : %s#", srv_SendMotion.request.EM_finish ? "true" : "false");
+    // ROS_INFO("#[MESSAGE] SM Request : %s#", srv_SendMotion.request.SM_finish ? "true" : "false");
+    // ROS_INFO("#[MESSAGE] TA Request : %s#", srv_SendMotion.request.TA_finish ? "true" : "false");
+    // ROS_INFO("#[MESSAGE] UD Request : %s#", srv_SendMotion.request.UD_finish ? "true" : "false");
+    // ROS_INFO("#[MESSAGE] RL Request : %s#", srv_SendMotion.request.RL_finish ? "true" : "false");
+    // ROS_INFO("#[MESSAGE] EM Request : %s#", srv_SendMotion.request.EM_finish ? "true" : "false");
 
     // ROS_WARN("RL_NECK : %f", rl_neckangle);
     // ROS_WARN("UD_NECK : %f", -ud_neckangle+90);
     // ROS_WARN("TURN_ANGLE : %f", turn_angle * RAD2DEG);
-    // //ROS_ERROR("EMERGENCY : %s", emergency_ ? "True" : "False");
+    //ROS_ERROR("EMERGENCY : %s", emergency_ ? "True" : "False");
 
     SelectMotion();
     TATA();
@@ -155,7 +170,7 @@ void Callback::Move_RL_NeckAngle()
     All_Theta[21] = rl_neckangle;
     // All_Theta[2] = rl_neckangle * DEG2RAD;
     // ROS_WARN("RL_NECK : %f", rl_neckangle);
-    //ros_info("------------------------- RL NECK Angle ----------------------------");
+    //ROS_INFO("------------------------- RL NECK Angle ----------------------------");
 }
 
 // 90[deg] : Initial Propose (Look straight)
@@ -166,7 +181,7 @@ void Callback::Move_UD_NeckAngle()
     ud_neckangle = 90 - res_ud_neck;
     // All_Theta[22] = ud_neckangle * DEG2RAD;
     //ROS_WARN("UD_NECK : %f", res_ud_neck);
-    //ros_info("------------------------- UD NECK Angle ----------------------------");
+    //ROS_INFO("------------------------- UD NECK Angle ----------------------------");
 }
 
 void Callback::TATA()
@@ -181,7 +196,7 @@ void Callback::TATA()
        ROS_WARN("TURN_ANGLE : %f", res_turn_angle);
     }
     
-    //ros_info("------------------------- TURN_ANGLE ----------------------------");
+    //ROS_INFO("------------------------- TURN_ANGLE ----------------------------");
 }
 
 /// 재민이형 긴급정지에 대한 코드 여기다가 넣으면 됨 ///
@@ -202,7 +217,7 @@ void Callback::Emergency()
         // mode = 0;
     }
     //ROS_ERROR("EMERGENCY : %s", emergency_ ? "True" : "False");
-    //ros_info("------------------------- EMERGENCY ----------------------------");
+    //ROS_INFO("------------------------- EMERGENCY ----------------------------");
 }
 
 void Callback::Check_FSR()
@@ -271,21 +286,21 @@ void Callback::Motion_Info()
 
     if (res_mode == Motion_Index::Forward_Nstep)
     {
-        //ROS_WARN("Motion_Index : %s", tmp_motion.c_str());
-        //ROS_WARN("Distance : %f", res_distance);
-        //ros_info("------------------------- Select Motion ----------------------------");
+        ROS_WARN("Motion_Index : %s", tmp_motion.c_str());
+        ROS_WARN("Distance : %f", res_distance);
+        ROS_INFO("------------------------- Select Motion ----------------------------");
     }
 
     else if (res_mode == Motion_Index::InitPose)
     {
-        //ROS_ERROR("Motion_Index : %s", tmp_motion.c_str());
-        //ros_info("------------------------- Select Motion ----------------------------");
+        ROS_ERROR("Motion_Index : %s", tmp_motion.c_str());
+        ROS_INFO("------------------------- Select Motion ----------------------------");
     }
 
     else
     {
-        //ROS_WARN("Motion_Index : %s", tmp_motion.c_str());
-        //ros_info("------------------------- Select Motion ----------------------------");
+        ROS_WARN("Motion_Index : %s", tmp_motion.c_str());
+        ROS_INFO("------------------------- Select Motion ----------------------------");
     }
 }
 
@@ -345,7 +360,7 @@ void Callback::SelectMotion()
         IK_Ptr->Set_Angle_Compensation();
         indext = 0;
     }
-    // //ros_info("mode(%d)", mode);
+    // //ROS_IFNO("mode(%d)", mode);
     // ROS_WARN("Distance(%f)", res_distance);
 }
 
@@ -478,7 +493,7 @@ void Callback::Write_Leg_Theta()
     else if (emergency == 1)
     {
         stop_indext += 1;
-        //ros_info("%d", emergency);
+        //ROS_INFO("%d", emergency);
         IK_Ptr->BRP_Simulation(trajectoryPtr->lsRef_RL_x, trajectoryPtr->lsRef_RL_y, trajectoryPtr->lsRef_RL_z, trajectoryPtr->lsRef_LL_x, trajectoryPtr->lsRef_LL_y, trajectoryPtr->lsRef_LL_z, stop_indext);
         if (stop_indext > 133)
         {
@@ -504,20 +519,20 @@ void Callback::Write_Leg_Theta()
     All_Theta[10] = IK_Ptr->LL_th[4] - 24.22 * DEG2RAD;
     All_Theta[11] = -IK_Ptr->LL_th[5];
 
-    if (indext >= trajectoryPtr->Ref_RL_x.cols() && indext != 0)
-    {
-        indext -= 1;
-        srv_SendMotion.request.SM_finish = true;
-    }
-    else
-    {
-        srv_SendMotion.request.SM_finish = false;
-    }
+    // if (indext >= trajectoryPtr->Ref_RL_x.cols() && indext != 0)
+    // {
+    //     indext -= 1;
+    //     srv_SendMotion.request.SM_finish = true;
+    // }
+    // else
+    // {
+    //     srv_SendMotion.request.SM_finish = false;
+    // }
 
-    ROS_INFO("on_angle(%d) indext(%d) index_angle(%d) mode(%d)", on_angle , indext , index_angle, mode);
+    // ROS_INFO("on_angle(%d) indext(%d) index_angle(%d) mode(%d)", on_angle , indext , index_angle, mode);
 
 
-    // //ros_info("%d  %lf %d", indext, All_Theta[3], emergency);
+    // //ROS_INFO("%d  %lf %d", indext, All_Theta[3], emergency);
     Check_FSR();
 }
 

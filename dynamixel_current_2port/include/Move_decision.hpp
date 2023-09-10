@@ -24,11 +24,11 @@
 
 #define UD_MAX  90
 #define UD_MIN   0
-#define UD_CENTER 30
+#define UD_CENTER 80
 
 #define RL_MAX  90
 #define RL_MIN  -90
-#define RL_CENTER 30
+#define RL_CENTER 0
 
 #define TURN_MAX  90
 #define TURN_MIN  -90
@@ -341,6 +341,21 @@ public:
 
     int warning_counter = 0;
     bool warning_printed = false;
+
+    // ********************************************** BASKETBALL ************************************************** //
+    // DIR_UP 10
+    // DIR_DOWN 20
+    // DIR_LEFT 30
+    // DIR_RIGHT 40
+    // DIR_NONE 50
+    // DIR_UP_LEFT 60
+    // DIR_UP_RIGHT 70
+    // DIR_DOWN_LEFT 80
+    // DIR_DOWN_RIGHT 90
+    int tmp_goal_trace_direction = 0;
+    int8_t goal_trace_motion = 0;
+    double goal_trace_angle = 0;
+    void Basketball_process();
 
 private:
     ros::NodeHandle nh;
