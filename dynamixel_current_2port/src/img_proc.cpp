@@ -284,11 +284,13 @@ void Img_proc::webcam_thread()
         auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
         int WhiteColorDetected = std::get<2>(hsv_frame_white);
         int YellowColorDetected = std::get<2>(hsv_frame_yellow);
+
         if (YellowColorDetected > 1000){
             //Athletics_FLAG = 2;
             auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, blue_color, threshold_value_yellow, false, false);
             bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
             bool Corner_mode = std::get<4>(thresh_frame_yellow);
+            this->Set_img_proc_huddle_det(YellowColorDetected);
             cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
 
         }
@@ -526,30 +528,34 @@ void Img_proc::realsense_thread()
             // float dist_to_center = depth_.get_distance(webcam_width / 2, webcam_height / 2);
             // this->Set_distance(dist_to_center);
 
-            ////////////////////////////////// TEST ////////////////////////////////// 
+            ////////////////////////////////// TEST //////////////////////////////////
 
             // Wall mode
-            if (Athletics_FLAG == 3){
-                auto pca = applyPCA(colorMat, depth_frame, 300, 200, 320, 260, 340, 200);
+            auto pca = applyPCA(colorMat, depth_frame, 300, 200, 320, 260, 340, 200);
 
-                int8_t wall_number_ = std::get<0>(pca);
-                double angle_ = std::get<1>(pca);
-                double distance_ = std::get<2>(pca);
+            int8_t wall_number_ = std::get<0>(pca);
+            double angle_ = std::get<1>(pca);
+            double distance_ = std::get<2>(pca);
 
-                auto Huddle = extract_color(colorMat, lower_bound_yellow, upper_bound_yellow);
-
-                center_huddle = std::get<3>(Huddle);
-
-                if (Get_img_proc_wall_det() == true)
-                {
-                    this->Set_img_proc_wall_number(wall_number_);
-                    this->Set_gradient(angle_);
-                    this->Set_distance(distance_);
-                }
-
-                cv::imshow(window_name, depthMat);
-                cv::imshow(window_name_color, colorMat);
+            if (Get_img_proc_wall_det() == true)
+            {
+                this->Set_img_proc_wall_number(wall_number_);
+                this->Set_gradient(angle_);
+                this->Set_distance(distance_);
             }
+
+            // Huddle mode
+            auto Huddle = extract_color(colorMat, lower_bound_yellow, upper_bound_yellow);
+
+            center_huddle = std::get<3>(Huddle);
+
+            huddle_distance = Distance_Point(depth_frame, center_huddle);
+            Set_distance(huddle_distance);
+
+
+
+            cv::imshow(window_name, depthMat);
+            cv::imshow(window_name_color, colorMat);
 
             cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);

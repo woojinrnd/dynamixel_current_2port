@@ -293,14 +293,17 @@ public:
     // 3 : Motion : Forward_Nstep (Approach)
     // 4 : Motion : Step in place (Pose Control)
     // 5 : Motion : InitPose
-    // 6 : Motion : Huddle Jump
-    // 7 : Initializing
+    // 6 : MOtion : Forward_halfstep (Aprroach Huddle)
+    // 7 : Motion : Huddle Jump
+    // 8 : Initializing
     int8_t tmp_huddle_seq = 0;
     double huddle_distance = 0;
     double huddle_actual_angle = 0;
     int8_t huddle_motion = 0;
     double huddle_ud_neck_angle = 0;
     std::vector<double> huddle_distance_save;
+    bool contain_huddle_to_foot = false;
+    
 
     /////////////////////// Corner Mode ///////////////////////
 

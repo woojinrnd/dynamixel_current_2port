@@ -688,8 +688,9 @@ void Move_Decision::HUDDLE_mode()
     // 3 : Motion : Forward_Nstep (Approach)
     // 4 : Motion : Step in place (Pose Control)
     // 5 : Motion : InitPose
-    // 6 : Motion : Huddle Jump
-    // 7 : Initializing
+    // 6 : MOtion : Forward_halfstep (Aprroach Huddle)
+    // 7 : Motion : Huddle Jump
+    // 8 : Initializing
 
     huddle_actual_angle = Get_turn_angle_();
     huddle_motion = Get_motion_index_();
@@ -955,8 +956,37 @@ void Move_Decision::HUDDLE_mode()
         }
     }
 
-    // 6 : Motion : Huddle Jump
+    // 6 : MOtion : Forward_halfstep (Aprroach Huddle)
     else if (tmp_huddle_seq == 6)
+    {
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            if (!contain_huddle_to_foot)
+            {
+                huddle_motion = Motion_Index::Forward_Halfstep;
+                Set_motion_index_(huddle_motion);
+                Set_select_motion_on_flg(true);
+                Set_huddle_det_flg(false);
+            }
+
+            else
+            {
+                huddle_motion - Motion_Index::InitPose;
+                Set_motion_index_(huddle_motion);
+                Set_select_motion_on_flg(true);
+                Set_huddle_det_flg(false);
+                tmp_huddle_seq++;
+            }
+        }
+
+        else if (!Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::NONE);
+        }
+    }
+
+    // 7 : Motion : Huddle Jump
+    else if (tmp_huddle_seq == 7)
     {
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
@@ -984,8 +1014,8 @@ void Move_Decision::HUDDLE_mode()
         }
     }
 
-    // 7 : Initializeing
-    else if (tmp_huddle_seq == 7)
+    // 8 : Initializeing
+    else if (tmp_huddle_seq == 8)
     {
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
