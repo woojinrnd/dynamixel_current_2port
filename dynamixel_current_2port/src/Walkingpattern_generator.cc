@@ -66,9 +66,9 @@ Trajectory::Trajectory()
 	XStride << 0, 0, 0, 0, 0, 0;
 };
 
-void Trajectory::Fast_mode()
+void Trajectory::Change_Freq(double f)
 {
-	walktime = 1 / walkfreq;
+	walktime = f / walkfreq;
 	walktime_n = walktime * freq;
 }
 
@@ -378,6 +378,152 @@ MatrixXd Trajectory::YComSimulation_Sidewalk(double a, double b, double c, doubl
 	return YCom;
 }
 
+MatrixXd Trajectory::Huddle_Xcom()
+{
+	sim_n = walktime_n * 3;
+	zmp_err_int = 0;
+	u_prev = 0;
+	PreviewGd();
+	int Com_flag = 0;
+	float float_Com_flag = 0;
+	float float_walktime_n = walktime_n;
+	RowVectorXd zmp_ref(sim_n + 19);
+	for (int i = 0; i < sim_n + 19; i++)
+	{
+		if (i < 1.75 * float_walktime_n)
+		{
+			zmp_ref[i] = 0;
+		}
+		else
+		{
+			zmp_ref[i] = step;
+		}
+	}
+
+	RowVectorXd zmp_ref_fifo(NL);
+	RowVectorXd u(sim_n + 19);
+	RowVectorXd zmp(sim_n + 19);
+	RowVectorXd zmp_ref_final(sim_n + 19);
+	RowVectorXd CP(sim_n + 19);
+	MatrixXd XCom(3, sim_n + 20);
+	zmp_ref_fifo.setZero();
+	u.setZero();
+	zmp.setZero();
+	zmp_ref_final.setZero();
+	CP.setZero();
+	XCom.setZero();
+	double w = sqrt(g / z_c);
+	for (int i = 0; i < sim_n + 19; i++)
+	{
+		for (int j = 0; j < NL; j++)
+		{
+			if (i + j < sim_n + 19)
+			{
+				zmp_ref_fifo[j] = zmp_ref[i + j];
+			}
+			else
+			{
+				zmp_ref_fifo[j] = zmp_ref[sim_n + 18];
+			}
+		}
+		u_prev = 0;
+		for (int j = 0; j < NL; j++)
+		{
+			u_prev += Gd(j, 0) * zmp_ref_fifo[j];
+		}
+		u[i] = Gi * zmp_err_int - Gx * XCom.col(i) + u_prev;
+
+		XCom.col(i + 1) = A * XCom.col(i) + B * u[i];
+
+		zmp[i] = C * XCom.col(i);
+
+		zmp_err_int += (zmp_ref[i] - zmp[i]);
+
+		CP[i] = XCom(0, i) + 1 / w * XCom(1, i);
+
+		zmp_ref_final[i] = zmp_ref[i];
+	}
+	MatrixXd XCom_ = XCom.block(0, 18, 1, sim_n);
+	return XCom_;
+}
+
+MatrixXd Trajectory::Huddle_Ycom()
+{
+	sim_n = walktime_n * 3;
+	PreviewGd();
+	zmp_err_int = 0;
+	u_prev = 0;
+	int Com_flag = 0;
+	float float_Com_flag = 0;
+	float float_walktime_n = walktime_n;
+	RowVectorXd zmp_ref(sim_n + 19);
+	for (int i = 0; i < sim_n + 19; i++)
+	{
+		if (i < 0.75 * float_walktime_n)
+		{
+			zmp_ref[i] = 0;
+		}
+		else if (i < 1.75 * float_walktime_n)
+		{
+			zmp_ref[i] = -0.06;
+		}
+		else if (i < 2.75 * float_walktime_n)
+		{
+			zmp_ref[i] = 0.06;
+		}
+		else
+		{
+			zmp_ref[i] = 0;
+		}
+	}
+
+	VectorXd zmp_ref_fifo(NL);
+	VectorXd u(sim_n + 19);
+	VectorXd zmp(sim_n + 19);
+	VectorXd zmp_ref_final(sim_n + 19);
+	VectorXd CP(sim_n + 19);
+	MatrixXd YCom(3, sim_n + 20);
+	zmp_ref_fifo.setZero();
+	u.setZero();
+	zmp.setZero();
+	zmp_ref_final.setZero();
+	CP.setZero();
+	YCom.setZero();
+	double w = sqrt(g / z_c);
+	for (int i = 0; i < sim_n + 19; i++)
+	{
+		for (int j = 0; j < NL; j++)
+		{
+			if (i + j < sim_n + 19)
+			{
+				zmp_ref_fifo[j] = zmp_ref[i + j];
+			}
+			else
+			{
+				zmp_ref_fifo[j] = zmp_ref[sim_n + 18];
+			}
+		}
+		u_prev = 0;
+		for (int j = 0; j < NL; j++)
+		{
+			u_prev = u_prev + Gd(j, 0) * zmp_ref_fifo[j];
+		}
+		u[i] = Gi * zmp_err_int - Gx * YCom.col(i) + u_prev;
+
+		YCom.col(i + 1) = A * YCom.col(i) + B * u[i];
+
+		zmp[i] = C * YCom.col(i);
+
+		zmp_err_int += (zmp_ref[i] - zmp[i]);
+
+		CP[i] = YCom(0, i) + 1.0 / w * YCom(1, i);
+
+		zmp_ref_final[i] = zmp_ref[i];
+	}
+	MatrixXd YCom_ = YCom.block(0, 18, 1, sim_n);
+	return YCom_;
+}
+
 MatrixXd Trajectory::Equation_solver(double t0, double t1, double start, double end)
 {
 	Matrix<double, 6, 6> A;
@@ -481,14 +627,14 @@ MatrixXd Trajectory::LF_xsimulation_straightwalk()
 	return Footpos;
 }
 
-MatrixXd Trajectory::RF_zsimulation_straightwalk()
+MatrixXd Trajectory::RF_zsimulation_straightwalk(double h)
 {
 	int sim_n = step_n * walktime_n;
 	double dwalktime_n = walktime_n;
 	double Rfootflag = 0;
 
-	this->XStep = Equation_solver(0, 0.2 * dwalktime_n, 0, 0.05);
-	this->XStride = Equation_solver(0.2 * dwalktime_n, 0.4 * dwalktime_n, 0.05, 0);
+	this->XStep = Equation_solver(0, 0.2 * dwalktime_n, 0, h);
+	this->XStride = Equation_solver(0.2 * dwalktime_n, 0.4 * dwalktime_n, h, 0);
 
 	RowVectorXd Footpos(sim_n);
 	for (int i = 0; i < sim_n; i++)
@@ -512,14 +658,14 @@ MatrixXd Trajectory::RF_zsimulation_straightwalk()
 	return Footpos;
 };
 
-MatrixXd Trajectory::LF_zsimulation_straightwalk()
+MatrixXd Trajectory::LF_zsimulation_straightwalk(double h)
 {
 	int sim_n = step_n * walktime_n;
 	double dwalktime_n = walktime_n;
 	double Lfootflag = 0;
 
-	this->XStep = Equation_solver(0, 0.2 * dwalktime_n, 0, 0.05);
-	this->XStride = Equation_solver(0.2 * dwalktime_n, 0.4 * dwalktime_n, 0.05, 0);
+	this->XStep = Equation_solver(0, 0.2 * dwalktime_n, 0, h);
+	this->XStride = Equation_solver(0.2 * dwalktime_n, 0.4 * dwalktime_n, h, 0);
 
 	RowVectorXd Footpos(sim_n);
 	for (int i = 0; i < sim_n; i++)
@@ -939,7 +1085,135 @@ MatrixXd Trajectory::LF_zsimulation_rightwalk()
 	return Footpos;
 };
 
-void Trajectory::Go_Straight(double step, double distance)
+MatrixXd Trajectory::RF_xsimulation_huddle()
+{
+	XStep = Equation_solver(0, walktime * 0.5, 0, step);
+	step_n = 3;
+	sim_n = walktime_n * step_n;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n); // rightfoot motion
+	for (int i = 0; i < sim_n; i++)
+	{
+		double time = i * del_t;
+		if (time < 2 * walktime)
+		{
+			Footpos[i] = 0;
+		}
+		else if (time < 2.5 * walktime)
+		{
+			Footpos[i] = Step(time - 2 * walktime);
+		}
+		else
+		{
+			Footpos[i] = step;
+		}
+	};
+	return Footpos;
+};
+
+MatrixXd Trajectory::LF_xsimulation_huddle()
+{
+	XStep = Equation_solver(0, walktime * 0.5, 0, step);
+	step_n = 3;
+	sim_n = walktime_n * step_n;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n); // rightfoot motion
+	for (int i = 0; i < sim_n; i++)
+	{
+		double time = i * del_t;
+		if (time < 1 * walktime)
+		{
+			Footpos[i] = 0;
+		}
+		else if (time < 1.5 * walktime)
+		{
+			Footpos[i] = Step(time - 1 * walktime);
+		}
+		else
+		{
+			Footpos[i] = step;
+		}
+	};
+	return Footpos;
+};
+
+MatrixXd Trajectory::RF_zsimulation_huddle(double h)
+{
+	XStep = Equation_solver(0, 0.2 * walktime, 0, h);
+	XStride = Equation_solver(0, 0.2 * walktime, h, 0);
+	sim_n = walktime_n * 3;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n);
+	for (int i = 0; i < sim_n; i++)
+	{
+		double time = i * del_t;
+
+		if (time < 1.8 * walktime)
+		{
+			Footpos[i] = 0;
+		}
+		else if (time < 2 * walktime)
+		{
+			Footpos[i] = Step(time - 1.8 * walktime);
+		}
+		else if (time < 2.5 * walktime)
+		{
+			Footpos[i] = h;
+		}
+		else if (time < 2.7 * walktime)
+		{
+			Footpos[i] = Stride(time - 2.5 * walktime);
+		}
+		else if (time < 3*walktime)
+		{
+			Footpos[i] = 0;
+		}
+		else
+		{
+			Footpos[i] = 0;
+		}
+	};
+	return Footpos;
+};
+
+MatrixXd Trajectory::LF_zsimulation_huddle(double h)
+{
+	XStep = Equation_solver(0, 0.2 * walktime, 0, h);
+	XStride = Equation_solver(0, 0.2 * walktime, h, 0);
+	step_n = 3;
+	sim_n = walktime_n * step_n;
+	double del_t = 1 / freq;
+	RowVectorXd Footpos(sim_n);
+	for (int i = 0; i < sim_n; i++)
+	{
+		double time = i * del_t;
+
+		if (time < 0.8 * walktime)
+		{
+			Footpos[i] = 0;
+		}
+		else if (time < 1 * walktime)
+		{
+			Footpos[i] = Step(time - 0.8 * walktime);
+		}
+		else if (time < 1.5 * walktime)
+		{
+			Footpos[i] = h;
+		}
+		else if (time < 1.7 * walktime)
+		{
+			Footpos[i] = Stride(time - 1.5 * walktime);
+		}
+		else
+		{
+			Footpos[i] = 0;
+		}
+	};
+	return Footpos;
+
+};
+
+void Trajectory::Go_Straight(double step, double distance, double height)
 {
 	Set_step(step);
 	Set_distance(distance);
@@ -957,15 +1231,15 @@ void Trajectory::Go_Straight(double step, double distance)
 	// Ref_LL_x = LF_xFoot.block(0, 0, LF_xFoot.rows(), sim_n) - Xcom_.block(0, 0, LF_xFoot.rows(), sim_n);
 	// Ref_RL_y = RF_yFoot.block(0, 0, RF_yFoot.rows(), sim_n) - Ycom_.block(0, 0, RF_yFoot.rows(), sim_n);
 	// Ref_LL_y = LF_yFoot.block(0, 0, LF_yFoot.rows(), sim_n) - Ycom_.block(0, 0, LF_yFoot.rows(), sim_n);
-	Ref_RL_z = RF_zsimulation_straightwalk();
-	Ref_LL_z = LF_zsimulation_straightwalk();
+	Ref_RL_z = RF_zsimulation_straightwalk(height);
+	Ref_LL_z = LF_zsimulation_straightwalk(height);
 }
 
-void Trajectory::Fast_Straight(double step, double distance)
+void Trajectory::Freq_Change_Straight(double step, double distance, double height, double freq)
 {
-	Fast_mode();
-	Set_step(0.05);
-	Set_distance(0.5);
+	Change_Freq(freq);
+	Set_step(step);
+	Set_distance(distance);
 	MatrixXd Xcom_ = XComSimulation();
 	MatrixXd Ycom_ = YComSimulation();
 	MatrixXd LF_xFoot = LF_xsimulation_straightwalk();
@@ -980,8 +1254,8 @@ void Trajectory::Fast_Straight(double step, double distance)
 	// Ref_LL_x = LF_xFoot.block(0, 0, LF_xFoot.rows(), sim_n) - Xcom.block(0, 0, LF_xFoot.rows(), sim_n);
 	// Ref_RL_y = RF_yFoot.block(0, 0, RF_yFoot.rows(), sim_n) - Ycom.block(0, 0, RF_yFoot.rows(), sim_n);
 	// Ref_LL_y = LF_yFoot.block(0, 0, LF_yFoot.rows(), sim_n) - Ycom.block(0, 0, LF_yFoot.rows(), sim_n);
-	Ref_RL_z = RF_zsimulation_straightwalk();
-	Ref_LL_z = LF_zsimulation_straightwalk();
+	Ref_RL_z = RF_zsimulation_straightwalk(height);
+	Ref_LL_z = LF_zsimulation_straightwalk(height);
 };
 
 void Trajectory::Side_Left2()
@@ -1023,8 +1297,8 @@ void Trajectory::Step_in_place(double step, double distance)
 	Ref_LL_x = MatrixXd::Zero(1, sim_n);
 	Ref_RL_y = RF_yFoot - Ycom;
 	Ref_LL_y = LF_yFoot - Ycom;
-	Ref_RL_z = RF_zsimulation_straightwalk();
-	Ref_LL_z = LF_zsimulation_straightwalk();
+	Ref_RL_z = RF_zsimulation_straightwalk(0.05);
+	Ref_LL_z = LF_zsimulation_straightwalk(0.05);
 }
 
 void Trajectory::Stop_Trajectory_straightwalk(double step)
@@ -1042,8 +1316,8 @@ void Trajectory::Stop_Trajectory_straightwalk(double step)
 	lsRef_LL_x = LF_xFoot.block(0, numCols, 1, 2 * numCols) - Xcom.block(0, numCols, 1, 2 * numCols);
 	lsRef_RL_y = RF_yFoot.block(0, numCols, 1, 2 * numCols) - Ycom.block(0, numCols, 1, 2 * numCols);
 	lsRef_LL_y = LF_yFoot.block(0, numCols, 1, 2 * numCols) - Ycom.block(0, numCols, 1, 2 * numCols);
-	lsRef_RL_z = RF_zsimulation_straightwalk().block(0, numCols, 1, 2 * numCols);
-	lsRef_LL_z = LF_zsimulation_straightwalk().block(0, numCols, 1, 2 * numCols);
+	lsRef_RL_z = RF_zsimulation_straightwalk(0.05).block(0, numCols, 1, 2 * numCols);
+	lsRef_LL_z = LF_zsimulation_straightwalk(0.05).block(0, numCols, 1, 2 * numCols);
 	lsRef_RL_x = rsRef_RL_x.rowwise().reverse();
 	lsRef_LL_x = rsRef_LL_x.rowwise().reverse();
 	lsRef_RL_y = rsRef_RL_y.rowwise().reverse();
@@ -1055,8 +1329,8 @@ void Trajectory::Stop_Trajectory_straightwalk(double step)
 	rsRef_LL_x = LF_xFoot.block(0, 0, 1, numCols) - Xcom.block(0, 0, 1, numCols);
 	rsRef_RL_y = RF_yFoot.block(0, 0, 1, numCols) - Ycom.block(0, 0, 1, numCols);
 	rsRef_LL_y = LF_yFoot.block(0, 0, 1, numCols) - Ycom.block(0, 0, 1, numCols);
-	rsRef_RL_z = RF_zsimulation_straightwalk().block(0, 0, 1, numCols);
-	rsRef_LL_z = LF_zsimulation_straightwalk().block(0, 0, 1, numCols);
+	rsRef_RL_z = RF_zsimulation_straightwalk(0.05).block(0, 0, 1, numCols);
+	rsRef_LL_z = LF_zsimulation_straightwalk(0.05).block(0, 0, 1, numCols);
 }
 
 void Trajectory::Stop_Trajectory_stepinplace(double step)
@@ -1073,8 +1347,8 @@ void Trajectory::Stop_Trajectory_stepinplace(double step)
 	lsRef_LL_x = MatrixXd::Zero(1, sim_n);
 	lsRef_RL_y = RF_yFoot.block(0, numCols, 1, 2 * numCols) - Ycom.block(0, numCols, 1, 2 * numCols);
 	lsRef_LL_y = LF_yFoot.block(0, numCols, 1, 2 * numCols) - Ycom.block(0, numCols, 1, 2 * numCols);
-	lsRef_RL_z = RF_zsimulation_straightwalk().block(0, numCols, 1, 2 * numCols);
-	lsRef_LL_z = LF_zsimulation_straightwalk().block(0, numCols, 1, 2 * numCols);
+	lsRef_RL_z = RF_zsimulation_straightwalk(0.05).block(0, numCols, 1, 2 * numCols);
+	lsRef_LL_z = LF_zsimulation_straightwalk(0.05).block(0, numCols, 1, 2 * numCols);
 	lsRef_RL_y = rsRef_RL_y.rowwise().reverse();
 	lsRef_LL_y = rsRef_LL_y.rowwise().reverse();
 	lsRef_RL_z = rsRef_RL_z.rowwise().reverse();
@@ -1084,8 +1358,25 @@ void Trajectory::Stop_Trajectory_stepinplace(double step)
 	rsRef_LL_x = MatrixXd::Zero(1, sim_n);
 	rsRef_RL_y = RF_yFoot.block(0, 0, 1, numCols) - Ycom.block(0, 0, 1, numCols);
 	rsRef_LL_y = LF_yFoot.block(0, 0, 1, numCols) - Ycom.block(0, 0, 1, numCols);
-	rsRef_RL_z = RF_zsimulation_straightwalk().block(0, 0, 1, numCols);
-	rsRef_LL_z = LF_zsimulation_straightwalk().block(0, 0, 1, numCols);
+	rsRef_RL_z = RF_zsimulation_straightwalk(0.05).block(0, 0, 1, numCols);
+	rsRef_LL_z = LF_zsimulation_straightwalk(0.05).block(0, 0, 1, numCols);
+}
+
+void Trajectory::Huddle_Motion(double step, double height)
+{
+	Set_step(step);
+	MatrixXd Xcom = Huddle_Xcom();
+	MatrixXd Ycom = Huddle_Ycom();
+	MatrixXd LF_xFoot = LF_xsimulation_huddle();
+	MatrixXd RF_xFoot = RF_xsimulation_huddle();
+	MatrixXd RF_yFoot = -L0 * MatrixXd::Ones(1, sim_n);
+	MatrixXd LF_yFoot = L0 * MatrixXd::Ones(1, sim_n);
+	Ref_RL_x = RF_xFoot - Xcom;
+	Ref_LL_x = LF_xFoot - Xcom;
+	Ref_RL_y = RF_yFoot - Ycom;
+	Ref_LL_y = LF_yFoot - Ycom;
+	Ref_RL_z = RF_zsimulation_huddle(height);
+	Ref_LL_z = LF_zsimulation_huddle(height);
 }
 
 void Trajectory::Make_turn_trajectory(double angle)
@@ -1174,6 +1465,7 @@ IK_Function::IK_Function()
 	LL_Support_Leg = 0;
 	LL_Swing_Leg = 0;
 	LL_Support_Knee = 0;
+	Com_Height = 30;
 }
 
 void IK_Function::Get_Step_n(double a)
@@ -1608,14 +1900,14 @@ void IK_Function::BRP_Simulation(MatrixXd RFx, MatrixXd RFy, MatrixXd RFz, Matri
 	}
 	Ref_RL_PR[0] = 1000 * RFx(0, Index_CNT);
 	Ref_RL_PR[1] = 1000 * RFy(0, Index_CNT);
-	Ref_RL_PR[2] = -L1 - L2 - L3 - L4 - L5 - L6 + 30. + 1000 * RFz(0, Index_CNT);
+	Ref_RL_PR[2] = -L1 - L2 - L3 - L4 - L5 - L6 + Com_Height + 1000 * RFz(0, Index_CNT);
 	Ref_RL_PR[3] = 0 * deg2rad;
 	Ref_RL_PR[4] = 0 * deg2rad;
 	Ref_RL_PR[5] = 0 * deg2rad;
 
 	Ref_LL_PR[0] = 1000 * LFx(0, Index_CNT);
 	Ref_LL_PR[1] = 1000 * LFy(0, Index_CNT);
-	Ref_LL_PR[2] = -L1 - L2 - L3 - L4 - L5 - L6 + 30. + 1000 * LFz(0, Index_CNT);
+	Ref_LL_PR[2] = -L1 - L2 - L3 - L4 - L5 - L6 + Com_Height + 1000 * LFz(0, Index_CNT);
 	Ref_LL_PR[3] = 0 * deg2rad;
 	Ref_LL_PR[4] = 0 * deg2rad;
 	Ref_LL_PR[5] = 0 * deg2rad;
@@ -1631,14 +1923,15 @@ void IK_Function::BRP_Simulation(MatrixXd RFx, MatrixXd RFy, MatrixXd RFz, Matri
 	}
 }
 
-void IK_Function::Set_Angle_Compensation()
+void IK_Function::Change_Com_Height(double h)
+{
+	Com_Height = h;
+}
+
+void IK_Function::Set_Angle_Compensation(int walktime_n)
 {
 	Trajectory traj;
 
-	RL_Support_Leg = 3.5 * deg2rad;
-	RL_Swing_Leg = 3.5 * deg2rad;
-	RL_Support_Knee = 0; // 5 * deg2rad;
-	RL_Support_Ankle = 3.5 * deg2rad;
 	RL_Compensation_Support_Leg_up = traj.Equation_solver(0, walktime_n * 0.075, 0, RL_Support_Leg);
 	RL_Compensation_Support_Leg_down = traj.Equation_solver(0, walktime_n * 0.075, RL_Support_Leg, 0);
 	RL_Compensation_Swing_Leg_up = traj.Equation_solver(0, walktime_n * 0.075, 0, RL_Swing_Leg);
@@ -1648,10 +1941,7 @@ void IK_Function::Set_Angle_Compensation()
 	RL_Compensation_Support_ankle_up = traj.Equation_solver(0, walktime_n * 0.075, 0, RL_Support_Ankle);
 	RL_Compensation_Support_ankle_down = traj.Equation_solver(0, walktime_n * 0.075, RL_Support_Ankle, 0);
 
-	LL_Support_Leg = 3.5 * deg2rad;
-	LL_Swing_Leg = 3.5 * deg2rad;
-	LL_Support_Knee = 0; //-5 * deg2rad;
-	LL_Support_Ankle = 3.5 * deg2rad;
+
 	LL_Compensation_Support_Leg_up = traj.Equation_solver(0, walktime_n * 0.075, 0, LL_Support_Leg);
 	LL_Compensation_Support_Leg_down = traj.Equation_solver(0, walktime_n * 0.075, LL_Support_Leg, 0);
 	LL_Compensation_Swing_Leg_up = traj.Equation_solver(0, walktime_n * 0.075, 0, LL_Swing_Leg);
@@ -1660,6 +1950,19 @@ void IK_Function::Set_Angle_Compensation()
 	LL_Compensation_Support_knee_down = traj.Equation_solver(0, walktime_n * 0.075, LL_Support_Knee, 0);
 	LL_Compensation_Support_ankle_up = traj.Equation_solver(0, walktime_n * 0.075, 0, LL_Support_Ankle);
 	LL_Compensation_Support_ankle_down = traj.Equation_solver(0, walktime_n * 0.075, LL_Support_Ankle, 0);
+}
+
+void IK_Function::Change_Angle_Compensation(double RL_Support,double RL_Swing,double RL_Ankle,double LL_Support,double LL_Swing,double LL_Ankle)
+{
+	RL_Support_Leg = RL_Support * deg2rad;
+	RL_Swing_Leg = RL_Swing * deg2rad;
+	RL_Support_Knee = 0; //-5 * deg2rad;
+	RL_Support_Ankle = RL_Ankle * deg2rad;
+
+	LL_Support_Leg =  LL_Support * deg2rad;
+	LL_Swing_Leg = LL_Swing * deg2rad;
+	LL_Support_Knee = 0; //-5 * deg2rad;
+	LL_Support_Ankle = LL_Ankle * deg2rad;
 }
 
 void IK_Function::Angle_Compensation(int indext)
@@ -1736,10 +2039,11 @@ void IK_Function::Angle_Compensation(int indext)
 
 void IK_Function::Fast_Angle_Compensation(int indext)
 {
+	int fwalktime_n = walktime_n * 0.5;
+	double dwalktime = fwalktime_n;
+	double check_index = indext % fwalktime_n;
 
-	double check_index = indext % walktime_n;
-	double dwalktime = walktime_n * 0.5;
-	if (indext > 0.5 * walktime_n && indext < sim_n + walktime_n)
+	if (indext > 0.5 * dwalktime && indext < sim_n + dwalktime)
 	{
 		if (check_index > 0.075 * dwalktime && check_index < 0.15 * dwalktime) // swing
 		{
@@ -2022,4 +2326,72 @@ void IK_Function::Angle_Compensation_Leftwalk(int indext)
 		LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_down(indext - 3.35 * dwalktime);
 		LL_th[5] = LL_th[5] + LL_Support_Ankle_Compensation_down(indext - 3.35 * dwalktime);
 	}
+}
+
+void IK_Function::Angle_Compensation_Huddle(int indext)
+{
+	double dwalktime = walktime_n;
+		if (indext > 0.8 * dwalktime && indext < 0.875 * dwalktime) // swing
+		{
+			LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_up(indext - 0.8 * dwalktime);
+		}
+		else if (indext > 0.875 * dwalktime && indext < 1.625 * dwalktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Swing_Leg;
+		}
+		else if (indext > 1.625 * dwalktime && indext < 1.7 * dwalktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 1.625 * dwalktime);
+		}
+		else if (indext > 1.8 * dwalktime && indext < 1.875 * dwalktime) // support
+		{
+			LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_up(indext - 1.8 * dwalktime);
+			LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_up(indext - 1.8 * dwalktime);
+			LL_th[5] = LL_th[5] + LL_Support_Ankle_Compensation_up(indext - 1.8 * dwalktime);
+		}
+		else if (indext > 1.875 * dwalktime && indext < 2.625 * dwalktime) // support
+		{
+			LL_th[1] = LL_th[1] + LL_Support_Leg;
+			LL_th[3] = LL_th[3] + LL_Support_Knee;
+			LL_th[5] = LL_th[5] + LL_Support_Ankle;
+		}
+		else if (indext > 2.625 * dwalktime && indext < 2.7 * dwalktime) // support
+		{
+			LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_down(indext - 2.625 * dwalktime);
+			LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_down(indext - 2.625 * dwalktime);
+			LL_th[5] = LL_th[5] + LL_Support_Ankle_Compensation_down(indext - 2.625 * dwalktime);
+		}
+
+
+		if (indext > 0.8 * dwalktime && indext < 0.875 * dwalktime) // support
+		{
+			RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext -  0.8 * dwalktime);
+			RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext -  0.8 * dwalktime);
+			RL_th[5] = RL_th[5] - RL_Support_Ankle_Compensation_up(indext -  0.8 * dwalktime);
+		}
+		else if (indext > 0.875 * dwalktime && indext < 1.625 * dwalktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Support_Leg;
+			RL_th[3] = RL_th[3] - RL_Support_Knee;
+			RL_th[5] = RL_th[5] - RL_Support_Ankle;
+		}
+		else if (indext > 1.625 * dwalktime && indext < 1.7 * dwalktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 1.625 * dwalktime);
+			RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 1.625 * dwalktime);
+			RL_th[5] = RL_th[5] - RL_Support_Ankle_Compensation_down(indext - 1.625 * dwalktime);
+		}
+
+		else if (indext > 1.8 * dwalktime && indext < 1.875 * dwalktime) // swing
+		{
+			RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_up(indext - 1.8 * dwalktime);
+		}
+		else if (indext > 1.875 * dwalktime && indext < 2.625 * dwalktime) // swing
+		{
+			RL_th[1] = RL_th[1] - RL_Swing_Leg;
+		}
+		else if (indext > 2.625 * dwalktime && indext < 2.7 * dwalktime) // swing
+		{
+			RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_down(indext - 2.625 * dwalktime);
+		}
 }

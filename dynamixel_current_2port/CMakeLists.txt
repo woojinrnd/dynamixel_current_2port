@@ -133,9 +133,9 @@ target_link_libraries(Move_decision_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
 #Sensor node
 add_executable(
   Sensor_node
-  # src/Sensor_node.cpp
+  src/Sensor_node.cpp
   src/sensor.cpp ${sensor.hpp}
-  src/img_proc_basketball.cpp
+  # src/img_proc_basketball.cpp
   # src/dynamixel.cpp ${dynamixel.hpp}
   # src/Move_decision.cpp ${Move_decision.hpp} 
   # src/callback.cpp ${callback.hpp}

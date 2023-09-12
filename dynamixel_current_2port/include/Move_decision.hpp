@@ -21,21 +21,18 @@
 
 #include "img_proc.hpp"
 
-
-#define UD_MAX  90
-#define UD_MIN   0
+#define UD_MAX 90
+#define UD_MIN 0
 #define UD_CENTER 80
 
-#define RL_MAX  90
-#define RL_MIN  -90
+#define RL_MAX 90
+#define RL_MIN -90
 #define RL_CENTER 0
 
-#define TURN_MAX  90
-#define TURN_MIN  -90
+#define TURN_MAX 90
+#define TURN_MIN -90
 
 using namespace std;
-
-
 
 class Move_Decision
 {
@@ -47,11 +44,15 @@ public:
         Left_2step = 2,
         Step_in_place = 3,
         Right_2step = 4,
-        Back_4step = 5,
-        Forward_Nstep = 6,
-        Huddle_Jump = 7,
+        Forward_Nstep = 5,
+        Huddle_Jump = 6,
+        ForWard_fast4step = 7,
         FWD_UP = 8,
         BWD_UP = 9,
+        Forward_Halfstep = 10,
+        Left_Halfstep = 11,
+        Right_Halfstep = 12,
+        Back_Halfstep = 13,
         NONE = 99,
     };
 
@@ -79,9 +80,13 @@ public:
     string Str_Left_2step = "Left_2step";
     string Str_Step_in_place = "Step_in_place";
     string Str_Right_2step = "Right_2step";
-    string Str_Back_4step = "Back_4step";
+    string Str_ForWard_fast4step = "ForWard_fast4step";
     string Str_Forward_Nstep = "Forward_Nstep";
     string Str_Huddle_Jump = "Huddle_Jump";
+    string Str_Forward_Halfstep = "Forward_Halfstep";
+    string Str_Left_Halfstep = "Left_Halfstep";
+    string Str_Right_Halfstep = "Right_Halfstep";
+    string Str_Back_Halfstep = "Back_Halfstep";
     string Str_FWD_UP = "FWD_UP";
     string Str_BWD_UP = "BWD_UP";
     string Str_NONE = "NONE";
@@ -185,7 +190,7 @@ public:
     bool Get_turn_angle_on_flg() const;
     bool Get_emergency_on_flg() const;
     bool Get_distance_on_flg() const;
-    
+
     bool Get_response_sent_() const;
 
     double Get_RL_NeckAngle() const;
@@ -297,7 +302,6 @@ public:
     double huddle_ud_neck_angle = 0;
     std::vector<double> huddle_distance_save;
 
-
     /////////////////////// Corner Mode ///////////////////////
 
     // Corner Sequence
@@ -317,7 +321,7 @@ public:
     double corner_actual_angle = 0;
     int8_t tmp_corner_shape = 0;
     int8_t tmp_turn90 = 0;
-    
+
     double corner_distance = 0;
     std::vector<double> corner_distance_save;
 
@@ -329,11 +333,9 @@ public:
     int8_t img_wall_number_case = 0;
     int8_t wall_number_seq = 0;
 
-
     /////////////////////// Sequence++ ///////////////////////
     bool finish_past = false;
     int8_t req_finish_count = 0;
-
 
     // check the variable sharing with multi thread
     int aaaa = 1;
@@ -355,7 +357,6 @@ public:
     int tmp_goal_trace_direction = 0;
     int8_t goal_trace_motion = 0;
     double goal_trace_angle = 0;
-    void Basketball_process();
 
 private:
     ros::NodeHandle nh;
@@ -368,7 +369,7 @@ private:
     {
         processed_requests_.insert(request_id);
     }
-   
+
     // Check if the request ID has already been processed
     bool isRequestProcessed(int request_id)
     {

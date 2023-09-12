@@ -43,30 +43,6 @@
 #define PROP_CONTRAST 128
 #define PROP_SATURATION 128
 
-// ********************************************** BASKETBALL ************************************************** //
-
-// Define the screen division macros and directions
-#define SCN_UP screen_divide[0]
-#define SCN_DOWN screen_divide[1]
-#define SCN_LEFT screen_divide[2]
-#define SCN_RIGHT screen_divide[3]
-
-#define DIR_UP 10
-#define DIR_DOWN 20
-#define DIR_LEFT 30
-#define DIR_RIGHT 40
-#define DIR_NONE 50
-#define DIR_UP_LEFT 60
-#define DIR_UP_RIGHT 70
-#define DIR_DOWN_LEFT 80
-#define DIR_DOWN_RIGHT 90
-
-#define Shoot_Box_Width 100
-#define Shoot_Box_Height 100
-
-
-// ********************************************** BASKETBALL ************************************************** //
-
 using namespace cv;
 using namespace std;
 
@@ -92,6 +68,8 @@ public:
         pub.publish(msg);
     }
 
+    const double Robot_Height_Cam = 0.7;
+
     // Cam set
     const int webcam_width = 640;
     const int webcam_height = 480;
@@ -113,6 +91,7 @@ public:
     bool Corner = false;
     cv::Point center_now_white = cv::Point(320, 240);
     cv::Point center_now_yellow = cv::Point(320, 240);
+    cv::Point center_huddle;
 
     cv::Scalar blue_color = {255, 0, 0};
     cv::Scalar green_color = {0, 255, 0};
@@ -121,7 +100,7 @@ public:
     cv::Scalar lower_bound_yellow = {20, 100, 100}; // HSV에서 노란색의 하한값
     cv::Scalar upper_bound_yellow = {32, 255, 255};
 
-    cv::Scalar lower_bound_white = {0, 0, 0};
+    cv::Scalar lower_bound_white = {150, 0, 0};
     cv::Scalar upper_bound_white = {179, 255, 255};
 
     int corner_condition_count = 0;
@@ -136,8 +115,9 @@ public:
     void create_threshold_trackbar_W(const std::string &window_name);
     void create_threshold_trackbar_Y(const std::string &window_name);
     void create_color_range_trackbar(const std::string &window_name);
-    std::tuple<cv::Mat, cv::Mat, int> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
+    std::tuple<cv::Mat, cv::Mat, int, cv::Point> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
     std::tuple<cv::Mat, bool, int, int, bool, double> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
+    double Distance_Point(const rs2::depth_frame& depth, cv::Point center);
 
     // ********************************************** 3D THREAD************************************************** //
 
@@ -212,41 +192,6 @@ public:
     // cv::Mat final_binary_mask;
     cv::Mat final_binary_mask = cv::Mat::zeros(IMG_H, IMG_W, CV_8UC1);
     double Calc_angle(double _x, Point _pt);
-
-    // ********************************************** BASKETBALL ************************************************** //
-    
-    /////Variable
-
-    int basketball_thread();
-    bool Goal_det_flg = false;
-    // Real Goal box
-    Rect Goal_Box;
-
-
-    // virtual Goal box (for shooting)
-    Rect Shoot_Box;
-
-    vector<vector<Point>> screen_divide = vector<vector<Point>>(4);
-
-    // Define HSV color range variables
-    int lowerH = 94;
-    int upperH = 128;
-    int lowerS = 64;
-    int upperS = 153;
-    int lowerV = 37;
-    int upperV = 255;
-
-    Point calculateCenter(Rect rect);
-    Point extractColorAndFindCenter(Mat &inputFrame, Mat &binaryImage);
-    int calculateRelativePositionAndDirection(const Point &goalCenter, const Point &shootCenter, int &traceDirection);
-    int8_t DrawObj(Mat &image);
-
-    /// Getter / Setter / Mutex
-    int8_t Goal_trace_direction = DIR_NONE; // private variable
-    mutable std::mutex mtx_img_proc_Goal_trace_direction;
-    int Get_img_proc_Goal_trace_direction() const;
-    void Set_img_proc_Goal_trace_direction(int Goal_trace_direction_);
-    
 
 private:
     ros::NodeHandle nh;

@@ -66,7 +66,7 @@ private:
 public:
 
 	Trajectory();
-	void Fast_mode();
+	void Change_Freq(double f);
 	// for Com
 	void Set_step(double a);
 	void Set_distance(double Goal_distance);
@@ -75,14 +75,16 @@ public:
 	MatrixXd YComSimulation();
 	MatrixXd XComSimulation();
 	MatrixXd YComSimulation_Sidewalk(double a, double b, double c, double d, double e, double f);
+	MatrixXd Huddle_Xcom();
+	MatrixXd Huddle_Ycom();
 
 	MatrixXd Equation_solver(double t0, double t1, double start, double end);
 	double Step(double t);
 	double Stride(double t);
 	MatrixXd RF_xsimulation_straightwalk();
 	MatrixXd LF_xsimulation_straightwalk();
-	MatrixXd RF_zsimulation_straightwalk();
-	MatrixXd LF_zsimulation_straightwalk();
+	MatrixXd RF_zsimulation_straightwalk(double h);
+	MatrixXd LF_zsimulation_straightwalk(double h);
 	MatrixXd RF_ysimulation_leftwalk();
 	MatrixXd LF_ysimulation_leftwalk();
 	MatrixXd RF_zsimulation_leftwalk();
@@ -91,16 +93,22 @@ public:
 	MatrixXd LF_ysimulation_rightwalk();
 	MatrixXd RF_zsimulation_rightwalk();
 	MatrixXd LF_zsimulation_rightwalk();
+	MatrixXd RF_xsimulation_huddle();
+	MatrixXd LF_xsimulation_huddle();
+	MatrixXd RF_zsimulation_huddle(double h);
+	MatrixXd LF_zsimulation_huddle(double h);
+
 	void Make_turn_trajectory(double angle);
 	double Return_turn_trajectory(double t);
 	double Return_back_trajectory(double t);
-	void Go_Straight(double step, double distance);
-	void Fast_Straight(double step, double distance);
+	void Go_Straight(double step, double distance, double height);
+	void Freq_Change_Straight(double step, double distance, double height, double freq);
 	void Side_Left2();
 	void Side_Right2();
 	void Step_in_place(double step, double distance);
 	void Stop_Trajectory_straightwalk(double step);
 	void Stop_Trajectory_stepinplace(double step);
+	void Huddle_Motion(double step,double height);
 	MatrixXd Ref_RL_x;
 	MatrixXd Ref_RL_y;
 	MatrixXd Ref_RL_z;
@@ -192,11 +200,11 @@ private:
 	double LL_Swing_Leg;
 	double LL_Support_Knee;
 	double LL_Support_Ankle;
+	double Com_Height;
 
 public:
 	IK_Function();
 	void Get_Step_n(double a);
-	// for inverse_kinematics
 	void BRP_RL_FK(double th[6], double PR[6]);
 	void BRP_LL_FK(double th[6], double PR[6]);
 	void BRP_RL_IK(double REF_RL_RP[6], double Init_th[6], double IK_th[6]);
@@ -207,9 +215,12 @@ public:
 	void BRP_Simulation(MatrixXd RFx, MatrixXd RFy, MatrixXd RFz, MatrixXd LFx, MatrixXd LFy, MatrixXd LFz, int time);
 	void Angle_Compensation(int indext);
 	void Fast_Angle_Compensation(int indext);
-	void Set_Angle_Compensation();
+	void Angle_Compensation_Huddle(int indext);
+	void Set_Angle_Compensation(int walktime_n);
+	void Change_Angle_Compensation(double RL_Support,double RL_Swing,double RL_Ankle,double LL_Support,double LL_Swing,double LL_Ankle);
 	void Angle_Compensation_Leftwalk(int indext);
 	double RL_th[6] = { 0.,0.,-0.610865,1.22173,0.610865,0. }, LL_th[6] = { 0.,0.,-0.610865,1.22173,0.610865, 0.};
+	void Change_Com_Height(double h);
     
 	double check_index;
 
