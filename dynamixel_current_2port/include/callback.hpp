@@ -16,11 +16,6 @@
 #include "dynamixel.hpp"
 #include "Walkingpattern_generator.hpp"
 
-#include "dynamixel_current_2port/Select_Motion.h"
-#include "dynamixel_current_2port/Turn_Angle.h"
-#include "dynamixel_current_2port/UD_NeckAngle.h"
-#include "dynamixel_current_2port/RL_NeckAngle.h"
-#include "dynamixel_current_2port/Emergency.h"
 #include "dynamixel_current_2port/SendMotion.h"
 
 using Eigen::VectorXd;

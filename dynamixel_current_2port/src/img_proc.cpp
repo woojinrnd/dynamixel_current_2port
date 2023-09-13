@@ -64,7 +64,7 @@ std::tuple<cv::Mat, cv::Mat, int, cv::Point> Img_proc::extract_color(const cv::M
         // ROS_WARN("LINE_MODE ON");
     }
 
-    int color_pixel_area = cv::countNonZero(mask);  // 흰색 픽셀의 수를 세어 넓이를 계산합니다.
+    int color_pixel_area = cv::countNonZero(mask); // 흰색 픽셀의 수를 세어 넓이를 계산합니다.
 
     return {color_extracted, frame, color_pixel_area, center};
 }
@@ -161,11 +161,12 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
         float long_len = 0;
         float short_len = 0;
 
-        if(width > height){
+        if (width > height)
+        {
             long_len = width;
             short_len = height;
         }
-        else if(width < height)
+        else if (width < height)
         {
             long_len = height;
             short_len = width;
@@ -180,7 +181,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
 
         if ((short_len * 1.5) < long_len)
         {
-            if(min_area_rect.size.width < min_area_rect.size.height)
+            if (min_area_rect.size.width < min_area_rect.size.height)
             {
                 angle = -min_area_rect.angle;
             }
@@ -190,9 +191,9 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
             }
         }
 
-        else if(short_len * 1.5 > long_len)
+        else if (short_len * 1.5 > long_len)
         {
-            if(min_area_rect.size.width < min_area_rect.size.height)
+            if (min_area_rect.size.width < min_area_rect.size.height)
             {
                 angle = -min_area_rect.angle - 90;
             }
@@ -284,18 +285,17 @@ void Img_proc::webcam_thread()
         auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
         int WhiteColorDetected = std::get<2>(hsv_frame_white);
         int YellowColorDetected = std::get<2>(hsv_frame_yellow);
-
-        if (YellowColorDetected > 1000){
-            //Athletics_FLAG = 2;
+        if (YellowColorDetected > 1000)
+        {
+            // Athletics_FLAG = 2;
             auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, blue_color, threshold_value_yellow, false, false);
             bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
             bool Corner_mode = std::get<4>(thresh_frame_yellow);
-            this->Set_img_proc_huddle_det(YellowColorDetected);
             cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
-
         }
-        else if(WhiteColorDetected > 500){
-            //Athletics_FLAG = 1;
+        else if (WhiteColorDetected > 500)
+        {
+            // Athletics_FLAG = 1;
             auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), frame, green_color, threshold_value_white, true, true);
             bool WhiteContourDetected = std::get<1>(thresh_frame_white);
             double gradient = std::get<2>(thresh_frame_white);
@@ -321,28 +321,24 @@ void Img_proc::webcam_thread()
             cv::imshow("hsv Frame_white", std::get<0>(thresh_frame_white));
         }
 
-
         // this->Set_img_proc_huddle_det(YellowContourDetected);
         // this->Set_img_proc_corner_det(Corner_mode);
 
-
-        //TEST
-        // this->Set_img_proc_huddle_det(true);
-        // ROS_WARN("%d",Get_img_proc_huddle_det());
-        // this->Set_img_proc_corner_det(YellowContourDetected);
-        // this->Set_img_proc_corner_number(1);
-        // if (a == 0)
-        // {
-        //     this->Set_img_proc_corner_number(a);
-        //     a = !a;
-        // }
-        // else if (a == 1)
-        // {
-        //     this->Set_img_proc_corner_number(a);
-        //     a = !a;
-        // }
-
-
+        // TEST
+        //  this->Set_img_proc_huddle_det(true);
+        //  ROS_WARN("%d",Get_img_proc_huddle_det());
+        //  this->Set_img_proc_corner_det(YellowContourDetected);
+        //  this->Set_img_proc_corner_number(1);
+        //  if (a == 0)
+        //  {
+        //      this->Set_img_proc_corner_number(a);
+        //      a = !a;
+        //  }
+        //  else if (a == 1)
+        //  {
+        //      this->Set_img_proc_corner_number(a);
+        //      a = !a;
+        //  }
 
         // cv::imshow("origin", frame);
         // cv::imshow("gray", gray);
@@ -361,100 +357,105 @@ void Img_proc::webcam_thread()
 
 // // ********************************************** 3D THREAD************************************************** //
 
-std::tuple<int, float, float> Img_proc::applyPCA(cv::Mat& color, const rs2::depth_frame& depth, int x1, int y1, int x2, int y2, int x3, int y3){
-   float z1 = depth.get_distance(x1, y1) * 20;
-   float z2 = depth.get_distance(x2, y2) * 20;
-   float z3 = depth.get_distance(x3, y3) * 20;
+std::tuple<int, float, float> Img_proc::applyPCA(cv::Mat &color, const rs2::depth_frame &depth, int x1, int y1, int x2, int y2, int x3, int y3)
+{
+    float z1 = depth.get_distance(x1, y1) * 20;
+    float z2 = depth.get_distance(x2, y2) * 20;
+    float z3 = depth.get_distance(x3, y3) * 20;
 
-   float distance_rect = depth.get_distance(320, 240);
-   float right_plane = depth.get_distance(620, 400);
-   float left_plane = depth.get_distance(20, 400);
+    float distance_rect = depth.get_distance(320, 240);
+    float right_plane = depth.get_distance(620, 400);
+    float left_plane = depth.get_distance(20, 400);
 
-   bool left_plane_mode = false;
-   bool right_plane_mode = false;
+    bool left_plane_mode = false;
+    bool right_plane_mode = false;
 
-   if(right_plane - left_plane > 0.1){left_plane_mode = true;}
-   else if(right_plane - left_plane < -0.1){right_plane_mode = true;}
+    if (right_plane - left_plane > 0.1)
+    {
+        left_plane_mode = true;
+    }
+    else if (right_plane - left_plane < -0.1)
+    {
+        right_plane_mode = true;
+    }
 
-   Eigen::Vector3f v1(x1 - x2, y1 - y2, z1 - z2);
-   Eigen::Vector3f v2(x1 - x3, y1 - y3, z1 - z3);
+    Eigen::Vector3f v1(x1 - x2, y1 - y2, z1 - z2);
+    Eigen::Vector3f v2(x1 - x3, y1 - y3, z1 - z3);
 
-   //std::cout << "v1: " << v1[0] << ", " << v1[1] << ", " << v1[2] << std::endl;
-   //std::cout << "v2: " << v2[0] << ", " << v2[1] << ", " << v2[2] << std::endl;
+    // std::cout << "v1: " << v1[0] << ", " << v1[1] << ", " << v1[2] << std::endl;
+    // std::cout << "v2: " << v2[0] << ", " << v2[1] << ", " << v2[2] << std::endl;
 
+    Eigen::Vector3f normal = v1.cross(v2);
+    normal.normalize();
 
-   Eigen::Vector3f normal = v1.cross(v2);
-   normal.normalize();
+    // 카메라 벡터 정의
+    Eigen::Vector3f camera_vector(0, 0, -1);
 
-   // 카메라 벡터 정의
-   Eigen::Vector3f camera_vector(0, 0, -1);
+    // 법선 벡터와 카메라 벡터 사이의 각도 계산
+    float dot_product = normal.dot(camera_vector);
+    float normal_magnitude = normal.norm();
+    float camera_magnitude = camera_vector.norm();
+    float cos_theta = dot_product / (normal_magnitude * camera_magnitude);
+    float angle_degrees = std::acos(cos_theta) * 180.0 / M_PI;
+    float pitch = atan2(normal[1], normal[2]) * 180.0 / M_PI;
+    float yaw = atan2(normal[0], sqrt(normal[1] * normal[1] + normal[2] * normal[2])) * 180.0 / M_PI; // 라디안을 도로 변환
 
-   // 법선 벡터와 카메라 벡터 사이의 각도 계산
-   float dot_product = normal.dot(camera_vector);
-   float normal_magnitude = normal.norm();
-   float camera_magnitude = camera_vector.norm();
-   float cos_theta = dot_product / (normal_magnitude * camera_magnitude);
-   float angle_degrees = std::acos(cos_theta) * 180.0 / M_PI;
-   float pitch = atan2(normal[1], normal[2]) * 180.0 / M_PI;
-   float yaw = atan2(normal[0], sqrt(normal[1] * normal[1] + normal[2] * normal[2])) * 180.0 / M_PI;// 라디안을 도로 변환
+    // std::cout << "Angle between normal vector and camera vector: " << angle_degrees << " degrees" << std::endl;
+    // std::cout << "normal: " << normal[0] << ", " << normal[1] << ", " << normal[2] << std::endl;
+    //  cout << yaw << endl;
 
-   //std::cout << "Angle between normal vector and camera vector: " << angle_degrees << " degrees" << std::endl;
-   //std::cout << "normal: " << normal[0] << ", " << normal[1] << ", " << normal[2] << std::endl;
-  //  cout << yaw << endl;
-
-
-  if (distance_rect >= 0.75)
-  {
-     if (tmp_img_proc_wall_number == 0)
-     {
-         tmp_img_proc_wall_number = 1;
-     }
-     else if (tmp_img_proc_wall_number == -3)
-     {
-         tmp_img_proc_wall_number = 10;
-     }
-     else if (tmp_img_proc_wall_number == 3)
-     {
-         tmp_img_proc_wall_number = -1;
-     }
-  }
-  else if (distance_rect > 0.4 && distance_rect < 0.75)
-  {
-     if (right_plane_mode)
-     {
-         tmp_img_proc_wall_number = 2;
-     }
-     else if (left_plane_mode)
-     {
-         tmp_img_proc_wall_number = -2;
-     }
-  }
-  else if (distance_rect <= 0.4)
-  {
-     if (tmp_img_proc_wall_number == 2)
-     {
-         tmp_img_proc_wall_number = 3;
-     }
-     else if (tmp_img_proc_wall_number == -2)
-     {
-         tmp_img_proc_wall_number = -3;
-     }
-  }
-  cv::putText(color, "distance : " + std::to_string(distance_rect), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0,255,0}, 2);
-  cv::putText(color, "Angle : " + std::to_string(yaw), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0,255,0}, 2);
-  cv::putText(color, "FLAG : " + std::to_string(tmp_img_proc_wall_number), cv::Point(10, 75), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0,0,255}, 2);
-  return std::make_tuple(tmp_img_proc_wall_number, yaw, distance_rect);
+    if (distance_rect >= 0.75)
+    {
+        if (tmp_img_proc_wall_number == 0)
+        {
+            tmp_img_proc_wall_number = 1;
+        }
+        else if (tmp_img_proc_wall_number == -3)
+        {
+            tmp_img_proc_wall_number = 10;
+        }
+        else if (tmp_img_proc_wall_number == 3)
+        {
+            tmp_img_proc_wall_number = -1;
+        }
+    }
+    else if (distance_rect > 0.4 && distance_rect < 0.75)
+    {
+        if (right_plane_mode)
+        {
+            tmp_img_proc_wall_number = 2;
+        }
+        else if (left_plane_mode)
+        {
+            tmp_img_proc_wall_number = -2;
+        }
+    }
+    else if (distance_rect <= 0.4)
+    {
+        if (tmp_img_proc_wall_number == 2)
+        {
+            tmp_img_proc_wall_number = 3;
+        }
+        else if (tmp_img_proc_wall_number == -2)
+        {
+            tmp_img_proc_wall_number = -3;
+        }
+    }
+    cv::putText(color, "distance : " + std::to_string(distance_rect), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
+    cv::putText(color, "Angle : " + std::to_string(yaw), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
+    cv::putText(color, "FLAG : " + std::to_string(tmp_img_proc_wall_number), cv::Point(10, 75), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 0, 255}, 2);
+    return std::make_tuple(tmp_img_proc_wall_number, yaw, distance_rect);
 }
 
-double Img_proc::Distance_Point(const rs2::depth_frame& depth, cv::Point center)
+double Img_proc::Distance_Point(const rs2::depth_frame &depth, cv::Point center)
 {
-   double Distance_Point = depth.get_distance(center.x, center.y);
+    double Distance_Point = depth.get_distance(center.x, center.y);
 
-   double Real_distance = Distance_Point * Distance_Point - Robot_Height_Cam * Robot_Height_Cam;
+    double Real_distance = Distance_Point * Distance_Point - Robot_Height_Cam * Robot_Height_Cam;
 
-   Real_distance = std::sqrt(Real_distance);
+    Real_distance = std::sqrt(Real_distance);
 
-   return Real_distance;
+    return Real_distance;
 }
 
 void Img_proc::realsense_thread()
@@ -495,8 +496,8 @@ void Img_proc::realsense_thread()
 
             rs2::depth_frame depth_frame = data.get_depth_frame();
 
-            //depth_frame = spatial.process(depth_frame);
-            //depth_frame = temporal.process(depth_frame);
+            // depth_frame = spatial.process(depth_frame);
+            // depth_frame = temporal.process(depth_frame);
             depth_frame = hole_filling.process(depth_frame);
 
             rs2::frame depth = depth_frame;
@@ -510,12 +511,12 @@ void Img_proc::realsense_thread()
 
             cv::Mat colorMat(cv::Size(w, h), CV_8UC3, (void *)color.get_data(), cv::Mat::AUTO_STEP);
             cv::Mat depthMat(cv::Size(w, h), CV_8UC3, (void *)depth.apply_filter(color_map).get_data(), cv::Mat::AUTO_STEP);
-            cv::Mat depth_dist(cv::Size(w, h), CV_16UC1, (void*)depth_frame.get_data(), cv::Mat::AUTO_STEP);
+            cv::Mat depth_dist(cv::Size(w, h), CV_16UC1, (void *)depth_frame.get_data(), cv::Mat::AUTO_STEP);
 
             Eigen::Vector3f normal_vector;
-            
-            ////////////////////////////////// TEST ////////////////////////////////// 
-            
+
+            ////////////////////////////////// TEST //////////////////////////////////
+
             // // Block program until frames arrive
             // rs2::frameset frames_ = pipe.wait_for_frames();
 
@@ -551,8 +552,6 @@ void Img_proc::realsense_thread()
 
             huddle_distance = Distance_Point(depth_frame, center_huddle);
             Set_distance(huddle_distance);
-
-
 
             cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);
@@ -815,7 +814,6 @@ void Img_proc::LINE_imgprocessing()
                 }
             }
 
-            
             // delete center-bottom curvature line lower area
             else if (i > 0.015 * (j - IMG_W / 2) * (j - IMG_W / 2) + (IMG_H - CIRCLE_RADIUS))
             {
@@ -828,7 +826,6 @@ void Img_proc::LINE_imgprocessing()
                 }
             }
 
-      
             //  delete both side edge area
             else if (j < LEFT_EDGE_BORDER_LINE || j > RIGHT_EDGE_BORDER_LINE)
             {
@@ -1129,16 +1126,16 @@ double Img_proc::Calc_angle(double _x, Point _pt)
     _dx /= 100 * 0.01;
 
     // Undo the normalization by adding the initial values
-    _dy += (IMG_H/2 - 1);
-    _dx += (IMG_W/2 - 1);
+    _dy += (IMG_H / 2 - 1);
+    _dx += (IMG_W / 2 - 1);
 
     // Normalize the horizontal difference '_x'
-    _x -= (IMG_W/2 - 1);
+    _x -= (IMG_W / 2 - 1);
     _x /= 100 * 0.01;
-    _x += (IMG_W/2 -1);
+    _x += (IMG_W / 2 - 1);
 
     // Adjust the vertical position
-    _dy = (IMG_H-1) - _dy;
+    _dy = (IMG_H - 1) - _dy;
 
     // Calculate the angle in degrees using the arctan function
     double _rad2deg = 180.0 / M_PI;
@@ -1146,7 +1143,6 @@ double Img_proc::Calc_angle(double _x, Point _pt)
 
     return _degree;
 }
-
 // ********************************************** GETTERS ************************************************** //
 
 bool Img_proc::Get_img_proc_line_det() const

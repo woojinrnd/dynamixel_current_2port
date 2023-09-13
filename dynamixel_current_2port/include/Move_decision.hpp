@@ -12,11 +12,6 @@
 #include <string.h>
 #include <tf/tf.h>
 
-#include "dynamixel_current_2port/Select_Motion.h"
-#include "dynamixel_current_2port/Turn_Angle.h"
-#include "dynamixel_current_2port/UD_NeckAngle.h"
-#include "dynamixel_current_2port/RL_NeckAngle.h"
-#include "dynamixel_current_2port/Emergency.h"
 #include "dynamixel_current_2port/SendMotion.h"
 
 #include "img_proc.hpp"
