@@ -2,7 +2,7 @@
 
 // Constructor
 Img_proc::Img_proc()
-    : SPIN_RATE(100),
+    : SPIN_RATE(1),
       img_proc_line_det_(false),
       gradient_(0)
 {
@@ -23,6 +23,11 @@ void Img_proc::create_threshold_trackbar_W(const std::string &window_name)
 void Img_proc::create_threshold_trackbar_Y(const std::string &window_name)
 {
     cv::createTrackbar("Threshold_yellow", window_name, &threshold_value_yellow, max_value, on_trackbar);
+}
+
+void Img_proc::create_threshold_trackbar_B(const std::string &window_name)
+{
+    cv::createTrackbar("Threshold_blue", window_name, &threshold_value_blue, max_value, on_trackbar);
 }
 
 void Img_proc::create_color_range_trackbar(const std::string &window_name)
@@ -69,7 +74,7 @@ std::tuple<cv::Mat, cv::Mat, int, cv::Point> Img_proc::extract_color(const cv::M
     return {color_extracted, frame, color_pixel_area, center};
 }
 
-std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance, bool is_white_line)
+std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance, bool is_white_line)
 {
     cv::Mat frame = input_frame.clone();
     cv::Mat ori_frame = origin_frame.clone();
@@ -99,7 +104,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
     {
         double line_area = cv::contourArea(contour);
         double huddle_area = cv::contourArea(contour);
-        if (line_area > LINE_SIZE)
+        if (line_area > 500)
         {
             cv::Moments m = cv::moments(contour);
             foundLargeContour = true;
@@ -119,7 +124,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
 
             // ROS_WARN("LINE_MODE ON");
         }
-        else if (line_area < LINE_SIZE)
+        else if (line_area < 500)
         {
             line_condition_count++;
             if (line_condition_count >= 3)
@@ -200,7 +205,6 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
             else
             {
                 angle = -min_area_rect.angle - 90;
-
             }
             if (is_white_line)
             {
@@ -219,19 +223,22 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
         }
         cv::putText(ori_frame, "Line angle : " + std::to_string(angle), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
 
+        topmost_point = *std::min_element(top_contour.begin(), top_contour.end(),
+                                            [](const cv::Point &a, const cv::Point &b){
+                                                return a.y < b.y;
+                                            });
+
+        bottommost_point = *std::max_element(top_contour.begin(), top_contour.end(),
+                                            [](const cv::Point &a, const cv::Point &b){
+                                                return a.y < b.y;
+                                            });
+
+        cv::circle(ori_frame, topmost_point, 5, cv::Scalar(0,0,255), -1);
+        cv::circle(ori_frame, bottommost_point, 5, cv::Scalar(0,255,255), -1);
+
         cv::Point center_dot(570, 50);
 
         int length = 50;
-
-        if (angle >= 90)
-        {
-            angle = 90;
-        }
-
-        else if (angle <= -90)
-        {
-            angle = -90;
-        }
 
         float radian_angle = (angle - 90) * (CV_PI / 180.0f);
 
@@ -240,7 +247,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
         cv::line(ori_frame, center_dot, end_point, contour_color, 3);
         // std::cout << "Angle: " << angle << std::endl;
     }
-    return std::make_tuple(ori_frame, foundLargeContour, angle, distance_huddle, Corner, delta_x_);
+    return std::make_tuple(ori_frame, foundLargeContour, angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point);
 }
 
 void Img_proc::webcam_thread()
@@ -274,15 +281,21 @@ void Img_proc::webcam_thread()
     const std::string window_name2 = "thresh Frame_white";
     // const std::string window_name3 = "hsv Frame_yellow";
     const std::string window_name4 = "thresh Frame_yellow";
+
+    const std::string window_name6 = "thresh Frame_blue";
     // cv::namedWindow(window_name1);
     cv::namedWindow(window_name2);
     // cv::namedWindow(window_name3);
     cv::namedWindow(window_name4);
 
+    cv::namedWindow(window_name6);
+
     // create_color_range_trackbar(window_name1);
     create_threshold_trackbar_W(window_name2);
     // create_color_range_trackbar(window_name3);
     create_threshold_trackbar_Y(window_name4);
+
+    create_threshold_trackbar_B(window_name6);
 
     cv::Mat frame, hsv_frame_white, hsv_frame_yellow, thresh_frame_white, thresh_frame_yellow, gray;
 
@@ -294,18 +307,32 @@ void Img_proc::webcam_thread()
 
         auto hsv_frame_white = extract_color(frame, lower_bound_white, upper_bound_white);
         auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
+        auto hsv_frame_blue = extract_color(frame, lower_bound_blue, upper_bound_blue);
         int WhiteColorDetected = std::get<2>(hsv_frame_white);
         int YellowColorDetected = std::get<2>(hsv_frame_yellow);
         if (YellowColorDetected > 1000)
         {
             // Athletics_FLAG = 2;
             auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, blue_color, threshold_value_yellow, false, false);
+            auto thresh_frame_blue = detect_Line_areas(std::get<0>(hsv_frame_blue), frame, yellow_color, threshold_value_blue, false, false);
             bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
-            this->Set_img_proc_huddle_det(YellowContourDetected);
             bool Corner_mode = std::get<4>(thresh_frame_yellow);
+            this->Set_img_proc_huddle_det(YellowContourDetected);
+
+
+            cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
+            cv::Point huddle_bottom_point = std::get<7>(thresh_frame_yellow);
+
+            int foot_huddle_distance = std::abs(foot_top_point.y - huddle_bottom_point.y);
+
+            cout << foot_huddle_distance << endl;
+
             cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
+            cv::imshow("hsv Frame_blue", std::get<0>(thresh_frame_blue));
         }
-        else if (WhiteColorDetected > LINE_SIZE)
+        
+        else if (WhiteColorDetected > 500)
+        // if (WhiteColorDetected > 500)
         {
             // Athletics_FLAG = 1;
             auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), frame, green_color, threshold_value_white, true, true);
@@ -557,7 +584,28 @@ void Img_proc::realsense_thread()
                 this->Set_distance(distance_);
             }
 
-            // Huddle mode
+            // // // Huddle mode
+
+            // auto Huddle = extract_color(colorMat, lower_bound_yellow, upper_bound_yellow);
+
+            // int YellowColorDetected = std::get<2>(Huddle);
+            // if (YellowColorDetected > 1000)
+            // {
+            //     // Athletics_FLAG = 2;
+            //     auto thresh_frame_yellow = detect_Line_areas(std::get<0>(Huddle), colorMat, blue_color, threshold_value_yellow, false, false);
+            //     auto thresh_frame_blue = detect_Line_areas(std::get<0>(Huddle), colorMat, yellow_color, threshold_value_blue, false, false);
+            //     bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
+            //     bool Corner_mode = std::get<4>(thresh_frame_yellow);
+            //     this->Set_img_proc_huddle_det(YellowContourDetected);
+
+            //     cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
+            //     cv::Point huddle_bottom_point = std::get<7>(thresh_frame_yellow);
+
+            //     int foot_huddle_distance = std::abs(foot_top_point.y - huddle_bottom_point.y);
+
+            //     cout << foot_huddle_distance << endl;
+            // }
+            
             auto Huddle = extract_color(colorMat, lower_bound_yellow, upper_bound_yellow);
 
             center_huddle = std::get<3>(Huddle);

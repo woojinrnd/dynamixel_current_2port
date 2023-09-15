@@ -20,7 +20,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
 
     boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
     boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
-    // boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
+    boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
     boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
 }
 
@@ -350,8 +350,8 @@ void Move_Decision::LINE_mode()
             // To be zero
             if (line_actual_angle > 0)
             {
-                line_actual_angle -= 1;
-                if (line_actual_angle < 0)
+                // line_actual_angle -= 1;
+                // if (line_actual_angle < 0)
                     line_actual_angle = 0;
                 Set_turn_angle_(line_actual_angle);
                 Set_turn_angle_on_flg(true);
@@ -361,8 +361,8 @@ void Move_Decision::LINE_mode()
             // To be zero
             else if (line_actual_angle < 0)
             {
-                line_actual_angle += 1;
-                if (line_actual_angle > 0)
+                // line_actual_angle += 1;
+                // if (line_actual_angle > 0)
                     line_actual_angle = 0;
                 Set_turn_angle_(line_actual_angle);
                 Set_turn_angle_on_flg(true);
@@ -473,11 +473,11 @@ void Move_Decision::LINE_mode()
             line_actual_angle += increment;
             if (line_actual_angle > 15)
             {
-                line_actual_angle = TURN_MAX - 50;
+                line_actual_angle = TURN_MAX - 70;
             }
             else if (line_actual_angle < -15)
             {
-                line_actual_angle = TURN_MIN + 50;
+                line_actual_angle = TURN_MIN + 70;
             }
             Set_turn_angle_(line_actual_angle);
             Set_turn_angle_on_flg(true);

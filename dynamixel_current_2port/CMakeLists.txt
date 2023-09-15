@@ -107,6 +107,7 @@ add_executable(
   # src/main_2.cpp
   src/dynamixel.cpp ${dynamixel.hpp}
   src/callback.cpp ${callback.hpp}
+  # src/callback2.cpp ${callback.hpp}
   src/dynamixel_controller.cpp ${dynamixel_controller.hpp}
   src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
   # src/sensor.cpp ${sensor.hpp}

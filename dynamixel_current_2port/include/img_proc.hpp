@@ -35,7 +35,6 @@
 
 #define IMG_W 640
 #define IMG_H 480
-#define LINE_SIZE 50
 
 #define PROP_EXPOSURE -6
 #define PROP_GAIN 128
@@ -77,8 +76,9 @@ public:
     const int webcam_fps = 30;
     const int webcam_id = 0;
 
-    int threshold_value_white = 200;
+    int threshold_value_white = 180;
     int threshold_value_yellow = 127;
+    int threshold_value_blue = 50;
     const int max_value = 255;
     int hue_lower = 0;
     int hue_upper = 179;
@@ -93,16 +93,23 @@ public:
     cv::Point center_now_white = cv::Point(320, 240);
     cv::Point center_now_yellow = cv::Point(320, 240);
     cv::Point center_huddle;
+    cv::Point blue_center;
+    cv::Point topmost_point;
+    cv::Point bottommost_point;
 
     cv::Scalar blue_color = {255, 0, 0};
     cv::Scalar green_color = {0, 255, 0};
     cv::Scalar red_color = (0, 0, 255);
+    cv::Scalar yellow_color = (0, 255, 255);
 
     cv::Scalar lower_bound_yellow = {20, 100, 100}; // HSV에서 노란색의 하한값
     cv::Scalar upper_bound_yellow = {32, 255, 255};
 
     cv::Scalar lower_bound_white = {0, 0, 0};
     cv::Scalar upper_bound_white = {179, 255, 255};
+
+    cv::Scalar lower_bound_blue = {100, 100, 20};
+    cv::Scalar upper_bound_blue = {140, 255, 255};
 
     int corner_condition_count = 0;
     int line_condition_count = 0;
@@ -115,9 +122,10 @@ public:
     static void on_trackbar(int, void *);
     void create_threshold_trackbar_W(const std::string &window_name);
     void create_threshold_trackbar_Y(const std::string &window_name);
+    void create_threshold_trackbar_B(const std::string &window_name);
     void create_color_range_trackbar(const std::string &window_name);
     std::tuple<cv::Mat, cv::Mat, int, cv::Point> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
-    std::tuple<cv::Mat, bool, int, int, bool, double> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
+    std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
     double Distance_Point(const rs2::depth_frame& depth, cv::Point center);
 
     // ********************************************** 3D THREAD************************************************** //
