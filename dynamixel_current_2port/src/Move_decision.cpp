@@ -6,7 +6,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(1),
+      SPIN_RATE(100),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::NONE),
       stop_fallen_check_(false),
@@ -104,6 +104,12 @@ void Move_Decision::process()
             Set_line_det_flg(false);
             Set_no_line_det_flg(false);
         }
+        
+        else if (Get_huddle_det_stop_flg())
+        {
+            Set_line_det_flg(true);
+        }
+
         else
         {
             Set_line_det_flg(true);
@@ -265,26 +271,32 @@ void Move_Decision::Running_Mode_Decision()
         {
             running_mode_ = GOAL_MODE;
         }
+
         else if (no_line_det_flg_ && !wall_det_flg_)
         {
             running_mode_ = NO_LINE_MODE;
         }
+
         else if (line_det_flg_ && !corner_det_flg_)
         {
             running_mode_ = LINE_MODE;
         }
-        else if (huddle_det_flg_)
+
+        else if (huddle_det_flg_ && !Get_huddle_det_stop_flg())
         {
             running_mode_ = HUDDLE_MODE;
         }
+
         else if (wall_det_flg_)
         {
             running_mode_ = WALL_MODE;
         }
+
         else if (stop_det_flg_)
         {
             running_mode_ = STOP_MODE;
         }
+
         else if (corner_det_flg_)
         {
             running_mode_ = CORNER_MODE;
@@ -356,8 +368,8 @@ void Move_Decision::LINE_mode()
                 Set_turn_angle_on_flg(true);
             }
             line_motion = Motion_Index::Forward_4step;
-            Set_select_motion_on_flg(true);
             Set_motion_index_(line_motion);
+            Set_select_motion_on_flg(true);
         }
 
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
@@ -1021,6 +1033,7 @@ void Move_Decision::HUDDLE_mode()
         {
             // Set_select_motion_on_flg(true);
             tmp_huddle_seq = 0;
+            to_be_line_mode++;
             Set_huddle_det_flg(false);
         }
 
@@ -1037,9 +1050,15 @@ void Move_Decision::HUDDLE_mode()
         }
     }
 
+    if (to_be_line_mode == 3)
+    {
+        Set_huddle_det_stop_flg(true);
+    }
+
     if (Get_huddle_det_stop_flg() == true)
     {
         Set_huddle_det_flg(false);
+        Set_running_mode_(Running_Mode::LINE_MODE);
         tmp_huddle_seq = 0;
     }
 

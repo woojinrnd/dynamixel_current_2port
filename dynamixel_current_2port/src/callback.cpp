@@ -86,12 +86,6 @@ void Callback::callbackThread()
     FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::L_FSRsensorCallback, this);
     FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::R_FSRsensorCallback, this);
 
-    srv_SendMotion.request.SM_finish = true;
-    srv_SendMotion.request.TA_finish = true;
-    srv_SendMotion.request.UD_finish = true;
-    srv_SendMotion.request.RL_finish = true;
-    srv_SendMotion.request.EM_finish = true;
-
     ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
     {
@@ -164,7 +158,7 @@ void Callback::Move_UD_NeckAngle()
 {
     double res_ud_neck = srv_SendMotion.response.ud_neckangle;
     ud_neckangle = 90 - res_ud_neck;
-    // All_Theta[22] = ud_neckangle * DEG2RAD;
+    All_Theta[22] = ud_neckangle * DEG2RAD;
     ROS_WARN("UD_NECK : %f", res_ud_neck);
     ROS_INFO("------------------------- UD NECK Angle ----------------------------");
 }
@@ -312,12 +306,12 @@ void Callback::SelectMotion()
     if (res_mode == 0)
     {
         mode = 0;
-        trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 675);
-        trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 675);
-        trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 675);
-        trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 675);
-        trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 675);
-        trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 675);
+        trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 10);
+        trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 10);
+        trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 10);
+        trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 10);
+        trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 10);
+        trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 10);
         indext = 0;
     }
     else if (res_mode == 1)
@@ -533,14 +527,14 @@ void Callback::Write_Leg_Theta()
         indext -= 1;
     }
 
-    All_Theta[0] = -IK_Ptr->RL_th[0];
+    All_Theta[0] = IK_Ptr->RL_th[0];
     All_Theta[1] = IK_Ptr->RL_th[1] - 1 * DEG2RAD;
     All_Theta[2] = IK_Ptr->RL_th[2] - 10.74 * DEG2RAD;
     All_Theta[3] = -IK_Ptr->RL_th[3] + 38.34 * DEG2RAD;
     All_Theta[4] = -IK_Ptr->RL_th[4] + 24.22 * DEG2RAD;
     All_Theta[5] = -IK_Ptr->RL_th[5];
-    All_Theta[6] = IK_Ptr->LL_th[0] + 2 * DEG2RAD;
-    All_Theta[7] = IK_Ptr->LL_th[1];
+    All_Theta[6] = -IK_Ptr->LL_th[0] + 2 * DEG2RAD;
+    All_Theta[7] = -IK_Ptr->LL_th[1];
     All_Theta[8] = -IK_Ptr->LL_th[2] + 10.74 * DEG2RAD;
     All_Theta[9] = IK_Ptr->LL_th[3] - 36.34 * DEG2RAD;
     All_Theta[10] = IK_Ptr->LL_th[4] - 24.22 * DEG2RAD;
@@ -551,6 +545,7 @@ void Callback::Write_Leg_Theta()
         indext -= 1;
         srv_SendMotion.request.SM_finish = true;
     }
+
     else
     {
         srv_SendMotion.request.SM_finish = false;

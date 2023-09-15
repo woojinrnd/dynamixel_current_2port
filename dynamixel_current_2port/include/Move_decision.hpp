@@ -298,6 +298,7 @@ public:
     double huddle_ud_neck_angle = 0;
     std::vector<double> huddle_distance_save;
     bool contain_huddle_to_foot = false;
+    int8_t to_be_line_mode = 0; 
     
 
     /////////////////////// Corner Mode ///////////////////////

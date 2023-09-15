@@ -35,6 +35,7 @@
 
 #define IMG_W 640
 #define IMG_H 480
+#define LINE_SIZE 50
 
 #define PROP_EXPOSURE -6
 #define PROP_GAIN 128
@@ -68,7 +69,7 @@ public:
         pub.publish(msg);
     }
 
-    const double Robot_Height_Cam = 0.52
+    const double Robot_Height_Cam = 0.52;
 
     // Cam set
     const int webcam_width = 640;
@@ -76,7 +77,7 @@ public:
     const int webcam_fps = 30;
     const int webcam_id = 0;
 
-    int threshold_value_white = 180;
+    int threshold_value_white = 200;
     int threshold_value_yellow = 127;
     const int max_value = 255;
     int hue_lower = 0;
@@ -100,7 +101,7 @@ public:
     cv::Scalar lower_bound_yellow = {20, 100, 100}; // HSV에서 노란색의 하한값
     cv::Scalar upper_bound_yellow = {32, 255, 255};
 
-    cv::Scalar lower_bound_white = {150, 0, 0};
+    cv::Scalar lower_bound_white = {0, 0, 0};
     cv::Scalar upper_bound_white = {179, 255, 255};
 
     int corner_condition_count = 0;

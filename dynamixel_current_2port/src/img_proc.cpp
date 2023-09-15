@@ -2,7 +2,7 @@
 
 // Constructor
 Img_proc::Img_proc()
-    : SPIN_RATE(1),
+    : SPIN_RATE(100),
       img_proc_line_det_(false),
       gradient_(0)
 {
@@ -99,7 +99,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
     {
         double line_area = cv::contourArea(contour);
         double huddle_area = cv::contourArea(contour);
-        if (line_area > 500)
+        if (line_area > LINE_SIZE)
         {
             cv::Moments m = cv::moments(contour);
             foundLargeContour = true;
@@ -119,7 +119,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
 
             // ROS_WARN("LINE_MODE ON");
         }
-        else if (line_area < 500)
+        else if (line_area < LINE_SIZE)
         {
             line_condition_count++;
             if (line_condition_count >= 3)
@@ -200,6 +200,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
             else
             {
                 angle = -min_area_rect.angle - 90;
+
             }
             if (is_white_line)
             {
@@ -221,6 +222,16 @@ std::tuple<cv::Mat, bool, int, int, bool, double> Img_proc::detect_Line_areas(co
         cv::Point center_dot(570, 50);
 
         int length = 50;
+
+        if (angle >= 90)
+        {
+            angle = 90;
+        }
+
+        else if (angle <= -90)
+        {
+            angle = -90;
+        }
 
         float radian_angle = (angle - 90) * (CV_PI / 180.0f);
 
@@ -290,10 +301,11 @@ void Img_proc::webcam_thread()
             // Athletics_FLAG = 2;
             auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, blue_color, threshold_value_yellow, false, false);
             bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
+            this->Set_img_proc_huddle_det(YellowContourDetected);
             bool Corner_mode = std::get<4>(thresh_frame_yellow);
             cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
         }
-        else if (WhiteColorDetected > 500)
+        else if (WhiteColorDetected > LINE_SIZE)
         {
             // Athletics_FLAG = 1;
             auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), frame, green_color, threshold_value_white, true, true);
