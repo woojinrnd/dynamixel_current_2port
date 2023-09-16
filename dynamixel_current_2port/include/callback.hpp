@@ -85,6 +85,7 @@ public:
   virtual void Check_FSR();
   void Calculate_Real_CP(int indext, double vx, double vy);
   void Calculate_ZMP_from_CP(int indext);
+  void Set_Callback();
 
   sensor_msgs::JointState joint_state;
 

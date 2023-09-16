@@ -52,6 +52,8 @@ int main(int argc, char **argv)
         callback.Write_Leg_Theta();
         dxl.SetThetaRef(callback.All_Theta);
         dxl.syncWriteTheta();
+
+        std::cout << callback.Real_CP_X << std::endl;
         
 
         ros::spinOnce();

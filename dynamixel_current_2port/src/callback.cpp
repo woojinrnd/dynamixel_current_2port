@@ -68,8 +68,8 @@ void Callback::IMUThread()
     }
 }
 
-// Function to generate a unique reques
-int Callback::generateUniqueRequestID()t ID
+// Function to generate a unique request ID
+int Callback::generateUniqueRequestID()
 {
     // Initialize a seed using srand function
     // Initializing the seed allows you to generate random numbers using rand() function
