@@ -78,7 +78,7 @@ public:
     const int webcam_fps = 30;
     const int webcam_id = 0;
 
-    int threshold_value_white = 180;
+    int threshold_value_white = 210;
     int threshold_value_yellow = 127;
     int threshold_value_blue = 50;
     const int max_value = 255;

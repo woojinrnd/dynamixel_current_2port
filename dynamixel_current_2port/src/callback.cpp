@@ -62,9 +62,11 @@ void Callback::IMUThread()
     Set_Callback();
     while (nh.ok())
     {
-        Calculate_Real_CP(indext, vel_x, vel_y);
+        // Calculate_Real_CP(indext, vel_x, vel_y);
         ros::spinOnce();
         loop_rate.sleep();
+
+        // ROS_INFO("%lf", vel_x);
     }
 }
 
@@ -328,7 +330,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Go_Straight(0.05,0.5,0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         trajectoryPtr->Stop_Trajectory_straightwalk(0.05);
         indext = 0;
@@ -339,7 +341,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Left2();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -349,7 +351,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Step_in_place(0.05, 0.5, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -359,7 +361,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Right2();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -369,7 +371,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Go_Straight(0.05,res_distance,0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -390,7 +392,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Freq_Change_Straight(0.05,0.5,0.05,1);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
         IK_Ptr->Set_Angle_Compensation(67);
         indext = 0;
     }
@@ -401,7 +403,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Go_Straight(0.01,0.03,0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -539,7 +541,7 @@ void Callback::Write_Leg_Theta()
     All_Theta[10] = IK_Ptr->LL_th[4] - 24.22 * DEG2RAD;
     All_Theta[11] = -IK_Ptr->LL_th[5];
 
-    if (indext >= trajectoryPtr->Ref_RL_x.cols() && indext != 0)
+    if (indext >= trajectoryPtr->Ref_RL_x.cols()-1 && indext != 0)
     {
         indext -= 1;
         srv_SendMotion.request.SM_finish = true;
@@ -554,7 +556,7 @@ void Callback::Write_Leg_Theta()
 
 
     // //ROS_INFO("%d  %lf %d", indext, All_Theta[3], emergency);
-    Check_FSR();
+    // Check_FSR();
 }
 
 void Callback::Write_Arm_Theta()
@@ -565,7 +567,7 @@ void Callback::Write_Arm_Theta()
     All_Theta[15] = -60 * DEG2RAD;
     All_Theta[16] = 60 * DEG2RAD;
     All_Theta[17] = -90 * DEG2RAD;
-    All_Theta[18] = -90 * DEG2RAD;
+    All_Theta[18] = 90 * DEG2RAD;
     All_Theta[19] = 0 * DEG2RAD;
     All_Theta[20] = 0 * DEG2RAD;
 }
