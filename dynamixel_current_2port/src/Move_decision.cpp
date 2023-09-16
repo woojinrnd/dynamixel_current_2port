@@ -971,6 +971,7 @@ void Move_Decision::HUDDLE_mode()
     // 6 : MOtion : Forward_halfstep (Aprroach Huddle)
     else if (tmp_huddle_seq == 6)
     {
+        contain_huddle_to_foot = img_procPtr->Get_contain_huddle_to_foot();
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             if (!contain_huddle_to_foot)

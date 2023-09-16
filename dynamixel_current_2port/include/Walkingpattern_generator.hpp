@@ -37,13 +37,17 @@ private:
 	Matrix4d Ac_p;
 	MatrixXd Gd;
 	double sim_time;
+	RowVectorXd xzmp_ref;
+	RowVectorXd yzmp_ref;
+
 	
-	RowVectorXd zmp_ref;
-	RowVectorXd zmp_ref_fifo;
-	RowVectorXd u;
-	RowVectorXd zmp;
-	RowVectorXd zmp_ref_final;
-	RowVectorXd CP;
+	VectorXd zmp_ref;
+	VectorXd zmp_ref_fifo;
+	VectorXd u;
+	VectorXd zmp;
+	VectorXd zmp_ref_final;
+	VectorXd ref_xCP;
+	VectorXd ref_yCP;
 	double zmp_err_int;
 	double u_prev;
 	VectorXd Ref_Xpos;
@@ -72,6 +76,10 @@ public:
 	void Set_distance(double Goal_distance);
 	MatrixXd PreviewGd();
 	double Return_Step_n();
+	VectorXd Get_xCP();
+	VectorXd Get_yCP();
+	RowVectorXd Get_xZMP();
+	RowVectorXd Get_yZMP();
 	MatrixXd YComSimulation();
 	MatrixXd XComSimulation();
 	MatrixXd YComSimulation_Sidewalk(double a, double b, double c, double d, double e, double f);
@@ -105,7 +113,7 @@ public:
 	void Freq_Change_Straight(double step, double distance, double height, double freq);
 	void Side_Left2();
 	void Side_Right2();
-	void Step_in_place(double step, double distance);
+	void Step_in_place(double step, double distance,double height);
 	void Stop_Trajectory_straightwalk(double step);
 	void Stop_Trajectory_stepinplace(double step);
 	void Huddle_Motion(double step,double height);
@@ -128,11 +136,19 @@ public:
 	MatrixXd rsRef_LL_x;
 	MatrixXd rsRef_LL_y;
 	MatrixXd rsRef_LL_z;
-	
+/////////////////////////////////////////////////////////////////com and foot position
+	MatrixXd Xcom;
+	MatrixXd Ycom;
+	MatrixXd LF_xFoot;
+	MatrixXd RF_xFoot;
+	MatrixXd RF_yFoot;
+	MatrixXd LF_yFoot;
+
 	VectorXd Turn_Trajectory;
 };
 
-class IK_Function {
+class IK_Function
+{
 private:
 	double walkfreq;
 	double walktime;
@@ -223,5 +239,4 @@ public:
 	void Change_Com_Height(double h);
     
 	double check_index;
-
 };

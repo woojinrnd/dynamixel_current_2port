@@ -24,6 +24,11 @@ class Callback
 {
 private:
   double turn_angle = 0;
+  int arm_indext = 0;
+  double z_c = 1.2 * 0.28224;
+  double g = 9.81;
+  double omega_w;
+  double _dt = 0.01;
 
 public:
   enum Motion_Index
@@ -73,9 +78,13 @@ public:
 
   // virtual void SelectMotion(const std_msgs::UInt8::ConstPtr &msg);
 
+  // ********************************************** Function ************************************************** //
+
   virtual void Write_Leg_Theta();
   virtual void Write_Arm_Theta();
   virtual void Check_FSR();
+  void Calculate_Real_CP(int indext, double vx, double vy);
+  void Calculate_ZMP_from_CP(int indext);
 
   sensor_msgs::JointState joint_state;
 
@@ -167,6 +176,13 @@ public:
   MatrixXd RL_motion7;
   MatrixXd LL_motion7;
   VectorXd All_Theta = MatrixXd::Zero(NUMBER_OF_DYNAMIXELS, 1);
+
+  //CP
+  double Real_CP_Y = 0;
+  double Real_CP_X = 0;
+  double xZMP_from_CP = 0;
+  double yZMP_from_CP = 0;
+  double Real_zmp_y_accel = 0;
 
   // tf2::Quaternion quaternion;
 };

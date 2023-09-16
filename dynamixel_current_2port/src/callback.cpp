@@ -17,6 +17,7 @@ Callback::Callback(Trajectory *trajectoryPtr, IK_Function *IK_Ptr, Dxl *dxlPtr)
     trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 675);
     trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 675);
     trajectoryPtr->Turn_Trajectory = VectorXd::Zero(135);
+    omega_w = sqrt(g / z_c);
 }
 
 void Callback::JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command)
@@ -60,6 +61,7 @@ void Callback::IMUThread()
     ros::Rate loop_rate(200);
     while (nh.ok())
     {
+        Calculate_Real_CP(indext, vel_x, vel_y);
         ros::spinOnce();
         loop_rate.sleep();
     }
@@ -206,11 +208,11 @@ void Callback::Emergency()
 
 void Callback::Check_FSR()
 {
-    if (IK_Ptr->check_index == 0.05 && L_value == 0) // 오른발 들때 왼발 착지 확인
+    if (check_indext == 10 && R_value == 0) // 왼발 들때 오른발 착지 확인
     {
         indext -= 1;
     }
-    else if (IK_Ptr->check_index > 0.55 && R_value == 0) // 왼발 들때 오른발 착지 확인
+    else if (check_indext == 77 && L_value == 0) // 오른발 들때 왼발 착지 확인
     {
         indext -= 1;
     }
@@ -344,7 +346,7 @@ void Callback::SelectMotion()
     {
         mode = Motion_Index::Step_in_place;
         IK_Ptr->Change_Com_Height(30);
-        trajectoryPtr->Step_in_place(0.05, 0.5);
+        trajectoryPtr->Step_in_place(0.05, 0.5, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
         IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,3.5);
         IK_Ptr->Set_Angle_Compensation(135);
@@ -566,3 +568,25 @@ void Callback::Write_Arm_Theta()
     All_Theta[19] = 0 * DEG2RAD;
     All_Theta[20] = 0 * DEG2RAD;
 }
+
+void Callback::Calculate_Real_CP(int indext, double vx, double vy)
+{
+    Real_CP_X = trajectoryPtr->Xcom(indext) + vx / omega_w;
+    Real_CP_Y = trajectoryPtr->Ycom(indext) + vy / omega_w;
+    Calculate_ZMP_from_CP(indext);
+}
+
+void Callback::Calculate_ZMP_from_CP(int indext)
+{
+    VectorXd Ref_yCP =trajectoryPtr->Get_yCP();
+    VectorXd Ref_xCP =trajectoryPtr->Get_xCP();
+    RowVectorXd Ref_xZMP =trajectoryPtr->Get_xZMP();
+    RowVectorXd Ref_yZMP =trajectoryPtr->Get_yZMP();
+    xZMP_from_CP = (Ref_xCP(indext) - exp(omega_w * (2*1.35-0.01*check_indext)) * Real_CP_X) / (1 - exp(omega_w * (2*1.35-0.01*check_indext)));
+    yZMP_from_CP = (Ref_yCP(indext) - exp(omega_w * (2*1.35-0.01*check_indext)) * Real_CP_Y) / (1 - exp(omega_w * (2*1.35-0.01*check_indext)));
+    // Real_zmp_y_accel =trajectoryPtr->Ycom(indext) - (Accel(1)/pow(omega_w,2));
+    // fprintf(CP,"%d ",indext);
+    // fprintf(CP, "%lf   %lf  %lf  %lf %lf", Ref_yCP(indext), Real_CP_Y, Ref_yZMP(indext), yZMP_from_CP, Real_zmp_y_accel);
+    // fprintf(CP, "\n");
+
+} 

@@ -43,6 +43,8 @@
 #define PROP_CONTRAST 128
 #define PROP_SATURATION 128
 
+#define LINE_AREA 150
+
 using namespace cv;
 using namespace std;
 
@@ -158,6 +160,8 @@ public:
     double Get_wall_angle() const;
     double Get_distance() const;
 
+    bool Get_contain_huddle_to_foot() const;
+
     // ********************************************** SETTERS ************************************************** //
 
     void Set_img_proc_line_det(bool img_proc_line_det);
@@ -174,6 +178,8 @@ public:
     void Set_delta_x(double delta_x);
     void Set_wall_angle(double wall_angle);
     void Set_distance(double set_distance);
+
+    void Set_contain_huddle_to_foot(bool contain_huddle_to_foot);
 
     // ********************************************** running ************************************************** //
 
@@ -234,6 +240,9 @@ private:
     // delta_x > 0 : LEFT
     // delta_x < 0 : RIGHT
 
+    //Huddle mode
+    bool contain_huddle_to_foot_ = false;
+
     /////////////////////////////////////////// Mutex ///////////////////////////////////////////
     // LINE Determine flg from img_proc
     mutable std::mutex mtx_img_proc_line_det_;
@@ -253,4 +262,7 @@ private:
     // Wall Mode
     mutable std::mutex mtx_wall_angle;
     mutable std::mutex mtx_distance;
+
+    //Huddle Mode
+    mutable std::mutex mtx_contain_huddle_to_foot;
 };
