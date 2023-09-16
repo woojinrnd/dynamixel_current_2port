@@ -59,6 +59,7 @@ void Callback::IMUThread()
     IMU_Velocity_Complementary_z_subscriber_ = nh.subscribe("/filtered/Velocity_Complementary/z", 1000, &Callback::VelocityCallback, this);
 
     ros::Rate loop_rate(200);
+    Set_Callback();
     while (nh.ok())
     {
         Calculate_Real_CP(indext, vel_x, vel_y);
@@ -67,8 +68,8 @@ void Callback::IMUThread()
     }
 }
 
-// Function to generate a unique request ID
-int Callback::generateUniqueRequestID()
+// Function to generate a unique reques
+int Callback::generateUniqueRequestID()t ID
 {
     // Initialize a seed using srand function
     // Initializing the seed allows you to generate random numbers using rand() function
@@ -569,6 +570,9 @@ void Callback::Write_Arm_Theta()
     All_Theta[20] = 0 * DEG2RAD;
 }
 
+///////////////////////////////////////////////  Function ///////////////////////////////////////////////
+
+
 void Callback::Calculate_Real_CP(int indext, double vx, double vy)
 {
     Real_CP_X = trajectoryPtr->Xcom(indext) + vx / omega_w;
@@ -590,3 +594,14 @@ void Callback::Calculate_ZMP_from_CP(int indext)
     // fprintf(CP, "\n");
 
 } 
+
+void Callback::Set_Callback()
+{
+    trajectoryPtr->Go_Straight(0.05, 0.5, 0.05);
+    trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 10);
+    trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 10);
+    trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 10);
+    trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 10);
+    trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 10);
+    trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 10);
+}
