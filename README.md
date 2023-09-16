@@ -23,12 +23,13 @@ cd /usr/local/xsens
 #2-3. catkin_ws 빌드 작업  
 ```bash
 
+mkdir -p xsense/src
 cd /usr/local/xsens  
-sudo cp -r xsens_ros_mti_driver ~/catkin_ws/src  
-cd ~/catkin_ws/src  
+sudo cp -r xsens_ros_mti_driver ~/xsense/src  
+cd ~/xsense/src  
 sudo chmod 777 -R xsens_ros_mti_driver  
 cd  
-pushd ~/catkin_ws/src/xsens_ros_mti_driver/lib/xspublic && make && popd  
+pushd ~/xsense/src/xsens_ros_mti_driver/lib/xspublic && make && popd  
 catkin_make    
 source devel/setup.bash  
 roslaunch xsens_mti_driver display.launch  
@@ -55,7 +56,7 @@ rostopic echo /imu/data
 * [dynamixel_sdk](http://wiki.ros.org/dynamixel_sdk)  
 ```bash  
 
-sudo apt-get install ros-[version]-dynamixel-sdk
+sudo apt-get install ros-noetic-dynamixel-sdk
 
 ```
 
