@@ -309,29 +309,34 @@ void Img_proc::webcam_thread()
         auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
         auto hsv_frame_blue = extract_color(frame, lower_bound_blue, upper_bound_blue);
         int WhiteColorDetected = std::get<2>(hsv_frame_white);
-        // int YellowColorDetected = std::get<2>(hsv_frame_yellow);
-        // if (YellowColorDetected > 1000)
-        // {
-        //     // Athletics_FLAG = 2;
-        //     auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, blue_color, threshold_value_yellow, false, false);
-        //     auto thresh_frame_blue = detect_Line_areas(std::get<0>(hsv_frame_blue), frame, yellow_color, threshold_value_blue, false, false);
-        //     bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
-        //     bool Corner_mode = std::get<4>(thresh_frame_yellow);
-        //     this->Set_img_proc_huddle_det(YellowContourDetected);
+        int YellowColorDetected = std::get<2>(hsv_frame_yellow);
+        if (YellowColorDetected > 1000)
+        {
+            // Athletics_FLAG = 2;
+            auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, blue_color, threshold_value_yellow, false, false);
+            auto thresh_frame_blue = detect_Line_areas(std::get<0>(hsv_frame_blue), frame, yellow_color, threshold_value_blue, false, false);
 
+            cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
+            cv::Point huddle_bottom_point = std::get<7>(thresh_frame_yellow);
 
-        //     cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
-        //     cv::Point huddle_bottom_point = std::get<7>(thresh_frame_yellow);
+            int foot_huddle_distance = std::abs(foot_top_point.y - huddle_bottom_point.y);
 
-        //     int foot_huddle_distance = std::abs(foot_top_point.y - huddle_bottom_point.y);
+            // cout << foot_huddle_distance << endl;
 
-        //     cout << foot_huddle_distance << endl;
+            if (foot_huddle_distance < 10)
+            {
+                Set_contain_huddle_to_foot(true);
+            }
 
-        //     cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
-        //     cv::imshow("hsv Frame_blue", std::get<0>(thresh_frame_blue));
-        // }
+            else
+            {
+                Set_contain_huddle_to_foot(false);
+            }
+
+            cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
+            cv::imshow("hsv Frame_blue", std::get<0>(thresh_frame_blue));
+        }
         
-        // else if (WhiteColorDetected > 500)
         if (WhiteColorDetected > LINE_AREA)
         {
             // Athletics_FLAG = 1;
@@ -359,31 +364,6 @@ void Img_proc::webcam_thread()
             }
             cv::imshow("hsv Frame_white", std::get<0>(thresh_frame_white));
         }
-
-        // this->Set_img_proc_huddle_det(YellowContourDetected);
-        // this->Set_img_proc_corner_det(Corner_mode);
-
-        // TEST
-        //  this->Set_img_proc_huddle_det(true);
-        //  ROS_WARN("%d",Get_img_proc_huddle_det());
-        //  this->Set_img_proc_corner_det(YellowContourDetected);
-        //  this->Set_img_proc_corner_number(1);
-        //  if (a == 0)
-        //  {
-        //      this->Set_img_proc_corner_number(a);
-        //      a = !a;
-        //  }
-        //  else if (a == 1)
-        //  {
-        //      this->Set_img_proc_corner_number(a);
-        //      a = !a;
-        //  }
-
-        // cv::imshow("origin", frame);
-        // cv::imshow("gray", gray);
-
-        // cv::imshow("hsv Frame_yellow", hsv_frame_yellow);
-        // cv::imshow("thresh Frame_white", thresh_frame_white);
 
         if (cv::waitKey(1) == 27)
             break;
@@ -596,24 +576,8 @@ void Img_proc::realsense_thread()
                 auto thresh_frame_blue = detect_Line_areas(std::get<0>(Huddle), colorMat, yellow_color, threshold_value_blue, false, false);
                 bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
                 bool Corner_mode = std::get<4>(thresh_frame_yellow);
+
                 this->Set_img_proc_huddle_det(YellowContourDetected);
-
-                cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
-                cv::Point huddle_bottom_point = std::get<7>(thresh_frame_yellow);
-
-                int foot_huddle_distance = std::abs(foot_top_point.y - huddle_bottom_point.y);
-
-                // cout << foot_huddle_distance << endl;
-                
-                if (foot_huddle_distance < 10)
-                {
-                    Set_contain_huddle_to_foot(true);
-                }
-
-                else
-                {
-                    Set_contain_huddle_to_foot(false);
-                }
             }
             
             // auto Huddle = extract_color(colorMat, lower_bound_yellow, upper_bound_yellow);
