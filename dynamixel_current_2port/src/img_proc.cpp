@@ -103,7 +103,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc
 
     for (const auto &contour : contours)
     {
-        ///LINE
+        /// LINE
         double line_area = cv::contourArea(contour);
         double huddle_area = cv::contourArea(contour);
         if (line_area > LINE_AREA || huddle_area > HUDDLE_AREA)
@@ -227,17 +227,19 @@ std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc
         cv::putText(ori_frame, "Line angle : " + std::to_string(angle), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
 
         topmost_point = *std::min_element(top_contour.begin(), top_contour.end(),
-                                            [](const cv::Point &a, const cv::Point &b){
-                                                return a.y < b.y;
-                                            });
+                                          [](const cv::Point &a, const cv::Point &b)
+                                          {
+                                              return a.y < b.y;
+                                          });
 
         bottommost_point = *std::max_element(top_contour.begin(), top_contour.end(),
-                                            [](const cv::Point &a, const cv::Point &b){
-                                                return a.y < b.y;
-                                            });
+                                             [](const cv::Point &a, const cv::Point &b)
+                                             {
+                                                 return a.y < b.y;
+                                             });
 
-        cv::circle(ori_frame, topmost_point, 5, cv::Scalar(0,0,255), -1);
-        cv::circle(ori_frame, bottommost_point, 5, cv::Scalar(0,255,255), -1);
+        cv::circle(ori_frame, topmost_point, 5, cv::Scalar(0, 0, 255), -1);
+        cv::circle(ori_frame, bottommost_point, 5, cv::Scalar(0, 255, 255), -1);
 
         cv::Point center_dot(570, 50);
 
@@ -339,7 +341,7 @@ void Img_proc::webcam_thread()
             cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
             cv::imshow("hsv Frame_blue", std::get<0>(thresh_frame_blue));
         }
-        
+
         if (WhiteColorDetected > LINE_AREA)
         {
             // Athletics_FLAG = 1;
@@ -498,11 +500,31 @@ void Img_proc::realsense_thread()
         return;
     }
 
-    const auto window_name = "Realsense Depth Frame";
-    cv::namedWindow(window_name, cv::WINDOW_AUTOSIZE);
+    // Threshold Trackbar (White / Yellow / Blue)
+    const std::string window_name_thresh_white = "thresh Frame_white";
+    const std::string window_name_thresh_yellow = "thresh Frame_yellow";
+    const std::string window_name_thresh_blue = "thresh Frame_blue";
 
+    // Depth and Color frame
+    const auto window_name_depth = "Realsense Depth Frame";
     const auto window_name_color = "Realsense Color Frame";
+    const auto window_name_fakedepth = "Realsense Depth_fake Frame";
+
+    cv::namedWindow(window_name_thresh_white);
+    cv::namedWindow(window_name_thresh_yellow);
+    cv::namedWindow(window_name_thresh_blue);
+
+    // cv::namedWindow(window_name_depth, cv::WINDOW_AUTOSIZE);
     cv::namedWindow(window_name_color, cv::WINDOW_AUTOSIZE);
+    cv::namedWindow(window_name_fakedepth, cv::WINDOW_AUTOSIZE);
+
+
+    create_threshold_trackbar_W(window_name_thresh_white);
+    create_threshold_trackbar_Y(window_name_thresh_yellow);
+    create_threshold_trackbar_B(window_name_thresh_blue);
+
+    // COLOR FRAME
+    cv::Mat color_frame;
 
     rs2::align align_to(RS2_STREAM_COLOR);
     rs2::spatial_filter spatial;
@@ -511,15 +533,15 @@ void Img_proc::realsense_thread()
 
     try
     {
-        while (ros::ok() && cv::waitKey(1) < 0 && cv::getWindowProperty(window_name, cv::WND_PROP_AUTOSIZE) >= 0)
+        // while (ros::ok() && cv::waitKey(1) < 0 && cv::getWindowProperty(window_name_color, cv::WND_PROP_AUTOSIZE) >= 0)
+        while (ros::ok() && cv::waitKey(1) < 0)
         {
+            //////////////////////////////////////// Realsense Getting RGB AND Depth frame ////////////////////////////
             rs2::frameset data = pipe.wait_for_frames();
             data = align_to.process(data);
 
             rs2::depth_frame depth_frame = data.get_depth_frame();
 
-            // depth_frame = spatial.process(depth_frame);
-            // depth_frame = temporal.process(depth_frame);
             depth_frame = hole_filling.process(depth_frame);
 
             rs2::frame depth = depth_frame;
@@ -531,29 +553,55 @@ void Img_proc::realsense_thread()
             const int w = depth.as<rs2::video_frame>().get_width();
             const int h = depth.as<rs2::video_frame>().get_height();
 
-            cv::Mat colorMat(cv::Size(w, h), CV_8UC3, (void *)color.get_data(), cv::Mat::AUTO_STEP);
-            cv::Mat depthMat(cv::Size(w, h), CV_8UC3, (void *)depth.apply_filter(color_map).get_data(), cv::Mat::AUTO_STEP);
-            cv::Mat depth_dist(cv::Size(w, h), CV_16UC1, (void *)depth_frame.get_data(), cv::Mat::AUTO_STEP);
+            cv::Mat colorMat(cv::Size(w, h), CV_8UC3, (void *)color.get_data(), cv::Mat::AUTO_STEP);                         // COLOR
+            cv::Mat depthMat(cv::Size(w, h), CV_8UC3, (void *)depth.apply_filter(color_map).get_data(), cv::Mat::AUTO_STEP); // DEPTH
+            cv::Mat depth_dist(cv::Size(w, h), CV_16UC1, (void *)depth_frame.get_data(), cv::Mat::AUTO_STEP);                // DEPTH_DIST
 
             Eigen::Vector3f normal_vector;
+        
+            // ********************************************** Line mode and No Line mode ************************************************** //
 
-            ////////////////////////////////// TEST //////////////////////////////////
+            color_frame = colorMat.clone();
+            if (color_frame.empty())
+                break;
 
-            // // Block program until frames arrive
-            // rs2::frameset frames_ = pipe.wait_for_frames();
+            auto hsv_frame_white = extract_color(color_frame, lower_bound_white, upper_bound_white);
+            auto hsv_frame_yellow = extract_color(color_frame, lower_bound_yellow, upper_bound_yellow);
+            auto hsv_frame_blue = extract_color(color_frame, lower_bound_blue, upper_bound_blue);
 
-            // // Try to get a frame of a depth image
-            // rs2::depth_frame depth_ = frames_.get_depth_frame();
+            int WhiteColorDetected = std::get<2>(hsv_frame_white);
+            int YellowColorDetected = std::get<2>(hsv_frame_yellow);
 
-            // Set_img_proc_corner_det(true);
-            // // Set_img_proc_huddle_det(true);
-            // Set_img_proc_corner_number(1);
-            // float dist_to_center = depth_.get_distance(webcam_width / 2, webcam_height / 2);
-            // this->Set_distance(dist_to_center);
+            if (WhiteColorDetected > LINE_AREA)
+            {
+                // Athletics_FLAG = 1;
+                auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), color_frame, green_color, threshold_value_white, true, true);
+                bool WhiteContourDetected = std::get<1>(thresh_frame_white);
+                double gradient = std::get<2>(thresh_frame_white);
+                double tmp_delta_x = std::get<5>(thresh_frame_white);
 
-            ////////////////////////////////// TEST //////////////////////////////////
+                this->Set_img_proc_line_det(WhiteContourDetected);
 
-            // Wall mode
+                if (this->Get_img_proc_line_det() == true)
+                {
+                    this->Set_img_proc_no_line_det(false);
+                    this->Set_gradient(gradient);
+                }
+                else if (this->Get_img_proc_line_det() == false)
+                {
+                    this->Set_img_proc_no_line_det(true);
+                    this->Set_gradient(gradient);
+                    this->Set_delta_x(tmp_delta_x);
+                }
+                else
+                {
+                    this->Set_gradient(0);
+                }
+                cv::imshow(window_name_color, std::get<0>(thresh_frame_white));
+            }
+
+            // ********************************************** Wall Mode ************************************************** //
+
             auto pca = applyPCA(colorMat, depth_frame, 300, 200, 320, 260, 340, 200);
 
             int8_t wall_number_ = std::get<0>(pca);
@@ -567,37 +615,48 @@ void Img_proc::realsense_thread()
                 this->Set_distance(distance_);
             }
 
-            // // // Huddle mode
+            // ********************************************** Huddle Mode ************************************************** //
 
-            auto Huddle = extract_color(colorMat, lower_bound_yellow, upper_bound_yellow);
-
-            int YellowColorDetected = std::get<2>(Huddle);
             if (YellowColorDetected > 1000)
             {
                 // Athletics_FLAG = 2;
-                auto thresh_frame_yellow = detect_Line_areas(std::get<0>(Huddle), colorMat, blue_color, threshold_value_yellow, false, false);
-                auto thresh_frame_blue = detect_Line_areas(std::get<0>(Huddle), colorMat, yellow_color, threshold_value_blue, false, false);
+                auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), color_frame, blue_color, threshold_value_yellow, false, false);
+                auto thresh_frame_blue = detect_Line_areas(std::get<0>(hsv_frame_yellow), color_frame, yellow_color, threshold_value_blue, false, false);
                 bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
                 bool Corner_mode = std::get<4>(thresh_frame_yellow);
-
                 this->Set_img_proc_huddle_det(YellowContourDetected);
-            }
-            
-            // auto Huddle = extract_color(colorMat, lower_bound_yellow, upper_bound_yellow);
 
-            center_huddle = std::get<3>(Huddle);
+                cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
+                cv::Point huddle_bottom_point = std::get<7>(thresh_frame_yellow);
+
+                int foot_huddle_distance = std::abs(foot_top_point.y - huddle_bottom_point.y);
+
+
+                if (foot_huddle_distance < 10)
+                {
+                    Set_contain_huddle_to_foot(true);
+                }
+
+                else
+                {
+                    Set_contain_huddle_to_foot(false);
+                }
+
+                cv::imshow(window_name_fakedepth, std::get<0>(thresh_frame_yellow));
+                cv::imshow(window_name_color, std::get<0>(thresh_frame_blue));
+            }
+
+            center_huddle = std::get<3>(hsv_frame_yellow);
 
             huddle_distance = Distance_Point(depth_frame, center_huddle);
             Set_distance(huddle_distance);
 
-            cv::imshow(window_name, depthMat);
-            cv::imshow(window_name_color, colorMat);
-
-            cv::imshow(window_name, depthMat);
-            cv::imshow(window_name_color, colorMat);
+            // cv::imshow(window_name_depth, depthMat);
+            // cv::imshow(window_name_fakedepth, colorMat);
+            // cv::imshow(window_name_color, color_frame);
         }
     }
-    
+
     catch (const rs2::error &e)
     {
         std::cerr << "An error occurred during streaming: " << e.what() << std::endl;
@@ -1351,5 +1410,5 @@ void Img_proc::Set_distance(double distance)
 void Img_proc::Set_contain_huddle_to_foot(bool contain_huddle_to_foot)
 {
     std::lock_guard<std::mutex> lock(mtx_contain_huddle_to_foot);
-    this->contain_huddle_to_foot_= contain_huddle_to_foot;
+    this->contain_huddle_to_foot_ = contain_huddle_to_foot;
 }
