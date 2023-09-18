@@ -649,6 +649,7 @@ void Img_proc::realsense_thread()
             center_huddle = std::get<3>(hsv_frame_yellow);
 
             huddle_distance = Distance_Point(depth_frame, center_huddle);
+            ROS_ERROR("huddle_distance : %f", huddle_distance);
             Set_distance(huddle_distance);
 
             // cv::imshow(window_name_depth, depthMat);

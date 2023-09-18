@@ -44,7 +44,7 @@
 #define PROP_SATURATION 128
 
 #define LINE_AREA 150
-#define HUDDLE_AREA 300
+#define HUDDLE_AREA 10
 
 using namespace cv;
 using namespace std;

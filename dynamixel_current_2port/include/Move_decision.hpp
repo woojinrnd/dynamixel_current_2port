@@ -331,6 +331,7 @@ public:
     int8_t wall_motion = 0;
     int8_t img_wall_number_case = 0;
     int8_t wall_number_seq = 0;
+    double wall_neck_angle = 0;
 
     /////////////////////// Sequence++ ///////////////////////
     bool finish_past = false;
