@@ -94,6 +94,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc
     double topmost_y = std::numeric_limits<double>::max();
     double distance_huddle = 0;
     bool has_white_now = false;
+    bool has_yellow_now = false;
 
     float angle = 0;
 
@@ -102,9 +103,10 @@ std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc
 
     for (const auto &contour : contours)
     {
+        ///LINE
         double line_area = cv::contourArea(contour);
         double huddle_area = cv::contourArea(contour);
-        if (line_area > LINE_AREA)
+        if (line_area > LINE_AREA || huddle_area > HUDDLE_AREA)
         {
             cv::Moments m = cv::moments(contour);
             foundLargeContour = true;
@@ -134,6 +136,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc
             }
         }
     }
+
     cv::putText(ori_frame, "distance : " + std::to_string(distance_huddle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
 
     if (check_disappearance)
@@ -482,8 +485,8 @@ void Img_proc::realsense_thread()
     rs2::colorizer color_map;
     rs2::pipeline pipe;
     rs2::config cfg;
-    cfg.enable_stream(RS2_STREAM_COLOR, realsense_width, realsense_height, RS2_FORMAT_BGR8, realsense_fps);
-    cfg.enable_stream(RS2_STREAM_DEPTH, realsense_width, realsense_height, RS2_FORMAT_Z16, realsense_fps);
+    cfg.enable_stream(RS2_STREAM_COLOR, realsense_width, realsense_height, RS2_FORMAT_BGR8, realsense_color_fps);
+    cfg.enable_stream(RS2_STREAM_DEPTH, realsense_width, realsense_height, RS2_FORMAT_Z16, realsense_depth_fps);
 
     try
     {

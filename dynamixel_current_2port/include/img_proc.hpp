@@ -44,6 +44,7 @@
 #define PROP_SATURATION 128
 
 #define LINE_AREA 150
+#define HUDDLE_AREA 300
 
 using namespace cv;
 using namespace std;
@@ -115,6 +116,7 @@ public:
 
     int corner_condition_count = 0;
     int line_condition_count = 0;
+    int huddle_condition_count = 0;
 
     bool a = 0;
 
@@ -141,7 +143,8 @@ public:
     // Cam set
     const int realsense_width = 640;
     const int realsense_height = 480;
-    const int realsense_fps = 30;
+    const int realsense_color_fps = 30;
+    const int realsense_depth_fps = 30;
 
     // ********************************************** GETTERS ************************************************** //
 
