@@ -24,8 +24,8 @@
 #define RL_MIN -90
 #define RL_CENTER 0
 
-#define TURN_MAX 90
-#define TURN_MIN -90
+#define TURN_MAX 30
+#define TURN_MIN -30
 
 using namespace std;
 
@@ -313,6 +313,7 @@ public:
     // 6 : Motion : Turn Angle 90(ㅓ) or -90(ㅜ)
     double Angle_ToStartWall = 90;
     bool Turn90 = false;
+    int8_t turn_30 = 0;
 
     // corner shape ㅓ / ㅜ
     int8_t tmp_corner_seq = 0;
@@ -328,10 +329,22 @@ public:
     double corner_ud_neck_angle = 0;
 
     /////////////////////// Wall Mode ///////////////////////
+    // case 1 : After corner, Starting Wall Mode
+    // 0: Motion : InitPose (For getting Distance) -> 1 : Motion : ForwardNstep 
+    
+    // case 2 : Until Right plane determine
+    // 0 : Motion : InitPose (For getting Distance) -> 1 : Motion : ForwardNstep
+
+
+
+
     int8_t wall_motion = 0;
     int8_t img_wall_number_case = 0;
     int8_t wall_number_seq = 0;
     double wall_neck_angle = 0;
+    double wall_distance = 0;
+    std::vector<double> wall_distance_save;
+    
 
     /////////////////////// Sequence++ ///////////////////////
     bool finish_past = false;
