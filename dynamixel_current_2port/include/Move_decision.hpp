@@ -114,6 +114,7 @@ public:
     void HUDDLE_mode();
     void WALL_mode();
     void CORNER_mode();
+    void CORNER_mode_debug();
 
     bool tmp_img_proc_line_det_flg_ = false;
     bool tmp_img_proc_no_line_det_flg_ = false;
@@ -311,15 +312,24 @@ public:
     // 4 : Motion : Forward_Nstep (Approach)
     // 5 : Motion : Step in place
     // 6 : Motion : Turn Angle 90(ㅓ) or -90(ㅜ)
+    //                       |
+    //                       |
+    //                       |
+    //                      \!/
+    // 0 : Approach to the Corner --> Motion : Motion_Index::Forward_Halfstep (Until corner center)
+    // 1 : Pose Control (Posture(Gradient))
+    // 2 : Motion : Step in place + Turn Angle 90(ㅓ) or -90(ㅜ)
+    // 3 : Initializing
+
     double Angle_ToStartWall = 90;
     bool Turn90 = false;
     int8_t turn_30 = 0;
 
     // corner shape ㅓ / ㅜ
+    int8_t tmp_corner_shape = 0;
     int8_t tmp_corner_seq = 0;
 
     double corner_actual_angle = 0;
-    int8_t tmp_corner_shape = 0;
     int8_t tmp_turn90 = 0;
 
     double corner_distance = 0;
@@ -327,6 +337,12 @@ public:
 
     int8_t corner_motion = 0;
     double corner_ud_neck_angle = 0;
+    
+    bool img_proc_contain_corner_to_foot = false; // corner Y Point
+    bool contain_corner_X = false; //corner X Point
+    bool contain_corner_Y = false; // corner Y Point
+    int8_t img_proc_corner_delta_x = 0;
+    double img_proc_corner_angle = 0;
 
     /////////////////////// Wall Mode ///////////////////////
     // case 1 : After corner, Starting Wall Mode
@@ -334,7 +350,6 @@ public:
     
     // case 2 : Until Right plane determine
     // 0 : Motion : InitPose (For getting Distance) -> 1 : Motion : ForwardNstep
-
 
 
 
@@ -351,25 +366,13 @@ public:
     int8_t req_finish_count = 0;
 
     // check the variable sharing with multi thread
-    int aaaa = 1;
+    int aaaa = 0;
+    int ccc = 0;
+    int abc = 0;
     int b = aaaa % 2;
 
     int warning_counter = 0;
     bool warning_printed = false;
-
-    // ********************************************** BASKETBALL ************************************************** //
-    // DIR_UP 10
-    // DIR_DOWN 20
-    // DIR_LEFT 30
-    // DIR_RIGHT 40
-    // DIR_NONE 50
-    // DIR_UP_LEFT 60
-    // DIR_UP_RIGHT 70
-    // DIR_DOWN_LEFT 80
-    // DIR_DOWN_RIGHT 90
-    int tmp_goal_trace_direction = 0;
-    int8_t goal_trace_motion = 0;
-    double goal_trace_angle = 0;
 
 private:
     ros::NodeHandle nh;

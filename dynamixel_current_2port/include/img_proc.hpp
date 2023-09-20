@@ -46,6 +46,9 @@
 #define LINE_AREA 150
 #define HUDDLE_AREA 10
 
+#define CORNER_X_MARGIN 30
+#define CORNER_Y_MARGIN 10
+
 using namespace cv;
 using namespace std;
 
@@ -99,6 +102,7 @@ public:
     cv::Point blue_center;
     cv::Point topmost_point;
     cv::Point bottommost_point;
+    cv::Point corner_center;
 
     cv::Scalar blue_color = {255, 0, 0};
     cv::Scalar green_color = {0, 255, 0};
@@ -129,7 +133,7 @@ public:
     void create_threshold_trackbar_B(const std::string &window_name);
     void create_color_range_trackbar(const std::string &window_name);
     std::tuple<cv::Mat, cv::Mat, int, cv::Point> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
-    std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
+    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
     double Distance_Point(const rs2::depth_frame& depth, cv::Point center);
 
     // ********************************************** 3D THREAD************************************************** //
@@ -164,6 +168,7 @@ public:
     double Get_distance() const;
 
     bool Get_contain_huddle_to_foot() const;
+    bool Get_contain_corner_to_foot() const;
 
     // ********************************************** SETTERS ************************************************** //
 
@@ -183,6 +188,7 @@ public:
     void Set_distance(double set_distance);
 
     void Set_contain_huddle_to_foot(bool contain_huddle_to_foot);
+    void Set_contain_corner_to_foot(bool contain_corner_to_foot);
 
     // ********************************************** running ************************************************** //
 
@@ -246,6 +252,9 @@ private:
     //Huddle mode
     bool contain_huddle_to_foot_ = false;
 
+    //Corner mode
+    bool contain_corner_to_foot_ = false;
+
     /////////////////////////////////////////// Mutex ///////////////////////////////////////////
     // LINE Determine flg from img_proc
     mutable std::mutex mtx_img_proc_line_det_;
@@ -268,4 +277,7 @@ private:
 
     //Huddle Mode
     mutable std::mutex mtx_contain_huddle_to_foot;
+
+    //Corner mode
+    mutable std::mutex mtx_contain_corner_to_foot;
 };

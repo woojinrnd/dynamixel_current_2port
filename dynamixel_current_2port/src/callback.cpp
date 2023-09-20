@@ -170,8 +170,8 @@ void Callback::Move_UD_NeckAngle()
     double res_ud_neck = srv_SendMotion.response.ud_neckangle;
     ud_neckangle = 90 - res_ud_neck;
     All_Theta[22] = ud_neckangle * DEG2RAD;
-    //ROS_WARN("UD_NECK : %f", res_ud_neck);
-    //ROS_INFO("------------------------- UD NECK Angle ----------------------------");
+    // ROS_WARN("UD_NECK : %f", res_ud_neck);
+    // ROS_INFO("------------------------- UD NECK Angle ----------------------------");
 }
 
 void Callback::TATA()

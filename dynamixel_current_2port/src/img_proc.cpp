@@ -74,7 +74,7 @@ std::tuple<cv::Mat, cv::Mat, int, cv::Point> Img_proc::extract_color(const cv::M
     return {color_extracted, frame, color_pixel_area, center};
 }
 
-std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance, bool is_white_line)
+std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance, bool is_white_line)
 {
     cv::Mat frame = input_frame.clone();
     cv::Mat ori_frame = origin_frame.clone();
@@ -84,9 +84,8 @@ std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc
     cv::threshold(gray, binary, threshold_value, max_value, cv::THRESH_BINARY);
 
     std::vector<std::vector<cv::Point>> contours;
+    
     cv::findContours(binary, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-    // cv::cvtColor(gray, frame, cv::COLOR_GRAY2BGR);
 
     std::vector<cv::Point> top_contour;
 
@@ -143,14 +142,14 @@ std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc
     {
         if (has_prev && !has_white_now && center_now.x < 320)
         {
-            double tmp_delta_x = 1;
+            int8_t tmp_delta_x = 1;
             delta_x_ = tmp_delta_x;
             tmp_delta_x = 0;
             std::cout << "Line area disappeared to the left\n";
         }
         else if (has_prev && !has_white_now && center_now.x > 320)
         {
-            double tmp_delta_x = -1;
+            int8_t tmp_delta_x = -1;
             delta_x_ = tmp_delta_x;
             tmp_delta_x = 0;
             std::cout << "Line area disappeared to the right\n";
@@ -201,10 +200,10 @@ std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc
 
         else if (short_len * 1.5 > long_len)
         {
-            
+
             if (min_area_rect.size.width < min_area_rect.size.height)
             {
-                angle = -min_area_rect.angle - 90;
+                angle = -min_area_rect.angle + 90;
             }
             else
             {
@@ -216,6 +215,9 @@ std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc
                 corner_condition_count++;
                 if (corner_condition_count >= 3)
                 {
+                    // Rect corner_bounding_Box = min_area_rect.boundingRect();
+                    // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
+                    corner_center = min_area_rect.center;
                     Corner = true;
                     cv::putText(ori_frame, "Corner", cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
                 }
@@ -255,7 +257,7 @@ std::tuple<cv::Mat, bool, int, int, bool, double, cv::Point, cv::Point> Img_proc
         cv::line(ori_frame, center_dot, end_point, contour_color, 3);
         // std::cout << "Angle: " << angle << std::endl;
     }
-    return std::make_tuple(ori_frame, foundLargeContour, angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point);
+    return std::make_tuple(ori_frame, foundLargeContour, angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center);
 }
 
 void Img_proc::webcam_thread()
@@ -285,25 +287,18 @@ void Img_proc::webcam_thread()
         return;
     }
 
-    // const std::string window_name1 = "hsv Frame_white";
-    const std::string window_name2 = "thresh Frame_white";
-    // const std::string window_name3 = "hsv Frame_yellow";
-    const std::string window_name4 = "thresh Frame_yellow";
+    // Threshold Trackbar (White / Yellow / Blue)
+    const std::string window_name_thresh_white = "thresh Frame_white";
+    const std::string window_name_thresh_yellow = "thresh Frame_yellow";
+    const std::string window_name_thresh_blue = "thresh Frame_blue";
 
-    const std::string window_name6 = "thresh Frame_blue";
-    // cv::namedWindow(window_name1);
-    cv::namedWindow(window_name2);
-    // cv::namedWindow(window_name3);
-    cv::namedWindow(window_name4);
+    cv::namedWindow(window_name_thresh_white);
+    cv::namedWindow(window_name_thresh_yellow);
+    cv::namedWindow(window_name_thresh_blue);
 
-    cv::namedWindow(window_name6);
-
-    // create_color_range_trackbar(window_name1);
-    create_threshold_trackbar_W(window_name2);
-    // create_color_range_trackbar(window_name3);
-    create_threshold_trackbar_Y(window_name4);
-
-    create_threshold_trackbar_B(window_name6);
+    create_threshold_trackbar_W(window_name_thresh_white);
+    create_threshold_trackbar_Y(window_name_thresh_yellow);
+    create_threshold_trackbar_B(window_name_thresh_blue);
 
     cv::Mat frame, hsv_frame_white, hsv_frame_yellow, thresh_frame_white, thresh_frame_yellow, gray;
 
@@ -313,19 +308,18 @@ void Img_proc::webcam_thread()
         if (frame.empty())
             break;
 
+        // HSV
         auto hsv_frame_white = extract_color(frame, lower_bound_white, upper_bound_white);
         auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
         auto hsv_frame_blue = extract_color(frame, lower_bound_blue, upper_bound_blue);
+        
+        //Filled Area
         int WhiteColorDetected = std::get<2>(hsv_frame_white);
         int YellowColorDetected = std::get<2>(hsv_frame_yellow);
 
-        // Athletics_FLAG = 2;
+        // Draw
         auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, blue_color, threshold_value_yellow, false, false);
         auto thresh_frame_blue = detect_Line_areas(std::get<0>(hsv_frame_blue), frame, yellow_color, threshold_value_blue, false, false);
-
-        // corner mode
-        bool Corner_mode = std::get<4>(thresh_frame_yellow);
-        Set_img_proc_corner_det(Corner_mode);
 
         if (YellowColorDetected > 1000)
         {
@@ -350,14 +344,57 @@ void Img_proc::webcam_thread()
             cv::imshow("hsv Frame_blue", std::get<0>(thresh_frame_blue));
         }
 
+        // Line mode / Corner mode
         if (WhiteColorDetected > LINE_AREA)
         {
-            // Athletics_FLAG = 1;
             auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), frame, green_color, threshold_value_white, true, true);
             bool WhiteContourDetected = std::get<1>(thresh_frame_white);
             double gradient = std::get<2>(thresh_frame_white);
             double tmp_delta_x = std::get<5>(thresh_frame_white);
 
+            // corner mode
+            bool Corner_mode = std::get<4>(thresh_frame_yellow);
+            if (Corner_mode)
+            {
+                Set_img_proc_corner_det(Corner_mode);
+                Set_gradient(gradient);
+                cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
+                cv::Point corner_bottom_point = std::get<7>(thresh_frame_white);
+                int foot_corner_distance = std::abs(foot_top_point.y - corner_bottom_point.y);
+                cv::Point corner_center = std::get<8>(thresh_frame_white);
+
+                // Corner is RIGHT side of robot -> Need to move RIGHT side
+                if ( corner_center.x > IMG_W / 2 + CORNER_X_MARGIN)
+                {
+                    Set_delta_x(-10); // (-) Right side // 10 : dummy variable
+                }
+
+                //Corner is LEFT side of robot -> Need to move LEFT side
+                else if (corner_center.x < IMG_W / 2 - CORNER_X_MARGIN)
+                {
+                    Set_delta_x(10); // (+) Right side // 10 : dummy variable
+                }
+
+                else if (IMG_W / 2 - CORNER_X_MARGIN <= corner_center.x <= IMG_W / 2 + CORNER_X_MARGIN)
+                {
+                    Set_delta_x(0); 
+                }
+
+                // cout << foot_corner_distance << endl;
+                // cout << Get_delta_x() << endl;
+                cout << gradient << endl;
+
+                if (foot_corner_distance < CORNER_Y_MARGIN)
+                {
+                    Set_contain_corner_to_foot(true);
+                }
+
+                else
+                {
+                    Set_contain_corner_to_foot(false);
+                }
+            }
+            
             this->Set_img_proc_line_det(WhiteContourDetected);
 
             if (this->Get_img_proc_line_det() == true)
@@ -375,6 +412,7 @@ void Img_proc::webcam_thread()
             {
                 this->Set_gradient(0);
             }
+            cv::imshow("hsv Frame_blue", std::get<0>(thresh_frame_blue));
             cv::imshow("hsv Frame_white", std::get<0>(thresh_frame_white));
         }
 
@@ -1270,6 +1308,12 @@ bool Img_proc::Get_contain_huddle_to_foot() const
     return contain_huddle_to_foot_;
 }
 
+bool Img_proc::Get_contain_corner_to_foot() const
+{
+    std::lock_guard<std::mutex> lock(mtx_contain_corner_to_foot);
+    return contain_corner_to_foot_;
+}
+
 // ********************************************** SETTERS ************************************************** //
 
 void Img_proc::Set_img_proc_line_det(bool img_proc_line_det)
@@ -1354,4 +1398,10 @@ void Img_proc::Set_contain_huddle_to_foot(bool contain_huddle_to_foot)
 {
     std::lock_guard<std::mutex> lock(mtx_contain_huddle_to_foot);
     this->contain_huddle_to_foot_ = contain_huddle_to_foot;
+}
+
+void Img_proc::Set_contain_corner_to_foot(bool contain_corner_to_foot)
+{
+    std::lock_guard<std::mutex> lock(mtx_contain_corner_to_foot);
+    this->contain_corner_to_foot_ = contain_corner_to_foot;
 }
