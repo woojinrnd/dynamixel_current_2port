@@ -18,7 +18,7 @@
 
 #define UD_MAX 90
 #define UD_MIN 0
-#define UD_CENTER 80
+#define UD_CENTER 45
 
 #define RL_MAX 90
 #define RL_MIN -90
@@ -115,6 +115,7 @@ public:
     void WALL_mode();
     void CORNER_mode();
     void CORNER_mode_debug();
+    void Test_service();
 
     bool tmp_img_proc_line_det_flg_ = false;
     bool tmp_img_proc_no_line_det_flg_ = false;

@@ -316,12 +316,12 @@ void Callback::SelectMotion()
     if (res_mode == Motion_Index::InitPose)
     {
         mode = Motion_Index::InitPose;
-        trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 30);
-        trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 30);
-        trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 30);
-        trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 30);
-        trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 30);
-        trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 30);
+        trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 675);
+        trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 675);
+        trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 675);
+        trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 675);
+        trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 675);
+        trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 675);
         indext = 0;
     }
     else if (res_mode == Motion_Index::Forward_4step)

@@ -19,7 +19,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     ros::NodeHandle nh(ros::this_node::getName());
 
     boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
-    boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
+    // boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
     // boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
     boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
 }
@@ -70,11 +70,12 @@ void Move_Decision::process()
     // Set_line_det_flg(true);
 
     // huddle mode
-    // Set_huddle_det_flg(true);
+    Set_huddle_det_flg(true);
     // Set_UD_Neck_on_flg(true);
 
     // corner mode
     // Set_corner_det_flg(true);
+
 
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
 
@@ -331,7 +332,7 @@ void Move_Decision::Running_Mode_Decision()
         break;
     case CORNER_MODE:
         CORNER_mode();
-        // CORNER_mode_debug();
+        // Test_service();
         break;
     }
 }
@@ -728,7 +729,6 @@ void Move_Decision::HUDDLE_mode()
             huddle_motion = Motion_Index::InitPose;
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
-            // ROS_ERROR("huddle_distace : %f", huddle_distance);
 
             huddle_distance = img_procPtr->Get_distance();
             huddle_distance_save.push_back(huddle_distance);
@@ -744,12 +744,15 @@ void Move_Decision::HUDDLE_mode()
 
         else if (!Get_SM_req_finish())
         {
-            Set_motion_index_(Motion_Index::NONE);
+            // Set_motion_index_(Motion_Index::NONE);
+            huddle_ud_neck_angle = 30;
+            Set_UD_NeckAngle(huddle_ud_neck_angle);
+            Set_UD_Neck_on_flg(true);
         }
 
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {
-            huddle_ud_neck_angle = 10;
+            huddle_ud_neck_angle = 30;
             Set_UD_NeckAngle(huddle_ud_neck_angle);
             Set_UD_Neck_on_flg(true);
         }
@@ -761,7 +764,7 @@ void Move_Decision::HUDDLE_mode()
             finish_past = Get_SM_req_finish();
         }
 
-        if (req_finish_count == 1)
+        if (req_finish_count == 2)
         {
             req_finish_count = 0;
             tmp_huddle_seq++;
@@ -773,17 +776,12 @@ void Move_Decision::HUDDLE_mode()
     // 1 : Motion : Forward_Nstep (Far) --> Line_mode()
     else if (tmp_huddle_seq == 1)
     {
-        if (!Get_distance_on_flg())
-        {
-            // Margin : 0.3m
-            huddle_distance -= 0.3;
-            Set_distance_(huddle_distance);
-            Set_distance_on_flg(true);
-        }
-
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             huddle_motion = Motion_Index::Forward_Nstep;
+            huddle_distance -= 0.3;
+            Set_distance_(huddle_distance);
+            Set_distance_on_flg(true);
 
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
@@ -1651,414 +1649,553 @@ void Move_Decision::CORNER_mode()
     }
 }
 
-// void Move_Decision::CORNER_mode_debug()
-// {
-//     // corner shape ㅓ / ㅜ
-//     // tmp_corner_shape ㅓ(1)
-//     // tmp_corner_shape ㅜ(2)
+void Move_Decision::Test_service()
+{
+    if (aaaa == 0)
+    {
+        ROS_ERROR("ccc : %d" , ccc);
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            abc++;
 
-//     // Corner seq
-//     // 0 : corner_shape dicision (From img_proc_corner_number) (Depth)
-//     // 1 : Motion : InitPose (For getting distance) (Depth)
-//     // 2 : Motion : Forward_Nstep (Far)
-//     // 3 : Motion : InitPose (For getting distance) (Depth)
-//     // 4 : Motion : Forward_Nstep (Approach)
-//     // 5 : Motion : Step in place
-//     // 6 : Motion : Turn Angle 90(ㅓ) or -90(ㅜ)
-//     // 7 : Initializing
+            if (ccc == 0 && !Get_turn_angle_on_flg() && Get_TA_req_finish())
+            {
+                Set_UD_NeckAngle(30);
+                Set_UD_Neck_on_flg(true);
+ 
+                Set_motion_index_(Motion_Index::Step_in_place);
+                Set_select_motion_on_flg(true);
 
-//     corner_actual_angle = Get_turn_angle_();
-//     corner_motion = Get_motion_index_();
-//     corner_ud_neck_angle = Get_UD_NeckAngle();
+                Set_turn_angle_(70);
+                Set_turn_angle_on_flg(true);
+                ccc++;
+            }
 
-//     // 0 : corner_shape dicision (From img_procPtr) (Depth)
-//     if (tmp_corner_seq == 0)
-//     {
-//         tmp_corner_shape = img_procPtr->Get_img_proc_corner_number();
-//         if (tmp_corner_shape == 1)
-//         {
-//             ROS_WARN("ㅓ Type : CORNER NUMBER 1");
-//             tmp_corner_seq++;
-//         }
-//         else if (tmp_corner_shape == 2)
-//         {
-//             ROS_WARN("ㅜ Type : CORNER NUMBER 2");
-//             tmp_corner_seq++;
-//         }
-//         Set_corner_det_flg(false);
-//     }
+            else if (ccc == 1 && !Get_turn_angle_on_flg() && Get_TA_req_finish())
+            {
+                Set_motion_index_(Motion_Index::Step_in_place);
+                Set_select_motion_on_flg(true);
 
-//     // 1 : Motion : InitPose (For getting distance) (Depth)
-//     else if (tmp_corner_seq == 1)
-//     {
-//         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
-//         {
-//             Set_motion_index_(Motion_Index::InitPose);
-//             Set_select_motion_on_flg(true);
+                Set_turn_angle_(30);
+                Set_turn_angle_on_flg(true);
+                ccc++;
+            }
 
-//             corner_distance = img_procPtr->Get_distance();
-//             corner_distance_save.push_back(corner_distance);
+            else if (ccc == 2 && !Get_turn_angle_on_flg() && Get_TA_req_finish())
+            {
+                Set_motion_index_(Motion_Index::Step_in_place);
+                Set_select_motion_on_flg(true);
 
-//             if (corner_distance_save.size() == SPIN_RATE * 3)
-//             {
-//                 corner_distance = accumulate(corner_distance_save.begin(), corner_distance_save.end(), 0.0) / corner_distance_save.size();
-//                 corner_distance = std::floor(corner_distance * 1000.0) / 1000.0;
-//                 corner_distance_save.clear();
-//             }
-//             Set_corner_det_flg(false);
-//         }
+                Set_turn_angle_(30);
+                Set_turn_angle_on_flg(true);
+                ccc++;
+            }
 
-//         else if (!Get_SM_req_finish())
-//         {
-//             Set_motion_index_(Motion_Index::NONE);
-//         }
+            else if (ccc == 3)
+            {
+                req_finish_count = 0;
+                ccc = 0;
+                aaaa++;
+            }
+        }
+        
+        else if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            Set_UD_NeckAngle(30);
+            Set_UD_Neck_on_flg(true);
+        }
 
-//         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
-//         {
-//             corner_ud_neck_angle = 10;
-//             Set_UD_NeckAngle(corner_ud_neck_angle);
-//             Set_UD_Neck_on_flg(true);
-//         }
+        else if (!Get_UD_req_finish())
+        {
+            Set_UD_NeckAngle(30);
+            Set_UD_Neck_on_flg(true);
+        }
+        
+        ROS_ERROR("Loop NUMBER(%d)", abc);
+    }
 
-//         // Sequence++
-//         if (finish_past != Get_SM_req_finish())
-//         {
-//             req_finish_count++;
-//             finish_past = Get_SM_req_finish();
-//         }
-//         if (req_finish_count == 1)
-//         {
-//             req_finish_count = 0;
-//             tmp_corner_seq++;
-//         }
-//     }
+    else if (aaaa == 1 && !Get_select_motion_on_flg() && Get_SM_req_finish())
+    {
+        Set_motion_index_(Motion_Index::Forward_4step);
+        Set_select_motion_on_flg(true);
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            req_finish_count++;
+            finish_past = Get_SM_req_finish();
+        }
+        if (req_finish_count == 1)
+        {
+            req_finish_count = 0;
+            aaaa++;
+        }
+    }
 
-//     // 2 : Motion : Forward_Nstep (Far)
-//     else if (tmp_corner_seq == 2)
-//     {
-//         if (!Get_distance_on_flg())
-//         {
-//             Set_distance_(corner_distance);
-//             Set_distance_on_flg(true);
-//         }
+    else if (aaaa == 2 && !Get_select_motion_on_flg() && Get_SM_req_finish() && !Get_distance_on_flg())
+    {
+        Set_motion_index_(Motion_Index::Forward_Nstep);
+        Set_distance_(2);
+        Set_distance_on_flg(true);
+        Set_select_motion_on_flg(true);
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            req_finish_count++;
+            finish_past = Get_SM_req_finish();
+        }
+        if (req_finish_count == 1)
+        {
+            req_finish_count = 0;
+            aaaa++;
+        }
+    }
 
-//         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
-//         {
-//             corner_motion = Motion_Index::Forward_Nstep;
-//             Set_motion_index_(corner_motion);
-//             ROS_ERROR("corner_distance : %f", corner_distance);
-//             Set_select_motion_on_flg(true);
+    else if (aaaa == 3 && !Get_select_motion_on_flg() && Get_SM_req_finish())
+    {
+        Set_motion_index_(Motion_Index::Left_2step);
+        Set_select_motion_on_flg(true);
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            req_finish_count++;
+            finish_past = Get_SM_req_finish();
+        }
+        if (req_finish_count == 1)
+        {
+            req_finish_count = 0;
+            aaaa++;
+        }
+    }
 
-//             if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
-//             {
-//                 huddle_ud_neck_angle = UD_CENTER;
-//                 Set_UD_NeckAngle(huddle_ud_neck_angle);
-//                 Set_UD_Neck_on_flg(true);
-//             }
-//             // Set_line_det_flg(true);
+    else if (aaaa == 4 && !Get_select_motion_on_flg() && Get_SM_req_finish())
+    {
+        Set_motion_index_(Motion_Index::Right_2step);
+        Set_select_motion_on_flg(true);
+        aaaa++;
+    }
 
-//             Set_corner_det_flg(false);
-//         }
+    else if (aaaa == 5 && !Get_select_motion_on_flg() && Get_SM_req_finish())
+    {
+        Set_motion_index_(Motion_Index::Huddle_Jump);
+        Set_select_motion_on_flg(true);
+        aaaa++;
+    }
+    
 
-//         else if (!Get_SM_req_finish())
-//         {
-//             Set_motion_index_(Motion_Index::NONE);
-//         }
+    ROS_WARN("---------------------------------------");
+    Motion_Info();
+    ROS_WARN("---------------------------------------");
+}
 
-//         // Sequence++
-//         if (finish_past != Get_SM_req_finish())
-//         {
-//             req_finish_count++;
-//             finish_past = Get_SM_req_finish();
-//         }
-//         if (req_finish_count == 1)
-//         {
-//             req_finish_count = 0;
-//             tmp_corner_seq++;
-//         }
-//     }
+/*
+void Move_Decision::CORNER_mode()
+{
+    // corner shape ㅓ / ㅜ
+    // tmp_corner_shape ㅓ(1)
+    // tmp_corner_shape ㅜ(2)
 
-//     // 3 : Motion : InitPose (For getting distance) (Depth)
-//     else if (tmp_corner_seq == 3)
-//     {
-//         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
-//         {
-//             Set_motion_index_(Motion_Index::InitPose);
-//             Set_select_motion_on_flg(true);
+    // Corner seq
+    // 0 : corner_shape dicision (From img_proc_corner_number) (Depth)
+    // 1 : Motion : InitPose (For getting distance) (Depth)
+    // 2 : Motion : Forward_Nstep (Far)
+    // 3 : Motion : InitPose (For getting distance) (Depth)
+    // 4 : Motion : Forward_Nstep (Approach)
+    // 5 : Motion : Step in place
+    // 6 : Motion : Turn Angle 90(ㅓ) or -90(ㅜ)
+    // 7 : Initializing
 
-//             corner_distance = img_procPtr->Get_distance();
-//             corner_distance_save.push_back(corner_distance);
+    corner_actual_angle = Get_turn_angle_();
+    corner_motion = Get_motion_index_();
+    corner_ud_neck_angle = Get_UD_NeckAngle();
 
-//             if (corner_distance_save.size() == SPIN_RATE * 3)
-//             {
-//                 corner_distance = accumulate(corner_distance_save.begin(), corner_distance_save.end(), 0.0) / corner_distance_save.size();
-//                 corner_distance = std::floor(corner_distance * 1000.0) / 1000.0;
-//                 corner_distance_save.clear();
-//             }
+    // 0 : corner_shape dicision (From img_procPtr) (Depth)
+    if (tmp_corner_seq == 0)
+    {
+        tmp_corner_shape = img_procPtr->Get_img_proc_corner_number();
+        if (tmp_corner_shape == 1)
+        {
+            ROS_WARN("ㅓ Type : CORNER NUMBER 1");
+            tmp_corner_seq++;
+        }
+        else if (tmp_corner_shape == 2)
+        {
+            ROS_WARN("ㅜ Type : CORNER NUMBER 2");
+            tmp_corner_seq++;
+        }
+        Set_corner_det_flg(false);
+    }
 
-//             Set_corner_det_flg(false);
-//         }
+    // 1 : Motion : InitPose (For getting distance) (Depth)
+    else if (tmp_corner_seq == 1)
+    {
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::InitPose);
+            Set_select_motion_on_flg(true);
 
-//         else if (!Get_SM_req_finish())
-//         {
-//             Set_motion_index_(Motion_Index::NONE);
-//         }
+            corner_distance = img_procPtr->Get_distance();
+            corner_distance_save.push_back(corner_distance);
 
-//         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
-//         {
-//             corner_ud_neck_angle = 40;
-//             Set_UD_NeckAngle(corner_ud_neck_angle);
-//             Set_UD_Neck_on_flg(true);
-//         }
+            if (corner_distance_save.size() == SPIN_RATE * 3)
+            {
+                corner_distance = accumulate(corner_distance_save.begin(), corner_distance_save.end(), 0.0) / corner_distance_save.size();
+                corner_distance = std::floor(corner_distance * 1000.0) / 1000.0;
+                corner_distance_save.clear();
+            }
+            Set_corner_det_flg(false);
+        }
 
-//         // Sequence++
-//         if (finish_past != Get_SM_req_finish())
-//         {
-//             req_finish_count++;
-//             finish_past = Get_SM_req_finish();
-//         }
-//         if (req_finish_count == 1)
-//         {
-//             req_finish_count = 0;
-//             tmp_corner_seq++;
-//         }
-//     }
+        else if (!Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::NONE);
+        }
 
-//     // 4 : Motion : Forward_Nstep (Approach)
-//     else if (tmp_corner_seq == 4)
-//     {
-//         if (!Get_distance_on_flg())
-//         {
-//             Set_distance_(corner_distance);
-//             Set_distance_on_flg(true);
-//         }
+        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            corner_ud_neck_angle = 10;
+            Set_UD_NeckAngle(corner_ud_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
 
-//         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
-//         {
-//             corner_motion = Motion_Index::Forward_Nstep;
-//             Set_motion_index_(corner_motion);
-//             Set_select_motion_on_flg(true);
-//             Set_corner_det_flg(false);
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            req_finish_count++;
+            finish_past = Get_SM_req_finish();
+        }
+        if (req_finish_count == 1)
+        {
+            req_finish_count = 0;
+            tmp_corner_seq++;
+        }
+    }
 
-//             if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
-//             {
-//                 huddle_ud_neck_angle = UD_CENTER;
-//                 Set_UD_NeckAngle(huddle_ud_neck_angle);
-//                 Set_UD_Neck_on_flg(true);
-//             }
-//             // Set_line_det_flg(true);
-//         }
+    // 2 : Motion : Forward_Nstep (Far)
+    else if (tmp_corner_seq == 2)
+    {
+        if (!Get_distance_on_flg())
+        {
+            Set_distance_(corner_distance);
+            Set_distance_on_flg(true);
+        }
 
-//         else if (!Get_SM_req_finish())
-//         {
-//             Set_motion_index_(Motion_Index::NONE);
-//         }
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            corner_motion = Motion_Index::Forward_Nstep;
+            Set_motion_index_(corner_motion);
+            ROS_ERROR("corner_distance : %f", corner_distance);
+            Set_select_motion_on_flg(true);
 
-//         // Sequence++
-//         if (finish_past != Get_SM_req_finish())
-//         {
-//             req_finish_count++;
-//             finish_past = Get_SM_req_finish();
-//         }
-//         if (req_finish_count == 1)
-//         {
-//             req_finish_count = 0;
-//             tmp_corner_seq++;
-//         }
-//     }
+            if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+            {
+                huddle_ud_neck_angle = UD_CENTER;
+                Set_UD_NeckAngle(huddle_ud_neck_angle);
+                Set_UD_Neck_on_flg(true);
+            }
+            // Set_line_det_flg(true);
 
-//     // 5 : Motion : Step in place
-//     else if (tmp_corner_seq == 5)
-//     {
-//         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
-//         {
-//             Set_motion_index_(Motion_Index::Step_in_place);
-//             Set_select_motion_on_flg(true);
-//             Set_corner_det_flg(false);
-//         }
+            Set_corner_det_flg(false);
+        }
 
-//         // Sequence++
-//         if (finish_past != Get_SM_req_finish())
-//         {
-//             req_finish_count++;
-//             finish_past = Get_SM_req_finish();
-//         }
-//         if (req_finish_count == 1)
-//         {
-//             req_finish_count = 0;
-//             tmp_corner_seq++;
-//         }
-//     }
+        else if (!Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::NONE);
+        }
 
-//     // 6 : Motion : Turn Angle 90(ㅓ) or -90(ㅜ)
-//     else if (tmp_corner_seq == 6)
-//     {
-//         // Rotate 0 -> 30
-//         if (tmp_turn90 == 0)
-//         {
-//             if (!Get_select_motion_on_flg() && Get_SM_req_finish())
-//             {
-//                 Set_motion_index_(Motion_Index::Step_in_place);
-//                 Set_select_motion_on_flg(true);
-//                 Set_corner_det_flg(false);
-//             }
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            req_finish_count++;
+            finish_past = Get_SM_req_finish();
+        }
+        if (req_finish_count == 1)
+        {
+            req_finish_count = 0;
+            tmp_corner_seq++;
+        }
+    }
 
-//             if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
-//             {
-//                 corner_actual_angle = 30;
-//                 Set_turn_angle_(corner_actual_angle);
-//                 Set_turn_angle_on_flg(true);
-//             }
+    // 3 : Motion : InitPose (For getting distance) (Depth)
+    else if (tmp_corner_seq == 3)
+    {
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::InitPose);
+            Set_select_motion_on_flg(true);
 
-//             if (finish_past != Get_TA_req_finish())
-//             {
-//                 req_finish_count++;
-//                 finish_past = Get_TA_req_finish();
-//             }
+            corner_distance = img_procPtr->Get_distance();
+            corner_distance_save.push_back(corner_distance);
 
-//             if (req_finish_count == 1)
-//             {
-//                 req_finish_count = 0;
-//                 tmp_turn90++;
-//             }
-//         }
+            if (corner_distance_save.size() == SPIN_RATE * 3)
+            {
+                corner_distance = accumulate(corner_distance_save.begin(), corner_distance_save.end(), 0.0) / corner_distance_save.size();
+                corner_distance = std::floor(corner_distance * 1000.0) / 1000.0;
+                corner_distance_save.clear();
+            }
 
-//         // Rotate 30 -> 60
-//         if (tmp_turn90 == 1)
-//         {
-//             if (!Get_select_motion_on_flg() && Get_SM_req_finish())
-//             {
-//                 Set_motion_index_(Motion_Index::Step_in_place);
-//                 Set_select_motion_on_flg(true);
-//                 Set_corner_det_flg(false);
-//             }
+            Set_corner_det_flg(false);
+        }
 
-//             if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
-//             {
-//                 corner_actual_angle = 30;
-//                 Set_turn_angle_(corner_actual_angle);
-//                 Set_turn_angle_on_flg(true);
-//             }
+        else if (!Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::NONE);
+        }
 
-//             if (finish_past != Get_TA_req_finish())
-//             {
-//                 req_finish_count++;
-//                 finish_past = Get_TA_req_finish();
-//             }
+        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            corner_ud_neck_angle = 40;
+            Set_UD_NeckAngle(corner_ud_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
 
-//             if (req_finish_count == 1)
-//             {
-//                 req_finish_count = 0;
-//                 tmp_turn90++;
-//             }
-//         }
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            req_finish_count++;
+            finish_past = Get_SM_req_finish();
+        }
+        if (req_finish_count == 1)
+        {
+            req_finish_count = 0;
+            tmp_corner_seq++;
+        }
+    }
 
-//         // Rotate 60 -> 90
-//         else if (tmp_turn90 == 2)
-//         {
-//             if (!Get_select_motion_on_flg() && Get_SM_req_finish())
-//             {
-//                 Set_motion_index_(Motion_Index::Step_in_place);
-//                 Set_select_motion_on_flg(true);
-//                 Set_corner_det_flg(false);
-//             }
+    // 4 : Motion : Forward_Nstep (Approach)
+    else if (tmp_corner_seq == 4)
+    {
+        if (!Get_distance_on_flg())
+        {
+            Set_distance_(corner_distance);
+            Set_distance_on_flg(true);
+        }
 
-//             if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
-//             {
-//                 corner_actual_angle = 30;
-//                 Set_turn_angle_(corner_actual_angle);
-//                 Set_turn_angle_on_flg(true);
-//             }
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            corner_motion = Motion_Index::Forward_Nstep;
+            Set_motion_index_(corner_motion);
+            Set_select_motion_on_flg(true);
+            Set_corner_det_flg(false);
 
-//             if (finish_past != Get_TA_req_finish())
-//             {
-//                 req_finish_count++;
-//                 finish_past = Get_TA_req_finish();
-//             }
+            if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+            {
+                huddle_ud_neck_angle = UD_CENTER;
+                Set_UD_NeckAngle(huddle_ud_neck_angle);
+                Set_UD_Neck_on_flg(true);
+            }
+            // Set_line_det_flg(true);
+        }
 
-//             if (req_finish_count == 1)
-//             {
-//                 req_finish_count = 0;
-//                 tmp_turn90++;
-//             }
-//         }
+        else if (!Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::NONE);
+        }
 
-//         // Rotate 90->0
-//         else if (tmp_turn90 == 3)
-//         {
-//             Turn90 = true;
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            req_finish_count++;
+            finish_past = Get_SM_req_finish();
+        }
+        if (req_finish_count == 1)
+        {
+            req_finish_count = 0;
+            tmp_corner_seq++;
+        }
+    }
 
-//             if (!Get_select_motion_on_flg() && Get_SM_req_finish())
-//             {
-//                 Set_motion_index_(Motion_Index::Step_in_place);
-//                 Set_select_motion_on_flg(true);
-//                 Set_corner_det_flg(false);
-//             }
+    // 5 : Motion : Step in place
+    else if (tmp_corner_seq == 5)
+    {
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::Step_in_place);
+            Set_select_motion_on_flg(true);
+            Set_corner_det_flg(false);
+        }
 
-//             if (Turn90)
-//             {
-//                 if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
-//                 {
-//                     corner_actual_angle = 0;
-//                     Set_turn_angle_(corner_actual_angle);
-//                     Turn90 = false;
-//                 }
-//             }
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            req_finish_count++;
+            finish_past = Get_SM_req_finish();
+        }
+        if (req_finish_count == 1)
+        {
+            req_finish_count = 0;
+            tmp_corner_seq++;
+        }
+    }
 
-//             // Sequence++
-//             if (finish_past != Get_SM_req_finish())
-//             {
-//                 req_finish_count++;
-//                 finish_past = Get_SM_req_finish();
-//             }
+    // 6 : Motion : Turn Angle 90(ㅓ) or -90(ㅜ)
+    else if (tmp_corner_seq == 6)
+    {
+        // Rotate 0 -> 30
+        if (tmp_turn90 == 0)
+        {
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_motion_index_(Motion_Index::Step_in_place);
+                Set_select_motion_on_flg(true);
+                Set_corner_det_flg(false);
+            }
 
-//             if (req_finish_count == 1)
-//             {
-//                 req_finish_count = 0;
-//                 tmp_corner_seq++;
-//             }
-//         }
+            if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+            {
+                corner_actual_angle = 30;
+                Set_turn_angle_(corner_actual_angle);
+                Set_turn_angle_on_flg(true);
+            }
 
-//         Set_corner_det_flg(false);
+            if (finish_past != Get_TA_req_finish())
+            {
+                req_finish_count++;
+                finish_past = Get_TA_req_finish();
+            }
 
-//         ROS_ERROR("tmp_turn90 : ############### %d ###############", tmp_turn90);
-//     }
+            if (req_finish_count == 1)
+            {
+                req_finish_count = 0;
+                tmp_turn90++;
+            }
+        }
 
-//     // 7 : Initializing
-//     else if (tmp_corner_seq == 7)
-//     {
-//         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
-//         {
-//             Set_motion_index_(Motion_Index::InitPose);
-//             Set_select_motion_on_flg(true);
-//             Set_corner_det_flg(false);
+        // Rotate 30 -> 60
+        if (tmp_turn90 == 1)
+        {
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_motion_index_(Motion_Index::Step_in_place);
+                Set_select_motion_on_flg(true);
+                Set_corner_det_flg(false);
+            }
 
-//             tmp_turn90 = 0;
-//             tmp_corner_seq = 0;
-//             Set_corner_det_flg(false);
-//         }
+            if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+            {
+                corner_actual_angle = 30;
+                Set_turn_angle_(corner_actual_angle);
+                Set_turn_angle_on_flg(true);
+            }
 
-//         else if (!Get_SM_req_finish())
-//         {
-//             Set_motion_index_(Motion_Index::NONE);
-//             if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
-//             {
-//                 line_ud_neckangle = UD_CENTER;
-//                 Set_UD_NeckAngle(line_ud_neckangle);
-//                 Set_UD_Neck_on_flg(true);
-//             }
-//         }
-//     }
+            if (finish_past != Get_TA_req_finish())
+            {
+                req_finish_count++;
+                finish_past = Get_TA_req_finish();
+            }
 
-//     if (Get_corner_det_stop_flg() == true)
-//     {
-//         Set_corner_det_flg(false);
-//     }
+            if (req_finish_count == 1)
+            {
+                req_finish_count = 0;
+                tmp_turn90++;
+            }
+        }
 
-//     ROS_ERROR("CORNER_SEQ : %d", tmp_corner_seq);
-//     ROS_ERROR("req_finish_count : ############### %d ###############", req_finish_count);
-// }
-// // Set_line_det_flg(true);
+        // Rotate 60 -> 90
+        else if (tmp_turn90 == 2)
+        {
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_motion_index_(Motion_Index::Step_in_place);
+                Set_select_motion_on_flg(true);
+                Set_corner_det_flg(false);
+            }
+
+            if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+            {
+                corner_actual_angle = 30;
+                Set_turn_angle_(corner_actual_angle);
+                Set_turn_angle_on_flg(true);
+            }
+
+            if (finish_past != Get_TA_req_finish())
+            {
+                req_finish_count++;
+                finish_past = Get_TA_req_finish();
+            }
+
+            if (req_finish_count == 1)
+            {
+                req_finish_count = 0;
+                tmp_turn90++;
+            }
+        }
+
+        // Rotate 90->0
+        else if (tmp_turn90 == 3)
+        {
+            Turn90 = true;
+
+            if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+            {
+                Set_motion_index_(Motion_Index::Step_in_place);
+                Set_select_motion_on_flg(true);
+                Set_corner_det_flg(false);
+            }
+
+            if (Turn90)
+            {
+                if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+                {
+                    corner_actual_angle = 0;
+                    Set_turn_angle_(corner_actual_angle);
+                    Turn90 = false;
+                }
+            }
+
+            // Sequence++
+            if (finish_past != Get_SM_req_finish())
+            {
+                req_finish_count++;
+                finish_past = Get_SM_req_finish();
+            }
+
+            if (req_finish_count == 1)
+            {
+                req_finish_count = 0;
+                tmp_corner_seq++;
+            }
+        }
+
+        Set_corner_det_flg(false);
+
+        ROS_ERROR("tmp_turn90 : ############### %d ###############", tmp_turn90);
+    }
+
+    // 7 : Initializing
+    else if (tmp_corner_seq == 7)
+    {
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::InitPose);
+            Set_select_motion_on_flg(true);
+            Set_corner_det_flg(false);
+
+            tmp_turn90 = 0;
+            tmp_corner_seq = 0;
+            Set_corner_det_flg(false);
+        }
+
+        else if (!Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::NONE);
+            if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+            {
+                line_ud_neckangle = UD_CENTER;
+                Set_UD_NeckAngle(line_ud_neckangle);
+                Set_UD_Neck_on_flg(true);
+            }
+        }
+    }
+
+    if (Get_corner_det_stop_flg() == true)
+    {
+        Set_corner_det_flg(false);
+    }
+
+    ROS_ERROR("CORNER_SEQ : %d", tmp_corner_seq);
+    ROS_ERROR("req_finish_count : ############### %d ###############", req_finish_count);
+}
+*/
 
 void Move_Decision::callbackThread()
 {

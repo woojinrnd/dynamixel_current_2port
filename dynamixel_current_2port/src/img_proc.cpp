@@ -186,6 +186,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         for (int i = 0; i < 4; ++i)
             cv::line(ori_frame, vertices[i], vertices[(i + 1) % 4], contour_color, 3);
 
+        //Line angle
         if ((short_len * 1.5) < long_len)
         {
             if (min_area_rect.size.width < min_area_rect.size.height)
@@ -197,7 +198,8 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 angle = -min_area_rect.angle - 90;
             }
         }
-
+        
+        //Corner angle
         else if (short_len * 1.5 > long_len)
         {
 
