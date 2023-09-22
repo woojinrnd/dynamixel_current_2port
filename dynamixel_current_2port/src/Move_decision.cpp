@@ -19,8 +19,8 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     ros::NodeHandle nh(ros::this_node::getName());
 
     boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
-    // boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
-    // boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
+    boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
+    boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
     boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
 }
 
@@ -70,7 +70,7 @@ void Move_Decision::process()
     // Set_line_det_flg(true);
 
     // huddle mode
-    Set_huddle_det_flg(true);
+    // Set_huddle_det_flg(true);
     // Set_UD_Neck_on_flg(true);
 
     // corner mode
@@ -78,6 +78,8 @@ void Move_Decision::process()
 
 
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
+
+
 
     tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
     tmp_img_proc_no_line_det_flg_ = img_procPtr->Get_img_proc_no_line_det();
@@ -96,22 +98,34 @@ void Move_Decision::process()
             Set_line_det_flg(false);
             Set_no_line_det_flg(false);
         }
+
         else if (tmp_img_proc_goal_det_flg_)
         {
             Set_goal_line_det_flg(true);
             Set_line_det_flg(false);
             Set_no_line_det_flg(false);
         }
+
         else if (tmp_img_proc_corner_det_flg_)
         {
-            Set_corner_det_flg(true);
-            Set_line_det_flg(false);
-            Set_no_line_det_flg(false);
-        }
+            if (Get_corner_det_stop_flg() && img_procPtr->Get_img_proc_corner_number() == 1 && corner_seq_finish)
+            {
+                Set_wall_det_flg(true);
+                Set_corner_det_flg(false);
+            }
 
-        else if (Get_huddle_det_stop_flg())
-        {
-            Set_line_det_flg(true);
+            else if (Get_corner_det_stop_flg() && img_procPtr->Get_img_proc_corner_number() == 2 && corner_seq_finish)
+            {
+                Set_line_det_flg(true);
+                Set_corner_det_flg(false);
+            }
+
+            else
+            {
+                Set_corner_det_flg(true);
+                Set_line_det_flg(false);
+                Set_no_line_det_flg(false);
+            }
         }
 
         else
@@ -131,24 +145,43 @@ void Move_Decision::process()
             Set_line_det_flg(false);
             Set_no_line_det_flg(false);
         }
+
         else if (tmp_img_proc_corner_det_flg_)
         {
-            Set_corner_det_flg(true);
-            Set_line_det_flg(false);
-            Set_no_line_det_flg(false);
+            if (Get_corner_det_stop_flg() && img_procPtr->Get_img_proc_corner_number() == 1 && corner_seq_finish)
+            {
+                Set_wall_det_flg(true);
+                Set_corner_det_flg(false);
+            }
+
+            if (Get_corner_det_stop_flg() && img_procPtr->Get_img_proc_corner_number() == 2 && corner_seq_finish)
+            {
+                Set_line_det_flg(true);
+                Set_corner_det_flg(false);
+            }
+
+            else
+            {
+                Set_corner_det_flg(true);
+                Set_line_det_flg(false);
+                Set_no_line_det_flg(false);
+            }
         }
+
         else if (tmp_img_proc_wall_det_flg_)
         {
             Set_wall_det_flg(true);
             Set_line_det_flg(false);
             Set_no_line_det_flg(false);
         }
+
         else if (tmp_img_proc_goal_det_flg_)
         {
             Set_goal_line_det_flg(true);
             Set_line_det_flg(false);
             Set_no_line_det_flg(false);
         }
+
         else
         {
             Set_no_line_det_flg(true);
@@ -163,10 +196,12 @@ void Move_Decision::process()
         {
             Set_line_det_flg(false);
         }
+
         else if (tmp_img_proc_no_line_det_flg_)
         {
             Set_no_line_det_flg(false);
         }
+
         else
         {
             Set_huddle_det_flg(true);
@@ -180,18 +215,36 @@ void Move_Decision::process()
         if (tmp_img_proc_line_det_flg_)
         {
             Set_line_det_flg(false);
+            ROS_ERROR("line_det");
         }
+
         else if (tmp_img_proc_no_line_det_flg_)
         {
             Set_no_line_det_flg(false);
+            ROS_ERROR("no_line_det");
         }
+
         else if (tmp_img_proc_wall_det_flg_)
         {
             Set_wall_det_flg(false);
         }
+
+        if (Get_corner_det_stop_flg() && img_procPtr->Get_img_proc_corner_number() == 1 && corner_seq_finish)
+        {
+            Set_wall_det_flg(true);
+            Set_corner_det_flg(false);
+        }
+
+        if (Get_corner_det_stop_flg() && img_procPtr->Get_img_proc_corner_number() == 2 && corner_seq_finish)
+        {
+            Set_line_det_flg(true);
+            Set_corner_det_flg(false);
+        }
+
         else
         {
             Set_corner_det_flg(true);
+            ROS_ERROR("corner_det");
         }
     }
 
@@ -203,14 +256,17 @@ void Move_Decision::process()
         {
             Set_line_det_flg(false);
         }
+
         else if (tmp_img_proc_no_line_det_flg_)
         {
             Set_no_line_det_flg(false);
         }
+
         else if (tmp_img_proc_corner_det_flg_)
         {
             Set_corner_det_flg(true);
         }
+
         else
         {
             Set_wall_det_flg(true);
@@ -225,10 +281,12 @@ void Move_Decision::process()
         {
             Set_line_det_flg(false);
         }
+
         else if (tmp_img_proc_no_line_det_flg_)
         {
             Set_no_line_det_flg(true);
         }
+
         else
         {
             Set_goal_line_det_flg(true);
@@ -271,37 +329,37 @@ void Move_Decision::Running_Mode_Decision()
 
     else if (running_mode_ != WAKEUP_MODE)
     {
-        if (goal_line_det_flg_ && line_det_flg_) // goal_line_detect_flg is true: goal_line detection mode
+        if (Get_goal_line_det_flg() && Get_line_det_flg()) // goal_line_detect_flg is true: goal_line detection mode
         {
             running_mode_ = GOAL_MODE;
         }
 
-        else if (no_line_det_flg_ && !wall_det_flg_)
+        else if (Get_no_line_det_flg() && !Get_wall_det_flg())
         {
             running_mode_ = NO_LINE_MODE;
         }
 
-        else if (line_det_flg_ && !corner_det_flg_)
+        else if (Get_line_det_flg() && !Get_corner_det_flg())
         {
             running_mode_ = LINE_MODE;
         }
 
-        else if (huddle_det_flg_ && !Get_huddle_det_stop_flg())
+        else if (Get_huddle_det_flg() && !Get_huddle_det_stop_flg())
         {
             running_mode_ = HUDDLE_MODE;
         }
 
-        else if (wall_det_flg_)
+        else if (Get_wall_det_flg())
         {
             running_mode_ = WALL_MODE;
         }
 
-        else if (stop_det_flg_)
+        else if (Get_stop_det_flg())
         {
             running_mode_ = STOP_MODE;
         }
 
-        else if (corner_det_flg_)
+        else if (Get_corner_det_flg() && !Get_corner_det_stop_flg())
         {
             running_mode_ = CORNER_MODE;
         }
@@ -344,6 +402,7 @@ void Move_Decision::LINE_mode()
     line_actual_angle = Get_turn_angle_();
     line_motion = Get_motion_index_();
     line_ud_neckangle = Get_UD_NeckAngle();
+    Set_corner_det_stop_flg(false); // Initializing
 
     // If SM_req_finish = false -> InitPose
     // Straight Line
@@ -528,6 +587,7 @@ void Move_Decision::NOLINE_mode()
     tmp_delta_x = img_procPtr->Get_delta_x();
     noline_actual_angle = Get_turn_angle_();
     noline_motion = Get_motion_index_();
+    Set_corner_det_stop_flg(false); // Initializing
 
     if (tmp_delta_x < 0) // Right
     {
@@ -1485,48 +1545,69 @@ void Move_Decision::WALL_mode()
 
 void Move_Decision::CORNER_mode()
 {   
-    // 0 : Approach to the Corner --> Motion : Motion_Index::Forward_Halfstep (Until corner center)
+    // 0 : Approach to the Corner 
+    // --> Motion : Motion_Index::Forward_Halfstep (Until corner center) : About Y diff
+    // --> Motion : Motion_Index::Left_Halfstep or Motion_Index::Right_Halfstep : About X diff
+    
     // 1 : Pose Control (Posture(Gradient))
+    // --> Motion : Motion_Index::Step_In_Place && Turn Angle(Gradient)
+    
     // 2 : Motion : Step in place + Turn Angle 90(ㅓ) or -90(ㅜ)
     // 3 : Initializing
 
     corner_actual_angle = Get_turn_angle_();
-    corner_motion = Get_motion_index_();
     corner_ud_neck_angle = Get_UD_NeckAngle();
+    corner_motion = Get_motion_index_();
     
-
     // 0 : Approach to the Corner + Pose Control (Position)
     if (tmp_corner_seq == 0)
     {
+        //Initializing
+        corner_seq_finish = false;
+        Set_corner_det_stop_flg(false);
+
+        img_proc_corner_delta_x = img_procPtr->Get_delta_x();
+        img_proc_contain_corner_to_foot = img_procPtr->Get_contain_corner_to_foot();
+
+        ROS_ERROR(Str_CORNER_SEQUENCE_0.c_str());
+        ROS_WARN("X diff : %d", img_proc_corner_delta_x);
+        ROS_WARN("Y diff : %d", img_proc_contain_corner_to_foot);
+
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
-            img_proc_corner_delta_x = img_procPtr->Get_delta_x();
-            img_proc_contain_corner_to_foot = img_procPtr->Get_contain_corner_to_foot();
-
-            // Corner center X point  
-            if ((img_proc_corner_delta_x < 0))
+            // Corner center X point
+            if (img_proc_corner_delta_x < 0)
             {
-                corner_motion = Motion_Index::Right_2step;
+                corner_motion = Motion_Index::Right_Halfstep;
+                Set_motion_index_(corner_motion);
                 Set_select_motion_on_flg(true);
+                contain_corner_X = false;
             }
 
-            else if ((img_proc_corner_delta_x > 0))
+            else if (img_proc_corner_delta_x > 0)
             {
-                corner_motion = Motion_Index::Left_2step;
+                corner_motion = Motion_Index::Left_Halfstep;
+                Set_motion_index_(corner_motion);
                 Set_select_motion_on_flg(true);
+                contain_corner_X = false;
             }
 
             // About Corner X point
             else if (img_proc_corner_delta_x == 0)
             {
+                ROS_WARN("X diff : %d", img_proc_corner_delta_x);
                 corner_motion = Motion_Index::InitPose;
+                Set_motion_index_(corner_motion);
+                Set_select_motion_on_flg(true);
                 contain_corner_X = true;
+                ROS_WARN("X POSITION IS OK!!!!!!!!!!!!!!!!!!!");
             }
 
             //About Corner Y point 
-            if (!img_proc_contain_corner_to_foot)
+            if (contain_corner_X && !img_proc_contain_corner_to_foot)
             {
                 corner_motion = Motion_Index::Forward_Halfstep;
+                Set_motion_index_(corner_motion);
                 Set_select_motion_on_flg(true);
                 Set_corner_det_flg(false);
             }
@@ -1534,11 +1615,13 @@ void Move_Decision::CORNER_mode()
             else if (img_proc_contain_corner_to_foot)
             {
                 contain_corner_Y = true;
+                ROS_WARN("Y POSITION IS OK!!!!!!!!!!!!!!!!!!!");
             }
 
             if (contain_corner_Y && contain_corner_X)
             {
                 corner_motion = Motion_Index::InitPose;
+                Set_motion_index_(corner_motion);
                 Set_select_motion_on_flg(true);
                 Set_corner_det_flg(false);
 
@@ -1560,10 +1643,13 @@ void Move_Decision::CORNER_mode()
     else if (tmp_corner_seq == 1)
     {
         img_proc_corner_angle = img_procPtr->Get_gradient();
+        ROS_ERROR("img_proc_corner_angle : %lf", img_proc_corner_angle);
+        ROS_ERROR(Str_CORNER_SEQUENCE_1.c_str());
 
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
-            Set_motion_index_(Motion_Index::Step_in_place);
+            corner_motion = Motion_Index::Step_in_place;
+            Set_motion_index_(corner_motion);
             Set_select_motion_on_flg(true);
         }
 
@@ -1574,39 +1660,36 @@ void Move_Decision::CORNER_mode()
                 Set_turn_angle_(img_proc_corner_angle);
                 Set_turn_angle_on_flg(true);
             }
-            // Sequence++
-            if (finish_past != Get_TA_req_finish())
+            else
             {
-                req_finish_count++;
-                finish_past = Get_TA_req_finish();
+                corner_posture = true;
             }
-            if (req_finish_count == 1)
-            {
-                req_finish_count = 0;
-                tmp_corner_seq++;
-            }
+        }
+
+        if (corner_posture == true)
+        {
+            tmp_corner_seq++;
         }
     }
 
     else if (tmp_corner_seq == 2)
     {
-        ROS_ERROR("tmp_turn90 : %d", tmp_turn90);
+        ROS_ERROR(Str_CORNER_SEQUENCE_2.c_str());
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             if (tmp_turn90 == 0)
             {
-                Set_motion_index_(Motion_Index::Step_in_place);
+                corner_motion = Motion_Index::Step_in_place;
+                Set_motion_index_(corner_motion);
                 Set_select_motion_on_flg(true);
                 tmp_turn90++;
             }
 
             else if (tmp_turn90 == 1 && !Get_turn_angle_on_flg() && Get_TA_req_finish())
             {
-                Set_motion_index_(Motion_Index::Step_in_place);
+                corner_motion = Motion_Index::Step_in_place;
+                Set_motion_index_(corner_motion);
                 Set_select_motion_on_flg(true);
-
-                Set_UD_NeckAngle(70);
-                Set_UD_Neck_on_flg(true);
 
                 Set_turn_angle_(30);
                 Set_turn_angle_on_flg(true);
@@ -1615,7 +1698,8 @@ void Move_Decision::CORNER_mode()
 
             else if (tmp_turn90 == 2 && !Get_turn_angle_on_flg() && Get_TA_req_finish())
             {
-                Set_motion_index_(Motion_Index::Step_in_place);
+                corner_motion = Motion_Index::Step_in_place;
+                Set_motion_index_(corner_motion);
                 Set_select_motion_on_flg(true);
 
                 Set_turn_angle_(30);
@@ -1641,10 +1725,30 @@ void Move_Decision::CORNER_mode()
 
     else if (tmp_corner_seq == 3)
     {
-        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        ROS_ERROR(Str_CORNER_SEQUENCE_3.c_str());
+        tmp_corner_shape = img_procPtr->Get_img_proc_corner_number();
+        ROS_WARN("CORNER_SHAPE : %d" ,tmp_corner_shape);
+
+        if (tmp_corner_shape == 1)
         {
-            Set_wall_det_flg(true);
             tmp_corner_seq = 0;
+            tmp_corner_shape = 0;
+            Set_wall_det_flg(true);
+            Set_corner_det_stop_flg(true);
+            Set_corner_det_flg(false);
+            corner_seq_finish = true;
+            // Running_Info();
+        }
+
+        else if (tmp_corner_shape == 2)
+        {
+            tmp_corner_seq = 0;
+            tmp_corner_shape = 0;
+            Set_line_det_flg(true);
+            Set_corner_det_stop_flg(true);
+            Set_corner_det_flg(false);
+            corner_seq_finish = true;
+            // Running_Info();
         }
     }
 }
@@ -1716,7 +1820,7 @@ void Move_Decision::Test_service()
 
     else if (aaaa == 1 && !Get_select_motion_on_flg() && Get_SM_req_finish())
     {
-        Set_motion_index_(Motion_Index::Forward_4step);
+        Set_motion_index_(Motion_Index::Forward_Halfstep);
         Set_select_motion_on_flg(true);
         // Sequence++
         if (finish_past != Get_SM_req_finish())
@@ -1733,7 +1837,7 @@ void Move_Decision::Test_service()
 
     else if (aaaa == 2 && !Get_select_motion_on_flg() && Get_SM_req_finish() && !Get_distance_on_flg())
     {
-        Set_motion_index_(Motion_Index::Forward_Nstep);
+        Set_motion_index_(Motion_Index::Left_Halfstep);
         Set_distance_(2);
         Set_distance_on_flg(true);
         Set_select_motion_on_flg(true);
@@ -1752,7 +1856,7 @@ void Move_Decision::Test_service()
 
     else if (aaaa == 3 && !Get_select_motion_on_flg() && Get_SM_req_finish())
     {
-        Set_motion_index_(Motion_Index::Left_2step);
+        Set_motion_index_(Motion_Index::Right_Halfstep);
         Set_select_motion_on_flg(true);
         // Sequence++
         if (finish_past != Get_SM_req_finish())
@@ -2390,13 +2494,15 @@ double Move_Decision::turn_angle()
     {
         if ((Get_stand_status_() == Stand_Status::Stand) && Get_turn_angle_on_flg())
         {
-            // img_procssing
-            res_turn_angle = this->Get_turn_angle_();
-            if (res_turn_angle > TURN_MAX)
-                res_turn_angle = TURN_MAX;
-            else if (res_turn_angle < TURN_MIN)
-                res_turn_angle = TURN_MIN;
-            Set_turn_angle_on_flg(false);
+            if (Get_motion_index_() == Motion_Index::Forward_4step || Get_motion_index_() == Motion_Index::Forward_Halfstep || Get_motion_index_() == Motion_Index::Step_in_place || Get_motion_index_() == Motion_Index::Forward_Nstep)
+            {
+                res_turn_angle = this->Get_turn_angle_();
+                if (res_turn_angle > TURN_MAX)
+                    res_turn_angle = TURN_MAX;
+                else if (res_turn_angle < TURN_MIN)
+                    res_turn_angle = TURN_MIN;
+                Set_turn_angle_on_flg(false);
+            }
         }
     }
 

@@ -47,7 +47,7 @@
 #define HUDDLE_AREA 10
 
 #define CORNER_X_MARGIN 30
-#define CORNER_Y_MARGIN 10
+#define CORNER_Y_MARGIN 20
 
 using namespace cv;
 using namespace std;

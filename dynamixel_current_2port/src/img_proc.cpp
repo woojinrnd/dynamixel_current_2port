@@ -74,7 +74,7 @@ std::tuple<cv::Mat, cv::Mat, int, cv::Point> Img_proc::extract_color(const cv::M
     return {color_extracted, frame, color_pixel_area, center};
 }
 
-std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance, bool is_white_line)
+std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
 {
     cv::Mat frame = input_frame.clone();
     cv::Mat ori_frame = origin_frame.clone();
@@ -138,7 +138,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
 
     cv::putText(ori_frame, "distance : " + std::to_string(distance_huddle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
 
-    if (check_disappearance)
+    if (is_white_line)
     {
         if (has_prev && !has_white_now && center_now.x < 320)
         {
@@ -160,6 +160,12 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
 
     if (!top_contour.empty())
     {
+        std::vector<cv::Point> approx;
+        double epsilon = 0.02 * cv::arcLength(top_contour, true);
+        cv::approxPolyDP(top_contour, approx, epsilon, true);
+
+        int numVertices = approx.size(); // 근사화된 컨투어의 꼭지점 수를 얻음
+
         cv::RotatedRect min_area_rect = cv::minAreaRect(top_contour);
 
         float width = min_area_rect.size.width;
@@ -183,53 +189,99 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
 
         cv::Point2f vertices[4];
         min_area_rect.points(vertices);
+
         for (int i = 0; i < 4; ++i)
             cv::line(ori_frame, vertices[i], vertices[(i + 1) % 4], contour_color, 3);
 
+        cv::Rect bbox = min_area_rect.boundingRect();
+        bbox &= cv::Rect(0, 0, ori_frame.cols, ori_frame.rows);
+        cv::Mat cropped = ori_frame(bbox);
+
+        int croppedWidth = cropped.cols;
+        int croppedHeight = cropped.rows;
+
+        //cv::imshow("crop", cropped);
         //Line angle
-        if ((short_len * 1.5) < long_len)
+        if(is_white_line)
         {
-            if (min_area_rect.size.width < min_area_rect.size.height)
+            if ((short_len * 1.5) < long_len && numVertices == 4)
             {
-                angle = -min_area_rect.angle;
+                if (min_area_rect.size.width < min_area_rect.size.height)
+                {
+                    angle = -min_area_rect.angle;
+                }
+                else
+                {
+                    angle = -min_area_rect.angle - 90;
+                }
             }
+
+            //Corner angle
+            else if (short_len * 1.5 > long_len && numVertices == 8)
+            {
+                if(croppedWidth > croppedHeight)
+                {
+                    if (min_area_rect.size.width < min_area_rect.size.height)
+                    {
+                        angle = -min_area_rect.angle - 90;
+                    }
+                    else
+                    {
+                        angle = -min_area_rect.angle;
+                    }
+                    Set_img_proc_corner_number(2); //corner shape : ㅜ
+                    //cout << "corner1" << endl;
+                }
+                else if(croppedWidth < croppedHeight)
+                {
+                    if (min_area_rect.size.width > min_area_rect.size.height)
+                    {
+                        angle = -min_area_rect.angle - 90;
+                    }
+                    else
+                    {
+                        angle = -min_area_rect.angle;
+                    }
+                    Set_img_proc_corner_number(1); //corner shape : ㅓ
+                    //cout << "corner2" << endl;
+                }
+
+                if (is_white_line)
+                {
+                    corner_condition_count++;
+                    if (corner_condition_count >= 3)
+                    {
+                        // Rect corner_bounding_Box = min_area_rect.boundingRect();
+                        // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
+                        corner_center = min_area_rect.center;
+                        Corner = true;
+                        cv::putText(ori_frame, "Corner", cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+                    }
+                }
+            }
+
             else
             {
-                angle = -min_area_rect.angle - 90;
+                corner_condition_count = 0;
             }
         }
-        
-        //Corner angle
-        else if (short_len * 1.5 > long_len)
+
+        if(is_yellow_line)
         {
-
-            if (min_area_rect.size.width < min_area_rect.size.height)
+            if (short_len * 1.5 < long_len)
             {
-                angle = -min_area_rect.angle + 90;
-            }
-            else
-            {
-                angle = -min_area_rect.angle - 90;
-            }
-
-            if (is_white_line)
-            {
-                corner_condition_count++;
-                if (corner_condition_count >= 3)
+                if (min_area_rect.size.width < min_area_rect.size.height)
                 {
-                    // Rect corner_bounding_Box = min_area_rect.boundingRect();
-                    // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
-                    corner_center = min_area_rect.center;
-                    Corner = true;
-                    cv::putText(ori_frame, "Corner", cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+                    angle = -min_area_rect.angle - 90;
+                }
+                else
+                {
+                    angle = -min_area_rect.angle;
                 }
             }
         }
 
-        else
-        {
-            corner_condition_count = 0;
-        }
+
 
         cv::putText(ori_frame, "Line angle : " + std::to_string(angle), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
 
@@ -320,7 +372,7 @@ void Img_proc::webcam_thread()
         int YellowColorDetected = std::get<2>(hsv_frame_yellow);
 
         // Draw
-        auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, blue_color, threshold_value_yellow, false, false);
+        auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, blue_color, threshold_value_yellow, true, false);
         auto thresh_frame_blue = detect_Line_areas(std::get<0>(hsv_frame_blue), frame, yellow_color, threshold_value_blue, false, false);
 
         if (YellowColorDetected > 1000)
@@ -349,7 +401,7 @@ void Img_proc::webcam_thread()
         // Line mode / Corner mode
         if (WhiteColorDetected > LINE_AREA)
         {
-            auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), frame, green_color, threshold_value_white, true, true);
+            auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), frame, green_color, threshold_value_white, false, true);
             bool WhiteContourDetected = std::get<1>(thresh_frame_white);
             double gradient = std::get<2>(thresh_frame_white);
             double tmp_delta_x = std::get<5>(thresh_frame_white);
@@ -384,7 +436,7 @@ void Img_proc::webcam_thread()
 
                 // cout << foot_corner_distance << endl;
                 // cout << Get_delta_x() << endl;
-                cout << gradient << endl;
+                //cout << gradient << endl;
 
                 if (foot_corner_distance < CORNER_Y_MARGIN)
                 {

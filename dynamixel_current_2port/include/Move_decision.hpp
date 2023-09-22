@@ -326,9 +326,10 @@ public:
     bool Turn90 = false;
     int8_t turn_30 = 0;
 
-    // corner shape ㅓ / ㅜ
+    // corner shape ㅓ(1) / ㅜ(2)
     int8_t tmp_corner_shape = 0;
     int8_t tmp_corner_seq = 0;
+    bool corner_seq_finish = false;
 
     double corner_actual_angle = 0;
     int8_t tmp_turn90 = 0;
@@ -338,12 +339,23 @@ public:
 
     int8_t corner_motion = 0;
     double corner_ud_neck_angle = 0;
-    
+
     bool img_proc_contain_corner_to_foot = false; // corner Y Point
-    bool contain_corner_X = false; //corner X Point
-    bool contain_corner_Y = false; // corner Y Point
     int8_t img_proc_corner_delta_x = 0;
     double img_proc_corner_angle = 0;
+
+    bool contain_corner_X = false; //corner X Point
+    bool contain_corner_Y = false; // corner Y Point
+    bool corner_posture = false; // corner gradient
+
+    int8_t line_det_count = 0;
+
+    string Str_CORNER_SEQUENCE_0 = "CORNER_SEQUENCE_0 : POSITION CONTROL";
+    string Str_CORNER_SEQUENCE_1 = "CORNER_SEQUENCE_1 : POSTURE CONTROL";
+    string Str_CORNER_SEQUENCE_2 = "CORNER_SEQUENCE_2 : TURN 90";
+    string Str_CORNER_SEQUENCE_3 = "CORNER_SEQUENCE_3 : INITIALIZING";
+
+
 
     /////////////////////// Wall Mode ///////////////////////
     // case 1 : After corner, Starting Wall Mode
