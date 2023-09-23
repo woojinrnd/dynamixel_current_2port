@@ -170,8 +170,8 @@ void Callback::Move_UD_NeckAngle()
     double res_ud_neck = srv_SendMotion.response.ud_neckangle;
     ud_neckangle = 90 - res_ud_neck;
     All_Theta[22] = ud_neckangle * DEG2RAD;
-    // ROS_WARN("UD_NECK : %f", res_ud_neck);
-    // ROS_INFO("------------------------- UD NECK Angle ----------------------------");
+    ROS_WARN("UD_NECK : %f", res_ud_neck);
+    ROS_INFO("------------------------- UD NECK Angle ----------------------------");
 }
 
 void Callback::TATA()
@@ -316,19 +316,19 @@ void Callback::SelectMotion()
     if (res_mode == Motion_Index::InitPose)
     {
         mode = Motion_Index::InitPose;
-        trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 30);
-        trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 30);
-        trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 30);
-        trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 30);
-        trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 30);
-        trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 30);
+        // trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 30);
+        // trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 30);
+        // trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 30);
+        // trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 30);
+        // trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 30);
+        // trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 30);
 
-        // trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 675);
-        // trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 675);
-        // trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 675);
-        // trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 675);
-        // trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 675);
-        // trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 675);
+        trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 675);
+        trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 675);
+        trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 675);
+        trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 675);
+        trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 675);
+        trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 675);
 
         indext = 0;
     }

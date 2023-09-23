@@ -76,10 +76,7 @@ void Move_Decision::process()
     // corner mode
     // Set_corner_det_flg(true);
 
-
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
-
-
 
     tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
     tmp_img_proc_no_line_det_flg_ = img_procPtr->Get_img_proc_no_line_det();
@@ -782,6 +779,7 @@ void Move_Decision::HUDDLE_mode()
     // 0 : Motion : InitPose (For getting distance) (Depth)
     if (tmp_huddle_seq == 0)
     {
+        ROS_ERROR(Str_HUDDLE_SEQUENCE_0.c_str());
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             int _size = 0;
@@ -824,7 +822,7 @@ void Move_Decision::HUDDLE_mode()
             finish_past = Get_SM_req_finish();
         }
 
-        if (req_finish_count == 2)
+        if (req_finish_count == 1)
         {
             req_finish_count = 0;
             tmp_huddle_seq++;
@@ -836,15 +834,17 @@ void Move_Decision::HUDDLE_mode()
     // 1 : Motion : Forward_Nstep (Far) --> Line_mode()
     else if (tmp_huddle_seq == 1)
     {
+        ROS_ERROR(Str_HUDDLE_SEQUENCE_1.c_str());
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             huddle_motion = Motion_Index::Forward_Nstep;
-            huddle_distance -= 0.3;
+
+            huddle_distance *= 0.8;
             Set_distance_(huddle_distance);
-            Set_distance_on_flg(true);
 
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
+            Set_distance_on_flg(true);
 
             if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
             {
@@ -855,11 +855,6 @@ void Move_Decision::HUDDLE_mode()
 
             // Set_line_det_flg(true);
             Set_huddle_det_flg(false);
-        }
-
-        else if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
         }
 
         // Sequence++
@@ -878,7 +873,7 @@ void Move_Decision::HUDDLE_mode()
     // 2 : Motion : InitPose (For getting distance) (Depth)
     else if (tmp_huddle_seq == 2)
     {
-
+        ROS_ERROR(Str_HUDDLE_SEQUENCE_2.c_str());
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             int _size = 0;
@@ -906,11 +901,6 @@ void Move_Decision::HUDDLE_mode()
             Set_UD_Neck_on_flg(true);
         }
 
-        else if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-        }
-
         // Sequence++
         if (finish_past != Get_SM_req_finish())
         {
@@ -927,9 +917,15 @@ void Move_Decision::HUDDLE_mode()
     // 3 : Motion : Forward_Nstep (Approach) --> Line_mode()
     else if (tmp_huddle_seq == 3)
     {
+        ROS_ERROR(Str_HUDDLE_SEQUENCE_3.c_str());
         if (!Get_distance_on_flg())
         {
-            huddle_distance -= 0.1;
+            if (huddle_distance < 0)
+            {
+                tmp_huddle_seq = 4;
+            }
+
+            huddle_distance *= 0.80;
             Set_distance_(huddle_distance);
             Set_distance_on_flg(true);
         }
@@ -937,7 +933,6 @@ void Move_Decision::HUDDLE_mode()
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             huddle_motion = Motion_Index::Forward_Nstep;
-            // ROS_ERROR("123123huddle_distace : %f", huddle_distance);
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
 
@@ -950,11 +945,6 @@ void Move_Decision::HUDDLE_mode()
 
             // Set_line_det_flg(true);
             Set_huddle_det_flg(false);
-        }
-
-        else if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
         }
 
         // Sequence++
@@ -973,6 +963,7 @@ void Move_Decision::HUDDLE_mode()
     // 4 : Motion : Step in place (Pose Control)
     else if (tmp_huddle_seq == 4)
     {
+        ROS_ERROR(Str_HUDDLE_SEQUENCE_4.c_str());
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             huddle_motion = Motion_Index::Step_in_place;
@@ -996,11 +987,6 @@ void Move_Decision::HUDDLE_mode()
             Set_UD_Neck_on_flg(true);
         }
 
-        else if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-        }
-
         // Sequence++
         if (finish_past != Get_SM_req_finish())
         {
@@ -1017,6 +1003,7 @@ void Move_Decision::HUDDLE_mode()
     // 5 : Motion : InitPose
     else if (tmp_huddle_seq == 5)
     {
+        ROS_ERROR(Str_HUDDLE_SEQUENCE_5.c_str());
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {
             huddle_ud_neck_angle = UD_CENTER;
@@ -1046,16 +1033,12 @@ void Move_Decision::HUDDLE_mode()
 
             Set_huddle_det_flg(false);
         }
-
-        else if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-        }
     }
 
     // 6 : MOtion : Forward_halfstep (Aprroach Huddle)
     else if (tmp_huddle_seq == 6)
     {
+        ROS_ERROR(Str_HUDDLE_SEQUENCE_6.c_str());
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {
             huddle_ud_neck_angle = UD_CENTER;
@@ -1072,7 +1055,7 @@ void Move_Decision::HUDDLE_mode()
                 Set_motion_index_(huddle_motion);
                 Set_select_motion_on_flg(true);
                 Set_huddle_det_flg(false);
-                if (contain_huddle_to_foot) 
+                if (contain_huddle_to_foot)
                     break;
             }
 
@@ -1085,27 +1068,18 @@ void Move_Decision::HUDDLE_mode()
                 tmp_huddle_seq++;
             }
         }
-
-        else if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-        }
     }
 
     // 7 : Motion : Huddle Jump
     else if (tmp_huddle_seq == 7)
     {
+        ROS_ERROR(Str_HUDDLE_SEQUENCE_7.c_str());
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             huddle_motion = Motion_Index::Huddle_Jump;
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
             Set_huddle_det_flg(false);
-        }
-
-        else if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
         }
 
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
@@ -1131,6 +1105,7 @@ void Move_Decision::HUDDLE_mode()
     // 8 : Initializeing
     else if (tmp_huddle_seq == 8)
     {
+        ROS_ERROR(Str_HUDDLE_SEQUENCE_8.c_str());
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             // Set_select_motion_on_flg(true);
@@ -1144,11 +1119,6 @@ void Move_Decision::HUDDLE_mode()
             huddle_ud_neck_angle = UD_CENTER;
             Set_UD_NeckAngle(huddle_ud_neck_angle);
             Set_UD_Neck_on_flg(true);
-        }
-
-        else if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
         }
     }
 
@@ -1165,7 +1135,6 @@ void Move_Decision::HUDDLE_mode()
     }
 
     ROS_ERROR("HUDDLE_SEQ : %d", tmp_huddle_seq);
-    ROS_ERROR("req_finish_count : ############### %d ###############", req_finish_count);
 }
 
 void Move_Decision::WALL_mode()
@@ -1173,6 +1142,7 @@ void Move_Decision::WALL_mode()
     wall_motion = Get_motion_index_();
     img_wall_number_case = img_procPtr->Get_img_proc_wall_number();
     wall_neck_angle = Get_UD_NeckAngle();
+    
 
     finish_past = false;
     req_finish_count = 0;
@@ -1288,12 +1258,6 @@ void Move_Decision::WALL_mode()
             }
         }
 
-        if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-            Set_select_motion_on_flg(true);
-        }
-
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {
             wall_neck_angle = 0;
@@ -1344,12 +1308,6 @@ void Move_Decision::WALL_mode()
             }
         }
 
-        if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-            Set_select_motion_on_flg(true);
-        }
-
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {
             wall_neck_angle = 0;
@@ -1397,12 +1355,6 @@ void Move_Decision::WALL_mode()
                 req_finish_count = 0;
                 wall_number_seq++;
             }
-        }
-
-        if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-            Set_select_motion_on_flg(true);
         }
 
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
@@ -1455,11 +1407,6 @@ void Move_Decision::WALL_mode()
             }
         }
 
-        if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-            Set_select_motion_on_flg(true);
-        }
 
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {
@@ -1511,11 +1458,6 @@ void Move_Decision::WALL_mode()
             }
         }
 
-        if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-            Set_select_motion_on_flg(true);
-        }
 
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {
@@ -1530,6 +1472,7 @@ void Move_Decision::WALL_mode()
         {
             Set_line_det_flg(true);
         }
+
         break;
 
     default:
@@ -1544,25 +1487,25 @@ void Move_Decision::WALL_mode()
 }
 
 void Move_Decision::CORNER_mode()
-{   
-    // 0 : Approach to the Corner 
+{
+    // 0 : Approach to the Corner
     // --> Motion : Motion_Index::Forward_Halfstep (Until corner center) : About Y diff
     // --> Motion : Motion_Index::Left_Halfstep or Motion_Index::Right_Halfstep : About X diff
-    
+
     // 1 : Pose Control (Posture(Gradient))
     // --> Motion : Motion_Index::Step_In_Place && Turn Angle(Gradient)
-    
+
     // 2 : Motion : Step in place + Turn Angle 90(ㅓ) or -90(ㅜ)
     // 3 : Initializing
 
     corner_actual_angle = Get_turn_angle_();
     corner_ud_neck_angle = Get_UD_NeckAngle();
     corner_motion = Get_motion_index_();
-    
+
     // 0 : Approach to the Corner + Pose Control (Position)
     if (tmp_corner_seq == 0)
     {
-        //Initializing
+        // Initializing
         corner_seq_finish = false;
         Set_corner_det_stop_flg(false);
 
@@ -1603,7 +1546,7 @@ void Move_Decision::CORNER_mode()
                 ROS_WARN("X POSITION IS OK!!!!!!!!!!!!!!!!!!!");
             }
 
-            //About Corner Y point 
+            // About Corner Y point
             if (contain_corner_X && !img_proc_contain_corner_to_foot)
             {
                 corner_motion = Motion_Index::Forward_Halfstep;
@@ -1727,7 +1670,7 @@ void Move_Decision::CORNER_mode()
     {
         ROS_ERROR(Str_CORNER_SEQUENCE_3.c_str());
         tmp_corner_shape = img_procPtr->Get_img_proc_corner_number();
-        ROS_WARN("CORNER_SHAPE : %d" ,tmp_corner_shape);
+        ROS_WARN("CORNER_SHAPE : %d", tmp_corner_shape);
 
         if (tmp_corner_shape == 1)
         {
@@ -1757,7 +1700,7 @@ void Move_Decision::Test_service()
 {
     if (aaaa == 0)
     {
-        ROS_ERROR("ccc : %d" , ccc);
+        ROS_ERROR("ccc : %d", ccc);
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             abc++;
@@ -1766,7 +1709,7 @@ void Move_Decision::Test_service()
             {
                 Set_UD_NeckAngle(30);
                 Set_UD_Neck_on_flg(true);
- 
+
                 Set_motion_index_(Motion_Index::Step_in_place);
                 Set_select_motion_on_flg(true);
 
@@ -1802,7 +1745,7 @@ void Move_Decision::Test_service()
                 aaaa++;
             }
         }
-        
+
         else if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {
             Set_UD_NeckAngle(30);
@@ -1814,7 +1757,7 @@ void Move_Decision::Test_service()
             Set_UD_NeckAngle(30);
             Set_UD_Neck_on_flg(true);
         }
-        
+
         ROS_ERROR("Loop NUMBER(%d)", abc);
     }
 
@@ -1884,7 +1827,6 @@ void Move_Decision::Test_service()
         Set_select_motion_on_flg(true);
         aaaa++;
     }
-    
 
     ROS_WARN("---------------------------------------");
     Motion_Info();
@@ -2390,7 +2332,7 @@ bool Move_Decision::SendMotion(dynamixel_current_2port::SendMotion::Request &req
 
 std::tuple<int8_t, double> Move_Decision::playMotion()
 {
-    int8_t res_select_motion = 0;
+    int8_t res_select_motion = 99;
     double res_distance = 0;
     int8_t total = Get_TA_req_finish() + Get_UD_req_finish() + Get_RL_req_finish() + Get_EM_req_finish();
     if (Get_SM_req_finish())
@@ -2436,9 +2378,10 @@ std::tuple<int8_t, double> Move_Decision::playMotion()
                 res_select_motion = Motion_Index::Huddle_Jump;
                 break;
 
-                // case Motion_Index::NONE:
-                //     res_select_motion = Motion_Index::NONE;
-                //     break;
+            case Motion_Index::NONE:
+                res_select_motion = Motion_Index::NONE;
+                break;
+
             case Motion_Index::Forward_Halfstep:
                 res_select_motion = Motion_Index::Forward_Halfstep;
                 break;

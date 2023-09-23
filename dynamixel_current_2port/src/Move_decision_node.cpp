@@ -16,11 +16,6 @@ int main(int argc, char **argv)
 
     while (ros::ok())
     {
-        // cout << "woojin" << endl;
-        // callback.Write_Leg_Theta();
-        // dxl.SetThetaRef(callback.All_Theta);
-        // dxl.syncWriteTheta();
-
         ros::spinOnce();
         loop_rate.sleep();
     }

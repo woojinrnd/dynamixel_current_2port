@@ -2,7 +2,7 @@
 
 // Constructor
 Img_proc::Img_proc()
-    : SPIN_RATE(1),
+    : SPIN_RATE(100),
       img_proc_line_det_(false),
       gradient_(0)
 {
@@ -522,7 +522,7 @@ std::tuple<int, float, float> Img_proc::applyPCA(cv::Mat &color, const rs2::dept
     float cos_theta = dot_product / (normal_magnitude * camera_magnitude);
     float angle_degrees = std::acos(cos_theta) * 180.0 / M_PI;
     float pitch = atan2(normal[1], normal[2]) * 180.0 / M_PI;
-    float yaw = atan2(normal[0], sqrt(normal[1] * normal[1] + normal[2] * normal[2])) * 180.0 / M_PI; // 라디안을 도로 변환
+    float yaw = atan2(normal[0], sqrt(normal[1] * normal[1] + normal[2] * normal[2])) * 10000; // 라디안을 도로 변환
 
     // std::cout << "Angle between normal vector and camera vector: " << angle_degrees << " degrees" << std::endl;
     // std::cout << "normal: " << normal[0] << ", " << normal[1] << ", " << normal[2] << std::endl;
@@ -530,7 +530,6 @@ std::tuple<int, float, float> Img_proc::applyPCA(cv::Mat &color, const rs2::dept
 
     if (distance_rect >= 0.75)
     {
-        Set_img_proc_wall_det(true);
         if (tmp_img_proc_wall_number == 0)
         {
             tmp_img_proc_wall_number = 1;
@@ -546,7 +545,6 @@ std::tuple<int, float, float> Img_proc::applyPCA(cv::Mat &color, const rs2::dept
     }
     else if (distance_rect > 0.4 && distance_rect < 0.75)
     {
-        Set_img_proc_wall_det(true);
 
         if (right_plane_mode)
         {
@@ -559,7 +557,6 @@ std::tuple<int, float, float> Img_proc::applyPCA(cv::Mat &color, const rs2::dept
     }
     else if (distance_rect <= 0.4)
     {
-        Set_img_proc_wall_det(true);
 
         if (tmp_img_proc_wall_number == 2)
         {
@@ -656,14 +653,27 @@ void Img_proc::realsense_thread()
             double angle_ = std::get<1>(pca);
             double distance_ = std::get<2>(pca);
 
-            if (Get_img_proc_wall_det() == true)
-            {
-                this->Set_img_proc_wall_number(wall_number_);
-                this->Set_gradient(angle_);
-                this->Set_distance(distance_);
-            }
+            this->Set_img_proc_wall_number(wall_number_);
+            this->Set_wall_angle(angle_);
+            this->Set_distance(distance_);
 
             // // // Huddle mode
+
+            // ////////////////////////////////// TEST //////////////////////////////////
+
+            // // Block program until frames arrive
+            // rs2::frameset frames_ = pipe.wait_for_frames();
+
+            // // Try to get a frame of a depth image
+            // rs2::depth_frame depth_ = frames_.get_depth_frame();
+
+            // // Set_img_proc_corner_det(true);
+            // Set_img_proc_huddle_det(true);
+            // // Set_img_proc_corner_number(1);
+            // float dist_to_center = depth_.get_distance(webcam_width / 2, webcam_height / 2);
+            // this->Set_distance(dist_to_center);
+
+            // ////////////////////////////////// TEST //////////////////////////////////
 
             auto Huddle = extract_color(colorMat, lower_bound_yellow, upper_bound_yellow);
 
@@ -682,7 +692,9 @@ void Img_proc::realsense_thread()
             center_huddle = std::get<3>(Huddle);
 
             huddle_distance = Distance_Point(depth_frame, center_huddle);
-            Set_distance(huddle_distance);
+            // cout << huddle_distance << endl;
+            this->Set_distance(huddle_distance);
+
 
             cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);

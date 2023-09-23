@@ -301,6 +301,17 @@ public:
     std::vector<double> huddle_distance_save;
     bool contain_huddle_to_foot = false;
     int8_t to_be_line_mode = 0; 
+
+    string Str_HUDDLE_SEQUENCE_0 = "HUDDLE_SEQUENCE_0 : InitPose (for Getting distance) (Depth)";
+    string Str_HUDDLE_SEQUENCE_1 = "HUDDLE_SEQUENCE_1 : Forward_Nstep (Far)";
+    string Str_HUDDLE_SEQUENCE_2 = "HUDDLE_SEQUENCE_2 : InitPose (for Getting distance) (Depth)";
+    string Str_HUDDLE_SEQUENCE_3 = "HUDDLE_SEQUENCE_3 : Forward_Nstep (Approach)";
+    string Str_HUDDLE_SEQUENCE_4 = "HUDDLE_SEQUENCE_4 : Step in place (Pose Control)";
+    string Str_HUDDLE_SEQUENCE_5 = "HUDDLE_SEQUENCE_5 : InitPose";
+    string Str_HUDDLE_SEQUENCE_6 = "HUDDLE_SEQUENCE_6 : Forward_halfstep (Aprroach Huddle)";
+    string Str_HUDDLE_SEQUENCE_7 = "HUDDLE_SEQUENCE_7 : Huddle Jump";
+    string Str_HUDDLE_SEQUENCE_8 = "HUDDLE_SEQUENCE_8 : Initializing";
+
     
 
     /////////////////////// Corner Mode ///////////////////////
@@ -347,8 +358,6 @@ public:
     bool contain_corner_X = false; //corner X Point
     bool contain_corner_Y = false; // corner Y Point
     bool corner_posture = false; // corner gradient
-
-    int8_t line_det_count = 0;
 
     string Str_CORNER_SEQUENCE_0 = "CORNER_SEQUENCE_0 : POSITION CONTROL";
     string Str_CORNER_SEQUENCE_1 = "CORNER_SEQUENCE_1 : POSTURE CONTROL";
