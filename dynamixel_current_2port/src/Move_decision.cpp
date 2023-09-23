@@ -1201,12 +1201,6 @@ void Move_Decision::WALL_mode()
             }
         }
 
-        if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-            Set_select_motion_on_flg(true);
-        }
-
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {
             wall_neck_angle = 0;
