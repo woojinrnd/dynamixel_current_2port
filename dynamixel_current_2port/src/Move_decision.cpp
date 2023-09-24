@@ -534,12 +534,13 @@ void Move_Decision::LINE_mode()
             line_actual_angle += increment;
             if (line_actual_angle > 15)
             {
-                line_actual_angle = TURN_MAX - 70;
+                line_actual_angle = TURN_MAX;
             }
             else if (line_actual_angle < -15)
             {
-                line_actual_angle = TURN_MIN + 70;
+                line_actual_angle = TURN_MIN;
             }
+
             Set_turn_angle_(line_actual_angle);
             Set_turn_angle_on_flg(true);
         }
@@ -772,7 +773,9 @@ void Move_Decision::HUDDLE_mode()
     // 7 : Motion : Huddle Jump
     // 8 : Initializing
 
-    huddle_actual_angle = Get_turn_angle_();
+    huddle_actual_angle = img_procPtr->Get_huddle_angle();
+    line_gradient = img_procPtr->Get_gradient();
+    StraightLineDecision(line_gradient, margin_gradient);
     huddle_motion = Get_motion_index_();
     huddle_ud_neck_angle = Get_UD_NeckAngle();
 
@@ -838,23 +841,133 @@ void Move_Decision::HUDDLE_mode()
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             huddle_motion = Motion_Index::Forward_Nstep;
-
             huddle_distance *= 0.8;
             Set_distance_(huddle_distance);
-
             Set_motion_index_(huddle_motion);
+
             Set_select_motion_on_flg(true);
             Set_distance_on_flg(true);
+        }
 
-            if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        // For LINE_TRACKING
+        if (straightLine == true)
+        {
+            if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
             {
-                huddle_ud_neck_angle = UD_CENTER;
-                Set_UD_NeckAngle(huddle_ud_neck_angle);
-                Set_UD_Neck_on_flg(true);
+                // Left turn
+                // To be zero
+                if (line_actual_angle > 0)
+                {
+                    // line_actual_angle -= 1;
+                    // if (line_actual_angle < 0)
+                    line_actual_angle = 0;
+                    Set_turn_angle_(line_actual_angle);
+                    Set_turn_angle_on_flg(true);
+                }
+
+                // Right turn
+                // To be zero
+                else if (line_actual_angle < 0)
+                {
+                    // line_actual_angle += 1;
+                    // if (line_actual_angle > 0)
+                    line_actual_angle = 0;
+                    Set_turn_angle_(line_actual_angle);
+                    Set_turn_angle_on_flg(true);
+                }
+            }
+        }
+
+        // Non Straight Line
+        else if (straightLine == false)
+        {
+            if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+            {
+                // Increase Actual_angle more quickly for larger line_gradient values
+                // Counter Clock wise(+) (Turn Angle sign)
+                // Gradient : Angle from center of window.x to center of line.x
+                // LEFT TURN
+                if (line_gradient >= margin_gradient * 5)
+                {
+                    increment = 4;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient >= margin_gradient * 4)
+                {
+                    increment = 3;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient >= margin_gradient * 3)
+                {
+                    increment = 2;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient >= margin_gradient * 2)
+                {
+                    increment = 2;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient > margin_gradient * 1)
+                {
+                    increment = 2;
+                    ROS_WARN("LEFT_TURN");
+                }
+
+                // Decrease Actual_angle relatively slowly for smaller line_gradient values
+                // Right Turn
+                else if (line_gradient <= -margin_gradient * 5)
+                {
+                    increment = -4;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient <= -margin_gradient * 4)
+                {
+                    increment = -3;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient <= -margin_gradient * 3)
+                {
+                    increment = -2;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient <= -margin_gradient * 2)
+                {
+                    increment = -2;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient < -margin_gradient * 1)
+                {
+                    increment = -2;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else
+                {
+                    increment = 0;
+                }
+
+                line_actual_angle += increment;
+                if (line_actual_angle > 15)
+                {
+                    line_actual_angle = TURN_MAX;
+                }
+                else if (line_actual_angle < -15)
+                {
+                    line_actual_angle = TURN_MIN;
+                }
+
+                Set_turn_angle_(line_actual_angle);
+                Set_turn_angle_on_flg(true);
             }
 
             // Set_line_det_flg(true);
             Set_huddle_det_flg(false);
+        }
+
+        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            huddle_ud_neck_angle = UD_CENTER;
+            Set_UD_NeckAngle(huddle_ud_neck_angle);
+            Set_UD_Neck_on_flg(true);
         }
 
         // Sequence++
@@ -947,6 +1060,120 @@ void Move_Decision::HUDDLE_mode()
             Set_huddle_det_flg(false);
         }
 
+        // For LINE_TRACKING
+        if (straightLine == true)
+        {
+            if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+            {
+                // Left turn
+                // To be zero
+                if (line_actual_angle > 0)
+                {
+                    // line_actual_angle -= 1;
+                    // if (line_actual_angle < 0)
+                    line_actual_angle = 0;
+                    Set_turn_angle_(line_actual_angle);
+                    Set_turn_angle_on_flg(true);
+                }
+
+                // Right turn
+                // To be zero
+                else if (line_actual_angle < 0)
+                {
+                    // line_actual_angle += 1;
+                    // if (line_actual_angle > 0)
+                    line_actual_angle = 0;
+                    Set_turn_angle_(line_actual_angle);
+                    Set_turn_angle_on_flg(true);
+                }
+            }
+        }
+
+        // Non Straight Line
+        else if (straightLine == false)
+        {
+            if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+            {
+                // Increase Actual_angle more quickly for larger line_gradient values
+                // Counter Clock wise(+) (Turn Angle sign)
+                // Gradient : Angle from center of window.x to center of line.x
+                // LEFT TURN
+                if (line_gradient >= margin_gradient * 5)
+                {
+                    increment = 4;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient >= margin_gradient * 4)
+                {
+                    increment = 3;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient >= margin_gradient * 3)
+                {
+                    increment = 2;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient >= margin_gradient * 2)
+                {
+                    increment = 2;
+                    ROS_WARN("LEFT_TURN");
+                }
+                else if (line_gradient > margin_gradient * 1)
+                {
+                    increment = 2;
+                    ROS_WARN("LEFT_TURN");
+                }
+
+                // Decrease Actual_angle relatively slowly for smaller line_gradient values
+                // Right Turn
+                else if (line_gradient <= -margin_gradient * 5)
+                {
+                    increment = -4;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient <= -margin_gradient * 4)
+                {
+                    increment = -3;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient <= -margin_gradient * 3)
+                {
+                    increment = -2;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient <= -margin_gradient * 2)
+                {
+                    increment = -2;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else if (line_gradient < -margin_gradient * 1)
+                {
+                    increment = -2;
+                    ROS_WARN("RIGHT TURN");
+                }
+                else
+                {
+                    increment = 0;
+                }
+
+                line_actual_angle += increment;
+                if (line_actual_angle > 15)
+                {
+                    line_actual_angle = TURN_MAX;
+                }
+                else if (line_actual_angle < -15)
+                {
+                    line_actual_angle = TURN_MIN;
+                }
+
+                Set_turn_angle_(line_actual_angle);
+                Set_turn_angle_on_flg(true);
+            }
+
+            // Set_line_det_flg(true);
+            Set_huddle_det_flg(false);
+        }
+
         // Sequence++
         if (finish_past != Get_SM_req_finish())
         {
@@ -974,7 +1201,6 @@ void Move_Decision::HUDDLE_mode()
 
         if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
         {
-            huddle_actual_angle = img_procPtr->Get_gradient();
             Set_turn_angle_(huddle_actual_angle);
             Set_turn_angle_on_flg(true);
             Set_huddle_det_flg(false);
@@ -1017,7 +1243,6 @@ void Move_Decision::HUDDLE_mode()
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
 
-            huddle_actual_angle = img_procPtr->Get_gradient();
             ROS_ERROR("huddle_actual_angle : %f", huddle_actual_angle);
 
             if (huddle_actual_angle > 10 || huddle_actual_angle < -10)
@@ -1142,7 +1367,6 @@ void Move_Decision::WALL_mode()
     wall_motion = Get_motion_index_();
     img_wall_number_case = img_procPtr->Get_img_proc_wall_number();
     wall_neck_angle = Get_UD_NeckAngle();
-    
 
     finish_past = false;
     req_finish_count = 0;
@@ -1401,7 +1625,6 @@ void Move_Decision::WALL_mode()
             }
         }
 
-
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {
             wall_neck_angle = 0;
@@ -1451,7 +1674,6 @@ void Move_Decision::WALL_mode()
                 wall_number_seq++;
             }
         }
-
 
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
         {

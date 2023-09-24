@@ -133,7 +133,7 @@ public:
     void create_threshold_trackbar_B(const std::string &window_name);
     void create_color_range_trackbar(const std::string &window_name);
     std::tuple<cv::Mat, cv::Mat, int, cv::Point> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
-    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
+    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
     double Distance_Point(const rs2::depth_frame& depth, cv::Point center);
 
     // ********************************************** 3D THREAD************************************************** //
@@ -166,6 +166,7 @@ public:
     double Get_delta_x() const;
     double Get_wall_angle() const;
     double Get_distance() const;
+    double Get_huddle_angle() const;
 
     bool Get_contain_huddle_to_foot() const;
     bool Get_contain_corner_to_foot() const;
@@ -186,6 +187,7 @@ public:
     void Set_delta_x(double delta_x);
     void Set_wall_angle(double wall_angle);
     void Set_distance(double set_distance);
+    void Set_huddle_angle(double huddle_angle);
 
     void Set_contain_huddle_to_foot(bool contain_huddle_to_foot);
     void Set_contain_corner_to_foot(bool contain_corner_to_foot);
@@ -239,9 +241,10 @@ private:
     int8_t img_proc_wall_number_ = 0;
     int8_t img_proc_corner_number_ = 0; // 1번 ㅓ(좌90) 2번 ㅜ(우90)
 
-    // Line mode
+    
     double gradient_ = 0;   // Line_angle
     double wall_angle_ = 0; // wall angle
+    double huddle_angle_ = 0; // huddle angle 
     double distance_ = 0;   // huddle / wall mode
 
     // No Line mode
@@ -277,6 +280,7 @@ private:
 
     //Huddle Mode
     mutable std::mutex mtx_contain_huddle_to_foot;
+    mutable std::mutex mtx_huddle_angle_;
 
     //Corner mode
     mutable std::mutex mtx_contain_corner_to_foot;

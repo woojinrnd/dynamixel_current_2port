@@ -74,7 +74,7 @@ std::tuple<cv::Mat, cv::Mat, int, cv::Point> Img_proc::extract_color(const cv::M
     return {color_extracted, frame, color_pixel_area, center};
 }
 
-std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
+std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
 {
     cv::Mat frame = input_frame.clone();
     cv::Mat ori_frame = origin_frame.clone();
@@ -96,6 +96,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
     bool has_yellow_now = false;
 
     float angle = 0;
+    float huddle_angle = 0;
 
     bool &has_prev = is_white_line ? has_white_prev : has_yellow_prev;
     cv::Point &center_now = is_white_line ? center_now_white : center_now_yellow;
@@ -272,11 +273,11 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
             {
                 if (min_area_rect.size.width < min_area_rect.size.height)
                 {
-                    angle = -min_area_rect.angle - 90;
+                    huddle_angle = -min_area_rect.angle - 90;
                 }
                 else
                 {
-                    angle = -min_area_rect.angle;
+                    huddle_angle = -min_area_rect.angle;
                 }
             }
         }
@@ -311,7 +312,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         cv::line(ori_frame, center_dot, end_point, contour_color, 3);
         // std::cout << "Angle: " << angle << std::endl;
     }
-    return std::make_tuple(ori_frame, foundLargeContour, angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center);
+    return std::make_tuple(ori_frame, foundLargeContour, angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center, huddle_angle);
 }
 
 void Img_proc::webcam_thread()
@@ -685,16 +686,14 @@ void Img_proc::realsense_thread()
                 auto thresh_frame_blue = detect_Line_areas(std::get<0>(Huddle), colorMat, yellow_color, threshold_value_blue, false, false);
                 bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
                 this->Set_img_proc_huddle_det(YellowContourDetected);
+
+                double huddle_angle_ = std::get<9>(thresh_frame_yellow);
+                Set_huddle_angle(huddle_angle_);
+
+                center_huddle = std::get<3>(Huddle);
+                huddle_distance = Distance_Point(depth_frame, center_huddle);
+                this->Set_distance(huddle_distance);
             }
-
-            // auto Huddle = extract_color(colorMat, lower_bound_yellow, upper_bound_yellow);
-
-            center_huddle = std::get<3>(Huddle);
-
-            huddle_distance = Distance_Point(depth_frame, center_huddle);
-            // cout << huddle_distance << endl;
-            this->Set_distance(huddle_distance);
-
 
             cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);
@@ -1380,7 +1379,15 @@ bool Img_proc::Get_contain_corner_to_foot() const
     return contain_corner_to_foot_;
 }
 
+double Img_proc::Get_huddle_angle() const
+{
+    std::lock_guard<std::mutex> lock(mtx_huddle_angle_);
+    return huddle_angle_;
+}
+
+
 // ********************************************** SETTERS ************************************************** //
+
 
 void Img_proc::Set_img_proc_line_det(bool img_proc_line_det)
 {
@@ -1470,4 +1477,10 @@ void Img_proc::Set_contain_corner_to_foot(bool contain_corner_to_foot)
 {
     std::lock_guard<std::mutex> lock(mtx_contain_corner_to_foot);
     this->contain_corner_to_foot_ = contain_corner_to_foot;
+}
+
+void Img_proc::Set_huddle_angle(double huddle_angle)
+{
+    std::lock_guard<std::mutex> lock(mtx_huddle_angle_);
+    this->huddle_angle_ = huddle_angle;
 }
