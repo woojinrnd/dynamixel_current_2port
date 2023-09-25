@@ -14,8 +14,8 @@ realsense_sdk
 https://www.xsens.com/setup  
 
 #2-2. 소프트웨어 설치  
-좌측의 Xsens MTi  클릭 → 자동으로 MT_Software_Suite_linux_x64_2020.0.2 다운로드  
-cd Downloads && sudo ./mtsdk_linux-x64_2020.0.2.sh  
+좌측의 Xsens MTi  클릭 → 자동으로 MT_Software_Suite_linux_x64_2022.0.2 다운로드  
+cd Downloads && sudo ./mtsdk_linux-x64_2022.0.2.sh  
 sudo apt-get install sharutils  
 default 경로 설정 : /usr/local/xsens  
 cd /usr/local/xsens  

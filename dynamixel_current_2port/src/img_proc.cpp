@@ -66,7 +66,6 @@ std::tuple<cv::Mat, cv::Mat, int, cv::Point> Img_proc::extract_color(const cv::M
             continue;
 
         cv::Point center(m.m10 / m.m00, m.m01 / m.m00);
-        // ROS_WARN("LINE_MODE ON");
     }
 
     int color_pixel_area = cv::countNonZero(mask); // 흰색 픽셀의 수를 세어 넓이를 계산합니다.
@@ -123,8 +122,6 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 distance_huddle = 480 - topmost_y;
             }
             has_white_now = true;
-
-            // ROS_WARN("LINE_MODE ON");
         }
         else if (line_area < LINE_AREA)
         {
@@ -135,6 +132,15 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 has_white_now = false;
             }
         }
+    }
+    
+    if (has_white_now)
+    {
+        cv::putText(ori_frame, "MODE : " + Str_LINE_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+    }
+    if (!has_white_now)
+    {
+        cv::putText(ori_frame, "MODE : " + Str_NO_LINE_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
     }
 
     cv::putText(ori_frame, "distance : " + std::to_string(distance_huddle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
@@ -256,7 +262,10 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                         // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
                         corner_center = min_area_rect.center;
                         Corner = true;
-                        cv::putText(ori_frame, "Corner", cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+                        if (Corner)
+                        {
+                            cv::putText(ori_frame, "MODE : " + Str_CORNER_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+                        }
                     }
                 }
             }
@@ -574,6 +583,7 @@ std::tuple<int, float, float> Img_proc::applyPCA(cv::Mat &color, const rs2::dept
     cv::putText(color, "distance : " + std::to_string(distance_rect), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
     cv::putText(color, "Angle : " + std::to_string(yaw), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
     cv::putText(color, "FLAG : " + std::to_string(tmp_img_proc_wall_number), cv::Point(10, 75), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 0, 255}, 2);
+    cv::putText(color, "MODE : " + Str_WALL_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
     return std::make_tuple(tmp_img_proc_wall_number, yaw, distance_rect);
 }
 
@@ -675,15 +685,20 @@ void Img_proc::realsense_thread()
             // ////////////////////////////////// TEST //////////////////////////////////
 
             auto Huddle = extract_color(colorMat, lower_bound_yellow, upper_bound_yellow);
+            auto thresh_frame_yellow = detect_Line_areas(std::get<0>(Huddle), colorMat, blue_color, threshold_value_yellow, false, false);
+            bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
 
             int YellowColorDetected = std::get<2>(Huddle);
             if (YellowColorDetected > 1000)
             {
                 // Athletics_FLAG = 2;
-                auto thresh_frame_yellow = detect_Line_areas(std::get<0>(Huddle), colorMat, blue_color, threshold_value_yellow, false, false);
                 auto thresh_frame_blue = detect_Line_areas(std::get<0>(Huddle), colorMat, yellow_color, threshold_value_blue, false, false);
-                bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
                 this->Set_img_proc_huddle_det(YellowContourDetected);
+            }
+
+            if (Get_img_proc_huddle_det())
+            {
+                cv::putText(colorMat, "MODE : " + Str_HUDDLE_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
 
                 double huddle_angle_ = std::get<9>(thresh_frame_yellow);
                 Set_huddle_angle(huddle_angle_);
@@ -692,9 +707,6 @@ void Img_proc::realsense_thread()
                 huddle_distance = Distance_Point(depth_frame, center_huddle);
                 this->Set_distance(huddle_distance);
             }
-
-            cv::imshow(window_name, depthMat);
-            cv::imshow(window_name_color, colorMat);
 
             cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);
@@ -846,12 +858,14 @@ void Img_proc::running_process()
         if (area_max >= 2000)
         {
             this->Set_img_proc_line_det(true);
+            this->Set_img_proc_no_line_det(false);
             // ROS_WARN("img_proc_line_det : %d", Get_img_proc_line_det());
         }
 
         else if (500 < area_max < 2000)
         {
             this->Set_img_proc_line_det(false);
+            this->Set_img_proc_no_line_det(true);
             // ROS_ERROR("img_proc_line_det : %d", Get_img_proc_line_det());
         }
 
@@ -869,6 +883,7 @@ void Img_proc::running_process()
     if (contours.empty())
     {
         this->Set_img_proc_no_line_det(true);
+        this->Set_img_proc_line_det(false);
         // ROS_ERROR("img_proc_no_line_det : %d", Get_img_proc_no_line_det());
         // cout << "no area" << endl;
     }
@@ -878,7 +893,7 @@ void Img_proc::running_process()
 
     this->contours_ = contours;
     LINE_imgprocessing();
-    GOAL_LINE_recognition();
+    // GOAL_LINE_recognition();
 
     // Show the original frame and the final binary mask
     cv::imshow("Original Frame", Origin_img);
@@ -1016,8 +1031,11 @@ void Img_proc::LINE_imgprocessing()
         }
     }
 
-    string str = to_string(line_count) + " Dot";
-    putText(Origin_img, str, Point(10, 30), 2, 0.8, CV_RGB(0, 255, 0), 2);
+    if (Get_img_proc_line_det())
+    {
+        string str = to_string(line_count) + " Dot";
+        putText(Origin_img, str, Point(10, 30), 2, 0.8, CV_RGB(0, 255, 0), 2);
+    }
 
     if (line_count > 0)
     {
@@ -1047,12 +1065,14 @@ void Img_proc::LINE_imgprocessing()
         if (point_target.x > IMG_W / 2)
         {
             tmp_point_target = Point(point_target.x - 1, point_target.y);
-            Set_img_proc_no_line_det(true);
+            // this->Set_img_proc_no_line_det(true);
+            // this->Set_img_proc_line_det(false);
         }
         else if (point_target.x < IMG_W / 2)
         {
             tmp_point_target = Point(point_target.x + 1, point_target.y);
-            Set_img_proc_no_line_det(true);
+            // this->Set_img_proc_no_line_det(true);
+            // this->Set_img_proc_line_det(false);
         }
         else
         {
@@ -1102,8 +1122,8 @@ void Img_proc::LINE_imgprocessing()
         angle_deg = angle_deg - 90;
 
     // Draw a line connecting the center point at the bottom of the screen and the center of the object
-    // std::string strangle_deg = "Angle : " + std::to_string(angle_deg) + " Deg";
-    // cv::putText(Origin_img, strangle_deg, cv::Point(IMG_W, IMG_H), cv::FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2);
+    std::string strangle_deg = "Angle : " + std::to_string(angle_deg) + " Deg";
+    cv::putText(Origin_img, strangle_deg, cv::Point(IMG_W, IMG_H), cv::FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2);
 
     // ROS_WARN("center x : %f", center_x);
     // ROS_WARN("center y : %f", center_y);
@@ -1120,9 +1140,8 @@ void Img_proc::LINE_imgprocessing()
     // delta_x = (delta_x_list[2] + delta_x_list[1] + delta_x_list[0]) / 3;
     delta_x_ = tmp_delta_x;
 
-    Set_img_proc_line_det(true);
+    // Set_img_proc_line_det(true);
     Set_gradient(angle_deg);
-    Set_delta_x(delta_x_);
 
     //    image processing ends    //
 }
@@ -1241,19 +1260,50 @@ void Img_proc::GOAL_LINE_recognition()
 
 void Img_proc::init()
 {
-    // // set node loop rate
-    // ros::Rate loop_rate(SPIN_RATE);
-    // // vcap = VideoCapture(CAP_DSHOW + webcam_id);
-    // vcap = VideoCapture(webcam_id);
-    // vcap.set(cv::CAP_PROP_FRAME_WIDTH, webcam_width);
-    // vcap.set(cv::CAP_PROP_FRAME_HEIGHT, webcam_height);
-    // vcap.set(cv::CAP_PROP_FPS, webcam_fps);
+    // set node loop rate
+    ros::Rate loop_rate(SPIN_RATE);
+    // vcap = VideoCapture(CAP_DSHOW + webcam_id);
+    vcap = VideoCapture(webcam_id);
+    vcap.set(cv::CAP_PROP_FRAME_WIDTH, IMG_W);
+    vcap.set(cv::CAP_PROP_FRAME_HEIGHT, IMG_H);
+    vcap.set(cv::CAP_PROP_FPS, webcam_fps);
 
-    // if (!vcap.isOpened())
-    // {
-    //     std::cerr << "Could not open the webcam\n";
-    //     return;
-    // }
+    if (!vcap.isOpened())
+    {
+        std::cerr << "Could not open the webcam\n";
+        return;
+    }
+    cv::namedWindow("Threshold Adjustments", cv::WINDOW_NORMAL);
+    cv::createTrackbar("H min", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("H max", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("S min", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("S max", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("V min", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("V max", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("L min", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("L max", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("A min", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("A max", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("B min", "Threshold Adjustments", nullptr, 255);
+    cv::createTrackbar("B max", "Threshold Adjustments", nullptr, 255);
+
+    cv::setTrackbarPos("H min", "Threshold Adjustments", 77);
+    cv::setTrackbarPos("H max", "Threshold Adjustments", 235);
+
+    cv::setTrackbarPos("S min", "Threshold Adjustments", 131);
+    cv::setTrackbarPos("S max", "Threshold Adjustments", 214);
+
+    cv::setTrackbarPos("V min", "Threshold Adjustments", 60);
+    cv::setTrackbarPos("V max", "Threshold Adjustments", 156);
+
+    cv::setTrackbarPos("L min", "Threshold Adjustments", 16);
+    cv::setTrackbarPos("L max", "Threshold Adjustments", 151);
+
+    cv::setTrackbarPos("A min", "Threshold Adjustments", 115);
+    cv::setTrackbarPos("A max", "Threshold Adjustments", 177);
+
+    cv::setTrackbarPos("B min", "Threshold Adjustments", 66);
+    cv::setTrackbarPos("B max", "Threshold Adjustments", 173);
 }
 
 double Img_proc::Calc_angle(double _x, Point _pt)
@@ -1283,6 +1333,23 @@ double Img_proc::Calc_angle(double _x, Point _pt)
     double _degree = atan(_dx / _dy) * _rad2deg * 0.5;
 
     return _degree;
+}
+
+void Img_proc::webcam_thread2()
+{
+    init();
+    // // set node loop rate
+    // ros::Rate loop_rate(SPIN_RATE);
+
+    while (cv::waitKey(1) != 27)
+    {
+        running_process();
+        // LINE_imgprocessing();
+    }
+
+    // Release the camera and close OpenCV windows
+    vcap.release();
+    cv::destroyAllWindows();
 }
 
 // ********************************************** GETTERS ************************************************** //

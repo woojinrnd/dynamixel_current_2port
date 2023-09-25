@@ -61,6 +61,7 @@ public:
     // ********************************************** 2D THREAD************************************************** //
 
     void webcam_thread();
+    void webcam_thread2();
 
     void topic_publish(const std::string &topic_name)
     {
@@ -77,14 +78,14 @@ public:
     const double Robot_Height_Cam = 0.52;
 
     // Cam set
-    // const int webcam_width = 640;
-    // const int webcam_height = 480;
+    const int webcam_width = 640;
+    const int webcam_height = 480;
 
-    const int webcam_width = 320;
-    const int webcam_height = 240;
+    // const int webcam_width = 320;
+    // const int webcam_height = 240;
 
     const int webcam_fps = 30;
-    string webcam_id = "/dev/Webcam";
+    const int webcam_id = 0;
 
     int threshold_value_white = 210;
     int threshold_value_yellow = 127;
@@ -138,7 +139,7 @@ public:
     void create_color_range_trackbar(const std::string &window_name);
     std::tuple<cv::Mat, cv::Mat, int, cv::Point> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
     std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
-    double Distance_Point(const rs2::depth_frame& depth, cv::Point center);
+    double Distance_Point(const rs2::depth_frame &depth, cv::Point center);
 
     // ********************************************** 3D THREAD************************************************** //
 
@@ -198,6 +199,15 @@ public:
 
     // ********************************************** running ************************************************** //
 
+    string Str_LINE_MODE = "LINE_MODE";
+    string Str_NO_LINE_MODE = "NO_LINE_MODE";
+    string Str_STOP_MODE = "STOP_MODE";
+    string Str_WAKEUP_MODE = "WAKEUP_MODE";
+    string Str_GOAL_MODE = "GOAL_MODE";
+    string Str_HUDDLE_MODE = "HUDDLE_MODE";
+    string Str_WALL_MODE = "WALL_MODE";
+    string Str_CORNER_MODE = "CORNER_MODE";
+
     cv::VideoCapture vcap;
     Mat Origin_img;
 
@@ -224,7 +234,6 @@ public:
     cv::Mat final_binary_mask = cv::Mat::zeros(IMG_H, IMG_W, CV_8UC1);
     double Calc_angle(double _x, Point _pt);
 
-
 private:
     ros::NodeHandle nh;
     ros::Publisher pub;
@@ -245,21 +254,20 @@ private:
     int8_t img_proc_wall_number_ = 0;
     int8_t img_proc_corner_number_ = 0; // 1번 ㅓ(좌90) 2번 ㅜ(우90)
 
-    
-    double gradient_ = 0;   // Line_angle
-    double wall_angle_ = 0; // wall angle
-    double huddle_angle_ = 0; // huddle angle 
-    double distance_ = 0;   // huddle / wall mode
+    double gradient_ = 0;     // Line_angle
+    double wall_angle_ = 0;   // wall angle
+    double huddle_angle_ = 0; // huddle angle
+    double distance_ = 0;     // huddle / wall mode
 
     // No Line mode
     // delta_x : Center of window.x - Center of last captured line.x
     // delta_x > 0 : LEFT
     // delta_x < 0 : RIGHT
 
-    //Huddle mode
+    // Huddle mode
     bool contain_huddle_to_foot_ = false;
 
-    //Corner mode
+    // Corner mode
     bool contain_corner_to_foot_ = false;
 
     /////////////////////////////////////////// Mutex ///////////////////////////////////////////
@@ -282,10 +290,10 @@ private:
     mutable std::mutex mtx_wall_angle;
     mutable std::mutex mtx_distance;
 
-    //Huddle Mode
+    // Huddle Mode
     mutable std::mutex mtx_contain_huddle_to_foot;
     mutable std::mutex mtx_huddle_angle_;
 
-    //Corner mode
+    // Corner mode
     mutable std::mutex mtx_contain_corner_to_foot;
 };
