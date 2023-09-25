@@ -6,7 +6,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(1),
+      SPIN_RATE(100),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::NONE),
       stop_fallen_check_(false),
@@ -449,7 +449,6 @@ void Move_Decision::LINE_mode()
 
         else if (!Get_SM_req_finish())
         {
-            Set_motion_index_(Motion_Index::NONE);
             if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
             {
                 line_ud_neckangle = UD_CENTER;
@@ -561,7 +560,6 @@ void Move_Decision::LINE_mode()
 
         else if (!Get_SM_req_finish())
         {
-            Set_motion_index_(Motion_Index::NONE);
             if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
             {
                 line_ud_neckangle = UD_CENTER;
@@ -613,11 +611,6 @@ void Move_Decision::NOLINE_mode()
             Set_UD_Neck_on_flg(true);
         }
 
-        else if (!Get_SM_req_finish())
-        {
-            Set_motion_index_(Motion_Index::NONE);
-        }
-
         ROS_WARN("RIGHT TURN");
         // ROS_INFO("turn angle : %d", Get_turn_angle_());
     }
@@ -643,7 +636,6 @@ void Move_Decision::NOLINE_mode()
 
         else if (!Get_SM_req_finish())
         {
-            Set_motion_index_(Motion_Index::NONE);
             if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
             {
                 line_ud_neckangle = UD_CENTER;
@@ -743,10 +735,6 @@ void Move_Decision::GOAL_LINE_mode()
         Set_motion_index_(Motion_Index::Forward_4step);
         Set_select_motion_on_flg(true);
     }
-    else if (!Get_SM_req_finish())
-    {
-        Set_motion_index_(Motion_Index::NONE);
-    }
 
     if (!Get_UD_Neck_on_flg() && Get_UD_Neck_on_flg())
     {
@@ -803,20 +791,19 @@ void Move_Decision::HUDDLE_mode()
             Set_huddle_det_flg(false);
         }
 
-        else if (!Get_SM_req_finish())
-        {
-            // Set_motion_index_(Motion_Index::NONE);
-            huddle_ud_neck_angle = 30;
-            Set_UD_NeckAngle(huddle_ud_neck_angle);
-            Set_UD_Neck_on_flg(true);
-        }
+        // else if (!Get_SM_req_finish())
+        // {
+        //     huddle_ud_neck_angle = 30;
+        //     Set_UD_NeckAngle(huddle_ud_neck_angle);
+        //     Set_UD_Neck_on_flg(true);
+        // }
 
-        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
-        {
-            huddle_ud_neck_angle = 30;
-            Set_UD_NeckAngle(huddle_ud_neck_angle);
-            Set_UD_Neck_on_flg(true);
-        }
+        // if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        // {
+        //     huddle_ud_neck_angle = 30;
+        //     Set_UD_NeckAngle(huddle_ud_neck_angle);
+        //     Set_UD_Neck_on_flg(true);
+        // }
 
         // Sequence++
         if (finish_past != Get_SM_req_finish())
@@ -1007,12 +994,12 @@ void Move_Decision::HUDDLE_mode()
             // Set_huddle_det_flg(false);
         }
 
-        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
-        {
-            huddle_ud_neck_angle = 40;
-            Set_UD_NeckAngle(huddle_ud_neck_angle);
-            Set_UD_Neck_on_flg(true);
-        }
+        // if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        // {
+        //     huddle_ud_neck_angle = 40;
+        //     Set_UD_NeckAngle(huddle_ud_neck_angle);
+        //     Set_UD_Neck_on_flg(true);
+        // }
 
         // Sequence++
         if (finish_past != Get_SM_req_finish())
@@ -1049,12 +1036,12 @@ void Move_Decision::HUDDLE_mode()
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
 
-            if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
-            {
-                huddle_ud_neck_angle = 40;
-                Set_UD_NeckAngle(huddle_ud_neck_angle);
-                Set_UD_Neck_on_flg(true);
-            }
+            // if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+            // {
+            //     huddle_ud_neck_angle = 40;
+            //     Set_UD_NeckAngle(huddle_ud_neck_angle);
+            //     Set_UD_Neck_on_flg(true);
+            // }
 
             // Set_line_det_flg(true);
             Set_huddle_det_flg(false);
@@ -1206,12 +1193,12 @@ void Move_Decision::HUDDLE_mode()
             Set_huddle_det_flg(false);
         }
 
-        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
-        {
-            huddle_ud_neck_angle = UD_CENTER;
-            Set_UD_NeckAngle(huddle_ud_neck_angle);
-            Set_UD_Neck_on_flg(true);
-        }
+        // if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        // {
+        //     huddle_ud_neck_angle = UD_CENTER;
+        //     Set_UD_NeckAngle(huddle_ud_neck_angle);
+        //     Set_UD_Neck_on_flg(true);
+        // }
 
         // Sequence++
         if (finish_past != Get_SM_req_finish())
@@ -1230,12 +1217,12 @@ void Move_Decision::HUDDLE_mode()
     else if (tmp_huddle_seq == 5)
     {
         ROS_ERROR(Str_HUDDLE_SEQUENCE_5.c_str());
-        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
-        {
-            huddle_ud_neck_angle = UD_CENTER;
-            Set_UD_NeckAngle(huddle_ud_neck_angle);
-            Set_UD_Neck_on_flg(true);
-        }
+        // if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        // {
+        //     huddle_ud_neck_angle = UD_CENTER;
+        //     Set_UD_NeckAngle(huddle_ud_neck_angle);
+        //     Set_UD_Neck_on_flg(true);
+        // }
 
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
@@ -1404,6 +1391,20 @@ void Move_Decision::WALL_mode()
             }
         }
 
+        if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            wall_neck_angle = 0;
+            Set_UD_NeckAngle(wall_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
+
+        if (!Get_SM_req_finish())
+        {
+            wall_neck_angle = 0;
+            Set_UD_NeckAngle(wall_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
+
         // 처음 벽 인식 후 일정 거리 안까지 직진
         if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 1)
         {
@@ -1426,6 +1427,13 @@ void Move_Decision::WALL_mode()
         }
 
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            wall_neck_angle = 0;
+            Set_UD_NeckAngle(wall_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
+
+        if (!Get_SM_req_finish())
         {
             wall_neck_angle = 0;
             Set_UD_NeckAngle(wall_neck_angle);
@@ -1483,6 +1491,13 @@ void Move_Decision::WALL_mode()
             Set_UD_Neck_on_flg(true);
         }
 
+        if (!Get_SM_req_finish())
+        {
+            wall_neck_angle = 0;
+            Set_UD_NeckAngle(wall_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
+
         ROS_ERROR("FLAG 2 : Straight");
         break;
 
@@ -1532,6 +1547,14 @@ void Move_Decision::WALL_mode()
             Set_UD_NeckAngle(wall_neck_angle);
             Set_UD_Neck_on_flg(true);
         }
+
+        if (!Get_SM_req_finish())
+        {
+            wall_neck_angle = 0;
+            Set_UD_NeckAngle(wall_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
+
         ROS_ERROR("FLAG 3 : LEFT");
         break;
 
@@ -1576,6 +1599,13 @@ void Move_Decision::WALL_mode()
         }
 
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            wall_neck_angle = 0;
+            Set_UD_NeckAngle(wall_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
+
+        if (!Get_SM_req_finish())
         {
             wall_neck_angle = 0;
             Set_UD_NeckAngle(wall_neck_angle);
@@ -1632,6 +1662,13 @@ void Move_Decision::WALL_mode()
             Set_UD_Neck_on_flg(true);
         }
 
+        if (!Get_SM_req_finish())
+        {
+            wall_neck_angle = 0;
+            Set_UD_NeckAngle(wall_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
+
         ROS_ERROR("FLAG -3 : RIGHT");
         break;
 
@@ -1676,6 +1713,13 @@ void Move_Decision::WALL_mode()
         }
 
         if (!Get_UD_Neck_on_flg() && Get_UD_req_finish())
+        {
+            wall_neck_angle = 0;
+            Set_UD_NeckAngle(wall_neck_angle);
+            Set_UD_Neck_on_flg(true);
+        }
+
+        if (!Get_SM_req_finish())
         {
             wall_neck_angle = 0;
             Set_UD_NeckAngle(wall_neck_angle);
@@ -2673,7 +2717,7 @@ double Move_Decision::turn_angle()
 
 double Move_Decision::Move_UD_NeckAngle()
 {
-    double res_ud_neckangle = 50;
+    double res_ud_neckangle = UD_CENTER;
     if (Get_UD_req_finish())
     {
         if ((Get_stand_status_() == Stand_Status::Stand) && Get_UD_Neck_on_flg())

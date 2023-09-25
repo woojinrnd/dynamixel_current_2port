@@ -18,7 +18,7 @@
 
 #define UD_MAX 90
 #define UD_MIN 0
-#define UD_CENTER 45
+#define UD_CENTER 50
 
 #define RL_MAX 90
 #define RL_MIN -90
