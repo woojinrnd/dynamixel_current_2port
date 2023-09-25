@@ -43,7 +43,7 @@
 #define PROP_CONTRAST 128
 #define PROP_SATURATION 128
 
-#define LINE_AREA 150
+#define LINE_AREA 300
 #define HUDDLE_AREA 10
 
 #define CORNER_X_MARGIN 30
@@ -77,10 +77,14 @@ public:
     const double Robot_Height_Cam = 0.52;
 
     // Cam set
-    const int webcam_width = 640;
-    const int webcam_height = 480;
+    // const int webcam_width = 640;
+    // const int webcam_height = 480;
+
+    const int webcam_width = 320;
+    const int webcam_height = 240;
+
     const int webcam_fps = 30;
-    const int webcam_id = 0;
+    string webcam_id = "/dev/Webcam";
 
     int threshold_value_white = 210;
     int threshold_value_yellow = 127;
@@ -106,17 +110,17 @@ public:
 
     cv::Scalar blue_color = {255, 0, 0};
     cv::Scalar green_color = {0, 255, 0};
-    cv::Scalar red_color = (0, 0, 255);
-    cv::Scalar yellow_color = (0, 255, 255);
+    cv::Scalar red_color = {0, 0, 255};
+    cv::Scalar yellow_color = {0, 255, 255};
 
-    cv::Scalar lower_bound_yellow = {20, 100, 100}; // HSV에서 노란색의 하한값
+    cv::Scalar lower_bound_yellow = {10, 100, 100}; // HSV에서 노란색의 하한값
     cv::Scalar upper_bound_yellow = {32, 255, 255};
 
     cv::Scalar lower_bound_white = {0, 0, 0};
     cv::Scalar upper_bound_white = {179, 255, 255};
 
-    cv::Scalar lower_bound_blue = {100, 100, 20};
-    cv::Scalar upper_bound_blue = {140, 255, 255};
+    cv::Scalar lower_bound_blue = {90, 100, 20};
+    cv::Scalar upper_bound_blue = {130, 255, 255};
 
     int corner_condition_count = 0;
     int line_condition_count = 0;

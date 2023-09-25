@@ -693,7 +693,10 @@ void Img_proc::realsense_thread()
                 this->Set_distance(huddle_distance);
             }
 
-            // cv::imshow(window_name, depthMat);
+            cv::imshow(window_name, depthMat);
+            cv::imshow(window_name_color, colorMat);
+
+            cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);
         }
     }
