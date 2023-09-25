@@ -84,7 +84,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
     cv::threshold(gray, binary, threshold_value, max_value, cv::THRESH_BINARY);
 
     std::vector<std::vector<cv::Point>> contours;
-    
+
     cv::findContours(binary, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
     std::vector<cv::Point> top_contour;
@@ -201,11 +201,11 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         int croppedWidth = cropped.cols;
         int croppedHeight = cropped.rows;
 
-        //cv::imshow("crop", cropped);
-        //Line angle
-        if(is_white_line)
+        // cv::imshow("crop", cropped);
+        // Line angle
+        if (is_white_line)
         {
-            if ((short_len * 1.5) < long_len && numVertices == 4)
+            if ((short_len * 1.5) < long_len || numVertices == 4)
             {
                 if (min_area_rect.size.width < min_area_rect.size.height)
                 {
@@ -213,14 +213,14 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 }
                 else
                 {
-                    angle = -min_area_rect.angle - 90;
+                    angle = -min_area_rect.angle + 90;
                 }
             }
 
-            //Corner angle
+            // Corner angle
             else if (short_len * 1.5 > long_len && numVertices == 8)
             {
-                if(croppedWidth > croppedHeight)
+                if (croppedWidth > croppedHeight)
                 {
                     if (min_area_rect.size.width < min_area_rect.size.height)
                     {
@@ -230,10 +230,10 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                     {
                         angle = -min_area_rect.angle;
                     }
-                    Set_img_proc_corner_number(2); //corner shape : ㅜ
-                    //cout << "corner1" << endl;
+                    Set_img_proc_corner_number(2); // corner shape : ㅜ
+                    // cout << "corner1" << endl;
                 }
-                else if(croppedWidth < croppedHeight)
+                else if (croppedWidth < croppedHeight)
                 {
                     if (min_area_rect.size.width > min_area_rect.size.height)
                     {
@@ -243,14 +243,14 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                     {
                         angle = -min_area_rect.angle;
                     }
-                    Set_img_proc_corner_number(1); //corner shape : ㅓ
-                    //cout << "corner2" << endl;
+                    Set_img_proc_corner_number(1); // corner shape : ㅓ
+                    // cout << "corner2" << endl;
                 }
 
                 if (is_white_line)
                 {
                     corner_condition_count++;
-                    if (corner_condition_count >= 3)
+                    if (corner_condition_count >= 15)
                     {
                         // Rect corner_bounding_Box = min_area_rect.boundingRect();
                         // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
@@ -267,7 +267,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
             }
         }
 
-        if(is_yellow_line)
+        if (is_yellow_line)
         {
             if (short_len * 1.5 < long_len)
             {
@@ -281,8 +281,6 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 }
             }
         }
-
-
 
         cv::putText(ori_frame, "Line angle : " + std::to_string(angle), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
 
@@ -367,8 +365,8 @@ void Img_proc::webcam_thread()
         auto hsv_frame_white = extract_color(frame, lower_bound_white, upper_bound_white);
         auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
         auto hsv_frame_blue = extract_color(frame, lower_bound_blue, upper_bound_blue);
-        
-        //Filled Area
+
+        // Filled Area
         int WhiteColorDetected = std::get<2>(hsv_frame_white);
         int YellowColorDetected = std::get<2>(hsv_frame_yellow);
 
@@ -419,12 +417,12 @@ void Img_proc::webcam_thread()
                 cv::Point corner_center = std::get<8>(thresh_frame_white);
 
                 // Corner is RIGHT side of robot -> Need to move RIGHT side
-                if ( corner_center.x > IMG_W / 2 + CORNER_X_MARGIN)
+                if (corner_center.x > IMG_W / 2 + CORNER_X_MARGIN)
                 {
                     Set_delta_x(-10); // (-) Right side // 10 : dummy variable
                 }
 
-                //Corner is LEFT side of robot -> Need to move LEFT side
+                // Corner is LEFT side of robot -> Need to move LEFT side
                 else if (corner_center.x < IMG_W / 2 - CORNER_X_MARGIN)
                 {
                     Set_delta_x(10); // (+) Right side // 10 : dummy variable
@@ -432,12 +430,12 @@ void Img_proc::webcam_thread()
 
                 else if (IMG_W / 2 - CORNER_X_MARGIN <= corner_center.x <= IMG_W / 2 + CORNER_X_MARGIN)
                 {
-                    Set_delta_x(0); 
+                    Set_delta_x(0);
                 }
 
                 // cout << foot_corner_distance << endl;
                 // cout << Get_delta_x() << endl;
-                //cout << gradient << endl;
+                // cout << gradient << endl;
 
                 if (foot_corner_distance < CORNER_Y_MARGIN)
                 {
@@ -449,7 +447,7 @@ void Img_proc::webcam_thread()
                     Set_contain_corner_to_foot(false);
                 }
             }
-            
+
             this->Set_img_proc_line_det(WhiteContourDetected);
 
             if (this->Get_img_proc_line_det() == true)
@@ -695,10 +693,7 @@ void Img_proc::realsense_thread()
                 this->Set_distance(huddle_distance);
             }
 
-            cv::imshow(window_name, depthMat);
-            cv::imshow(window_name_color, colorMat);
-
-            cv::imshow(window_name, depthMat);
+            // cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);
         }
     }
@@ -1385,9 +1380,7 @@ double Img_proc::Get_huddle_angle() const
     return huddle_angle_;
 }
 
-
 // ********************************************** SETTERS ************************************************** //
-
 
 void Img_proc::Set_img_proc_line_det(bool img_proc_line_det)
 {

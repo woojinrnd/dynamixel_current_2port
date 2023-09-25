@@ -27,6 +27,8 @@
 #define TURN_MAX 30
 #define TURN_MIN -30
 
+#define LINE_TURN 15
+
 using namespace std;
 
 class Move_Decision
@@ -247,7 +249,7 @@ public:
     /////////////////////// Line Mode ///////////////////////
     // StraightLine
     bool straightLine;
-    double margin_gradient = 10; // margin of straight line
+    double margin_gradient = 20; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
     double Angle_toBeStraight = 40; // max or min
     int8_t line_gradient = 0;
@@ -300,7 +302,7 @@ public:
     double huddle_ud_neck_angle = 0;
     std::vector<double> huddle_distance_save;
     bool contain_huddle_to_foot = false;
-    int8_t to_be_line_mode = 0; 
+    int8_t to_be_line_mode = 0;
 
     string Str_HUDDLE_SEQUENCE_0 = "HUDDLE_SEQUENCE_0 : InitPose (for Getting distance) (Depth)";
     string Str_HUDDLE_SEQUENCE_1 = "HUDDLE_SEQUENCE_1 : Forward_Nstep (Far)";
@@ -311,8 +313,6 @@ public:
     string Str_HUDDLE_SEQUENCE_6 = "HUDDLE_SEQUENCE_6 : Forward_halfstep (Aprroach Huddle)";
     string Str_HUDDLE_SEQUENCE_7 = "HUDDLE_SEQUENCE_7 : Huddle Jump";
     string Str_HUDDLE_SEQUENCE_8 = "HUDDLE_SEQUENCE_8 : Initializing";
-
-    
 
     /////////////////////// Corner Mode ///////////////////////
 
@@ -355,25 +355,21 @@ public:
     int8_t img_proc_corner_delta_x = 0;
     double img_proc_corner_angle = 0;
 
-    bool contain_corner_X = false; //corner X Point
+    bool contain_corner_X = false; // corner X Point
     bool contain_corner_Y = false; // corner Y Point
-    bool corner_posture = false; // corner gradient
+    bool corner_posture = false;   // corner gradient
 
     string Str_CORNER_SEQUENCE_0 = "CORNER_SEQUENCE_0 : POSITION CONTROL";
     string Str_CORNER_SEQUENCE_1 = "CORNER_SEQUENCE_1 : POSTURE CONTROL";
     string Str_CORNER_SEQUENCE_2 = "CORNER_SEQUENCE_2 : TURN 90";
     string Str_CORNER_SEQUENCE_3 = "CORNER_SEQUENCE_3 : INITIALIZING";
 
-
-
     /////////////////////// Wall Mode ///////////////////////
     // case 1 : After corner, Starting Wall Mode
-    // 0: Motion : InitPose (For getting Distance) -> 1 : Motion : ForwardNstep 
-    
+    // 0: Motion : InitPose (For getting Distance) -> 1 : Motion : ForwardNstep
+
     // case 2 : Until Right plane determine
     // 0 : Motion : InitPose (For getting Distance) -> 1 : Motion : ForwardNstep
-
-
 
     int8_t wall_motion = 0;
     int8_t img_wall_number_case = 0;
@@ -381,7 +377,6 @@ public:
     double wall_neck_angle = 0;
     double wall_distance = 0;
     std::vector<double> wall_distance_save;
-    
 
     /////////////////////// Sequence++ ///////////////////////
     bool finish_past = false;
