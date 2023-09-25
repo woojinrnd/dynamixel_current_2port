@@ -205,7 +205,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         //Line angle
         if(is_white_line)
         {
-            if ((short_len * 1.5) < long_len && numVertices == 4)
+            if ((short_len * 1.5) < long_len || numVertices == 4)
             {
                 if (min_area_rect.size.width < min_area_rect.size.height)
                 {
@@ -213,7 +213,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 }
                 else
                 {
-                    angle = -min_area_rect.angle - 90;
+                    angle = -min_area_rect.angle + 90;
                 }
             }
 
@@ -250,7 +250,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 if (is_white_line)
                 {
                     corner_condition_count++;
-                    if (corner_condition_count >= 3)
+                    if (corner_condition_count >= 15)
                     {
                         // Rect corner_bounding_Box = min_area_rect.boundingRect();
                         // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
@@ -695,11 +695,9 @@ void Img_proc::realsense_thread()
                 this->Set_distance(huddle_distance);
             }
 
-            cv::imshow(window_name, depthMat);
+            // cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);
 
-            cv::imshow(window_name, depthMat);
-            cv::imshow(window_name_color, colorMat);
         }
     }
 

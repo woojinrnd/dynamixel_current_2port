@@ -27,6 +27,8 @@
 #define TURN_MAX 30
 #define TURN_MIN -30
 
+#define LINE_TURN 15
+
 using namespace std;
 
 class Move_Decision
@@ -247,7 +249,7 @@ public:
     /////////////////////// Line Mode ///////////////////////
     // StraightLine
     bool straightLine;
-    double margin_gradient = 10; // margin of straight line
+    double margin_gradient = 20; // margin of straight line
     void StraightLineDecision(double gra, double mg_gra);
     double Angle_toBeStraight = 40; // max or min
     int8_t line_gradient = 0;
