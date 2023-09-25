@@ -60,7 +60,7 @@ std::tuple<cv::Mat, cv::Mat, int, cv::Point> Img_proc::extract_color(const cv::M
 
     for (const auto &contour : contours)
     {
-        cv::Moments m = cv::moments(contour);
+        cv::Moments m = cv::moments(contour);  
 
         if (m.m00 == 0)
             continue;
