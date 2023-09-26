@@ -6,7 +6,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(100),
+      SPIN_RATE(2),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::NONE),
       stop_fallen_check_(false),
@@ -20,7 +20,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
 
     boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
     boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
-    // boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
+    boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
     boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
 }
 
@@ -397,7 +397,8 @@ void Move_Decision::LINE_mode()
     line_gradient = img_procPtr->Get_gradient();
     StraightLineDecision(line_gradient, margin_gradient);
     line_actual_angle = Get_turn_angle_();
-    line_motion = Get_motion_index_();
+    // line_motion = Get_motion_index_();
+    line_motion = Motion_Index::InitPose;
     line_ud_neckangle = Get_UD_NeckAngle();
     Set_corner_det_stop_flg(false); // Initializing
 
@@ -411,8 +412,8 @@ void Move_Decision::LINE_mode()
             // To be zero
             if (line_actual_angle > 0)
             {
-                line_actual_angle -= 1;
-                if (line_actual_angle < 0)
+                // line_actual_angle -= 1;
+                // if (line_actual_angle < 0)
                     line_actual_angle = 0;
                 Set_turn_angle_(line_actual_angle);
                 Set_turn_angle_on_flg(true);
@@ -422,8 +423,8 @@ void Move_Decision::LINE_mode()
             // To be zero
             else if (line_actual_angle < 0)
             {
-                line_actual_angle += 1;
-                if (line_actual_angle > 0)
+                // line_actual_angle += 1;
+                // if (line_actual_angle > 0)
                     line_actual_angle = 0;
                 Set_turn_angle_(line_actual_angle);
                 Set_turn_angle_on_flg(true);

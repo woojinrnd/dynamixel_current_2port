@@ -128,6 +128,8 @@ public:
     int line_condition_count = 0;
     int huddle_condition_count = 0;
 
+    int top_contour_area = 0;
+
     bool a = 0;
 
     bool left = false;
@@ -139,8 +141,8 @@ public:
     void create_threshold_trackbar_B(const std::string &window_name);
     void create_color_range_trackbar(const std::string &window_name);
     cv::Mat ROI_Image(const cv::Mat &input_frame);
-    std::tuple<cv::Mat, cv::Mat, int, cv::Point> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
-    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
+    std::tuple<cv::Mat, cv::Mat> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
+    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
     double Distance_Point(const rs2::depth_frame &depth, cv::Point center);
 
     // ********************************************** 3D THREAD************************************************** //

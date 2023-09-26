@@ -37,6 +37,7 @@ void Callback::L_FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR)
 void Callback::R_FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR)
 {
     L_value = FSR->data; // Right_foot_FSR
+    // ROS_INFO("%d" , L_value );
 }
 
 /////////////////////////////////////////////// About Subscribe IMUThread ///////////////////////////////////////////////
@@ -88,8 +89,8 @@ void Callback::callbackThread()
     joint_state_publisher_ = nh.advertise<sensor_msgs::JointState>("KWJ_joint_states", 100);
     joint_state_subscriber_ = nh.subscribe("KWJ_desired_joint_states", 1000, &Callback::JointStatesCallback, this);
 
-    FSR_L_sensor_subscriber_ = nh.subscribe("FSR_L", 1000, &Callback::L_FSRsensorCallback, this);
-    FSR_R_sensor_subscriber_ = nh.subscribe("FSR_R", 1000, &Callback::R_FSRsensorCallback, this);
+    FSR_L_sensor_subscriber_ = nh.subscribe("/FSR_L", 1000, &Callback::L_FSRsensorCallback, this);
+    FSR_R_sensor_subscriber_ = nh.subscribe("/FSR_R", 1000, &Callback::R_FSRsensorCallback, this);
 
     srv_SendMotion.request.SM_finish = true;
     srv_SendMotion.request.TA_finish = true;
@@ -100,7 +101,6 @@ void Callback::callbackThread()
     ros::Rate loop_rate(SPIN_RATE);
     while (nh.ok())
     {
-
         srv_SendMotion.request.request_id = generateUniqueRequestID(); // generate a unique request ID
 
         if (client_SendMotion.call(srv_SendMotion))
@@ -211,7 +211,7 @@ void Callback::Emergency()
 
 void Callback::Check_FSR()
 {
-    if (check_indext == 10 && R_value == 0) // 왼발 들때 오른발 착지 확인
+    if (check_indext == 9 && R_value == 0) // 왼발 들때 오른발 착지 확인
     {
         indext -= 1;
     }
@@ -336,7 +336,7 @@ void Callback::SelectMotion()
     {
         mode = Motion_Index::Forward_4step;
         IK_Ptr->Change_Com_Height(30);
-        trajectoryPtr->Go_Straight(0.05,0.5,0.05);
+        trajectoryPtr->Go_Straight(0.05,0.35,0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
         IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
         IK_Ptr->Set_Angle_Compensation(135);
@@ -424,12 +424,17 @@ void Callback::Write_Leg_Theta()
 {
 
     check_indext = indext % walktime_n;
-    if (turn_angle != 0 && check_indext == 0 && indext > 0.5*walktime_n && indext < trajectoryPtr->Ref_RL_x.cols()-walktime_n*0.5)
+    if (turn_angle > 0 && check_indext == 0 && indext > 0.5*walktime_n && indext < trajectoryPtr->Ref_RL_x.cols()-walktime_n*0.5)
     {
-        on_angle = true;
+        turn_left = true;
     }
 
-    if (on_angle == true)
+    if (turn_angle < 0 && check_indext == 67 && indext > 0.5*walktime_n && indext < trajectoryPtr->Ref_RL_x.cols()-walktime_n*0.5)
+    {
+        turn_right = true;
+    }
+
+    if (turn_right||turn_left)
     {
         srv_SendMotion.request.TA_finish = false;
     }
@@ -439,23 +444,22 @@ void Callback::Write_Leg_Theta()
     // }
 
 
-    if (on_emergency == true)
-    {
-        if (check_indext == 0 && mode == 1)
-        {
-            emergency = 1;
-        }
-        else if (check_indext == 67 && mode == 3)
-        {
-            emergency = 2;
-        }
-    }
-    else if (on_emergency == false)
-    {
-        emergency = 0;
-    }
+    // if (on_emergency == true)
+    // {
+    //     if (check_indext == 0 && mode == 1)
+    //     {
+    //         emergency = 1;
+    //     }
+    //     else if (check_indext == 67 && mode == 3)
+    //     {
+    //         emergency = 2;
+    //     }
+    // }
+    // else if (on_emergency == false)
+    // {
+    //     emergency = 0;
+    // }
 
-    // Check_FSR();
     if (emergency == 0)
     {
         indext += 1;
@@ -468,32 +472,30 @@ void Callback::Write_Leg_Theta()
         {
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
             IK_Ptr->Angle_Compensation(indext);
-            if (on_angle == true)
-            {
-                if (turn_angle > 0)
+                if (turn_left)
                 {
-                    IK_Ptr->RL_th[0] = trajectoryPtr->Turn_Trajectory(index_angle);
-                    index_angle += 1;
-                    if (index_angle > walktime_n - 1)
-                    {
-                        turn_angle = 0;
-                        on_angle = false;
-                        srv_SendMotion.request.TA_finish = true;
-                    }
-                }
-                else if (turn_angle < 0)
-                { 
                     IK_Ptr->LL_th[0] = trajectoryPtr->Turn_Trajectory(index_angle);
                     index_angle += 1;
                     if (index_angle > walktime_n - 1)
                     {
                         turn_angle = 0;
-                        on_angle = false;
+                        turn_left = false;
+                        srv_SendMotion.request.TA_finish = true;
+                    }
+                }
+                if (turn_right)
+                { 
+                    IK_Ptr->RL_th[0] = trajectoryPtr->Turn_Trajectory(index_angle);
+                    index_angle += 1;
+                    if (index_angle > walktime_n - 1)
+                    {
+                        turn_angle = 0;
+                        turn_right = false;
                         srv_SendMotion.request.TA_finish = true;
                     }
                 }
  
-            }
+        
         }
         else if (mode == 2)
         {
@@ -524,7 +526,6 @@ void Callback::Write_Leg_Theta()
     {
         stop_indext += 1;
         //ROS_INFO("%d", emergency);
-        IK_Ptr->BRP_Simulation(trajectoryPtr->lsRef_RL_x, trajectoryPtr->lsRef_RL_y, trajectoryPtr->lsRef_RL_z, trajectoryPtr->lsRef_LL_x, trajectoryPtr->lsRef_LL_y, trajectoryPtr->lsRef_LL_z, stop_indext);
         if (stop_indext > 133)
         {
             stop_indext -= 1;
@@ -536,7 +537,7 @@ void Callback::Write_Leg_Theta()
         indext -= 1;
     }
 
-    All_Theta[0] = IK_Ptr->RL_th[0];
+    All_Theta[0] = -IK_Ptr->RL_th[0];
     All_Theta[1] = IK_Ptr->RL_th[1] - 1 * DEG2RAD;
     All_Theta[2] = IK_Ptr->RL_th[2] - 10.74 * DEG2RAD;
     All_Theta[3] = -IK_Ptr->RL_th[3] + 38.34 * DEG2RAD;
@@ -549,7 +550,7 @@ void Callback::Write_Leg_Theta()
     All_Theta[10] = IK_Ptr->LL_th[4] - 24.22 * DEG2RAD;
     All_Theta[11] = -IK_Ptr->LL_th[5];
 
-    if (indext >= trajectoryPtr->Ref_RL_x.cols()-1 && indext != 0)
+    if (indext >= trajectoryPtr->Ref_RL_x.cols()-2 && indext != 0)
     {
         indext -= 1;
         srv_SendMotion.request.SM_finish = true;
@@ -564,7 +565,8 @@ void Callback::Write_Leg_Theta()
 
 
     // //ROS_INFO("%d  %lf %d", indext, All_Theta[3], emergency);
-    // Check_FSR();
+    Check_FSR();
+    
 }
 
 void Callback::Write_Arm_Theta()

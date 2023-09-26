@@ -152,7 +152,8 @@ public:
   int indext = 0;
   int check_indext = 0;
   int stop_indext = 0;
-  bool on_angle = false;
+  bool turn_left = false;
+  bool turn_right = false;
   int emergency = 0;
   bool on_emergency = false;
   double angle = 0;

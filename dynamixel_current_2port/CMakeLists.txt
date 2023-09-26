@@ -125,7 +125,7 @@ add_executable(
   # src/callback.cpp ${callback.hpp}
   # src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
   # src/img_proc.cpp ${img_proc.hpp}
-  src/img_proc2.cpp ${img_proc.hpp}
+   src/img_proc2.cpp ${img_proc.hpp}
   # src/sensor.cpp ${sensor.hpp}
 )
 

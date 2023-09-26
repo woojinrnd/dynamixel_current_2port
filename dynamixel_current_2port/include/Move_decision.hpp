@@ -27,7 +27,7 @@
 #define TURN_MAX 30
 #define TURN_MIN -30
 
-#define LINE_TURN 15
+#define LINE_TURN 10
 
 using namespace std;
 
