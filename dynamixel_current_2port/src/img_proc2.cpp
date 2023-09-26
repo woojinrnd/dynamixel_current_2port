@@ -40,6 +40,29 @@ void Img_proc::create_color_range_trackbar(const std::string &window_name)
     cv::createTrackbar("Value Upper", window_name, &value_upper, 255, on_trackbar);
 }
 
+cv::Mat Img_proc::ROI_Image(const cv::Mat &input_frame)
+{
+    int bigRadius = 500;
+    int smallRadius = 500;
+
+    cv::Mat mask = cv::Mat::zeros(input_frame.rows, input_frame.cols, CV_8U);
+
+    //바깥쪽 원
+    cv::ellipse(mask, cv::Point(320,500), cv::Size(bigRadius, bigRadius), 0, 0, 360, 255, -1);
+    //안쪽 원
+    cv::ellipse(mask, cv::Point(320,850), cv::Size(smallRadius, smallRadius), 0, 0, 360, 0, -1);
+
+    cv::Mat roi;
+    input_frame.copyTo(roi, mask);
+
+    cv::circle(roi, cv::Point(320,500), 500, cv::Scalar(0, 0, 255), 2);
+    cv::circle(roi, cv::Point(320,850), 500, cv::Scalar(0, 0, 255), 2);
+
+    //cv::imshow("ROI", roi);
+
+    return roi;
+}
+
 std::tuple<cv::Mat, cv::Mat, int, cv::Point> Img_proc::extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound)
 {
     cv::Mat frame = input_frame.clone();
@@ -60,7 +83,7 @@ std::tuple<cv::Mat, cv::Mat, int, cv::Point> Img_proc::extract_color(const cv::M
 
     for (const auto &contour : contours)
     {
-        cv::Moments m = cv::moments(contour);
+        cv::Moments m = cv::moments(contour);  
 
         if (m.m00 == 0)
             continue;
@@ -85,254 +108,6 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
     std::vector<std::vector<cv::Point>> contours;
 
     cv::findContours(binary, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-
-    // 
-    // /////////////////////////////////////////////////////////////////////////////////////////
-
-    // double tmp_delta_x = 0;
-
-    // Mat img_contour_tmp;
-    // if (!binary.empty())
-    // {
-    //     img_contour_tmp = binary.clone();
-    //     // imshow("ddd", img_contour_tmp);
-    // }
-    // else
-    // {
-    //     // Handle the case when final_binary_mask is empty
-    //     ROS_WARN("final_binary_mask is empty");
-    // }
-
-    // //    Parameter Setting Start    //
-    // /*    setting border line    */
-
-    // /*** ROI SETTING ***/
-
-    // /*** RR LINE SETTING ***/
-    // float curvature = RR_LINE_CURVATURE;
-    // float y_tip_point = Y_VERTEX;
-    // for (int i = 0; i < IMG_W; ++i)
-    // {
-    //     float x = i;
-    //     float y = curvature * (x - IMG_W / 2) * (x - IMG_W / 2) + y_tip_point;
-    //     circle(ori_frame, Point(int(x), int(y)), 2, Scalar(255, 0, 0), 2);
-    // }
-
-    // for (int i = 0; i < IMG_H; ++i) // i = y-axis , j = x-axis
-    // {
-    //     for (int j = 0; j < IMG_W; ++j)
-    //     {
-    //         //// delete top area
-    //         // if (i > BOTTOM_BORDER_LINE || i < TOP_BORDER_LINE)
-    //         //{
-    //         //	img_contour_tmp.at<char>(i, j) = 0;
-    //         //	if (roi_line_flg == true)
-    //         //	{
-    //         //		Origin_img.at<Vec3b>(i, j)[0] = Origin_img.at<Vec3b>(i, j)[0] * 0.5;
-    //         //		Origin_img.at<Vec3b>(i, j)[1] = Origin_img.at<Vec3b>(i, j)[1] * 0.5;
-    //         //		Origin_img.at<Vec3b>(i, j)[2] = Origin_img.at<Vec3b>(i, j)[2] * 0.5;
-    //         //	}
-    //         // }
-
-    //         // delete curvature line upper area
-    //         if (i < curvature * (j - IMG_W / 2) * (j - IMG_W / 2) + y_tip_point)
-    //         {
-    //             img_contour_tmp.at<char>(i, j) = 0;
-    //             if (roi_line_flg == true)
-    //             {
-    //                 ori_frame.at<Vec3b>(i, j)[0] = ori_frame.at<Vec3b>(i, j)[0] * 0.5;
-    //                 ori_frame.at<Vec3b>(i, j)[1] = ori_frame.at<Vec3b>(i, j)[1] * 0.5;
-    //                 ori_frame.at<Vec3b>(i, j)[2] = ori_frame.at<Vec3b>(i, j)[2] * 0.5;
-    //             }
-    //         }
-
-    //         else if (i > IMG_H - 10)
-    //         {
-    //             img_contour_tmp.at<char>(i, j) = 0;
-    //             if (roi_line_flg == true)
-    //             {
-    //                 ori_frame.at<Vec3b>(i, j)[0] = ori_frame.at<Vec3b>(i, j)[0] * 0.5;
-    //                 ori_frame.at<Vec3b>(i, j)[1] = ori_frame.at<Vec3b>(i, j)[1] * 0.5;
-    //                 ori_frame.at<Vec3b>(i, j)[2] = ori_frame.at<Vec3b>(i, j)[2] * 0.5;
-    //             }
-    //         }
-
-    //         // delete center-bottom curvature line lower area
-    //         else if (i > 0.015 * (j - IMG_W / 2) * (j - IMG_W / 2) + (IMG_H - CIRCLE_RADIUS))
-    //         {
-    //             img_contour_tmp.at<char>(i, j) = 0;
-    //             if (roi_line_flg == true)
-    //             {
-    //                 ori_frame.at<Vec3b>(i, j)[0] = ori_frame.at<Vec3b>(i, j)[0] * 0.5;
-    //                 ori_frame.at<Vec3b>(i, j)[1] = ori_frame.at<Vec3b>(i, j)[1] * 0.5;
-    //                 ori_frame.at<Vec3b>(i, j)[2] = ori_frame.at<Vec3b>(i, j)[2] * 0.5;
-    //             }
-    //         }
-
-    //         //  delete both side edge area
-    //         else if (j < LEFT_EDGE_BORDER_LINE || j > RIGHT_EDGE_BORDER_LINE)
-    //         {
-    //             img_contour_tmp.at<char>(i, j) = 0;
-    //             if (roi_line_flg == true)
-    //             {
-    //                 ori_frame.at<Vec3b>(i, j)[0] = ori_frame.at<Vec3b>(i, j)[0] * 0.5;
-    //                 ori_frame.at<Vec3b>(i, j)[1] = ori_frame.at<Vec3b>(i, j)[1] * 0.5;
-    //                 ori_frame.at<Vec3b>(i, j)[2] = ori_frame.at<Vec3b>(i, j)[2] * 0.5;
-    //             }
-    //         }
-    //     }
-    // }
-    // //    Parameter Setting Ends    //
-
-    // //    Image Processing Start    //
-
-    // // findContours(img_contour_tmp, this->contours_, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
-    // findContours(binary, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
-
-    // int _size = (int)contours.size();
-
-    // vector<Moments> _moment(_size);
-    // vector<Point2f> centerpoints(_size);
-
-    // int line_count = 0;
-    // float x_points[5], y_points[5];
-
-    // if (_size > 0)
-    // {
-    //     for (int i = 0; i < _size; i++)
-    //     {
-    //         if (contourArea(contours[i]) > 50)
-    //         {
-    //             drawContours(ori_frame, contours, i, Scalar(0, 255, 0), 2);
-
-    //             _moment[i] = moments(contours[i], false);
-    //             centerpoints[i] = Point2f(_moment[i].m10 / _moment[i].m00, _moment[i].m01 / _moment[i].m00);
-
-    //             if (line_count < 5)
-    //             {
-    //                 x_points[line_count] = centerpoints[i].x;
-    //                 y_points[line_count] = centerpoints[i].y;
-    //                 line_count++;
-    //             }
-    //         }
-    //     }
-    // }
-
-    // if (Get_img_proc_line_det())
-    // {
-    //     string str = to_string(line_count) + " Dot";
-    //     putText(ori_frame, str, Point(10, 30), 2, 0.8, CV_RGB(0, 255, 0), 2);
-    // }
-
-    // if (line_count > 0)
-    // {
-    //     float min_distance = (IMG_W / 2 * IMG_W / 2) + (TOP_BORDER_LINE - IMG_H) * (TOP_BORDER_LINE - IMG_H);
-    //     int min_distance_index = 0;
-
-    //     for (int i = 0; i < line_count; i++)
-    //     {
-    //         float tmp_distance = (x_points[i] - IMG_W / 2) * (x_points[i] - IMG_W / 2) + (y_points[i] - IMG_H) * (y_points[i] - IMG_H);
-    //         if (tmp_distance < min_distance)
-    //         {
-    //             min_distance = tmp_distance;
-    //             min_distance_index = i;
-    //         }
-    //     }
-    //     tmp_point_target = Point(x_points[min_distance_index], y_points[min_distance_index]);
-    //     if (abs(tmp_point_target.x - point_target.x) > NOISE_DELETE_DELTA_X)
-    //     {
-    //         tmp_point_target.x = point_target.x;
-    //         tmp_point_target.y = point_target.y;
-    //     }
-    // }
-
-    // if (line_count == 0 || tmp_point_target.x == point_target.x)
-    // {
-    //     // when no dot found, move slope to center
-    //     if (point_target.x > IMG_W / 2)
-    //     {
-    //         tmp_point_target = Point(point_target.x - 1, point_target.y);
-    //         // this->Set_img_proc_no_line_det(true);
-    //         // this->Set_img_proc_line_det(false);
-    //     }
-    //     else if (point_target.x < IMG_W / 2)
-    //     {
-    //         tmp_point_target = Point(point_target.x + 1, point_target.y);
-    //         // this->Set_img_proc_no_line_det(true);
-    //         // this->Set_img_proc_line_det(false);
-    //     }
-    //     else
-    //     {
-    //         tmp_point_target = Point(IMG_W / 2, point_target.y);
-    //         // Set_img_proc_no_line_det(false);
-    //     } // == point_target.x = IMG_W/2
-    // }
-
-    // float dydx = (tmp_point_target.y - IMG_H) / (tmp_point_target.x - IMG_W / 2 + 0.0001);
-    // // ROS_INFO("%f", dydx);
-    // for (int i = IMG_H; i > 0; i--)
-    // {
-    //     int y = i;
-    //     int x = 1 / dydx * (y - IMG_H) + IMG_W / 2;
-    //     circle(ori_frame, Point(x, y), 2, Scalar(0, 255, 255), -1);
-
-    //     if (x < 2)
-    //     {
-    //         tmp_delta_x = IMG_W / 2 - 0;
-    //         break;
-    //     }
-    //     else if (x > IMG_W - 2)
-    //     {
-    //         tmp_delta_x = IMG_W / 2 - IMG_W;
-    //         break;
-    //     }
-    //     else if (abs(curvature * (x - IMG_W / 2) * (x - IMG_W / 2) + y_tip_point - y) < 2)
-    //     {
-    //         circle(ori_frame, Point(x, y), 4, Scalar(0, 255, 255), -1);
-    //         tmp_delta_x = IMG_W / 2 - x;
-    //         break;
-    //     }
-    // }
-    // //////////////////////////////////////////////////
-    // // float dydx = (tmp_point_target.y - IMG_H) / (tmp_point_target.x - IMG_W/2 + 0.0001);
-    // double base_y = ori_frame.rows - 1; // Bottom of the screen
-    // double center_x = tmp_point_target.x;
-    // double center_y = tmp_point_target.y;
-    // double dx = center_x - (IMG_W / 2);
-    // double dy = base_y - center_y;
-    // double angle_rad = std::atan2(dy, dx);          //[rad]
-    // double angle_deg = angle_rad * (180.0 / CV_PI); // [deg]
-
-    // if (center_x < (IMG_W / 2))
-    //     angle_deg -= 90;
-    // else
-    //     angle_deg = angle_deg - 90;
-
-    // // Draw a line connecting the center point at the bottom of the screen and the center of the object
-    // std::string strangle_deg = "Angle : " + std::to_string(angle_deg) + " Deg";
-    // cv::putText(ori_frame, strangle_deg, cv::Point(IMG_W, IMG_H), cv::FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2);
-
-    // // ROS_WARN("center x : %f", center_x);
-    // // ROS_WARN("center y : %f", center_y);
-    // ROS_WARN("Angle_deg : %f" , angle_deg);
-
-    // //////////////////////////////////////////////////
-
-    // circle(ori_frame, tmp_point_target, 4, Scalar(0, 0, 255), -1);
-    // point_target = tmp_point_target;
-
-    // delta_x_list[2] = delta_x_list[1];
-    // delta_x_list[1] = delta_x_list[0];
-    // delta_x_list[0] = tmp_delta_x;
-    // // delta_x = (delta_x_list[2] + delta_x_list[1] + delta_x_list[0]) / 3;
-    // delta_x_ = tmp_delta_x;
-
-    // // Set_img_proc_line_det(true);
-    // // Set_gradient(angle_deg);
-
-    // //    image processing ends    //
-
-    // /////////////////////////////////////////////////////////////////////////////////////////
 
     std::vector<cv::Point> top_contour;
 
@@ -374,21 +149,21 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         else if (line_area < LINE_AREA)
         {
             line_condition_count++;
-            if (line_condition_count >= 3)
+            if (line_condition_count >= 15)
             {
                 foundLargeContour = false;
                 has_white_now = false;
             }
         }
     }
-
+    
     if (has_white_now)
     {
-        cv::putText(ori_frame, "MODE : " + Str_LINE_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.5, contour_color, 2);
+        cv::putText(ori_frame, "MODE : " + Str_LINE_MODE, cv::Point(webcam_width*0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
     }
     if (!has_white_now)
     {
-        cv::putText(ori_frame, "MODE : " + Str_NO_LINE_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.5, contour_color, 2);
+        cv::putText(ori_frame, "MODE : " + Str_NO_LINE_MODE, cv::Point(webcam_width*0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
     }
 
     cv::putText(ori_frame, "distance : " + std::to_string(distance_huddle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
@@ -416,7 +191,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
     if (!top_contour.empty())
     {
         std::vector<cv::Point> approx;
-        double epsilon = 0.02 * cv::arcLength(top_contour, true);
+        double epsilon = 0.03 * cv::arcLength(top_contour, true);
         cv::approxPolyDP(top_contour, approx, epsilon, true);
 
         int numVertices = approx.size(); // 근사화된 컨투어의 꼭지점 수를 얻음
@@ -455,32 +230,26 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         int croppedWidth = cropped.cols;
         int croppedHeight = cropped.rows;
 
+        // cv::imshow("crop", cropped);
         // Line angle
         if (is_white_line)
         {
-            if (min_area_rect.size.width < min_area_rect.size.height)
+            if (numVertices > 3 && numVertices < 5)
             {
-                angle = -min_area_rect.angle;
+                if (min_area_rect.size.width < min_area_rect.size.height)
+                {
+                    angle = -min_area_rect.angle;
+                }
+                else
+                {
+                    angle = -min_area_rect.angle - 90;
+                }
+                cv::circle(ori_frame, cv::Point(320,500), 500, contour_color, 2);
+                cv::circle(ori_frame, cv::Point(320,850), 500, contour_color, 2);
             }
-            else
-            {
-                angle = -min_area_rect.angle + 90;
-            }
-
-            // if ((short_len * 1.5) < long_len || numVertices == 4)
-            // {
-            //     if (min_area_rect.size.width < min_area_rect.size.height)
-            //     {
-            //         angle = -min_area_rect.angle;
-            //     }
-            //     else
-            //     {
-            //         angle = -min_area_rect.angle + 90;
-            //     }
-            // }
 
             // Corner angle
-            if (short_len * 1.5 > long_len && numVertices == 8)
+            else if (short_len * 1.5 > long_len && numVertices == 8)
             {
                 if (croppedWidth > croppedHeight)
                 {
@@ -520,7 +289,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                         Corner = true;
                         if (Corner)
                         {
-                            cv::putText(ori_frame, "MODE : " + Str_CORNER_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.5, contour_color, 2);
+                            cv::putText(ori_frame, "MODE : " + Str_CORNER_MODE, cv::Point(webcam_width*0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
                         }
                     }
                 }
@@ -570,10 +339,6 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
 
         float radian_angle = (angle - 90) * (CV_PI / 180.0f);
 
-        cv::Point end_point(center_dot.x + length * cos(radian_angle), center_dot.y + length * sin(radian_angle));
-
-        cv::line(ori_frame, center_dot, end_point, contour_color, 3);
-        // std::cout << "Angle: " << angle << std::endl;
     }
     return std::make_tuple(ori_frame, foundLargeContour, angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center, huddle_angle);
 }
@@ -626,8 +391,10 @@ void Img_proc::webcam_thread()
         if (frame.empty())
             break;
 
+        cv::Mat Roi_frame = ROI_Image(frame);
+
         // HSV
-        auto hsv_frame_white = extract_color(frame, lower_bound_white, upper_bound_white);
+        auto hsv_frame_white = extract_color(Roi_frame, lower_bound_white, upper_bound_white);
         auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
         auto hsv_frame_blue = extract_color(frame, lower_bound_blue, upper_bound_blue);
 
@@ -636,8 +403,8 @@ void Img_proc::webcam_thread()
         int YellowColorDetected = std::get<2>(hsv_frame_yellow);
 
         // Draw
-        auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, blue_color, threshold_value_yellow, true, false);
-        auto thresh_frame_blue = detect_Line_areas(std::get<0>(hsv_frame_blue), frame, yellow_color, threshold_value_blue, false, false);
+        auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, yellow_color, threshold_value_yellow, true, false);
+        auto thresh_frame_blue = detect_Line_areas(std::get<0>(hsv_frame_blue), frame, blue_color, threshold_value_blue, false, false);
 
         if (YellowColorDetected > 1000)
         {
@@ -665,7 +432,7 @@ void Img_proc::webcam_thread()
         // Line mode / Corner mode
         if (WhiteColorDetected > LINE_AREA)
         {
-            auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), frame, green_color, threshold_value_white, false, true);
+            auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), frame, white_color, threshold_value_white, false, true);
             bool WhiteContourDetected = std::get<1>(thresh_frame_white);
             double gradient = std::get<2>(thresh_frame_white);
             double tmp_delta_x = std::get<5>(thresh_frame_white);
@@ -730,6 +497,7 @@ void Img_proc::webcam_thread()
             {
                 this->Set_gradient(0);
             }
+
             cv::imshow("hsv Frame_blue", std::get<0>(thresh_frame_blue));
             cv::imshow("hsv Frame_white", std::get<0>(thresh_frame_white));
         }
@@ -839,7 +607,7 @@ std::tuple<int, float, float> Img_proc::applyPCA(cv::Mat &color, const rs2::dept
     cv::putText(color, "distance : " + std::to_string(distance_rect), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
     cv::putText(color, "Angle : " + std::to_string(yaw), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
     cv::putText(color, "FLAG : " + std::to_string(tmp_img_proc_wall_number), cv::Point(10, 75), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 0, 255}, 2);
-    cv::putText(color, "MODE : " + Str_WALL_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar{0, 255, 0}, 2);
+    cv::putText(color, "MODE : " + Str_WALL_MODE, cv::Point(10, 100), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
     return std::make_tuple(tmp_img_proc_wall_number, yaw, distance_rect);
 }
 
@@ -954,7 +722,7 @@ void Img_proc::realsense_thread()
 
             if (Get_img_proc_huddle_det())
             {
-                cv::putText(colorMat, "MODE : " + Str_HUDDLE_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar{0, 255, 0}, 2);
+                cv::putText(colorMat, "MODE : " + Str_HUDDLE_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
 
                 double huddle_angle_ = std::get<9>(thresh_frame_yellow);
                 Set_huddle_angle(huddle_angle_);

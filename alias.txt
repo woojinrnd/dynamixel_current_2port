@@ -29,8 +29,8 @@ alias sb='source ~/.bashrc'
 alias sds='source devel/setup.bash'
 alias cm='catkin_make'
 
-alias run_cam='cd ~/running&&sds&&rosrun dynamixel_current_2port Move_decision_node'
-alias run_mot='cd ~/running&&sds&&rosrun dynamixel_current_2port dynamixel_current_2port'
+alias run_cam='cd ~/dynamixel_current/dynamixel_current_2port&&sds&&rosrun dynamixel_current_2port Move_decision_node'
+alias run_mot='cd ~/dynamixel_current/dynamixel_current_2port&&sds&&rosrun dynamixel_current_2port dynamixel_current_2port'
 alias run_fsr='rosrun rosserial_python serial_node.py _port:=/dev/ttyACM0 _baud:=57600'
 alias run_imu='cd ~/xsense&&sds&&roslaunch xsens_mti_driver xsens_mti_node.launch'
 
