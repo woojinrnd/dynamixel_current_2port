@@ -6,7 +6,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(2),
+      SPIN_RATE(1),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::NONE),
       stop_fallen_check_(false),
@@ -20,7 +20,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
 
     boost::thread process_thread = boost::thread(boost::bind(&Move_Decision::processThread, this));
     boost::thread web_process_thread = boost::thread(boost::bind(&Img_proc::webcam_thread, img_procPtr));
-    boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
+    // boost::thread depth_process_thread = boost::thread(boost::bind(&Img_proc::realsense_thread, img_procPtr));
     boost::thread queue_thread = boost::thread(boost::bind(&Move_Decision::callbackThread, this));
 }
 
@@ -395,7 +395,7 @@ void Move_Decision::Running_Mode_Decision()
 void Move_Decision::LINE_mode()
 {
     line_gradient = img_procPtr->Get_gradient();
-    StraightLineDecision(line_gradient, margin_gradient);
+    StraightLineDecision(line_gradient, MARGIN_GRADIENT);
     line_actual_angle = Get_turn_angle_();
     // line_motion = Get_motion_index_();
     line_motion = Motion_Index::InitPose;
@@ -429,14 +429,14 @@ void Move_Decision::LINE_mode()
                 Set_turn_angle_(line_actual_angle);
                 Set_turn_angle_on_flg(true);
             }
-            line_motion = Motion_Index::Forward_4step;
+            line_motion = Motion_Index::Forward_2step;
             Set_motion_index_(line_motion);
             Set_select_motion_on_flg(true);
         }
 
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
-            line_motion = Motion_Index::Forward_4step;
+            line_motion = Motion_Index::Forward_2step;
             Set_motion_index_(line_motion);
             Set_select_motion_on_flg(true);
         }
@@ -473,27 +473,27 @@ void Move_Decision::LINE_mode()
             // Counter Clock wise(+) (Turn Angle sign)
             // Gradient : Angle from center of window.x to center of line.x
             // LEFT TURN
-            if (line_gradient >= margin_gradient * 5)
+            if (line_gradient >= MARGIN_GRADIENT * 5)
             {
                 increment = 4;
                 ROS_WARN("LEFT_TURN");
             }
-            else if (line_gradient >= margin_gradient * 4)
+            else if (line_gradient >= MARGIN_GRADIENT * 4)
             {
                 increment = 3;
                 ROS_WARN("LEFT_TURN");
             }
-            else if (line_gradient >= margin_gradient * 3)
+            else if (line_gradient >= MARGIN_GRADIENT * 3)
             {
                 increment = 2;
                 ROS_WARN("LEFT_TURN");
             }
-            else if (line_gradient >= margin_gradient * 2)
+            else if (line_gradient >= MARGIN_GRADIENT * 2)
             {
                 increment = 2;
                 ROS_WARN("LEFT_TURN");
             }
-            else if (line_gradient > margin_gradient * 1)
+            else if (line_gradient > MARGIN_GRADIENT * 1)
             {
                 increment = 2;
                 ROS_WARN("LEFT_TURN");
@@ -501,27 +501,27 @@ void Move_Decision::LINE_mode()
 
             // Decrease Actual_angle relatively slowly for smaller line_gradient values
             // Right Turn
-            else if (line_gradient <= -margin_gradient * 5)
+            else if (line_gradient <= -MARGIN_GRADIENT * 5)
             {
                 increment = -4;
                 ROS_WARN("RIGHT TURN");
             }
-            else if (line_gradient <= -margin_gradient * 4)
+            else if (line_gradient <= -MARGIN_GRADIENT * 4)
             {
                 increment = -3;
                 ROS_WARN("RIGHT TURN");
             }
-            else if (line_gradient <= -margin_gradient * 3)
+            else if (line_gradient <= -MARGIN_GRADIENT * 3)
             {
                 increment = -2;
                 ROS_WARN("RIGHT TURN");
             }
-            else if (line_gradient <= -margin_gradient * 2)
+            else if (line_gradient <= -MARGIN_GRADIENT * 2)
             {
                 increment = -2;
                 ROS_WARN("RIGHT TURN");
             }
-            else if (line_gradient < -margin_gradient * 1)
+            else if (line_gradient < -MARGIN_GRADIENT * 1)
             {
                 increment = -2;
                 ROS_WARN("RIGHT TURN");
@@ -547,7 +547,7 @@ void Move_Decision::LINE_mode()
 
         if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
-            line_motion = Motion_Index::Forward_4step;
+            line_motion = Motion_Index::Forward_2step;
             Set_motion_index_(line_motion);
             Set_select_motion_on_flg(true);
         }
@@ -733,7 +733,7 @@ void Move_Decision::GOAL_LINE_mode()
     // longer width 활용하고 싶음
     if (!Get_select_motion_on_flg() && Get_SM_req_finish())
     {
-        Set_motion_index_(Motion_Index::Forward_4step);
+        Set_motion_index_(Motion_Index::Forward_2step);
         Set_select_motion_on_flg(true);
     }
 
@@ -764,8 +764,8 @@ void Move_Decision::HUDDLE_mode()
 
     huddle_actual_angle = img_procPtr->Get_huddle_angle();
     line_gradient = img_procPtr->Get_gradient();
-    StraightLineDecision(line_gradient, margin_gradient);
-    huddle_motion = Get_motion_index_();
+    StraightLineDecision(line_gradient, MARGIN_GRADIENT);
+    huddle_motion = Motion_Index::InitPose;
     huddle_ud_neck_angle = Get_UD_NeckAngle();
 
     // 0 : Motion : InitPose (For getting distance) (Depth)
@@ -780,9 +780,11 @@ void Move_Decision::HUDDLE_mode()
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
 
-            huddle_distance = img_procPtr->Get_distance();
+            huddle_distance = img_procPtr->Get_huddle_distance();
+            ROS_ERROR("huddle_distance : %d", huddle_distance);
+
             huddle_distance_save.push_back(huddle_distance);
-            // ROS_WARN("huddle_distance_save SIZE : %d", huddle_distance_save.size());
+            ROS_WARN("huddle_distance_save SIZE : %d", huddle_distance_save.size());
             if (huddle_distance_save.size() == SPIN_RATE * 3) // 3sec Mean Distance Value
             {
                 huddle_distance = accumulate(huddle_distance_save.begin(), huddle_distance_save.end(), 0.0) / huddle_distance_save.size();
@@ -830,6 +832,7 @@ void Move_Decision::HUDDLE_mode()
         {
             huddle_motion = Motion_Index::Forward_Nstep;
             huddle_distance *= 0.8;
+            ROS_ERROR("HUDDLE_DISTANCE : %f", huddle_distance);
             Set_distance_(huddle_distance);
             Set_motion_index_(huddle_motion);
 
@@ -875,27 +878,27 @@ void Move_Decision::HUDDLE_mode()
                 // Counter Clock wise(+) (Turn Angle sign)
                 // Gradient : Angle from center of window.x to center of line.x
                 // LEFT TURN
-                if (line_gradient >= margin_gradient * 5)
+                if (line_gradient >= MARGIN_GRADIENT * 5)
                 {
                     increment = 4;
                     ROS_WARN("LEFT_TURN");
                 }
-                else if (line_gradient >= margin_gradient * 4)
+                else if (line_gradient >= MARGIN_GRADIENT * 4)
                 {
                     increment = 3;
                     ROS_WARN("LEFT_TURN");
                 }
-                else if (line_gradient >= margin_gradient * 3)
+                else if (line_gradient >= MARGIN_GRADIENT * 3)
                 {
                     increment = 2;
                     ROS_WARN("LEFT_TURN");
                 }
-                else if (line_gradient >= margin_gradient * 2)
+                else if (line_gradient >= MARGIN_GRADIENT * 2)
                 {
                     increment = 2;
                     ROS_WARN("LEFT_TURN");
                 }
-                else if (line_gradient > margin_gradient * 1)
+                else if (line_gradient > MARGIN_GRADIENT * 1)
                 {
                     increment = 2;
                     ROS_WARN("LEFT_TURN");
@@ -903,27 +906,27 @@ void Move_Decision::HUDDLE_mode()
 
                 // Decrease Actual_angle relatively slowly for smaller line_gradient values
                 // Right Turn
-                else if (line_gradient <= -margin_gradient * 5)
+                else if (line_gradient <= -MARGIN_GRADIENT * 5)
                 {
                     increment = -4;
                     ROS_WARN("RIGHT TURN");
                 }
-                else if (line_gradient <= -margin_gradient * 4)
+                else if (line_gradient <= -MARGIN_GRADIENT * 4)
                 {
                     increment = -3;
                     ROS_WARN("RIGHT TURN");
                 }
-                else if (line_gradient <= -margin_gradient * 3)
+                else if (line_gradient <= -MARGIN_GRADIENT * 3)
                 {
                     increment = -2;
                     ROS_WARN("RIGHT TURN");
                 }
-                else if (line_gradient <= -margin_gradient * 2)
+                else if (line_gradient <= -MARGIN_GRADIENT * 2)
                 {
                     increment = -2;
                     ROS_WARN("RIGHT TURN");
                 }
-                else if (line_gradient < -margin_gradient * 1)
+                else if (line_gradient < -MARGIN_GRADIENT * 1)
                 {
                     increment = -2;
                     ROS_WARN("RIGHT TURN");
@@ -983,7 +986,7 @@ void Move_Decision::HUDDLE_mode()
             Set_select_motion_on_flg(true);
             // ROS_ERROR("huddle_distace : %f", huddle_distance);
 
-            huddle_distance = img_procPtr->Get_distance();
+            huddle_distance = img_procPtr->Get_huddle_distance();
             huddle_distance_save.push_back(huddle_distance);
             // ROS_ERROR("huddle_distance_save SIZE : %d", huddle_distance_save.size());
             if (huddle_distance_save.size() == SPIN_RATE * 3) // 3sec Mean Distance Value
@@ -1086,27 +1089,27 @@ void Move_Decision::HUDDLE_mode()
                 // Counter Clock wise(+) (Turn Angle sign)
                 // Gradient : Angle from center of window.x to center of line.x
                 // LEFT TURN
-                if (line_gradient >= margin_gradient * 5)
+                if (line_gradient >= MARGIN_GRADIENT * 5)
                 {
                     increment = 4;
                     ROS_WARN("LEFT_TURN");
                 }
-                else if (line_gradient >= margin_gradient * 4)
+                else if (line_gradient >= MARGIN_GRADIENT * 4)
                 {
                     increment = 3;
                     ROS_WARN("LEFT_TURN");
                 }
-                else if (line_gradient >= margin_gradient * 3)
+                else if (line_gradient >= MARGIN_GRADIENT * 3)
                 {
                     increment = 2;
                     ROS_WARN("LEFT_TURN");
                 }
-                else if (line_gradient >= margin_gradient * 2)
+                else if (line_gradient >= MARGIN_GRADIENT * 2)
                 {
                     increment = 2;
                     ROS_WARN("LEFT_TURN");
                 }
-                else if (line_gradient > margin_gradient * 1)
+                else if (line_gradient > MARGIN_GRADIENT * 1)
                 {
                     increment = 2;
                     ROS_WARN("LEFT_TURN");
@@ -1114,27 +1117,27 @@ void Move_Decision::HUDDLE_mode()
 
                 // Decrease Actual_angle relatively slowly for smaller line_gradient values
                 // Right Turn
-                else if (line_gradient <= -margin_gradient * 5)
+                else if (line_gradient <= -MARGIN_GRADIENT * 5)
                 {
                     increment = -4;
                     ROS_WARN("RIGHT TURN");
                 }
-                else if (line_gradient <= -margin_gradient * 4)
+                else if (line_gradient <= -MARGIN_GRADIENT * 4)
                 {
                     increment = -3;
                     ROS_WARN("RIGHT TURN");
                 }
-                else if (line_gradient <= -margin_gradient * 3)
+                else if (line_gradient <= -MARGIN_GRADIENT * 3)
                 {
                     increment = -2;
                     ROS_WARN("RIGHT TURN");
                 }
-                else if (line_gradient <= -margin_gradient * 2)
+                else if (line_gradient <= -MARGIN_GRADIENT * 2)
                 {
                     increment = -2;
                     ROS_WARN("RIGHT TURN");
                 }
-                else if (line_gradient < -margin_gradient * 1)
+                else if (line_gradient < -MARGIN_GRADIENT * 1)
                 {
                     increment = -2;
                     ROS_WARN("RIGHT TURN");
@@ -1368,7 +1371,7 @@ void Move_Decision::WALL_mode()
             Set_motion_index_(Motion_Index::InitPose);
             Set_select_motion_on_flg(true);
 
-            wall_distance = img_procPtr->Get_distance();
+            wall_distance = img_procPtr->Get_wall_distance();
             wall_distance_save.push_back(wall_distance);
             if (wall_distance_save.size() == SPIN_RATE * 2) // 3sec Mean Distance Value
             {
@@ -1449,7 +1452,7 @@ void Move_Decision::WALL_mode()
         if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 2)
         {
             Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(img_procPtr->Get_distance());
+            Set_distance_(img_procPtr->Get_wall_distance());
             Set_select_motion_on_flg(true);
             Set_wall_det_flg(false);
 
@@ -1564,7 +1567,7 @@ void Move_Decision::WALL_mode()
         if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 6)
         {
             Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(img_procPtr->Get_distance());
+            Set_distance_(img_procPtr->Get_wall_distance());
             Set_select_motion_on_flg(true);
             Set_wall_det_flg(false);
             // Sequence++
@@ -1678,7 +1681,7 @@ void Move_Decision::WALL_mode()
         if (!Get_select_motion_on_flg() && Get_SM_req_finish() && wall_number_seq == 10)
         {
             Set_motion_index_(Motion_Index::Forward_Nstep);
-            Set_distance_(img_procPtr->Get_distance());
+            Set_distance_(img_procPtr->Get_wall_distance());
             Set_select_motion_on_flg(true);
             Set_wall_det_flg(false);
 
@@ -2606,8 +2609,8 @@ std::tuple<int8_t, double> Move_Decision::playMotion()
                 res_select_motion = Motion_Index::InitPose;
                 break;
 
-            case Motion_Index::Forward_4step:
-                res_select_motion = Motion_Index::Forward_4step;
+            case Motion_Index::Forward_2step:
+                res_select_motion = Motion_Index::Forward_2step;
                 break;
 
             case Motion_Index::Left_2step:
@@ -2698,7 +2701,7 @@ double Move_Decision::turn_angle()
     {
         if ((Get_stand_status_() == Stand_Status::Stand) && Get_turn_angle_on_flg())
         {
-            if (Get_motion_index_() == Motion_Index::Forward_4step || Get_motion_index_() == Motion_Index::Forward_Halfstep || Get_motion_index_() == Motion_Index::Step_in_place || Get_motion_index_() == Motion_Index::Forward_Nstep)
+            if (Get_motion_index_() == Motion_Index::Forward_2step || Get_motion_index_() == Motion_Index::Forward_Halfstep || Get_motion_index_() == Motion_Index::Step_in_place || Get_motion_index_() == Motion_Index::Forward_Nstep)
             {
                 res_turn_angle = this->Get_turn_angle_();
                 if (res_turn_angle > TURN_MAX)
@@ -2842,7 +2845,7 @@ void Move_Decision::StraightLineDecision(double gra, double mg_gra)
     }
 
     // Straight Line Decision
-    else /*if ((gradient < margin_gradient && (gradient > -margin_gradient)))*/
+    else /*if ((gradient < MARGIN_GRADIENT && (gradient > -MARGIN_GRADIENT)))*/
     {
         straightLine = true;
     }
@@ -2857,8 +2860,8 @@ void Move_Decision::Motion_Info()
         tmp_motion = Str_InitPose;
         break;
 
-    case Motion_Index::Forward_4step:
-        tmp_motion = Str_Forward_4step;
+    case Motion_Index::Forward_2step:
+        tmp_motion = Str_Forward_2step;
         break;
 
     case Motion_Index::Left_2step:

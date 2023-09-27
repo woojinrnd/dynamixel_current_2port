@@ -76,11 +76,12 @@ std::tuple<cv::Mat, cv::Mat> Img_proc::extract_color(const cv::Mat &input_frame,
     cv::bitwise_and(frame, frame, color_extracted, mask);
 
     std::vector<std::vector<cv::Point>> contours;
+    cv::imshow("mask", mask);
 
     return {color_extracted, frame};
 }
 
-std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
+std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
 {
     cv::Mat frame = input_frame.clone();
     cv::Mat ori_frame = origin_frame.clone();
@@ -302,9 +303,17 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 {
                     huddle_angle = -min_area_rect.angle;
                 }
-                corner_center = min_area_rect.center;
+                huddle_center = min_area_rect.center;
+
             }
         }
+        // cout << "center_huddle.x : " << center_huddle.x << endl;
+        // cout << "center_huddle.y : " << center_huddle.y << endl;
+        // cv::circle(ori_frame, center_huddle, 2, CV_RGB(0, 255, 255), -1);
+
+        cout << "center_huddle.x : " << corner_center.x << endl;
+        cout << "center_huddle.y : " << corner_center.y << endl;
+        cv::circle(ori_frame, corner_center, 2, CV_RGB(0, 255, 255), -1);
 
         cv::putText(ori_frame, "Line angle : " + std::to_string(angle), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
 
@@ -332,7 +341,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         float radian_angle = (angle - 90) * (CV_PI / 180.0f);
 
     }
-    return std::make_tuple(ori_frame, foundLargeContour, angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center, huddle_angle, top_contour_area);
+    return std::make_tuple(ori_frame, foundLargeContour, angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center, huddle_angle, top_contour_area, huddle_center);
 }
 
 void Img_proc::webcam_thread()
@@ -400,7 +409,7 @@ void Img_proc::webcam_thread()
         int WhiteColorDetected = std::get<10>(thresh_frame_white);
         int YellowColorDetected = std::get<10>(thresh_frame_yellow);
 
-        if (YellowColorDetected > 1000)
+        if (YellowColorDetected > HUDDLE_AREA)
         {
             cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
             cv::Point huddle_bottom_point = std::get<7>(thresh_frame_yellow);
@@ -681,7 +690,7 @@ void Img_proc::realsense_thread()
 
             this->Set_img_proc_wall_number(wall_number_);
             this->Set_wall_angle(angle_);
-            this->Set_distance(distance_);
+            this->Set_wall_distance(distance_);
 
             // // // Huddle mode
 
@@ -706,7 +715,7 @@ void Img_proc::realsense_thread()
             bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
 
             int YellowColorDetected = std::get<10>(thresh_frame_yellow);
-            if (YellowColorDetected > 1000)
+            if (YellowColorDetected > HUDDLE_AREA)
             {
                 // Athletics_FLAG = 2;
                 auto thresh_frame_blue = detect_Line_areas(std::get<0>(Huddle), colorMat, yellow_color, threshold_value_blue, false, false);
@@ -720,9 +729,13 @@ void Img_proc::realsense_thread()
                 double huddle_angle_ = std::get<9>(thresh_frame_yellow);
                 Set_huddle_angle(huddle_angle_);
 
-                center_huddle = std::get<8>(thresh_frame_yellow);
+                center_huddle = std::get<11>(thresh_frame_yellow);
+                // cout << "center_huddle.x : " << center_huddle.x << endl;
+                // cout << "center_huddle.y : " << center_huddle.y << endl;
+                // cv::circle(colorMat, center_huddle, 2, CV_RGB(0, 255, 255), -1);
+                
                 huddle_distance = Distance_Point(depth_frame, center_huddle);
-                this->Set_distance(huddle_distance);
+                this->Set_huddle_distance(huddle_distance);
                 cv::putText(colorMat, "Dis : " + std::to_string(huddle_distance), cv::Point(10, 430), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0,0,255), 2);
             }
 
@@ -1444,10 +1457,16 @@ double Img_proc::Get_wall_angle() const
     return wall_angle_;
 }
 
-double Img_proc::Get_distance() const
+double Img_proc::Get_wall_distance() const
 {
-    std::lock_guard<std::mutex> lock(mtx_distance);
-    return distance_;
+    std::lock_guard<std::mutex> lock(mtx_wall_distance_);
+    return wall_distance_;
+}
+
+double Img_proc::Get_huddle_distance() const
+{
+    std::lock_guard<std::mutex> lock(mtx_huddle_distance_);
+    return huddle_distance_;
 }
 
 bool Img_proc::Get_contain_huddle_to_foot() const
@@ -1542,10 +1561,16 @@ void Img_proc::Set_wall_angle(double wall_angle)
     this->wall_angle_ = wall_angle;
 }
 
-void Img_proc::Set_distance(double distance)
+void Img_proc::Set_wall_distance(double wall_distance)
 {
-    std::lock_guard<std::mutex> lock(mtx_distance);
-    this->distance_ = distance;
+    std::lock_guard<std::mutex> lock(mtx_wall_distance_);
+    this->wall_distance_ = wall_distance;
+}
+
+void Img_proc::Set_huddle_distance(double huddle_distance)
+{
+    std::lock_guard<std::mutex> lock(mtx_huddle_distance_);
+    this->huddle_distance_ = huddle_distance;
 }
 
 void Img_proc::Set_contain_huddle_to_foot(bool contain_huddle_to_foot)

@@ -232,8 +232,8 @@ void Callback::Motion_Info()
         tmp_motion = Str_InitPose;
         break;
 
-    case Motion_Index::Forward_4step:
-        tmp_motion = Str_Forward_4step;
+    case Motion_Index::Forward_2step:
+        tmp_motion = Str_Forward_2step;
         break;
 
     case Motion_Index::Left_2step:
@@ -316,25 +316,25 @@ void Callback::SelectMotion()
     if (res_mode == Motion_Index::InitPose)
     {
         mode = Motion_Index::InitPose;
-        // trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 30);
-        // trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 30);
-        // trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 30);
-        // trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 30);
-        // trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 30);
-        // trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 30);
+        trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 300);
+        trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 300);
+        trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 300);
+        trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 300);
+        trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 300);
+        trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 300);
 
-        trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 675);
-        trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 675);
-        trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 675);
-        trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 675);
-        trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 675);
-        trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 675);
+        // trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 675);
+        // trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 675);
+        // trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 675);
+        // trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 675);
+        // trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 675);
+        // trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 675);
 
         indext = 0;
     }
-    else if (res_mode == Motion_Index::Forward_4step)
+    else if (res_mode == Motion_Index::Forward_2step)
     {
-        mode = Motion_Index::Forward_4step;
+        mode = Motion_Index::Forward_2step;
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Go_Straight(0.05,0.35,0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
@@ -565,8 +565,7 @@ void Callback::Write_Leg_Theta()
 
 
     // //ROS_INFO("%d  %lf %d", indext, All_Theta[3], emergency);
-    Check_FSR();
-    
+    // Check_FSR();
 }
 
 void Callback::Write_Arm_Theta()

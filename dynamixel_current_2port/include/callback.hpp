@@ -34,7 +34,7 @@ public:
   enum Motion_Index
   {
     InitPose = 0,
-    Forward_4step = 1,
+    Forward_2step = 1,
     Left_2step = 2,
     Step_in_place = 3,
     Right_2step = 4,
@@ -51,7 +51,7 @@ public:
   };
 
   string Str_InitPose = "InitPose";
-  string Str_Forward_4step = "Forward_4step";
+  string Str_Forward_2step = "Forward_2step";
   string Str_Left_2step = "Left_2step";
   string Str_Step_in_place = "Step_in_place";
   string Str_Right_2step = "Right_2step";

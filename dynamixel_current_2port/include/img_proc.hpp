@@ -44,7 +44,7 @@
 #define PROP_SATURATION 128
 
 #define LINE_AREA 300
-#define HUDDLE_AREA 10
+#define HUDDLE_AREA 500
 
 #define CORNER_X_MARGIN 30
 #define CORNER_Y_MARGIN 20
@@ -108,6 +108,7 @@ public:
     cv::Point topmost_point;
     cv::Point bottommost_point;
     cv::Point corner_center;
+    cv::Point huddle_center;
 
     cv::Scalar blue_color = {255, 0, 0};
     cv::Scalar green_color = {0, 255, 0};
@@ -142,7 +143,7 @@ public:
     void create_color_range_trackbar(const std::string &window_name);
     cv::Mat ROI_Image(const cv::Mat &input_frame);
     std::tuple<cv::Mat, cv::Mat> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
-    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
+    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
     double Distance_Point(const rs2::depth_frame &depth, cv::Point center);
 
     // ********************************************** 3D THREAD************************************************** //
@@ -151,13 +152,14 @@ public:
     void realsense_thread();
     int8_t Athletics_FLAG = 0;
     int8_t tmp_img_proc_wall_number = 0;
-    double huddle_distance = 0;
 
     // Cam set
     const int realsense_width = 640;
     const int realsense_height = 480;
     const int realsense_color_fps = 30;
     const int realsense_depth_fps = 30;
+
+    double huddle_distance = 0;
 
     // ********************************************** GETTERS ************************************************** //
 
@@ -174,7 +176,8 @@ public:
     double Get_gradient() const;
     double Get_delta_x() const;
     double Get_wall_angle() const;
-    double Get_distance() const;
+    double Get_wall_distance() const;
+    double Get_huddle_distance() const;
     double Get_huddle_angle() const;
 
     bool Get_contain_huddle_to_foot() const;
@@ -195,7 +198,9 @@ public:
     void Set_gradient(double gradient);
     void Set_delta_x(double delta_x);
     void Set_wall_angle(double wall_angle);
-    void Set_distance(double set_distance);
+    void Set_wall_distance(double wall_distance);
+    
+    void Set_huddle_distance(double huddle_distance);
     void Set_huddle_angle(double huddle_angle);
 
     void Set_contain_huddle_to_foot(bool contain_huddle_to_foot);
@@ -261,7 +266,10 @@ private:
     double gradient_ = 0;     // Line_angle
     double wall_angle_ = 0;   // wall angle
     double huddle_angle_ = 0; // huddle angle
-    double distance_ = 0;     // huddle / wall mode
+    double wall_distance_ = 0;     // huddle / wall mode
+    double huddle_distance_ = 0;
+
+
 
     // No Line mode
     // delta_x : Center of window.x - Center of last captured line.x
@@ -292,11 +300,12 @@ private:
     mutable std::mutex mtx_delta_x;
     // Wall Mode
     mutable std::mutex mtx_wall_angle;
-    mutable std::mutex mtx_distance;
+    mutable std::mutex mtx_wall_distance_;
 
     // Huddle Mode
     mutable std::mutex mtx_contain_huddle_to_foot;
     mutable std::mutex mtx_huddle_angle_;
+    mutable std::mutex mtx_huddle_distance_;
 
     // Corner mode
     mutable std::mutex mtx_contain_corner_to_foot;
