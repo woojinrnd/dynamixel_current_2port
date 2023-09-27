@@ -94,6 +94,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
 
     cv::findContours(binary, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
+
     std::vector<cv::Point> top_contour;
 
     bool foundLargeContour = false;
@@ -174,6 +175,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
             tmp_delta_x = 0;
             std::cout << "Line area disappeared to the right\n";
         }
+        cv::imshow("mask", binary);
     }
 
     has_prev = has_white_now;
@@ -181,7 +183,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
     if (!top_contour.empty())
     {
         std::vector<cv::Point> approx;
-        double epsilon = 0.03 * cv::arcLength(top_contour, true);
+        double epsilon = 0.01 * cv::arcLength(top_contour, true);
         cv::approxPolyDP(top_contour, approx, epsilon, true);
 
         int numVertices = approx.size(); // 근사화된 컨투어의 꼭지점 수를 얻음
@@ -267,20 +269,17 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                     Set_img_proc_corner_number(1); // corner shape : ㅓ
                     // cout << "corner2" << endl;
                 }
-
-                if (is_white_line)
+                corner_condition_count++;
+                if (corner_condition_count >= 15)
                 {
-                    corner_condition_count++;
-                    if (corner_condition_count >= 15)
+                    // Rect corner_bounding_Box = min_area_rect.boundingRect();
+                    // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
+                    corner_center = min_area_rect.center;
+
+                    Corner = true;
+                    if (Corner)
                     {
-                        // Rect corner_bounding_Box = min_area_rect.boundingRect();
-                        // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
-                        corner_center = min_area_rect.center;
-                        Corner = true;
-                        if (Corner)
-                        {
-                            cv::putText(ori_frame, "MODE : " + Str_CORNER_MODE, cv::Point(webcam_width*0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
-                        }
+                        cv::putText(ori_frame, "MODE : " + Str_CORNER_MODE, cv::Point(webcam_width * 0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
                     }
                 }
             }
@@ -309,10 +308,10 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         }
         // cout << "center_huddle.x : " << center_huddle.x << endl;
         // cout << "center_huddle.y : " << center_huddle.y << endl;
-        // cv::circle(ori_frame, center_huddle, 2, CV_RGB(0, 255, 255), -1);
+        cv::circle(ori_frame, huddle_center, 5, CV_RGB(0, 255, 255), -1);
 
-        cout << "center_huddle.x : " << corner_center.x << endl;
-        cout << "center_huddle.y : " << corner_center.y << endl;
+        // cout << "center_huddle.x : " << corner_center.x << endl;
+        // cout << "center_huddle.y : " << corner_center.y << endl;
         cv::circle(ori_frame, corner_center, 2, CV_RGB(0, 255, 255), -1);
 
         cv::putText(ori_frame, "Line angle : " + std::to_string(angle), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
@@ -718,7 +717,7 @@ void Img_proc::realsense_thread()
             if (YellowColorDetected > HUDDLE_AREA)
             {
                 // Athletics_FLAG = 2;
-                auto thresh_frame_blue = detect_Line_areas(std::get<0>(Huddle), colorMat, yellow_color, threshold_value_blue, false, false);
+                auto thresh_frame_blue = detect_Line_areas(std::get<0>(Huddle), colorMat, yellow_color, threshold_value_blue, true, false);
                 this->Set_img_proc_huddle_det(YellowContourDetected);
             }
 
@@ -729,18 +728,19 @@ void Img_proc::realsense_thread()
                 double huddle_angle_ = std::get<9>(thresh_frame_yellow);
                 Set_huddle_angle(huddle_angle_);
 
-                center_huddle = std::get<11>(thresh_frame_yellow);
-                // cout << "center_huddle.x : " << center_huddle.x << endl;
-                // cout << "center_huddle.y : " << center_huddle.y << endl;
-                // cv::circle(colorMat, center_huddle, 2, CV_RGB(0, 255, 255), -1);
+                huddle_center = std::get<11>(thresh_frame_yellow);
+                cout << "center_huddle.x : " << huddle_center.x << endl;
+                cout << "center_huddle.y : " << huddle_center.y << endl;
+                cv::circle(colorMat, huddle_center, 2, CV_RGB(0, 255, 255), -1);
                 
-                huddle_distance = Distance_Point(depth_frame, center_huddle);
+                huddle_distance = Distance_Point(depth_frame, huddle_center);
                 this->Set_huddle_distance(huddle_distance);
                 cv::putText(colorMat, "Dis : " + std::to_string(huddle_distance), cv::Point(10, 430), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar(0,0,255), 2);
             }
 
             cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);
+            cv::imshow(window_name_color, std::get<0>(thresh_frame_yellow));
         }
     }
 

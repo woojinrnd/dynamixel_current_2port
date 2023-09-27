@@ -29,7 +29,7 @@
 
 #define LINE_TURN 10
 
-#define MARGIN_GRADIENT 20 // margin of straight line
+#define MARGIN_GRADIENT 40 // margin of straight line
 
 using namespace std;
 
