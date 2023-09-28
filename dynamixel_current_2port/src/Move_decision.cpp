@@ -6,7 +6,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(1),
+      SPIN_RATE(30),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::NONE),
       stop_fallen_check_(false),
@@ -91,9 +91,18 @@ void Move_Decision::process()
     {
         if (tmp_img_proc_huddle_det_flg_)
         {
-            Set_huddle_det_flg(true);
-            Set_line_det_flg(false);
-            Set_no_line_det_flg(false);
+            if (Get_huddle_det_stop_flg() && huddle_seq_finish)
+            {
+                Set_line_det_flg(true);
+                Set_huddle_det_flg(false);
+            }
+
+            else
+            {
+                Set_huddle_det_flg(true);
+                Set_line_det_flg(false);
+                Set_no_line_det_flg(false);
+            }
         }
 
         else if (tmp_img_proc_goal_det_flg_)
@@ -138,9 +147,18 @@ void Move_Decision::process()
     {
         if (tmp_img_proc_huddle_det_flg_)
         {
-            Set_huddle_det_flg(true);
-            Set_line_det_flg(false);
-            Set_no_line_det_flg(false);
+            if (Get_huddle_det_stop_flg() && huddle_seq_finish)
+            {
+                Set_line_det_flg(true);
+                Set_huddle_det_flg(false);
+            }
+
+            else
+            {
+                Set_huddle_det_flg(true);
+                Set_line_det_flg(false);
+                Set_no_line_det_flg(false);
+            }
         }
 
         else if (tmp_img_proc_corner_det_flg_)
@@ -197,6 +215,12 @@ void Move_Decision::process()
         else if (tmp_img_proc_no_line_det_flg_)
         {
             Set_no_line_det_flg(false);
+        }
+
+        if (Get_huddle_det_stop_flg() && huddle_seq_finish)
+        {
+            Set_line_det_flg(true);
+            Set_huddle_det_flg(false);
         }
 
         else
@@ -380,7 +404,8 @@ void Move_Decision::Running_Mode_Decision()
         GOAL_LINE_mode();
         break;
     case HUDDLE_MODE:
-        HUDDLE_mode();
+        // HUDDLE_mode();
+        HUDDLE_mode2();
         break;
     case WALL_MODE:
         WALL_mode();
@@ -414,7 +439,7 @@ void Move_Decision::LINE_mode()
             {
                 // line_actual_angle -= 1;
                 // if (line_actual_angle < 0)
-                    line_actual_angle = 0;
+                line_actual_angle = 0;
                 Set_turn_angle_(line_actual_angle);
                 Set_turn_angle_on_flg(true);
             }
@@ -425,7 +450,7 @@ void Move_Decision::LINE_mode()
             {
                 // line_actual_angle += 1;
                 // if (line_actual_angle > 0)
-                    line_actual_angle = 0;
+                line_actual_angle = 0;
                 Set_turn_angle_(line_actual_angle);
                 Set_turn_angle_on_flg(true);
             }
@@ -1348,6 +1373,143 @@ void Move_Decision::HUDDLE_mode()
         Set_huddle_det_flg(false);
         Set_running_mode_(Running_Mode::LINE_MODE);
         tmp_huddle_seq = 0;
+    }
+
+    ROS_ERROR("HUDDLE_SEQ : %d", tmp_huddle_seq);
+}
+
+void Move_Decision::HUDDLE_mode2()
+{
+    // 0 : Approach to the Corner
+    // --> Motion : Motion_Index::Forward_Halfstep (Until corner center) : About Y diff
+    // --> Motion : Motion_Index::Left_Halfstep or Motion_Index::Right_Halfstep : About X diff
+
+    // 1 : Pose Control (Posture(Gradient))
+    // --> Motion : Motion_Index::Step_In_Place && Turn Angle(Gradient)
+
+    // 2 : Motion : HUDDLE_JUMP
+
+    // 3 : Initializing
+
+    huddle_actual_angle = Get_turn_angle_();
+    huddle_ud_neck_angle = Get_UD_NeckAngle();
+    huddle_motion = Get_motion_index_();
+
+    // 0 : Pose Control (Posture(Gradient))
+    if (tmp_huddle_seq == 0)
+    {
+        // Initializing
+        huddle_seq_finish = false;
+        Set_huddle_det_stop_flg(false);
+
+        img_proc_huddle_angle = img_procPtr->Get_huddle_angle();
+        ROS_ERROR("img_proc_huddle_angle : %lf", img_proc_huddle_angle);
+        ROS_ERROR(Str_HUDDLE2_SEQUENCE_0.c_str());
+
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            huddle_motion = Motion_Index::Step_in_place;
+            Set_motion_index_(huddle_motion);
+            Set_select_motion_on_flg(true);
+        }
+
+        if (!Get_turn_angle_on_flg() && Get_TA_req_finish())
+        {
+            if (img_proc_huddle_angle > 10 || img_proc_huddle_angle < -10)
+            {
+                Set_turn_angle_(img_proc_huddle_angle);
+                Set_turn_angle_on_flg(true);
+            }
+            else
+            {
+                huddle_posture = true;
+            }
+        }
+
+        if (huddle_posture == true)
+        {
+            tmp_huddle_seq++;
+        }
+    }
+
+    // 1 : Approach to the Huddle + Pose Control (Position)
+    if (tmp_huddle_seq == 1)
+    {
+        // img_proc_huddle_delta_x = img_procPtr->Get_delta_x();
+        img_proc_contain_huddle_to_foot = img_procPtr->Get_contain_huddle_to_foot();
+
+        ROS_ERROR(Str_HUDDLE2_SEQUENCE_1.c_str());
+        // ROS_WARN("X diff : %d", img_proc_huddle_delta_x);
+        ROS_WARN("Y diff : %d", img_proc_contain_huddle_to_foot);
+
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            // About huddle Y point
+            if (!img_proc_contain_huddle_to_foot)
+            {
+                huddle_motion = Motion_Index::Forward_Halfstep;
+                Set_motion_index_(huddle_motion);
+                Set_select_motion_on_flg(true);
+                Set_huddle_det_flg(false);
+            }
+
+            else if (img_proc_contain_huddle_to_foot)
+            {
+                contain_huddle_Y = true;
+                ROS_WARN("Y POSITION IS OK!!!!!!!!!!!!!!!!!!!");
+            }
+
+            if (contain_huddle_Y)
+            {
+                huddle_motion = Motion_Index::InitPose;
+                Set_motion_index_(huddle_motion);
+                Set_select_motion_on_flg(true);
+                Set_huddle_det_flg(false);
+
+                // Sequence++
+                if (finish_past != Get_SM_req_finish())
+                {
+                    req_finish_count++;
+                    finish_past = Get_SM_req_finish();
+                }
+                if (req_finish_count == 1)
+                {
+                    req_finish_count = 0;
+                    tmp_huddle_seq++;
+                }
+            }
+        }
+    }
+
+    // 2 : Motion : HUDDLE_JUMP
+    else if (tmp_huddle_seq == 2)
+    {
+        ROS_ERROR(Str_HUDDLE2_SEQUENCE_2.c_str());
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        {
+            Set_motion_index_(Motion_Index::Huddle_Jump);
+            Set_select_motion_on_flg(true);
+            to_be_line_mode++;
+        }
+    }
+
+    // 3 : Initializing
+    else if (tmp_huddle_seq == 3)
+    {
+        tmp_huddle_seq = 0;
+        ROS_ERROR(Str_HUDDLE2_SEQUENCE_3.c_str());
+        if (to_be_line_mode == 3)
+        {
+            Set_huddle_det_stop_flg(true);
+        }
+
+        if (Get_huddle_det_stop_flg() == true)
+        {
+            Set_huddle_det_flg(false);
+            Set_line_det_flg(true);
+            huddle_seq_finish = true;
+        }
+        // Running_Info();
     }
 
     ROS_ERROR("HUDDLE_SEQ : %d", tmp_huddle_seq);

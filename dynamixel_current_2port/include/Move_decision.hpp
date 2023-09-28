@@ -116,6 +116,7 @@ public:
     void WAKEUP_mode();
     void GOAL_LINE_mode();
     void HUDDLE_mode();
+    void HUDDLE_mode2();
     void WALL_mode();
     void CORNER_mode();
     void CORNER_mode_debug();
@@ -306,6 +307,16 @@ public:
     bool contain_huddle_to_foot = false;
     int8_t to_be_line_mode = 0;
 
+    bool img_proc_contain_huddle_to_foot = false; // huddle Y Point
+    int8_t img_proc_huddle_delta_x = 0;
+    double img_proc_huddle_angle = 0;
+
+    bool contain_huddle_X = false; // huddle X Point
+    bool contain_huddle_Y = false; // huddle Y Point
+    bool huddle_posture = false;   // huddle gradient
+
+    bool huddle_seq_finish = false;
+
     string Str_HUDDLE_SEQUENCE_0 = "HUDDLE_SEQUENCE_0 : InitPose (for Getting distance) (Depth)";
     string Str_HUDDLE_SEQUENCE_1 = "HUDDLE_SEQUENCE_1 : Forward_Nstep (Far)";
     string Str_HUDDLE_SEQUENCE_2 = "HUDDLE_SEQUENCE_2 : InitPose (for Getting distance) (Depth)";
@@ -315,6 +326,12 @@ public:
     string Str_HUDDLE_SEQUENCE_6 = "HUDDLE_SEQUENCE_6 : Forward_halfstep (Aprroach Huddle)";
     string Str_HUDDLE_SEQUENCE_7 = "HUDDLE_SEQUENCE_7 : Huddle Jump";
     string Str_HUDDLE_SEQUENCE_8 = "HUDDLE_SEQUENCE_8 : Initializing";
+
+
+    string Str_HUDDLE2_SEQUENCE_0 = "HUDDLE_SEQUENCE_0 : POSTURE CONTROL";
+    string Str_HUDDLE2_SEQUENCE_1 = "HUDDLE_SEQUENCE_1 : POSITION CONTROL";
+    string Str_HUDDLE2_SEQUENCE_2 = "HUDDLE_SEQUENCE_2 : HUDDLE JUMP";
+    string Str_HUDDLE2_SEQUENCE_3 = "HUDDLE_SEQUENCE_3 : INITIALIZING";
 
     /////////////////////// Corner Mode ///////////////////////
 
