@@ -144,7 +144,8 @@ public:
     void create_threshold_trackbar_Y(const std::string &window_name);
     void create_threshold_trackbar_B(const std::string &window_name);
     void create_color_range_trackbar(const std::string &window_name);
-    cv::Mat ROI_Image(const cv::Mat &input_frame);
+    cv::Mat ROI_Circle(const cv::Mat &input_frame);
+    cv::Mat ROI_Rectangle(const cv::Mat& input_frame);
     std::tuple<cv::Mat, cv::Mat> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
     std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
     double Distance_Point(const rs2::depth_frame &depth, cv::Point center);
@@ -168,9 +169,11 @@ public:
 
     bool Get_img_proc_line_det() const;
     bool Get_img_proc_no_line_det() const;
-    bool Get_img_proc_corner_det() const;
+    bool Get_img_proc_corner_det_3d() const;
+    bool Get_img_proc_corner_det_2d() const;
     bool Get_img_proc_goal_line_det() const;
-    bool Get_img_proc_huddle_det() const;
+    bool Get_img_proc_huddle_det_3d() const;
+    bool Get_img_proc_huddle_det_2d() const;
     bool Get_img_proc_wall_det() const;
     bool Get_img_proc_stop_det() const;
     int8_t Get_img_proc_wall_number() const;
@@ -191,9 +194,11 @@ public:
 
     void Set_img_proc_line_det(bool img_proc_line_det);
     void Set_img_proc_no_line_det(bool img_proc_no_line_det);
-    void Set_img_proc_corner_det(bool img_proc_corner_det);
+    void Set_img_proc_corner_det_3d(bool img_proc_corner_det_3d);
+    void Set_img_proc_corner_det_2d(bool img_proc_corner_det_2d);
     void Set_img_proc_goal_line_det(bool img_proc_goal_line_det);
-    void Set_img_proc_huddle_det(bool img_proc_huddle_det);
+    void Set_img_proc_huddle_det_3d(bool img_proc_huddle_det_3d);
+    void Set_img_proc_huddle_det_2d(bool img_proc_huddle_det_2d);
     void Set_img_proc_stop_det(bool img_proc_stop_det);
     void Set_img_proc_wall_det(bool img_proc_wall_det);
     void Set_img_proc_wall_number(int8_t img_proc_wall_number);
@@ -260,9 +265,11 @@ private:
     // LINE Determine flg from img_proc
     bool img_proc_line_det_ = false;
     bool img_proc_no_line_det_ = false;
-    bool img_proc_corner_det_ = false;
+    bool img_proc_corner_det_3d_ = false;
+    bool img_proc_corner_det_2d_ = false;
     bool img_proc_goal_det_ = false;
-    bool img_proc_huddle_det_ = false;
+    bool img_proc_huddle_det_3d_ = false;
+    bool img_proc_huddle_det_2d_ = false;
     bool img_proc_wall_det_ = false;
     bool img_proc_stop_det_ = false;
     int8_t img_proc_wall_number_ = 0;
@@ -273,7 +280,7 @@ private:
     double huddle_angle_ = 0; // huddle angle
     double wall_distance_ = 0;     //  wall mode
     double huddle_distance_ = 0; // huddle distance
-    double corner_angle_ = 0;
+    double corner_angle_ = 0; //corner angle
 
 
 
@@ -292,9 +299,11 @@ private:
     // LINE Determine flg from img_proc
     mutable std::mutex mtx_img_proc_line_det_;
     mutable std::mutex mtx_img_proc_no_line_det_;
-    mutable std::mutex mtx_img_proc_corner_det_;
+    mutable std::mutex mtx_img_proc_corner_det_3d; // realsense
+    mutable std::mutex mtx_img_proc_corner_det_2d; // webcam
     mutable std::mutex mtx_img_proc_goal_det_;
-    mutable std::mutex mtx_img_proc_huddle_det_;
+    mutable std::mutex mtx_img_proc_huddle_det_3d; // realsense
+    mutable std::mutex mtx_img_proc_huddle_det_2d; // webcam
     mutable std::mutex mtx_img_proc_wall_det_;
     mutable std::mutex mtx_img_proc_stop_det_;
     mutable std::mutex mtx_img_proc_wall_number_;

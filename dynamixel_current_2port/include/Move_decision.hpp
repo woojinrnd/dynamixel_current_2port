@@ -115,19 +115,21 @@ public:
     void STOP_mode();
     void WAKEUP_mode();
     void GOAL_LINE_mode();
-    void HUDDLE_mode();
-    void HUDDLE_mode2();
+    void HUDDLE_mode(); // using realsense
+    void HUDDLE_mode2(); // using webcam
     void WALL_mode();
     void CORNER_mode();
-    void CORNER_mode_debug();
+    // void CORNER_mode_debug();
     void Test_service();
 
     bool tmp_img_proc_line_det_flg_ = false;
     bool tmp_img_proc_no_line_det_flg_ = false;
-    bool tmp_img_proc_huddle_det_flg_ = false;
+    bool tmp_img_proc_huddle_det_flg_2d_ = false;
+    bool tmp_img_proc_huddle_det_flg_3d_ = false;
     bool tmp_img_proc_wall_det_flg_ = false;
     bool tmp_img_proc_goal_det_flg_ = false;
-    bool tmp_img_proc_corner_det_flg_ = false;
+    bool tmp_img_proc_corner_det_flg_2d_ = false;
+    bool tmp_img_proc_corner_det_flg_3d_ = false;
 
     // ********************************************** CALLBACK THREAD ************************************************** //
 
@@ -181,10 +183,12 @@ public:
     bool Get_goal_line_det_flg() const;
     bool Get_line_det_flg() const;
     bool Get_no_line_det_flg() const;
-    bool Get_huddle_det_flg() const;
+    bool Get_huddle_det_flg_3d() const;
+    bool Get_huddle_det_flg_2d() const;
     bool Get_wall_det_flg() const;
     bool Get_stop_det_flg() const;
-    bool Get_corner_det_flg() const;
+    bool Get_corner_det_flg_3d() const;
+    bool Get_corner_det_flg_2d() const;
     bool Get_huddle_det_stop_flg() const;
     bool Get_corner_det_stop_flg() const;
 
@@ -224,10 +228,12 @@ public:
     void Set_line_det_flg(bool line_det_flg);
     void Set_no_line_det_flg(bool no_line_det_flg);
     void Set_goal_line_det_flg(bool goal_line_det_flg);
-    void Set_huddle_det_flg(bool huddle_det_flg);
+    void Set_huddle_det_flg_2d(bool huddle_det_flg_2d);
+    void Set_huddle_det_flg_3d(bool huddle_det_flg_3d);
     void Set_wall_det_flg(bool wall_det_flg);
     void Set_stop_det_flg(bool stop_det_flg);
-    void Set_corner_det_flg(bool corner_det_flg);
+    void Set_corner_det_flg_2d(bool corner_det_flg_2d);
+    void Set_corner_det_flg_3d(bool corner_det_flg_3d);
     void Set_huddle_det_stop_flg(bool huddle_det_stop_flg);
     void Set_corner_det_stop_flg(bool corner_det_stop_flg);
 
@@ -458,10 +464,12 @@ private:
     bool goal_line_det_flg_ = false;
     bool line_det_flg_ = false;
     bool no_line_det_flg_ = false;
-    bool huddle_det_flg_ = false;
+    bool huddle_det_flg_3d_ = false;
+    bool huddle_det_flg_2d_ = false;
     bool stop_det_flg_ = false;
     bool wall_det_flg_ = false;
-    bool corner_det_flg_ = false;
+    bool corner_det_flg_3d_ = false;
+    bool corner_det_flg_2d_ = false;
 
     // True : unEnable to write the value
     // False : Enable to write the value
@@ -493,10 +501,12 @@ private:
     mutable std::mutex mtx_goal_line_det_flg;
     mutable std::mutex mtx_line_det_flg;
     mutable std::mutex mtx_no_line_det_flg;
-    mutable std::mutex mtx_huddle_det_flg;
+    mutable std::mutex mtx_huddle_det_flg_3d;
+    mutable std::mutex mtx_huddle_det_flg_2d;
     mutable std::mutex mtx_wall_det_flg;
     mutable std::mutex mtx_stop_det_flg;
-    mutable std::mutex mtx_corner_det_flg;
+    mutable std::mutex mtx_corner_det_flg_3d;
+    mutable std::mutex mtx_corner_det_flg_2d;
     mutable std::mutex mtx_huddle_det_stop_flg;
     mutable std::mutex mtx_corner_det_stop_flg;
 

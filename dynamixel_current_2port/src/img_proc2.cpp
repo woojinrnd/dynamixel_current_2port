@@ -40,7 +40,7 @@ void Img_proc::create_color_range_trackbar(const std::string &window_name)
     cv::createTrackbar("Value Upper", window_name, &value_upper, 255, on_trackbar);
 }
 
-cv::Mat Img_proc::ROI_Image(const cv::Mat &input_frame)
+cv::Mat Img_proc::ROI_Circle(const cv::Mat &input_frame)
 {
     int bigRadius = 500;
     int smallRadius = 500;
@@ -50,15 +50,31 @@ cv::Mat Img_proc::ROI_Image(const cv::Mat &input_frame)
     // 바깥쪽 원
     cv::ellipse(mask, cv::Point(320, 500), cv::Size(bigRadius, bigRadius), 0, 0, 360, 255, -1);
     // 안쪽 원
-    cv::ellipse(mask, cv::Point(320, 850), cv::Size(smallRadius, smallRadius), 0, 0, 360, 0, -1);
-
+    // cv::ellipse(mask, cv::Point(320, 850), cv::Size(smallRadius, smallRadius), 0, 0, 360, 0, -1);
     cv::Mat roi;
     input_frame.copyTo(roi, mask);
 
     cv::circle(roi, cv::Point(320, 500), 500, cv::Scalar(0, 0, 255), 2);
-    cv::circle(roi, cv::Point(320, 850), 500, cv::Scalar(0, 0, 255), 2);
+    // cv::circle(roi, cv::Point(320, 850), 500, cv::Scalar(0, 0, 255), 2);
 
     // cv::imshow("ROI", roi);
+
+    return roi;
+}
+
+cv::Mat Img_proc::ROI_Rectangle(const cv::Mat &input_frame)
+{
+    int y_start = 380;
+    int y_end = 480;
+
+    cv::Mat mask = cv::Mat::zeros(input_frame.rows, input_frame.cols, CV_8U);
+
+    cv::rectangle(mask, cv::Point(0, y_start), cv::Point(input_frame.cols, y_end), 255, -1);
+
+    cv::Mat roi;
+    input_frame.copyTo(roi, mask);
+
+    cv::rectangle(roi, cv::Point(0, y_start), cv::Point(input_frame.cols, y_end), cv::Scalar(0, 0, 255), 2);
 
     return roi;
 }
@@ -80,7 +96,6 @@ std::tuple<cv::Mat, cv::Mat> Img_proc::extract_color(const cv::Mat &input_frame,
 
     return {color_extracted, frame};
 }
-
 std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
 {
     cv::Mat frame = input_frame.clone();
@@ -107,6 +122,8 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
     float huddle_angle = 0;
     float Line_Angle = 0;
     float corner_angle = 0;
+
+    cv::Point top_center, bottom_center, left_center, right_center;
 
     bool &has_prev = is_white_line ? has_white_prev : has_yellow_prev;
     cv::Point &center_now = is_white_line ? center_now_white : center_now_yellow;
@@ -159,17 +176,6 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
 
         Rnd_angle = -90 - adjustedAngle;
     }
-
-    if (has_white_now)
-    {
-        cv::putText(ori_frame, "MODE : " + Str_LINE_MODE, cv::Point(webcam_width * 0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
-    }
-    if (!has_white_now)
-    {
-        cv::putText(ori_frame, "MODE : " + Str_NO_LINE_MODE, cv::Point(webcam_width * 0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
-    }
-
-    // cv::putText(ori_frame, "distance : " + std::to_string(distance_huddle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
 
     if (is_white_line)
     {
@@ -252,63 +258,67 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
             }
 
             // Corner angle
-            else if (short_len * 1.5 > long_len && numVertices == 8)
+            else if (numVertices >= 6 && numVertices <= 9)
             {
-                corner_center = min_area_rect.center;
-                Corner = true;
-                if (Corner)
-                {
-                    cv::putText(ori_frame, "MODE : " + Str_CORNER_MODE, cv::Point(webcam_width * 0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
-                }
+
+                cv::polylines(ori_frame, approx, true, cv::Scalar(255, 255, 255), 2);
+
+                std::sort(approx.begin(), approx.end(), [](const cv::Point &a, const cv::Point &b)
+                          { return a.y < b.y; });
+
+                cv::Point topmost1 = approx[0];
+                cv::Point topmost2 = approx[1];
+
+                cv::Point bottommost1 = approx[approx.size() - 1];
+                cv::Point bottommost2 = approx[approx.size() - 2];
+
+                top_center = (topmost1 + topmost2) / 2;
+                bottom_center = (bottommost1 + bottommost2) / 2;
+
+                std::sort(approx.begin(), approx.end(), [](const cv::Point &a, const cv::Point &b)
+                          { return a.x < b.x; });
+
+                cv::Point leftmost1 = approx[0];
+                cv::Point leftmost2 = approx[1];
+
+                cv::Point rightmost1 = approx[approx.size() - 1];
+                cv::Point rightmost2 = approx[approx.size() - 2];
+
+                left_center = (leftmost1 + leftmost2) / 2;
+                right_center = (rightmost1 + rightmost2) / 2;
 
                 if (croppedWidth > croppedHeight)
                 {
-                    if (min_area_rect.size.width < min_area_rect.size.height)
-                    {
-                        corner_angle = -min_area_rect.angle - 90;
-                    }
-                    else
-                    {
-                        corner_angle = -min_area_rect.angle;
-                    }
-                    // Set_img_proc_corner_number(2); // corner shape : ㅜ
-                    // cout << "corner1" << endl;
+                    double raw_dy = right_center.y - left_center.y;
+                    double raw_dx = right_center.x - left_center.x;
+
+                    double raw_angle_rad = std::atan2(raw_dy, raw_dx);
+                    double raw_angle_deg = raw_angle_rad * (180.0 / CV_PI);
+
+                    corner_angle = -raw_angle_deg;
+                    corner_center = (left_center + right_center) / 2;
+
+                    cv::line(ori_frame, left_center, right_center, red_color, 3);
+
+                    Set_img_proc_corner_number(2); // corner shape : ㅜ
                 }
                 else if (croppedWidth < croppedHeight)
                 {
-                    if (min_area_rect.size.width > min_area_rect.size.height)
-                    {
-                        corner_angle = -min_area_rect.angle - 90;
-                    }
-                    else
-                    {
-                        corner_angle = -min_area_rect.angle;
-                    }
-                    // Set_img_proc_corner_number(1); // corner shape : ㅓ
-                    // cout << "corner2" << endl;
+                    double col_dy = bottom_center.y - top_center.y;
+                    double col_dx = bottom_center.x - top_center.x;
+
+                    double col_angle_rad = std::atan2(col_dy, col_dx);
+                    double col_angle_deg = col_angle_rad * (180.0 / CV_PI);
+
+                    corner_angle = 90 - col_angle_deg;
+                    corner_center = (top_center + bottom_center) / 2;
+
+                    cv::line(ori_frame, top_center, bottom_center, red_color, 3);
+
+                    Set_img_proc_corner_number(1); // corner shape : ㅓ
                 }
-
-                // if (is_white_line)
-                // {
-                //     corner_condition_count++;
-                //     if (corner_condition_count >= 15)
-                //     {
-                //         // Rect corner_bounding_Box = min_area_rect.boundingRect();
-                //         // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
-                //         corner_center = min_area_rect.center;
-                //         Corner = true;
-                //         if (Corner)
-                //         {
-                //             cv::putText(ori_frame, "MODE : " + Str_CORNER_MODE, cv::Point(webcam_width * 0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
-                //         }
-                //     }
-                // }
+                cv::circle(ori_frame, corner_center, 10, contour_color, -1);
             }
-
-            // else
-            // {
-            //     corner_condition_count = 0;
-            // }
         }
 
         if (is_yellow_line)
@@ -330,15 +340,23 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
 
         Line_Angle = SM_angle + Rnd_angle;
 
+        //--------------------------------------------------------------------- frame interface -------------------------------------------------------------------------
+
+        if (has_white_now)
+        {
+            cv::putText(ori_frame, "MODE : " + Str_LINE_MODE, cv::Point(webcam_width * 0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+        }
+        if (!has_white_now)
+        {
+            cv::putText(ori_frame, "MODE : " + Str_NO_LINE_MODE, cv::Point(webcam_width * 0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+        }
+
         cv::putText(ori_frame, "Rnd_Angle : " + std::to_string(Rnd_angle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.6, contour_color, 2);
         cv::putText(ori_frame, "SM_angle : " + std::to_string(SM_angle), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.6, contour_color, 2);
         cv::putText(ori_frame, "Line angle : " + std::to_string(SM_angle + Rnd_angle), cv::Point(10, 75), cv::FONT_HERSHEY_SIMPLEX, 0.6, contour_color, 2);
         cv::putText(ori_frame, "Vertice : " + std::to_string(numVertices), cv::Point(10, 300), cv::FONT_HERSHEY_SIMPLEX, 0.6, contour_color, 2);
-        
-
-        cv::circle(ori_frame, huddle_center, 5, CV_RGB(0, 255, 255), -1);
-        cv::circle(ori_frame, corner_center, 2, CV_RGB(0, 255, 255), -1);
-        cv::putText(ori_frame, "Area : " + std::to_string(top_contour_area), cv::Point(10, 430), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+        cv::putText(ori_frame, "Corner Angle : " + std::to_string(corner_angle), cv::Point(10, 125), cv::FONT_HERSHEY_SIMPLEX, 0.6, contour_color, 2);
+        cv::putText(ori_frame, "Area : " + std::to_string(top_contour_area), cv::Point(10, 455), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
 
         topmost_point = *std::min_element(top_contour.begin(), top_contour.end(),
                                           [](const cv::Point &a, const cv::Point &b)
@@ -354,9 +372,6 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
 
         cv::circle(ori_frame, topmost_point, 5, cv::Scalar(0, 0, 255), -1);
         cv::circle(ori_frame, bottommost_point, 5, cv::Scalar(0, 255, 255), -1);
-
-        cv::Point center_dot(570, 50);
-        int length = 50;
     }
     return std::make_tuple(ori_frame, foundLargeContour, Line_Angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center, huddle_angle, top_contour_area, huddle_center, corner_angle);
 }
@@ -409,7 +424,7 @@ void Img_proc::webcam_thread()
         if (frame.empty())
             break;
 
-        cv::Mat Roi_frame = ROI_Image(frame);
+        cv::Mat Roi_frame = ROI_Circle(frame);
 
         // HSV
         auto hsv_frame_white = extract_color(Roi_frame, lower_bound_white, upper_bound_white);
@@ -425,14 +440,13 @@ void Img_proc::webcam_thread()
         int WhiteColorDetected = std::get<10>(thresh_frame_white);
         int YellowColorDetected = std::get<10>(thresh_frame_yellow);
 
-
         if (YellowColorDetected > HUDDLE_AREA)
         {
             // Athletics_FLAG = 2;
-            this->Set_img_proc_huddle_det(std::get<1>(thresh_frame_yellow));
+            this->Set_img_proc_huddle_det_2d(std::get<1>(thresh_frame_yellow));
         }
 
-        if (Get_img_proc_huddle_det())
+        if (Get_img_proc_huddle_det_2d())
         {
             cv::putText(std::get<0>(thresh_frame_yellow), "MODE : " + Str_HUDDLE_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
 
@@ -476,7 +490,7 @@ void Img_proc::webcam_thread()
             bool Corner_mode = std::get<4>(thresh_frame_yellow);
             if (Corner_mode)
             {
-                Set_img_proc_corner_det(Corner_mode);
+                Set_img_proc_corner_det_2d(Corner_mode);
                 Set_corner_angle(corner_angle);
                 cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
                 cv::Point corner_bottom_point = std::get<7>(thresh_frame_white);
@@ -724,6 +738,29 @@ void Img_proc::realsense_thread()
             this->Set_img_proc_wall_number(wall_number_);
             this->Set_wall_angle(angle_);
             this->Set_wall_distance(distance_);
+
+            //---------------------------------------------------------- preview to realsense ---------------------------------------------------------------------
+            cv::Mat Preview_frame = ROI_Rectangle(colorMat);
+
+            auto Huddle = extract_color(Preview_frame, lower_bound_yellow, upper_bound_yellow);
+            auto thresh_frame_yellow = detect_Line_areas(std::get<0>(Huddle), colorMat, blue_color, threshold_value_yellow, true, false);
+            bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
+            
+            //huddle_mode(3d)
+            int YellowColorDetected = std::get<10>(thresh_frame_yellow);
+            if (YellowColorDetected > HUDDLE_AREA)
+            {
+                this->Set_img_proc_huddle_det_3d(YellowContourDetected);
+            }
+
+            //corner_mode(3d)
+            bool Corner_mode = std::get<4>(thresh_frame_yellow);
+            if (Corner_mode)
+            {
+                this->Set_img_proc_corner_det_3d(Corner_mode);
+            }
+
+            //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
             // // // Huddle mode
 
@@ -1430,10 +1467,16 @@ bool Img_proc::Get_img_proc_no_line_det() const
     return img_proc_no_line_det_;
 }
 
-bool Img_proc::Get_img_proc_corner_det() const
+bool Img_proc::Get_img_proc_corner_det_3d() const
 {
-    std::lock_guard<std::mutex> lock(mtx_img_proc_corner_det_);
-    return img_proc_corner_det_;
+    std::lock_guard<std::mutex> lock(mtx_img_proc_corner_det_3d);
+    return img_proc_corner_det_3d_;
+}
+
+bool Img_proc::Get_img_proc_corner_det_2d() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_corner_det_2d);
+    return img_proc_corner_det_2d_;
 }
 
 int8_t Img_proc::Get_img_proc_corner_number() const
@@ -1448,10 +1491,16 @@ bool Img_proc::Get_img_proc_goal_line_det() const
     return img_proc_goal_det_;
 }
 
-bool Img_proc::Get_img_proc_huddle_det() const
+bool Img_proc::Get_img_proc_huddle_det_3d() const
 {
-    std::lock_guard<std::mutex> lock(mtx_img_proc_huddle_det_);
-    return img_proc_huddle_det_;
+    std::lock_guard<std::mutex> lock(mtx_img_proc_huddle_det_3d);
+    return img_proc_huddle_det_3d_;
+}
+
+bool Img_proc::Get_img_proc_huddle_det_2d() const
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_huddle_det_2d);
+    return img_proc_huddle_det_2d_;
 }
 
 bool Img_proc::Get_img_proc_wall_det() const
@@ -1540,10 +1589,16 @@ void Img_proc::Set_img_proc_no_line_det(bool img_proc_no_line_det)
     this->img_proc_no_line_det_ = img_proc_no_line_det;
 }
 
-void Img_proc::Set_img_proc_corner_det(bool img_proc_corner_det)
+void Img_proc::Set_img_proc_corner_det_3d(bool img_proc_corner_det_3d)
 {
-    std::lock_guard<std::mutex> lock(mtx_img_proc_corner_det_);
-    this->img_proc_corner_det_ = img_proc_corner_det;
+    std::lock_guard<std::mutex> lock(mtx_img_proc_corner_det_3d);
+    this->img_proc_corner_det_3d_ = img_proc_corner_det_3d;
+}
+
+void Img_proc::Set_img_proc_corner_det_2d(bool img_proc_corner_det_2d)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_corner_det_2d);
+    this->img_proc_corner_det_2d_ = img_proc_corner_det_2d;
 }
 
 void Img_proc::Set_img_proc_goal_line_det(bool img_proc_goal_line_det)
@@ -1552,10 +1607,16 @@ void Img_proc::Set_img_proc_goal_line_det(bool img_proc_goal_line_det)
     this->img_proc_goal_det_ = img_proc_goal_line_det;
 }
 
-void Img_proc::Set_img_proc_huddle_det(bool img_proc_huddle_det)
+void Img_proc::Set_img_proc_huddle_det_3d(bool img_proc_huddle_det_3d)
 {
-    std::lock_guard<std::mutex> lock(mtx_img_proc_huddle_det_);
-    this->img_proc_huddle_det_ = img_proc_huddle_det;
+    std::lock_guard<std::mutex> lock(mtx_img_proc_huddle_det_3d);
+    this->img_proc_huddle_det_3d_ = img_proc_huddle_det_3d;
+}
+
+void Img_proc::Set_img_proc_huddle_det_2d(bool img_proc_huddle_det_2d)
+{
+    std::lock_guard<std::mutex> lock(mtx_img_proc_huddle_det_2d);
+    this->img_proc_huddle_det_2d_ = img_proc_huddle_det_2d;
 }
 
 void Img_proc::Set_img_proc_wall_det(bool img_proc_wall_det)
