@@ -81,7 +81,7 @@ std::tuple<cv::Mat, cv::Mat> Img_proc::extract_color(const cv::Mat &input_frame,
     return {color_extracted, frame};
 }
 
-std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
+std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
 {
     cv::Mat frame = input_frame.clone();
     cv::Mat ori_frame = origin_frame.clone();
@@ -106,6 +106,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
     float Rnd_angle = 0;
     float huddle_angle = 0;
     float Line_Angle = 0;
+    float corner_angle = 0;
 
     bool &has_prev = is_white_line ? has_white_prev : has_yellow_prev;
     cv::Point &center_now = is_white_line ? center_now_white : center_now_yellow;
@@ -253,54 +254,61 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
             // Corner angle
             else if (short_len * 1.5 > long_len && numVertices == 8)
             {
+                corner_center = min_area_rect.center;
+                Corner = true;
+                if (Corner)
+                {
+                    cv::putText(ori_frame, "MODE : " + Str_CORNER_MODE, cv::Point(webcam_width * 0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+                }
+
                 if (croppedWidth > croppedHeight)
                 {
                     if (min_area_rect.size.width < min_area_rect.size.height)
                     {
-                        SM_angle = -min_area_rect.angle - 90;
+                        corner_angle = -min_area_rect.angle - 90;
                     }
                     else
                     {
-                        SM_angle = -min_area_rect.angle;
+                        corner_angle = -min_area_rect.angle;
                     }
-                    Set_img_proc_corner_number(2); // corner shape : ㅜ
+                    // Set_img_proc_corner_number(2); // corner shape : ㅜ
                     // cout << "corner1" << endl;
                 }
                 else if (croppedWidth < croppedHeight)
                 {
                     if (min_area_rect.size.width > min_area_rect.size.height)
                     {
-                        SM_angle = -min_area_rect.angle - 90;
+                        corner_angle = -min_area_rect.angle - 90;
                     }
                     else
                     {
-                        SM_angle = -min_area_rect.angle;
+                        corner_angle = -min_area_rect.angle;
                     }
-                    Set_img_proc_corner_number(1); // corner shape : ㅓ
+                    // Set_img_proc_corner_number(1); // corner shape : ㅓ
                     // cout << "corner2" << endl;
                 }
 
-                if (is_white_line)
-                {
-                    corner_condition_count++;
-                    if (corner_condition_count >= 15)
-                    {
-                        // Rect corner_bounding_Box = min_area_rect.boundingRect();
-                        // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
-                        corner_center = min_area_rect.center;
-                        Corner = true;
-                        if (Corner)
-                        {
-                            cv::putText(ori_frame, "MODE : " + Str_CORNER_MODE, cv::Point(webcam_width * 0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
-                        }
-                    }
-                }
+                // if (is_white_line)
+                // {
+                //     corner_condition_count++;
+                //     if (corner_condition_count >= 15)
+                //     {
+                //         // Rect corner_bounding_Box = min_area_rect.boundingRect();
+                //         // corner_center = cv::Point(((corner_bounding_Box.br().x + corner_bounding_Box.tl().x), (corner_bounding_Box.br().y + corner_bounding_Box.tl().y)) * 0.5);
+                //         corner_center = min_area_rect.center;
+                //         Corner = true;
+                //         if (Corner)
+                //         {
+                //             cv::putText(ori_frame, "MODE : " + Str_CORNER_MODE, cv::Point(webcam_width * 0.5 + 50, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+                //         }
+                //     }
+                // }
             }
 
-            else
-            {
-                corner_condition_count = 0;
-            }
+            // else
+            // {
+            //     corner_condition_count = 0;
+            // }
         }
 
         if (is_yellow_line)
@@ -350,7 +358,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         cv::Point center_dot(570, 50);
         int length = 50;
     }
-    return std::make_tuple(ori_frame, foundLargeContour, Line_Angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center, huddle_angle, top_contour_area, huddle_center);
+    return std::make_tuple(ori_frame, foundLargeContour, Line_Angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center, huddle_angle, top_contour_area, huddle_center, corner_angle);
 }
 
 void Img_proc::webcam_thread()
@@ -461,6 +469,7 @@ void Img_proc::webcam_thread()
         {
             bool WhiteContourDetected = std::get<1>(thresh_frame_white);
             double gradient = std::get<2>(thresh_frame_white);
+            double corner_angle = std::get<12>(thresh_frame_white);
             double tmp_delta_x = std::get<5>(thresh_frame_white);
 
             // corner mode
@@ -468,7 +477,7 @@ void Img_proc::webcam_thread()
             if (Corner_mode)
             {
                 Set_img_proc_corner_det(Corner_mode);
-                Set_gradient(gradient);
+                Set_corner_angle(corner_angle);
                 cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
                 cv::Point corner_bottom_point = std::get<7>(thresh_frame_white);
                 int foot_corner_distance = std::abs(foot_top_point.y - corner_bottom_point.y);
@@ -1511,6 +1520,12 @@ double Img_proc::Get_huddle_angle() const
     return huddle_angle_;
 }
 
+double Img_proc::Get_corner_angle() const
+{
+    std::lock_guard<std::mutex> lock(mtx_corner_angle_);
+    return corner_angle_;
+}
+
 // ********************************************** SETTERS ************************************************** //
 
 void Img_proc::Set_img_proc_line_det(bool img_proc_line_det)
@@ -1613,4 +1628,10 @@ void Img_proc::Set_huddle_angle(double huddle_angle)
 {
     std::lock_guard<std::mutex> lock(mtx_huddle_angle_);
     this->huddle_angle_ = huddle_angle;
+}
+
+void Img_proc::Set_corner_angle(double corner_angle)
+{
+    std::lock_guard<std::mutex> lock(mtx_corner_angle_);
+    this->corner_angle_ = corner_angle;
 }

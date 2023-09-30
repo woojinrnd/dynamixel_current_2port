@@ -1926,7 +1926,7 @@ void Move_Decision::CORNER_mode()
 
     corner_actual_angle = Get_turn_angle_();
     corner_ud_neck_angle = Get_UD_NeckAngle();
-    corner_motion = Get_motion_index_();
+    corner_motion = Motion_Index::InitPose;
 
     // 0 : Approach to the Corner + Pose Control (Position)
     if (tmp_corner_seq == 0)
@@ -1934,6 +1934,9 @@ void Move_Decision::CORNER_mode()
         // Initializing
         corner_seq_finish = false;
         Set_corner_det_stop_flg(false);
+
+        huddle_seq_finish = false;
+        Set_huddle_det_stop_flg(false);
 
         img_proc_corner_delta_x = img_procPtr->Get_delta_x();
         img_proc_contain_corner_to_foot = img_procPtr->Get_contain_corner_to_foot();
@@ -2011,7 +2014,7 @@ void Move_Decision::CORNER_mode()
 
     else if (tmp_corner_seq == 1)
     {
-        img_proc_corner_angle = img_procPtr->Get_gradient();
+        img_proc_corner_angle = img_procPtr->Get_corner_angle();
         ROS_ERROR("img_proc_corner_angle : %lf", img_proc_corner_angle);
         ROS_ERROR(Str_CORNER_SEQUENCE_1.c_str());
 
@@ -2823,6 +2826,9 @@ std::tuple<int8_t, double> Move_Decision::playMotion()
             case Motion_Index::Back_Halfstep:
                 res_select_motion = Motion_Index::Back_Halfstep;
                 break;
+            
+            default:
+                res_select_motion = Motion_Index::InitPose;
             }
 
             Set_select_motion_on_flg(false);
@@ -2839,6 +2845,9 @@ std::tuple<int8_t, double> Move_Decision::playMotion()
             case Motion_Index::BWD_UP:
                 res_select_motion = Motion_Index::BWD_UP;
                 break;
+
+            default:
+                res_select_motion = Motion_Index::InitPose;
             }
             Set_select_motion_on_flg(false);
         }

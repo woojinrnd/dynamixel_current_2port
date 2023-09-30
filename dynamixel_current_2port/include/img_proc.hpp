@@ -46,11 +46,11 @@
 #define LINE_AREA 300
 #define HUDDLE_AREA 500
 
-#define CORNER_X_MARGIN 30
-#define CORNER_Y_MARGIN 20
+#define CORNER_X_MARGIN 45
+#define CORNER_Y_MARGIN 45
 
-#define HUDDLE_X_MARGIN 30
-#define HUDDLE_Y_MARGIN 40
+#define HUDDLE_X_MARGIN 50
+#define HUDDLE_Y_MARGIN 50
 
 using namespace cv;
 using namespace std;
@@ -146,7 +146,7 @@ public:
     void create_color_range_trackbar(const std::string &window_name);
     cv::Mat ROI_Image(const cv::Mat &input_frame);
     std::tuple<cv::Mat, cv::Mat> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
-    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
+    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
     double Distance_Point(const rs2::depth_frame &depth, cv::Point center);
 
     // ********************************************** 3D THREAD************************************************** //
@@ -182,6 +182,7 @@ public:
     double Get_wall_distance() const;
     double Get_huddle_distance() const;
     double Get_huddle_angle() const;
+    double Get_corner_angle() const;
 
     bool Get_contain_huddle_to_foot() const;
     bool Get_contain_corner_to_foot() const;
@@ -205,6 +206,7 @@ public:
     
     void Set_huddle_distance(double huddle_distance);
     void Set_huddle_angle(double huddle_angle);
+    void Set_corner_angle(double corner_angle);
 
     void Set_contain_huddle_to_foot(bool contain_huddle_to_foot);
     void Set_contain_corner_to_foot(bool contain_corner_to_foot);
@@ -269,8 +271,9 @@ private:
     double gradient_ = 0;     // Line_angle
     double wall_angle_ = 0;   // wall angle
     double huddle_angle_ = 0; // huddle angle
-    double wall_distance_ = 0;     // huddle / wall mode
-    double huddle_distance_ = 0;
+    double wall_distance_ = 0;     //  wall mode
+    double huddle_distance_ = 0; // huddle distance
+    double corner_angle_ = 0;
 
 
 
@@ -312,4 +315,5 @@ private:
 
     // Corner mode
     mutable std::mutex mtx_contain_corner_to_foot;
+    mutable std::mutex mtx_corner_angle_;
 };
