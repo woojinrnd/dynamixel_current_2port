@@ -533,6 +533,7 @@ void Callback::Write_Leg_Theta()
                     srv_SendMotion.request.TA_finish = true;
                 }
             }
+         Check_FSR();
         }
         else if (mode == Motion_Index::Left_2step || mode == Motion_Index::Left_Halfstep)
         {
@@ -601,7 +602,7 @@ void Callback::Write_Leg_Theta()
     // ROS_INFO("indext(%d) mode(%d) length(%d) res_mode(%d)", indext , mode, trajectoryPtr->Ref_RL_x.cols(), srv_SendMotion.response.select_motion);
 
     // //ROS_INFO("%d  %lf %d", indext, All_Theta[3], emergency);
-    // Check_FSR();
+    
 }
 
 void Callback::Write_Arm_Theta()
