@@ -114,9 +114,9 @@ void Callback::callbackThread()
             {
                 if (error_counter < 50) // Check the counter
                 {
-                    //ROS_INFO("\n");
-                    //ROS_ERROR("Failed to call service");
-                    //ROS_INFO("\n");
+                    // ROS_INFO("\n");
+                    // ROS_ERROR("Failed to call service");
+                    // ROS_INFO("\n");
                     error_printed = true; // Set the flag to true
                     error_counter++;      // Increase the counter
                 }
@@ -160,7 +160,7 @@ void Callback::Move_RL_NeckAngle()
     All_Theta[21] = rl_neckangle;
     // All_Theta[2] = rl_neckangle * DEG2RAD;
     // ROS_WARN("RL_NECK : %f", rl_neckangle);
-    //ROS_INFO("------------------------- RL NECK Angle ----------------------------");
+    // ROS_INFO("------------------------- RL NECK Angle ----------------------------");
 }
 
 // 90[deg] : Initial Propose (Look straight)
@@ -178,7 +178,7 @@ void Callback::TATA()
 {
     double res_turn_angle = srv_SendMotion.response.turn_angle;
 
-    if (res_turn_angle != 0 )
+    if (res_turn_angle != 0)
     {
         turn_angle = res_turn_angle * DEG2RAD;
         trajectoryPtr->Make_turn_trajectory(turn_angle);
@@ -205,8 +205,8 @@ void Callback::Emergency()
         stop_indext = 0;
         // mode = 0;
     }
-    //ROS_ERROR("EMERGENCY : %s", emergency_ ? "True" : "False");
-    //ROS_INFO("------------------------- EMERGENCY ----------------------------");
+    // ROS_ERROR("EMERGENCY : %s", emergency_ ? "True" : "False");
+    // ROS_INFO("------------------------- EMERGENCY ----------------------------");
 }
 
 void Callback::Check_FSR()
@@ -284,6 +284,10 @@ void Callback::Motion_Info()
         tmp_motion = Str_BWD_UP;
         break;
 
+    case Motion_Index::Forward_1step:
+        tmp_motion = Forward_1step;
+        break;
+
     case Motion_Index::NONE:
         tmp_motion = Str_NONE;
         break;
@@ -332,24 +336,38 @@ void Callback::SelectMotion()
 
         indext = 0;
     }
+
     else if (res_mode == Motion_Index::Forward_2step)
     {
         mode = Motion_Index::Forward_2step;
         IK_Ptr->Change_Com_Height(30);
-        trajectoryPtr->Go_Straight(0.05,0.35,0.05);
+        trajectoryPtr->Go_Straight(0.05, 0.25, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         trajectoryPtr->Stop_Trajectory_straightwalk(0.05);
         indext = 0;
     }
+
+    else if (res_mode == Motion_Index::Forward_1step)
+    {
+        mode = Motion_Index::Forward_1step;
+        IK_Ptr->Change_Com_Height(30);
+        trajectoryPtr->Go_Straight(0.05, 0.15, 0.05);
+        IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Set_Angle_Compensation(135);
+        trajectoryPtr->Stop_Trajectory_straightwalk(0.05);
+        indext = 0;
+    }
+
     else if (res_mode == Motion_Index::Left_2step)
     {
         mode = Motion_Index::Left_2step;
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Left2();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -359,7 +377,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Step_in_place(0.05, 0.5, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -369,7 +387,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Right2();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -377,41 +395,63 @@ void Callback::SelectMotion()
     {
         mode = Motion_Index::Forward_Nstep;
         IK_Ptr->Change_Com_Height(30);
-        trajectoryPtr->Go_Straight(0.05,res_distance,0.05);
+        trajectoryPtr->Go_Straight(0.05, res_distance, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
     else if (res_mode == Motion_Index::Huddle_Jump)
     {
         mode = Motion_Index::Huddle_Jump;
-        IK_Ptr->Change_Com_Height(80);
-        trajectoryPtr->Huddle_Motion(0.2, 0.12);
+        IK_Ptr->Change_Com_Height(30);
+        trajectoryPtr->Huddle_Motion(0.22, 0.14, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,4.5,3.5,3.5,4.5);
+        IK_Ptr->Change_Angle_Compensation(4.5, 4.5, 4.5, 4.5, 4.5, -4.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
-    
+
     else if (res_mode == Motion_Index::ForWard_fast4step)
     {
         mode = Motion_Index::ForWard_fast4step;
         IK_Ptr->Change_Com_Height(30);
-        trajectoryPtr->Freq_Change_Straight(0.05,0.5,0.05,1);
+        trajectoryPtr->Freq_Change_Straight(0.05, 0.5, 0.05, 1);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
         IK_Ptr->Set_Angle_Compensation(67);
         indext = 0;
     }
 
     else if (res_mode == Motion_Index::Forward_Halfstep)
     {
-        mode =  Motion_Index::Forward_Halfstep;
+        mode = Motion_Index::Forward_Halfstep;
         IK_Ptr->Change_Com_Height(30);
-        trajectoryPtr->Go_Straight(0.01,0.03,0.05);
+        trajectoryPtr->Go_Straight(0.01, 0.03, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5,3.5,3.5,3.5,3.5,-3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Set_Angle_Compensation(135);
+        indext = 0;
+    }
+
+    else if (res_mode == Motion_Index::Right_Halfstep)
+    {
+        mode = Motion_Index::Right_Halfstep;
+        IK_Ptr->Change_Com_Height(30);
+        trajectoryPtr->Side_Right1();
+        IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Set_Angle_Compensation(135);
+        indext = 0;
+    }
+
+    else if (res_mode == Motion_Index::Left_Halfstep)
+    {
+        mode = Motion_Index::Left_Halfstep;
+        IK_Ptr->Change_Com_Height(30);
+        trajectoryPtr->Side_Left1();
+        IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -424,17 +464,17 @@ void Callback::Write_Leg_Theta()
 {
 
     check_indext = indext % walktime_n;
-    if (turn_angle > 0 && check_indext == 0 && indext > 0.5*walktime_n && indext < trajectoryPtr->Ref_RL_x.cols()-walktime_n*0.5)
+    if (turn_angle > 0 && check_indext == 0 && indext > 0.5 * walktime_n && indext < trajectoryPtr->Ref_RL_x.cols() - walktime_n * 0.5)
     {
         turn_left = true;
     }
 
-    if (turn_angle < 0 && check_indext == 67 && indext > 0.5*walktime_n && indext < trajectoryPtr->Ref_RL_x.cols()-walktime_n*0.5)
+    if (turn_angle < 0 && check_indext == 67 && indext > 0.5 * walktime_n && indext < trajectoryPtr->Ref_RL_x.cols() - walktime_n * 0.5)
     {
         turn_right = true;
     }
 
-    if (turn_right||turn_left)
+    if (turn_right || turn_left)
     {
         srv_SendMotion.request.TA_finish = false;
     }
@@ -442,7 +482,6 @@ void Callback::Write_Leg_Theta()
     // {
     //     srv_SendMotion.request.TA_finish = true;
     // }
-
 
     // if (on_emergency == true)
     // {
@@ -468,54 +507,52 @@ void Callback::Write_Leg_Theta()
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
         }
 
-        else if (mode == 1 || mode == 3 || mode == 5 || mode == 10)
+        else if (mode == Motion_Index::Forward_2step || mode == Motion_Index::Step_in_place || mode == Motion_Index::Forward_Nstep || mode == Motion_Index::Forward_Halfstep || mode == Motion_Index::Forward_1step)
         {
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
             IK_Ptr->Angle_Compensation(indext);
-                if (turn_left)
+            if (turn_left)
+            {
+                IK_Ptr->LL_th[0] = trajectoryPtr->Turn_Trajectory(index_angle);
+                index_angle += 1;
+                if (index_angle > walktime_n - 1)
                 {
-                    IK_Ptr->LL_th[0] = trajectoryPtr->Turn_Trajectory(index_angle);
-                    index_angle += 1;
-                    if (index_angle > walktime_n - 1)
-                    {
-                        turn_angle = 0;
-                        turn_left = false;
-                        srv_SendMotion.request.TA_finish = true;
-                    }
+                    turn_angle = 0;
+                    turn_left = false;
+                    srv_SendMotion.request.TA_finish = true;
                 }
-                if (turn_right)
-                { 
-                    IK_Ptr->RL_th[0] = trajectoryPtr->Turn_Trajectory(index_angle);
-                    index_angle += 1;
-                    if (index_angle > walktime_n - 1)
-                    {
-                        turn_angle = 0;
-                        turn_right = false;
-                        srv_SendMotion.request.TA_finish = true;
-                    }
+            }
+            if (turn_right)
+            {
+                IK_Ptr->RL_th[0] = trajectoryPtr->Turn_Trajectory(index_angle);
+                index_angle += 1;
+                if (index_angle > walktime_n - 1)
+                {
+                    turn_angle = 0;
+                    turn_right = false;
+                    srv_SendMotion.request.TA_finish = true;
                 }
- 
-        
+            }
         }
-        else if (mode == 2)
+        else if (mode == Motion_Index::Left_2step || mode == Motion_Index::Left_Halfstep)
         {
-
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
             IK_Ptr->Angle_Compensation_Leftwalk(indext);
         }
-        else if (mode == 4)
+
+        else if (mode == Motion_Index::Right_2step || mode == Motion_Index::Right_Halfstep)
         {
 
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
-            IK_Ptr->Angle_Compensation_Leftwalk(indext);
+            IK_Ptr->Angle_Compensation_Rightwalk(indext);
         }
-        else if (mode == 6)
+        else if (mode == Motion_Index::Huddle_Jump)
         {
 
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
             IK_Ptr->Angle_Compensation_Huddle(indext);
         }
-        else if (mode == 7)
+        else if (mode == Motion_Index::ForWard_fast4step)
         {
 
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
@@ -525,7 +562,7 @@ void Callback::Write_Leg_Theta()
     else if (emergency == 1)
     {
         stop_indext += 1;
-        //ROS_INFO("%d", emergency);
+        // ROS_INFO("%d", emergency);
         if (stop_indext > 133)
         {
             stop_indext -= 1;
@@ -543,14 +580,14 @@ void Callback::Write_Leg_Theta()
     All_Theta[3] = -IK_Ptr->RL_th[3] + 38.34 * DEG2RAD;
     All_Theta[4] = -IK_Ptr->RL_th[4] + 24.22 * DEG2RAD;
     All_Theta[5] = -IK_Ptr->RL_th[5];
-    All_Theta[6] = -IK_Ptr->LL_th[0] ;
-    All_Theta[7] = IK_Ptr->LL_th[1]+ 2 * DEG2RAD;
+    All_Theta[6] = -IK_Ptr->LL_th[0];
+    All_Theta[7] = IK_Ptr->LL_th[1] + 2 * DEG2RAD;
     All_Theta[8] = -IK_Ptr->LL_th[2] + 10.74 * DEG2RAD;
     All_Theta[9] = IK_Ptr->LL_th[3] - 36.34 * DEG2RAD;
     All_Theta[10] = IK_Ptr->LL_th[4] - 24.22 * DEG2RAD;
     All_Theta[11] = -IK_Ptr->LL_th[5];
 
-    if (indext >= trajectoryPtr->Ref_RL_x.cols()-2 && indext != 0)
+    if (indext >= trajectoryPtr->Ref_RL_x.cols() - 2 && indext != 0)
     {
         indext -= 1;
         srv_SendMotion.request.SM_finish = true;
@@ -562,7 +599,6 @@ void Callback::Write_Leg_Theta()
     }
 
     // ROS_INFO("indext(%d) mode(%d) length(%d) res_mode(%d)", indext , mode, trajectoryPtr->Ref_RL_x.cols(), srv_SendMotion.response.select_motion);
-
 
     // //ROS_INFO("%d  %lf %d", indext, All_Theta[3], emergency);
     // Check_FSR();
@@ -583,7 +619,6 @@ void Callback::Write_Arm_Theta()
 
 ///////////////////////////////////////////////  Function ///////////////////////////////////////////////
 
-
 void Callback::Calculate_Real_CP(int indext, double vx, double vy)
 {
     Real_CP_X = trajectoryPtr->Xcom(indext) + vx / omega_w;
@@ -593,18 +628,17 @@ void Callback::Calculate_Real_CP(int indext, double vx, double vy)
 
 void Callback::Calculate_ZMP_from_CP(int indext)
 {
-    VectorXd Ref_yCP =trajectoryPtr->Get_yCP();
-    VectorXd Ref_xCP =trajectoryPtr->Get_xCP();
-    RowVectorXd Ref_xZMP =trajectoryPtr->Get_xZMP();
-    RowVectorXd Ref_yZMP =trajectoryPtr->Get_yZMP();
-    xZMP_from_CP = (Ref_xCP(indext) - exp(omega_w * (2*1.35-0.01*check_indext)) * Real_CP_X) / (1 - exp(omega_w * (2*1.35-0.01*check_indext)));
-    yZMP_from_CP = (Ref_yCP(indext) - exp(omega_w * (2*1.35-0.01*check_indext)) * Real_CP_Y) / (1 - exp(omega_w * (2*1.35-0.01*check_indext)));
+    VectorXd Ref_yCP = trajectoryPtr->Get_yCP();
+    VectorXd Ref_xCP = trajectoryPtr->Get_xCP();
+    RowVectorXd Ref_xZMP = trajectoryPtr->Get_xZMP();
+    RowVectorXd Ref_yZMP = trajectoryPtr->Get_yZMP();
+    xZMP_from_CP = (Ref_xCP(indext) - exp(omega_w * (2 * 1.35 - 0.01 * check_indext)) * Real_CP_X) / (1 - exp(omega_w * (2 * 1.35 - 0.01 * check_indext)));
+    yZMP_from_CP = (Ref_yCP(indext) - exp(omega_w * (2 * 1.35 - 0.01 * check_indext)) * Real_CP_Y) / (1 - exp(omega_w * (2 * 1.35 - 0.01 * check_indext)));
     // Real_zmp_y_accel =trajectoryPtr->Ycom(indext) - (Accel(1)/pow(omega_w,2));
     // fprintf(CP,"%d ",indext);
     // fprintf(CP, "%lf   %lf  %lf  %lf %lf", Ref_yCP(indext), Real_CP_Y, Ref_yZMP(indext), yZMP_from_CP, Real_zmp_y_accel);
     // fprintf(CP, "\n");
-
-} 
+}
 
 void Callback::Set_Callback()
 {

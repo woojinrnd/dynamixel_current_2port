@@ -1442,14 +1442,14 @@ void Move_Decision::HUDDLE_mode2()
                     Set_turn_angle_(line_actual_angle);
                     Set_turn_angle_on_flg(true);
                 }
-                line_motion = Motion_Index::Forward_2step;
+                line_motion = Motion_Index::Forward_1step;
                 Set_motion_index_(line_motion);
                 Set_select_motion_on_flg(true);
             }
 
             if (!Get_select_motion_on_flg() && Get_SM_req_finish())
             {
-                line_motion = Motion_Index::Forward_2step;
+                line_motion = Motion_Index::Forward_1step;
                 Set_motion_index_(line_motion);
                 Set_select_motion_on_flg(true);
             }
@@ -1560,7 +1560,7 @@ void Move_Decision::HUDDLE_mode2()
 
             if (!Get_select_motion_on_flg() && Get_SM_req_finish())
             {
-                line_motion = Motion_Index::Forward_2step;
+                line_motion = Motion_Index::Forward_1step;
                 Set_motion_index_(line_motion);
                 Set_select_motion_on_flg(true);
             }
@@ -1763,14 +1763,14 @@ void Move_Decision::CORNER_mode()
                     Set_turn_angle_(line_actual_angle);
                     Set_turn_angle_on_flg(true);
                 }
-                line_motion = Motion_Index::Forward_2step;
+                line_motion = Motion_Index::Forward_1step;
                 Set_motion_index_(line_motion);
                 Set_select_motion_on_flg(true);
             }
 
             if (!Get_select_motion_on_flg() && Get_SM_req_finish())
             {
-                line_motion = Motion_Index::Forward_2step;
+                line_motion = Motion_Index::Forward_1step;
                 Set_motion_index_(line_motion);
                 Set_select_motion_on_flg(true);
             }
@@ -1881,7 +1881,7 @@ void Move_Decision::CORNER_mode()
 
             if (!Get_select_motion_on_flg() && Get_SM_req_finish())
             {
-                line_motion = Motion_Index::Forward_2step;
+                line_motion = Motion_Index::Forward_1step;
                 Set_motion_index_(line_motion);
                 Set_select_motion_on_flg(true);
             }
@@ -3218,6 +3218,10 @@ std::tuple<int8_t, double> Move_Decision::playMotion()
                 res_select_motion = Motion_Index::Back_Halfstep;
                 break;
 
+            case Motion_Index::Forward_1step:
+                res_select_motion = Motion_Index::Forward_1step;
+                break;
+
             default:
                 res_select_motion = Motion_Index::InitPose;
             }
@@ -3472,6 +3476,10 @@ void Move_Decision::Motion_Info()
 
     case Motion_Index::BWD_UP:
         tmp_motion = Str_BWD_UP;
+        break;
+
+    case Motion_Index::Forward_1step:
+        tmp_motion = Str_Forward_1step;
         break;
 
     case Motion_Index::NONE:

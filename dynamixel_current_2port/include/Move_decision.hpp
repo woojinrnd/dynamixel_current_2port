@@ -52,6 +52,7 @@ public:
         Left_Halfstep = 11,
         Right_Halfstep = 12,
         Back_Halfstep = 13,
+        Forward_1step = 14,
         NONE = 99,
     };
 
@@ -76,6 +77,7 @@ public:
 
     string Str_InitPose = "InitPose";
     string Str_Forward_2step = "Forward_2step";
+    string Str_Forward_1step = "Forward_1step";
     string Str_Left_2step = "Left_2step";
     string Str_Step_in_place = "Step_in_place";
     string Str_Right_2step = "Right_2step";
@@ -115,7 +117,7 @@ public:
     void STOP_mode();
     void WAKEUP_mode();
     void GOAL_LINE_mode();
-    void HUDDLE_mode(); // using realsense
+    void HUDDLE_mode();  // using realsense
     void HUDDLE_mode2(); // using webcam
     void WALL_mode();
     void CORNER_mode();
@@ -332,7 +334,6 @@ public:
     string Str_HUDDLE_SEQUENCE_6 = "HUDDLE_SEQUENCE_6 : Forward_halfstep (Aprroach Huddle)";
     string Str_HUDDLE_SEQUENCE_7 = "HUDDLE_SEQUENCE_7 : Huddle Jump";
     string Str_HUDDLE_SEQUENCE_8 = "HUDDLE_SEQUENCE_8 : Initializing";
-
 
     string Str_HUDDLE2_SEQUENCE_0 = "HUDDLE_SEQUENCE_0 : POSTURE CONTROL";
     string Str_HUDDLE2_SEQUENCE_1 = "HUDDLE_SEQUENCE_1 : POSITION CONTROL";

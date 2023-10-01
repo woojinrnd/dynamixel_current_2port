@@ -96,6 +96,7 @@ std::tuple<cv::Mat, cv::Mat> Img_proc::extract_color(const cv::Mat &input_frame,
 
     return {color_extracted, frame};
 }
+
 std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
 {
     cv::Mat frame = input_frame.clone();

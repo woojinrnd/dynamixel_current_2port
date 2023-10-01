@@ -47,11 +47,13 @@ public:
     Left_Halfstep = 11,
     Right_Halfstep = 12,
     Back_Halfstep = 13,
+    Forward_1step = 14,
     NONE = 99,
   };
 
   string Str_InitPose = "InitPose";
   string Str_Forward_2step = "Forward_2step";
+  string Str_Forward_1step = "Forward_1step";
   string Str_Left_2step = "Left_2step";
   string Str_Step_in_place = "Step_in_place";
   string Str_Right_2step = "Right_2step";
@@ -66,7 +68,6 @@ public:
   string Str_BWD_UP = "BWD_UP";
   string Str_NONE = "NONE";
 
-  // Callback();
   Callback(Trajectory *trajectoryPtr, IK_Function *IK_Ptr, Dxl *dxlPtr);
 
   Trajectory *trajectoryPtr;
