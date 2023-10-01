@@ -1405,7 +1405,7 @@ void Move_Decision::HUDDLE_mode2()
 
     // 3 : Initializing
 
-    if (tmp_img_proc_huddle_det_flg_3d_)
+    if (Get_huddle_det_flg_3d())
     {
         line_gradient = img_procPtr->Get_gradient();
         StraightLineDecision(line_gradient, MARGIN_GRADIENT);
@@ -1589,7 +1589,7 @@ void Move_Decision::HUDDLE_mode2()
         }
     }
 
-    else if (tmp_img_proc_huddle_det_flg_2d_ || (tmp_img_proc_huddle_det_flg_3d_ && tmp_img_proc_huddle_det_flg_2d_))
+    else if (Get_huddle_det_flg_2d() || (Get_huddle_det_flg_3d() && Get_huddle_det_flg_2d()))
     {
         huddle_actual_angle = Get_turn_angle_();
         huddle_ud_neck_angle = Get_UD_NeckAngle();
@@ -1726,7 +1726,7 @@ void Move_Decision::CORNER_mode()
 
     // 3 : Initializing
 
-    if (tmp_img_proc_corner_det_flg_3d_)
+    if (Get_corner_det_flg_3d())
     {
         line_gradient = img_procPtr->Get_gradient();
         StraightLineDecision(line_gradient, MARGIN_GRADIENT);
@@ -1910,7 +1910,7 @@ void Move_Decision::CORNER_mode()
         }
     }
 
-    else if (tmp_img_proc_corner_det_flg_2d_ || (tmp_img_proc_corner_det_flg_3d_ && tmp_img_proc_corner_det_flg_2d_))
+    else if (Get_corner_det_flg_2d() || (Get_corner_det_flg_3d() && Get_corner_det_flg_2d()))
     {
         corner_actual_angle = Get_turn_angle_();
         corner_ud_neck_angle = Get_UD_NeckAngle();
@@ -2124,6 +2124,8 @@ void Move_Decision::WALL_mode()
     wall_motion = Get_motion_index_();
     img_wall_number_case = img_procPtr->Get_img_proc_wall_number();
     wall_neck_angle = Get_UD_NeckAngle();
+    wall_gradient = img_procPtr->Get_wall_angle();
+    
 
     finish_past = false;
     req_finish_count = 0;

@@ -18,7 +18,7 @@
 
 #define UD_MAX 90
 #define UD_MIN 0
-#define UD_CENTER 50
+#define UD_CENTER 45
 
 #define RL_MAX 90
 #define RL_MIN -90
@@ -402,6 +402,7 @@ public:
     int8_t wall_number_seq = 0;
     double wall_neck_angle = 0;
     double wall_distance = 0;
+    double wall_gradient = 0;
     std::vector<double> wall_distance_save;
 
     /////////////////////// Sequence++ ///////////////////////

@@ -581,7 +581,7 @@ MatrixXd Trajectory::Huddle_Ycom()
 		{
 			zmp_ref[i] = -0.06;
 		}
-		else if (i < 2.75 * float_walktime_n)
+		else if (i < 2.95 * float_walktime_n)
 		{
 			zmp_ref[i] = 0.06;
 		}
