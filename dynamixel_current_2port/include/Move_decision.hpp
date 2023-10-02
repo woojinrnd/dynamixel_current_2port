@@ -24,12 +24,12 @@
 #define RL_MIN -90
 #define RL_CENTER 0
 
-#define TURN_MAX 30
-#define TURN_MIN -30
+#define TURN_MAX 10
+#define TURN_MIN -10
 
 #define LINE_TURN 10
 
-#define MARGIN_GRADIENT 40 // margin of straight line
+#define MARGIN_GRADIENT 20 // margin of straight line
 
 using namespace std;
 
@@ -166,6 +166,7 @@ public:
     // ********************************************** FUNCTION ************************************************** //
 
     void Motion_Info();
+    void Send_Motion_Info(int8_t res_motion);
     void Running_Info();
 
     // ********************************************** GETTERS ************************************************** //
@@ -337,6 +338,7 @@ public:
 
     string Str_HUDDLE2_SEQUENCE_0 = "HUDDLE_SEQUENCE_0 : POSTURE CONTROL";
     string Str_HUDDLE2_SEQUENCE_1 = "HUDDLE_SEQUENCE_1 : POSITION CONTROL";
+    string Str_HUDDLE2_SEQUENCE_1_1 = "HUDDLE_SEQUENCE_1_1 : POSTURE CONTROL ONE MORE TIME";
     string Str_HUDDLE2_SEQUENCE_2 = "HUDDLE_SEQUENCE_2 : HUDDLE JUMP";
     string Str_HUDDLE2_SEQUENCE_3 = "HUDDLE_SEQUENCE_3 : INITIALIZING";
 

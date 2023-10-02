@@ -107,12 +107,12 @@ void Callback::callbackThread()
         {
             if (srv_SendMotion.response.success)
             {
-                RecieveMotion();
                 Motion_Info();
+                RecieveMotion();
             }
             else if (!error_printed)
             {
-                if (error_counter < 50) // Check the counter
+                if (error_counter < 3) // Check the counter
                 {
                     // ROS_INFO("\n");
                     // ROS_ERROR("Failed to call service");
@@ -134,8 +134,8 @@ void Callback::callbackThread()
 void Callback::RecieveMotion()
 {
 
-    // ROS_INFO("#[MESSAGE] SM Request : %s#", srv_SendMotion.request.SM_finish ? "true" : "false");
-    // ROS_INFO("#[MESSAGE] TA Request : %s# on_angle(%d)", srv_SendMotion.request.TA_finish ? "true" : "false", on_angle);
+    ROS_INFO("#[MESSAGE] SM Request : %s#", srv_SendMotion.request.SM_finish ? "true" : "false");
+    ROS_INFO("#[MESSAGE] TA Request : %s#", srv_SendMotion.request.TA_finish ? "true" : "false");
     // ROS_INFO("#[MESSAGE] UD Request : %s#", srv_SendMotion.request.UD_finish ? "true" : "false");
     // ROS_INFO("#[MESSAGE] RL Request : %s#", srv_SendMotion.request.RL_finish ? "true" : "false");
     // ROS_INFO("#[MESSAGE] EM Request : %s#", srv_SendMotion.request.EM_finish ? "true" : "false");
@@ -320,12 +320,12 @@ void Callback::SelectMotion()
     if (res_mode == Motion_Index::InitPose)
     {
         mode = Motion_Index::InitPose;
-        trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 300);
-        trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 300);
-        trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 300);
-        trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 300);
-        trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 300);
-        trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 300);
+        trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 30);
+        trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 30);
+        trajectoryPtr->Ref_RL_y = -0.06 * MatrixXd::Ones(1, 30);
+        trajectoryPtr->Ref_LL_y = 0.06 * MatrixXd::Ones(1, 30);
+        trajectoryPtr->Ref_RL_z = MatrixXd::Zero(1, 30);
+        trajectoryPtr->Ref_LL_z = MatrixXd::Zero(1, 30);
 
         // trajectoryPtr->Ref_RL_x = MatrixXd::Zero(1, 675);
         // trajectoryPtr->Ref_LL_x = MatrixXd::Zero(1, 675);
@@ -375,7 +375,7 @@ void Callback::SelectMotion()
     {
         mode = Motion_Index::Step_in_place;
         IK_Ptr->Change_Com_Height(30);
-        trajectoryPtr->Step_in_place(0.05, 0.5, 0.05);
+        trajectoryPtr->Step_in_place(0.05, 0.5, 0.025);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
         IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
@@ -427,7 +427,7 @@ void Callback::SelectMotion()
     {
         mode = Motion_Index::Forward_Halfstep;
         IK_Ptr->Change_Com_Height(30);
-        trajectoryPtr->Go_Straight(0.01, 0.03, 0.05);
+        trajectoryPtr->Go_Straight(0.01, 0.03, 0.025);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
         IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
@@ -533,7 +533,7 @@ void Callback::Write_Leg_Theta()
                     srv_SendMotion.request.TA_finish = true;
                 }
             }
-         Check_FSR();
+        //  Check_FSR();
         }
         else if (mode == Motion_Index::Left_2step || mode == Motion_Index::Left_Halfstep)
         {

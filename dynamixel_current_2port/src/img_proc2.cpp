@@ -62,19 +62,16 @@ cv::Mat Img_proc::ROI_Circle(const cv::Mat &input_frame)
     return roi;
 }
 
-cv::Mat Img_proc::ROI_Rectangle(const cv::Mat &input_frame)
+cv::Mat Img_proc::ROI_Rectangle(const cv::Mat &input_frame, int y_start, int y_end, int x_start, int x_end)
 {
-    int y_start = 380;
-    int y_end = 480;
-
     cv::Mat mask = cv::Mat::zeros(input_frame.rows, input_frame.cols, CV_8U);
 
-    cv::rectangle(mask, cv::Point(0, y_start), cv::Point(input_frame.cols, y_end), 255, -1);
+    cv::rectangle(mask, cv::Point(x_start, y_start), cv::Point(x_end, y_end), 255, -1);
 
     cv::Mat roi;
     input_frame.copyTo(roi, mask);
 
-    cv::rectangle(roi, cv::Point(0, y_start), cv::Point(input_frame.cols, y_end), cv::Scalar(0, 0, 255), 2);
+    cv::rectangle(roi, cv::Point(x_start, y_start), cv::Point(x_end, y_end), cv::Scalar(0, 0, 255), 2);
 
     return roi;
 }
@@ -97,7 +94,7 @@ std::tuple<cv::Mat, cv::Mat> Img_proc::extract_color(const cv::Mat &input_frame,
     return {color_extracted, frame};
 }
 
-std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
+std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int, std::vector<cv::Point>> Img_proc::detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool is_yellow_line, bool is_white_line)
 {
     cv::Mat frame = input_frame.clone();
     cv::Mat ori_frame = origin_frame.clone();
@@ -123,6 +120,9 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
     float huddle_angle = 0;
     float Line_Angle = 0;
     float corner_angle = 0;
+
+    cv::Point corner_center = cv::Point(0,0);
+    cv::Point huddle_center = cv::Point(0,0);
 
     cv::Point top_center, bottom_center, left_center, right_center;
 
@@ -252,10 +252,10 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 }
                 else
                 {
-                    SM_angle = -min_area_rect.angle - 90;
+                    SM_angle = -min_area_rect.angle + 90;
                 }
                 cv::circle(ori_frame, cv::Point(320, 500), 500, contour_color, 2);
-                cv::circle(ori_frame, cv::Point(320, 850), 500, contour_color, 2);
+                //cv::circle(ori_frame, cv::Point(320, 850), 500, contour_color, 2);
             }
 
             // Corner angle
@@ -328,18 +328,28 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
             {
                 if (min_area_rect.size.width < min_area_rect.size.height)
                 {
-                    huddle_angle = -min_area_rect.angle - 90;
+                    huddle_angle = -min_area_rect.angle + 90;
                 }
                 else
                 {
                     huddle_angle = -min_area_rect.angle;
                 }
                 huddle_center = min_area_rect.center;
+                //cout << top_contour_area << endl;
                 cv::circle(ori_frame, huddle_center, 2, contour_color, -1, 8);
+                cv::circle(ori_frame, cv::Point(320, 500), 500, contour_color, 2);
             }
         }
 
-        Line_Angle = SM_angle + Rnd_angle;
+        if (Rnd_angle > 0)
+        {
+            Line_Angle = (SM_angle + Rnd_angle) * 0.5;
+        }
+        else if (Rnd_angle <= 0)
+        {
+            Line_Angle = (SM_angle + (3 * Rnd_angle));
+        }
+        
 
         //--------------------------------------------------------------------- frame interface -------------------------------------------------------------------------
 
@@ -358,6 +368,8 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         cv::putText(ori_frame, "Vertice : " + std::to_string(numVertices), cv::Point(10, 300), cv::FONT_HERSHEY_SIMPLEX, 0.6, contour_color, 2);
         cv::putText(ori_frame, "Corner Angle : " + std::to_string(corner_angle), cv::Point(10, 125), cv::FONT_HERSHEY_SIMPLEX, 0.6, contour_color, 2);
         cv::putText(ori_frame, "Area : " + std::to_string(top_contour_area), cv::Point(10, 455), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+        cv::putText(ori_frame, "Hurdle Angle: " + std::to_string(huddle_angle), cv::Point(10, 150), cv::FONT_HERSHEY_SIMPLEX, 0.7, contour_color, 2);
+
 
         topmost_point = *std::min_element(top_contour.begin(), top_contour.end(),
                                           [](const cv::Point &a, const cv::Point &b)
@@ -371,10 +383,13 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                                                  return a.y < b.y;
                                              });
 
-        cv::circle(ori_frame, topmost_point, 5, cv::Scalar(0, 0, 255), -1);
-        cv::circle(ori_frame, bottommost_point, 5, cv::Scalar(0, 255, 255), -1);
+        //cv::putText(ori_frame, "point : " + std::to_string(topmost_point.y), cv::Point(10, 175), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
+        //cv::putText(ori_frame, "point : " + std::to_string(bottommost_point.y), cv::Point(100, 175), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
+
+        //cv::circle(ori_frame, topmost_point, 5, cv::Scalar(0, 0, 255), -1);
+        //cv::circle(ori_frame, bottommost_point, 5, cv::Scalar(0, 255, 255), -1);
     }
-    return std::make_tuple(ori_frame, foundLargeContour, Line_Angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center, huddle_angle, top_contour_area, huddle_center, corner_angle);
+    return std::make_tuple(ori_frame, foundLargeContour, Line_Angle, distance_huddle, Corner, delta_x_, topmost_point, bottommost_point, corner_center, huddle_angle, top_contour_area, huddle_center, corner_angle, top_contour);
 }
 
 void Img_proc::webcam_thread()
@@ -426,10 +441,11 @@ void Img_proc::webcam_thread()
             break;
 
         cv::Mat Roi_frame = ROI_Circle(frame);
+        cv::Mat Roi_huddle = ROI_Rectangle(frame, 0, 480, 220, 420);
 
         // HSV
         auto hsv_frame_white = extract_color(Roi_frame, lower_bound_white, upper_bound_white);
-        auto hsv_frame_yellow = extract_color(frame, lower_bound_yellow, upper_bound_yellow);
+        auto hsv_frame_yellow = extract_color(Roi_huddle, lower_bound_yellow, upper_bound_yellow);
         auto hsv_frame_blue = extract_color(frame, lower_bound_blue, upper_bound_blue);
 
         // Draw
@@ -443,29 +459,54 @@ void Img_proc::webcam_thread()
 
         if (YellowColorDetected > HUDDLE_AREA)
         {
-            // Athletics_FLAG = 2;
             this->Set_img_proc_huddle_det_2d(std::get<1>(thresh_frame_yellow));
         }
 
         if (Get_img_proc_huddle_det_2d())
         {
-            cv::putText(std::get<0>(thresh_frame_yellow), "MODE : " + Str_HUDDLE_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
+            // Athletics_FLAG = 2;
+
+            double gradient = std::get<2>(thresh_frame_white);
+            this->Set_gradient(gradient);
+
+            //cv::putText(std::get<0>(thresh_frame_yellow), "MODE : " + Str_HUDDLE_MODE, cv::Point(10, 200), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
 
             double huddle_angle_ = std::get<9>(thresh_frame_yellow);
             Set_huddle_angle(huddle_angle_);
 
-            huddle_center = std::get<11>(thresh_frame_yellow);
+            cv::Point huddle_center = std::get<11>(thresh_frame_yellow);
             // cout << "center_huddle.x : " << huddle_center.x << endl;
             // cout << "center_huddle.y : " << huddle_center.y << endl;
             cv::circle(std::get<0>(thresh_frame_yellow), huddle_center, 2, CV_RGB(0, 255, 255), -1);
 
+            std::vector<cv::Point> top_yellow_contour = std::get<13>(thresh_frame_yellow);
+
             cv::Point foot_top_point = std::get<6>(thresh_frame_blue);
             cv::Point huddle_bottom_point = std::get<7>(thresh_frame_yellow);
+            cv::circle(std::get<0>(thresh_frame_yellow), huddle_bottom_point, 5, cv::Scalar(0, 0, 255), -1);
 
-            int foot_huddle_distance = std::abs(foot_top_point.y - huddle_bottom_point.y);
-            cout << foot_huddle_distance << endl;
+            int minDistance = std::numeric_limits<int>::max();
+            cv::Point2f closestPoint;
 
-            if (foot_huddle_distance < HUDDLE_Y_MARGIN)
+            for (const auto& point : top_yellow_contour)
+            {
+                int distance = static_cast<int>(cv::norm(foot_top_point - point));
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    closestPoint = point;
+                }
+            }
+
+            cv::line(std::get<0>(thresh_frame_yellow), foot_top_point, closestPoint, cv::Scalar(0, 0, 255), 3);
+            cv::putText(std::get<0>(thresh_frame_yellow), "Distance: " + std::to_string(minDistance), cv::Point(10, 175), cv::FONT_HERSHEY_SIMPLEX, 0.7, yellow_color, 2);
+
+
+            int _foot_huddle_distance = std::abs(foot_top_point.y - huddle_bottom_point.y);
+            Set_foot_huddle_distance(_foot_huddle_distance);
+            // cout << foot_huddle_distance << endl;
+
+            if (_foot_huddle_distance < HUDDLE_Y_MARGIN)
             {
                 Set_contain_huddle_to_foot(true);
             }
@@ -474,6 +515,7 @@ void Img_proc::webcam_thread()
             {
                 Set_contain_huddle_to_foot(false);
             }
+            
 
             cv::imshow("hsv Frame_yellow", std::get<0>(thresh_frame_yellow));
             cv::imshow("hsv Frame_blue", std::get<0>(thresh_frame_blue));
@@ -741,15 +783,15 @@ void Img_proc::realsense_thread()
             this->Set_wall_distance(distance_);
 
             //---------------------------------------------------------- preview to realsense ---------------------------------------------------------------------
-            cv::Mat Preview_frame = ROI_Rectangle(colorMat);
+            cv::Mat Preview_frame = ROI_Rectangle(colorMat, 200, 480, 120, 520);
 
             auto Huddle = extract_color(Preview_frame, lower_bound_yellow, upper_bound_yellow);
             auto thresh_frame_yellow = detect_Line_areas(std::get<0>(Huddle), colorMat, blue_color, threshold_value_yellow, true, false);
             bool YellowContourDetected = std::get<1>(thresh_frame_yellow);
             
             //huddle_mode(3d)
-            int YellowColorDetected = std::get<10>(thresh_frame_yellow);
-            if (YellowColorDetected > HUDDLE_AREA)
+            int YellowColorDetected_ = std::get<10>(thresh_frame_yellow);
+            if (YellowColorDetected_ > HUDDLE_AREA)
             {
                 this->Set_img_proc_huddle_det_3d(YellowContourDetected);
             }
@@ -1558,6 +1600,12 @@ bool Img_proc::Get_contain_huddle_to_foot() const
     return contain_huddle_to_foot_;
 }
 
+int Img_proc::Get_foot_huddle_distance() const
+{
+    std::lock_guard<std::mutex> lock(mtx_foot_huddle_distance_);
+    return foot_huddle_distance_;
+}
+
 bool Img_proc::Get_contain_corner_to_foot() const
 {
     std::lock_guard<std::mutex> lock(mtx_contain_corner_to_foot);
@@ -1678,6 +1726,12 @@ void Img_proc::Set_contain_huddle_to_foot(bool contain_huddle_to_foot)
 {
     std::lock_guard<std::mutex> lock(mtx_contain_huddle_to_foot);
     this->contain_huddle_to_foot_ = contain_huddle_to_foot;
+}
+
+void Img_proc::Set_foot_huddle_distance(int foot_huddle_distance)
+{
+    std::lock_guard<std::mutex> lock(mtx_foot_huddle_distance_);
+    this->foot_huddle_distance_ = foot_huddle_distance;
 }
 
 void Img_proc::Set_contain_corner_to_foot(bool contain_corner_to_foot)

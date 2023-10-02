@@ -50,7 +50,7 @@
 #define CORNER_Y_MARGIN 45
 
 #define HUDDLE_X_MARGIN 50
-#define HUDDLE_Y_MARGIN 50
+#define HUDDLE_Y_MARGIN 80
 
 using namespace cv;
 using namespace std;
@@ -90,9 +90,9 @@ public:
     const int webcam_fps = 30;
     const int webcam_id = 0;
 
-    int threshold_value_white = 210;
-    int threshold_value_yellow = 127;
-    int threshold_value_blue = 50;
+    int threshold_value_white = 180;
+    int threshold_value_yellow = 130;
+    int threshold_value_blue = 0;
     const int max_value = 255;
     int hue_lower = 0;
     int hue_upper = 179;
@@ -110,8 +110,8 @@ public:
     cv::Point blue_center;
     cv::Point topmost_point;
     cv::Point bottommost_point;
-    cv::Point corner_center;
-    cv::Point huddle_center;
+    // cv::Point corner_center;
+    // cv::Point huddle_center;
 
     cv::Scalar blue_color = {255, 0, 0};
     cv::Scalar green_color = {0, 255, 0};
@@ -119,14 +119,14 @@ public:
     cv::Scalar yellow_color = {0, 255, 255};
     cv::Scalar white_color = {255, 255, 255};
 
-    cv::Scalar lower_bound_yellow = {10, 100, 100}; // HSV에서 노란색의 하한값
-    cv::Scalar upper_bound_yellow = {32, 255, 255};
+    cv::Scalar lower_bound_yellow = {20, 100, 100}; // HSV에서 노란색의 하한값
+    cv::Scalar upper_bound_yellow = {40, 255, 255};
 
     cv::Scalar lower_bound_white = {0, 0, 0};
     cv::Scalar upper_bound_white = {179, 255, 255};
 
-    cv::Scalar lower_bound_blue = {90, 100, 20};
-    cv::Scalar upper_bound_blue = {130, 255, 255};
+    cv::Scalar lower_bound_blue = {100, 100, 100};
+    cv::Scalar upper_bound_blue = {120, 255, 255};
 
     int corner_condition_count = 0;
     int line_condition_count = 0;
@@ -145,9 +145,9 @@ public:
     void create_threshold_trackbar_B(const std::string &window_name);
     void create_color_range_trackbar(const std::string &window_name);
     cv::Mat ROI_Circle(const cv::Mat &input_frame);
-    cv::Mat ROI_Rectangle(const cv::Mat& input_frame);
+    cv::Mat ROI_Rectangle(const cv::Mat &input_frame, int y_start, int y_end, int x_start, int x_end);
     std::tuple<cv::Mat, cv::Mat> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
-    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
+    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int, std::vector<cv::Point>> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
     double Distance_Point(const rs2::depth_frame &depth, cv::Point center);
 
     // ********************************************** 3D THREAD************************************************** //
@@ -189,6 +189,7 @@ public:
 
     bool Get_contain_huddle_to_foot() const;
     bool Get_contain_corner_to_foot() const;
+    int Get_foot_huddle_distance() const;
 
     // ********************************************** SETTERS ************************************************** //
 
@@ -215,6 +216,7 @@ public:
 
     void Set_contain_huddle_to_foot(bool contain_huddle_to_foot);
     void Set_contain_corner_to_foot(bool contain_corner_to_foot);
+    void Set_foot_huddle_distance(int foot_huddle_distance);
 
     // ********************************************** running ************************************************** //
 
@@ -291,6 +293,7 @@ private:
 
     // Huddle mode
     bool contain_huddle_to_foot_ = false;
+    int foot_huddle_distance_ = 0;
 
     // Corner mode
     bool contain_corner_to_foot_ = false;
@@ -321,6 +324,7 @@ private:
     mutable std::mutex mtx_contain_huddle_to_foot;
     mutable std::mutex mtx_huddle_angle_;
     mutable std::mutex mtx_huddle_distance_;
+    mutable std::mutex mtx_foot_huddle_distance_;
 
     // Corner mode
     mutable std::mutex mtx_contain_corner_to_foot;

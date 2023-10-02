@@ -122,6 +122,7 @@ add_executable(
   src/Move_decision_node.cpp
   # src/dynamixel.cpp ${dynamixel.hpp}
   src/Move_decision.cpp ${Move_decision.hpp} 
+  # src/Move_decision2.cpp ${Move_decision.hpp}
   # src/callback.cpp ${callback.hpp}
   # src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
   # src/img_proc.cpp ${img_proc.hpp}
