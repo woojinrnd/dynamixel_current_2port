@@ -575,7 +575,15 @@ void Move_Decision::LINE_mode()
 
         if (!Get_select_motion_on_flg())
         {
-            line_motion = Motion_Index::Forward_2step;
+            if (line_gradient > MARGIN_GRADIENT * 3 || line_gradient < -MARGIN_GRADIENT * 3)
+            {
+                line_motion = Motion_Index::Step_in_place;
+            }
+            else
+            {
+                line_motion = Motion_Index::Forward_2step;
+            }
+
             Set_motion_index_(line_motion);
             Set_select_motion_on_flg(true);
         }
@@ -1626,18 +1634,6 @@ void Move_Decision::HUDDLE_mode2()
                     contain_huddle_Y = false;
 
                     tmp_huddle_seq++;
-
-                    // // Sequence++
-                    // if (finish_past != Get_SM_req_finish())
-                    // {
-                    //     req_finish_count++;
-                    //     finish_past = Get_SM_req_finish();
-                    // }
-                    // if (req_finish_count == 1)
-                    // {
-                    //     req_finish_count = 0;
-                    //     tmp_huddle_seq++;
-                    // }
                 }
             }
         }
@@ -1692,6 +1688,7 @@ void Move_Decision::HUDDLE_mode2()
                 Set_select_motion_on_flg(true);
                 to_be_line_mode++;
             }
+            
             // Sequence++
             if (finish_past != Get_SM_req_finish())
             {
@@ -1716,6 +1713,13 @@ void Move_Decision::HUDDLE_mode2()
                 huddle_seq_finish = true;
             }
 
+            if (!Get_select_motion_on_flg())
+            {
+                huddle_motion = Motion_Index::InitPose;
+                Set_motion_index_(huddle_motion);
+                Set_select_motion_on_flg(true);
+            }
+            
             // Sequence++
             if (finish_past != Get_SM_req_finish())
             {
@@ -2960,7 +2964,9 @@ bool Move_Decision::SendMotion(dynamixel_current_2port::SendMotion::Request &req
     ROS_WARN("[MESSAGE] SM Request :   %s ", Get_SM_req_finish() ? "true" : "false");
     Send_Motion_Info(res.select_motion);
 
-    // ROS_WARN("[MESSAGE] TA Request :   %s ", Get_TA_req_finish() ? "true" : "false");
+    ROS_WARN("[MESSAGE] TA Request :   %s ", Get_TA_req_finish() ? "true" : "false");
+    ROS_INFO("#[MESSAGE] TA Response : %f#", res.turn_angle);
+
     // ROS_WARN("[MESSAGE] UD Request :   %s ", Get_UD_req_finish() ? "true" : "false");
     // ROS_WARN("[MESSAGE] RL Request :   %s ", Get_RL_req_finish() ? "true" : "false");
     // ROS_ERROR("[MESSAGE] EMG Request :   %s ", Get_EM_req_finish() ? "true" : "false");
