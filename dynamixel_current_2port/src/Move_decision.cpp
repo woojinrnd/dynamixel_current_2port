@@ -2482,9 +2482,7 @@ void Move_Decision::WALL_mode()
     ROS_ERROR("IMG_WALL_NUMBER_CASE : %d", img_wall_number_case);
 }
 
-
-
-void Move_Decision::Test_service()
+/* void Move_Decision::Test_service()
 {
     if (aaaa == 0)
     {
@@ -2618,6 +2616,7 @@ void Move_Decision::Test_service()
     Motion_Info();
     ROS_WARN("---------------------------------------");
 }
+ */
 
 /*
 void Move_Decision::CORNER_mode()
@@ -3103,26 +3102,56 @@ bool Move_Decision::SendMotion(dynamixel_current_2port::SendMotion::Request &req
     double res_RL = Move_RL_NeckAngle();
     bool res_EM = Emergency();
 
-    // if (Get_SM_req_finish())
-    // {
-    //     res.select_motion = Get_motion_index_();
-    //     Set_select_motion_on_flg(false);
-    // }
-    // else if (!Get_SM_req_finish())
-    // {
-    //     res.select_motion = Motion_Index::NONE;
-    //     Set_select_motion_on_flg(false);
-    // }
+    if (Get_SM_req_finish())
+    {
+        if (std::get<0>(res_SM) == Motion_Index::NONE)
+        {
+            std::get<0>(res_SM) = Get_motion_index_();
+            Set_select_motion_on_flg(false);
+        }
 
-    res.select_motion = std::get<0>(res_SM);
-    res.distance = std::get<1>(res_SM);
+        res.select_motion = std::get<0>(res_SM);
+        res.distance = std::get<1>(res_SM);
+    }
 
-    res.turn_angle = res_TA;
-    res.ud_neckangle = res_UD;
-    res.rl_neckangle = res_RL;
-    res.emergency = res_EM;
+    else if (!Get_SM_req_finish())
+    {
+        res.select_motion = Motion_Index::NONE;
+        Set_select_motion_on_flg(false);
+    }
 
+    ROS_WARN("[MESSAGE] SM Request :   %s ", Get_SM_req_finish() ? "true" : "false");
     Send_Motion_Info(res.select_motion);
+
+    // ROS_WARN("[MESSAGE] TA Request :   %s ", Get_TA_req_finish() ? "true" : "false");
+    // ROS_WARN("[MESSAGE] UD Request :   %s ", Get_UD_req_finish() ? "true" : "false");
+    // ROS_WARN("[MESSAGE] RL Request :   %s ", Get_RL_req_finish() ? "true" : "false");
+    // ROS_ERROR("[MESSAGE] EMG Request :   %s ", Get_EM_req_finish() ? "true" : "false");
+
+    if (Get_TA_req_finish())
+    {
+        res.turn_angle = res_TA;
+    }
+
+    else if (!Get_TA_req_finish())
+    {
+        res.turn_angle = 0;
+    }
+
+    if (Get_UD_req_finish())
+    {
+        res.ud_neckangle = res_UD;
+    }
+
+    if (Get_RL_req_finish())
+    {
+        res.rl_neckangle = res_RL;
+    }
+
+    if (Get_EM_req_finish())
+    {
+        res.emergency = res_EM;
+    }
 
     res.success = true;
     recordProcessedRequest(request_id);
@@ -3134,134 +3163,244 @@ std::tuple<int8_t, double> Move_Decision::playMotion()
 {
     int8_t res_select_motion = 99;
     double res_distance = 0;
-    int8_t total = Get_TA_req_finish() + Get_UD_req_finish() + Get_RL_req_finish() + Get_EM_req_finish();
-    if (Get_SM_req_finish())
+    // int8_t total = Get_TA_req_finish() + Get_UD_req_finish() + Get_RL_req_finish() + Get_EM_req_finish();
+
+    if ((Get_stand_status_() == Stand_Status::Stand) && (Get_select_motion_on_flg() == true) /*&& total <=4*/)
     {
-        if ((Get_stand_status_() == Stand_Status::Stand) && (Get_select_motion_on_flg() == true) /*&& total <=4*/)
+        switch (Get_motion_index_())
         {
-            switch (Get_motion_index_())
+        case Motion_Index::InitPose:
+            res_select_motion = Motion_Index::InitPose;
+            break;
+
+        case Motion_Index::Forward_2step:
+            res_select_motion = Motion_Index::Forward_2step;
+            break;
+
+        case Motion_Index::Left_2step:
+            res_select_motion = Motion_Index::Left_2step;
+            break;
+
+        case Motion_Index::Step_in_place:
+            res_select_motion = Motion_Index::Step_in_place;
+            break;
+
+        case Motion_Index::Right_2step:
+            res_select_motion = Motion_Index::Right_2step;
+            break;
+
+        case Motion_Index::ForWard_fast4step:
+            res_select_motion = Motion_Index::ForWard_fast4step;
+            break;
+
+        case Motion_Index::Forward_Nstep:
+            res_select_motion = Motion_Index::Forward_Nstep;
+            if (Get_distance_on_flg())
             {
-            case Motion_Index::InitPose:
-                res_select_motion = Motion_Index::InitPose;
-                break;
-
-            case Motion_Index::Forward_2step:
-                res_select_motion = Motion_Index::Forward_2step;
-                break;
-
-            case Motion_Index::Left_2step:
-                res_select_motion = Motion_Index::Left_2step;
-                break;
-
-            case Motion_Index::Step_in_place:
-                res_select_motion = Motion_Index::Step_in_place;
-                break;
-
-            case Motion_Index::Right_2step:
-                res_select_motion = Motion_Index::Right_2step;
-                break;
-
-            case Motion_Index::ForWard_fast4step:
-                res_select_motion = Motion_Index::ForWard_fast4step;
-                break;
-
-            case Motion_Index::Forward_Nstep:
-                res_select_motion = Motion_Index::Forward_Nstep;
-                if (Get_distance_on_flg())
-                {
-                    res_distance = Get_distance_();
-                    Set_distance_on_flg(false);
-                }
-                break;
-
-            case Motion_Index::Huddle_Jump:
-                res_select_motion = Motion_Index::Huddle_Jump;
-                break;
-
-            case Motion_Index::NONE:
-                res_select_motion = Motion_Index::NONE;
-                break;
-
-            case Motion_Index::Forward_Halfstep:
-                res_select_motion = Motion_Index::Forward_Halfstep;
-                break;
-
-            case Motion_Index::Right_Halfstep:
-                res_select_motion = Motion_Index::Right_Halfstep;
-                break;
-
-            case Motion_Index::Left_Halfstep:
-                res_select_motion = Motion_Index::Left_Halfstep;
-                break;
-
-            case Motion_Index::Back_Halfstep:
-                res_select_motion = Motion_Index::Back_Halfstep;
-                break;
-
-            case Motion_Index::Forward_1step:
-                res_select_motion = Motion_Index::Forward_1step;
-                break;
-
-            default:
-                res_select_motion = Motion_Index::InitPose;
+                res_distance = Get_distance_();
+                Set_distance_on_flg(false);
             }
+            break;
 
-            Set_select_motion_on_flg(false);
+        case Motion_Index::Huddle_Jump:
+            res_select_motion = Motion_Index::Huddle_Jump;
+            break;
+
+        case Motion_Index::NONE:
+            res_select_motion = Motion_Index::NONE;
+            break;
+
+        case Motion_Index::Forward_Halfstep:
+            res_select_motion = Motion_Index::Forward_Halfstep;
+            break;
+
+        case Motion_Index::Right_Halfstep:
+            res_select_motion = Motion_Index::Right_Halfstep;
+            break;
+
+        case Motion_Index::Left_Halfstep:
+            res_select_motion = Motion_Index::Left_Halfstep;
+            break;
+
+        case Motion_Index::Back_Halfstep:
+            res_select_motion = Motion_Index::Back_Halfstep;
+            break;
+
+        case Motion_Index::Forward_1step:
+            res_select_motion = Motion_Index::Forward_1step;
+            break;
+
+        default:
+            res_select_motion = Motion_Index::InitPose;
         }
 
-        else if (((Get_stand_status_() == Stand_Status::Fallen_Back)) || (Get_stand_status_() == Stand_Status::Fallen_Forward) && (Get_select_motion_on_flg() == true))
-        {
-            switch (Get_motion_index_())
-            {
-            case Motion_Index::FWD_UP:
-                res_select_motion = Motion_Index::FWD_UP;
-                break;
-
-            case Motion_Index::BWD_UP:
-                res_select_motion = Motion_Index::BWD_UP;
-                break;
-
-            default:
-                res_select_motion = Motion_Index::InitPose;
-            }
-            Set_select_motion_on_flg(false);
-        }
-    }
-
-    else if (!Get_SM_req_finish())
-    {
-        res_select_motion = Motion_Index::NONE;
         Set_select_motion_on_flg(false);
     }
 
-    ROS_WARN("[MESSAGE] SM Request :   %s ", Get_SM_req_finish() ? "true" : "false");
-    ROS_INFO("#[MESSAGE] SM Motion :   %d#", res_select_motion);
-    ROS_INFO("#[MESSAGE] SM Distance : %f#", res_distance);
+    else if (((Get_stand_status_() == Stand_Status::Fallen_Back)) || (Get_stand_status_() == Stand_Status::Fallen_Forward) && (Get_select_motion_on_flg() == true))
+    {
+        switch (Get_motion_index_())
+        {
+        case Motion_Index::FWD_UP:
+            res_select_motion = Motion_Index::FWD_UP;
+            break;
+
+        case Motion_Index::BWD_UP:
+            res_select_motion = Motion_Index::BWD_UP;
+            break;
+
+        default:
+            res_select_motion = Motion_Index::InitPose;
+        }
+        Set_select_motion_on_flg(false);
+    }
+
+    // ROS_WARN("[MESSAGE] SM Request :   %s ", Get_SM_req_finish() ? "true" : "false");
+    // ROS_INFO("#[MESSAGE] SM Motion :   %d#", res_select_motion);
+    // ROS_INFO("#[MESSAGE] SM Distance : %f#", res_distance);
 
     return std::make_tuple(res_select_motion, res_distance);
+}
+
+void Move_Decision::Test_service()
+{
+    if (aaaa == 0)
+    {
+        ROS_ERROR("ccc : %d", ccc);
+        ROS_ERROR("aaaa : %d", aaaa);
+        abc++;
+
+        if (ccc == 0 && !Get_select_motion_on_flg() /*  && Get_SM_req_finish() */)
+        {
+            Set_motion_index_(Motion_Index::Step_in_place);
+            Set_select_motion_on_flg(true);
+
+            if (!Get_turn_angle_on_flg())
+            {
+                Set_turn_angle_(10);
+                Set_turn_angle_on_flg(true);
+            }
+
+            // Sequence++
+            if (finish_past != Get_SM_req_finish())
+            {
+                ccc++;
+            }
+        }
+        if (ccc == 1 && !Get_select_motion_on_flg() /*  && Get_SM_req_finish() */)
+        {
+            Set_motion_index_(Motion_Index::Step_in_place);
+            Set_select_motion_on_flg(true);
+            if (!Get_turn_angle_on_flg())
+            {
+                Set_turn_angle_(10);
+                Set_turn_angle_on_flg(true);
+            }
+            // Sequence++
+            if (finish_past != Get_SM_req_finish())
+            {
+                ccc++;
+            }
+        }
+        if (ccc == 2 && !Get_select_motion_on_flg() /*  && Get_SM_req_finish() */)
+        {
+            Set_motion_index_(Motion_Index::Step_in_place);
+            Set_select_motion_on_flg(true);
+            if (!Get_turn_angle_on_flg())
+            {
+                Set_turn_angle_(10);
+                Set_turn_angle_on_flg(true);
+            }
+            // Sequence++
+            if (finish_past != Get_SM_req_finish())
+            {
+                ccc = 0;
+                aaaa++;
+            }
+        }
+
+        ROS_ERROR("Loop NUMBER(%d)", abc);
+    }
+
+    else if (aaaa == 1 && !Get_select_motion_on_flg() /* && Get_SM_req_finish() */)
+    {
+        Set_motion_index_(Motion_Index::Forward_Halfstep);
+        Set_select_motion_on_flg(true);
+
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            aaaa++;
+        }
+    }
+
+    else if (aaaa == 2 && !Get_select_motion_on_flg() /*  && Get_SM_req_finish() */)
+    {
+        Set_motion_index_(Motion_Index::Left_Halfstep);
+        Set_distance_on_flg(true);
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            aaaa++;
+        }
+    }
+
+    else if (aaaa == 3 && !Get_select_motion_on_flg() /* && Get_SM_req_finish() */)
+    {
+        Set_motion_index_(Motion_Index::Right_Halfstep);
+        Set_select_motion_on_flg(true);
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            aaaa++;
+        }
+    }
+
+    else if (aaaa == 4 && !Get_select_motion_on_flg() /* && Get_SM_req_finish() */)
+    {
+        Set_motion_index_(Motion_Index::Right_2step);
+        Set_select_motion_on_flg(true);
+        if (finish_past != Get_SM_req_finish())
+        {
+            aaaa++;
+        }
+    }
+
+    else if (aaaa == 5 && !Get_select_motion_on_flg() /*  && Get_SM_req_finish() */)
+    {
+        Set_motion_index_(Motion_Index::Huddle_Jump);
+        Set_select_motion_on_flg(true);
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            aaaa = 0;
+        }
+    }
+
+    ROS_WARN("---------------------------------------");
+    Motion_Info();
+    ROS_WARN("---------------------------------------");
 }
 
 double Move_Decision::turn_angle()
 {
     double res_turn_angle = 0;
-    if (Get_TA_req_finish())
+
+    if ((Get_stand_status_() == Stand_Status::Stand) && Get_turn_angle_on_flg())
     {
-        if ((Get_stand_status_() == Stand_Status::Stand) && Get_turn_angle_on_flg())
+        if (Get_motion_index_() == Motion_Index::Forward_2step || Get_motion_index_() == Motion_Index::Step_in_place || Get_motion_index_() == Motion_Index::Forward_Nstep)
         {
-            if (Get_motion_index_() == Motion_Index::Forward_2step || Get_motion_index_() == Motion_Index::Forward_Halfstep || Get_motion_index_() == Motion_Index::Step_in_place || Get_motion_index_() == Motion_Index::Forward_Nstep)
-            {
-                res_turn_angle = this->Get_turn_angle_();
-                if (res_turn_angle > TURN_MAX)
-                    res_turn_angle = TURN_MAX;
-                else if (res_turn_angle < TURN_MIN)
-                    res_turn_angle = TURN_MIN;
-                Set_turn_angle_on_flg(false);
-            }
+            res_turn_angle = this->Get_turn_angle_();
+            if (res_turn_angle > TURN_MAX)
+                res_turn_angle = TURN_MAX;
+            else if (res_turn_angle < TURN_MIN)
+                res_turn_angle = TURN_MIN;
+            Set_turn_angle_on_flg(false);
         }
     }
-    // ROS_INFO("#[MESSAGE] TA Response : %f#", res_turn_angle);
 
     // ROS_WARN("[MESSAGE] TA Request :   %s ", Get_TA_req_finish() ? "true" : "false");
+    // ROS_INFO("#[MESSAGE] TA Response : %f#", res_turn_angle);
 
     return res_turn_angle;
 }
@@ -3269,18 +3408,16 @@ double Move_Decision::turn_angle()
 double Move_Decision::Move_UD_NeckAngle()
 {
     double res_ud_neckangle = UD_CENTER;
-    if (Get_UD_req_finish())
+
+    if ((Get_stand_status_() == Stand_Status::Stand) && Get_UD_Neck_on_flg())
     {
-        if ((Get_stand_status_() == Stand_Status::Stand) && Get_UD_Neck_on_flg())
-        {
-            // img_procssing
-            res_ud_neckangle = this->Get_UD_NeckAngle();
-            if (res_ud_neckangle > UD_MAX)
-                res_ud_neckangle = UD_MAX;
-            else if (res_ud_neckangle < UD_MIN)
-                res_ud_neckangle = UD_MIN;
-            Set_UD_Neck_on_flg(false);
-        }
+        // img_procssing
+        res_ud_neckangle = this->Get_UD_NeckAngle();
+        if (res_ud_neckangle > UD_MAX)
+            res_ud_neckangle = UD_MAX;
+        else if (res_ud_neckangle < UD_MIN)
+            res_ud_neckangle = UD_MIN;
+        Set_UD_Neck_on_flg(false);
     }
 
     else if (!Get_UD_req_finish())
@@ -3298,18 +3435,16 @@ double Move_Decision::Move_UD_NeckAngle()
 double Move_Decision::Move_RL_NeckAngle()
 {
     double res_rl_neckangle = 0;
-    if (Get_RL_req_finish())
+
+    if ((Get_stand_status_() == Stand_Status::Stand) && Get_RL_Neck_on_flg())
     {
-        if ((Get_stand_status_() == Stand_Status::Stand) && Get_RL_Neck_on_flg())
-        {
-            // img_procssing
-            res_rl_neckangle = this->Get_RL_NeckAngle();
-            if (res_rl_neckangle > RL_MAX)
-                res_rl_neckangle = RL_MAX;
-            else if (res_rl_neckangle < RL_MIN)
-                res_rl_neckangle = RL_MIN;
-            Set_RL_Neck_on_flg(false);
-        }
+        // img_procssing
+        res_rl_neckangle = this->Get_RL_NeckAngle();
+        if (res_rl_neckangle > RL_MAX)
+            res_rl_neckangle = RL_MAX;
+        else if (res_rl_neckangle < RL_MIN)
+            res_rl_neckangle = RL_MIN;
+        Set_RL_Neck_on_flg(false);
     }
 
     // ROS_WARN("[MESSAGE] RL Request :   %s ", Get_RL_req_finish() ? "true" : "false");
@@ -3321,15 +3456,13 @@ double Move_Decision::Move_RL_NeckAngle()
 bool Move_Decision::Emergency()
 {
     bool res_emergency = false;
-    if (Get_EM_req_finish())
+
+    if ((Get_stand_status_() == Stand_Status::Stand) && Get_emergency_on_flg())
     {
-        if ((Get_stand_status_() == Stand_Status::Stand) && Get_emergency_on_flg())
-        {
-            // 1 : Stop
-            // 0 : Keep Going (Option)
-            res_emergency = Get_Emergency_();
-            Set_emergency_on_flg(false);
-        }
+        // 1 : Stop
+        // 0 : Keep Going (Option)
+        res_emergency = Get_Emergency_();
+        Set_emergency_on_flg(false);
     }
 
     // ROS_ERROR("[MESSAGE] EMG Request :   %s ", Get_EM_req_finish() ? "true" : "false");
@@ -3468,10 +3601,7 @@ void Move_Decision::Send_Motion_Info(int8_t res_motion)
         break;
     }
 
-    if (!(tmp_motion == Str_NONE))
-    {
-        ROS_ERROR("SEND Motion_Index : %s", tmp_motion.c_str());
-    }
+    ROS_ERROR("SEND Motion_Index : %s", tmp_motion.c_str());
 }
 
 void Move_Decision::Motion_Info()

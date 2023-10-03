@@ -29,6 +29,8 @@
 
 #define LINE_TURN 10
 
+#define CORNER_TURN 10
+
 #define MARGIN_GRADIENT 20 // margin of straight line
 
 using namespace std;
@@ -146,6 +148,7 @@ public:
     double Move_UD_NeckAngle();
     double Move_RL_NeckAngle();
     bool Emergency();
+    
 
     // Publish & Subscribe
     // ros::Publisher Emergency_pub_;
@@ -445,6 +448,7 @@ private:
     int8_t motion_index_ = 99;
     int8_t stand_status_;
     int8_t running_mode_;
+
 
     // Body Angle
     // Counter Clock Wise(+)

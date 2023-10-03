@@ -107,7 +107,6 @@ add_executable(
   # src/main_2.cpp
   src/dynamixel.cpp ${dynamixel.hpp}
   src/callback.cpp ${callback.hpp}
-  # src/callback2.cpp ${callback.hpp}
   src/dynamixel_controller.cpp ${dynamixel_controller.hpp}
   src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
   # src/sensor.cpp ${sensor.hpp}
@@ -121,8 +120,9 @@ add_executable(
   Move_decision_node
   src/Move_decision_node.cpp
   # src/dynamixel.cpp ${dynamixel.hpp}
-  src/Move_decision.cpp ${Move_decision.hpp} 
-  # src/Move_decision2.cpp ${Move_decision.hpp}
+  # src/Move_decision.cpp ${Move_decision.hpp} 
+  src/Move_decision2.cpp ${Move_decision.hpp}
+  # src/Move_decision3.cpp ${Move_decision.hpp}
   # src/callback.cpp ${callback.hpp}
   # src/Walkingpattern_generator.cc ${Walkingpattern_generator.hpp}
   # src/img_proc.cpp ${img_proc.hpp}
