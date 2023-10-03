@@ -406,8 +406,8 @@ void Move_Decision::Running_Mode_Decision()
         LINE_mode();
         break;
     case NO_LINE_MODE:
-        // NOLINE_mode();
-        Test_service();
+        NOLINE_mode();
+        // Test_service();
         break;
     case STOP_MODE:
         STOP_mode();

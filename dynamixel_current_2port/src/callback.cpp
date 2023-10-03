@@ -533,7 +533,7 @@ void Callback::Write_Leg_Theta()
                     srv_SendMotion.request.TA_finish = true;
                 }
             }
-        //  Check_FSR();
+         Check_FSR();
         }
         else if (mode == Motion_Index::Left_2step || mode == Motion_Index::Left_Halfstep)
         {
@@ -543,13 +543,11 @@ void Callback::Write_Leg_Theta()
 
         else if (mode == Motion_Index::Right_2step || mode == Motion_Index::Right_Halfstep)
         {
-
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
             IK_Ptr->Angle_Compensation_Rightwalk(indext);
         }
         else if (mode == Motion_Index::Huddle_Jump)
         {
-
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
             IK_Ptr->Angle_Compensation_Huddle(indext);
         }
