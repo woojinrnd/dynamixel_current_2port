@@ -136,7 +136,7 @@ void Callback::RecieveMotion()
 
     ROS_INFO("#[MESSAGE] SM Request : %s#", srv_SendMotion.request.SM_finish ? "true" : "false");
     ROS_INFO("#[MESSAGE] TA Request : %s#", srv_SendMotion.request.TA_finish ? "true" : "false");
-    // ROS_INFO("#[MESSAGE] UD Request : %s#", srv_SendMotion.request.UD_finish ? "true" : "false");
+    ROS_INFO("#[MESSAGE] UD Request : %s#", srv_SendMotion.request.UD_finish ? "true" : "false");
     // ROS_INFO("#[MESSAGE] RL Request : %s#", srv_SendMotion.request.RL_finish ? "true" : "false");
     // ROS_INFO("#[MESSAGE] EM Request : %s#", srv_SendMotion.request.EM_finish ? "true" : "false");
 
@@ -343,7 +343,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Go_Straight(0.05, 0.25, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         trajectoryPtr->Stop_Trajectory_straightwalk(0.05);
         indext = 0;
@@ -355,7 +355,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Go_Straight(0.05, 0.15, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         trajectoryPtr->Stop_Trajectory_straightwalk(0.05);
         indext = 0;
@@ -367,7 +367,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Left2();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 0, 3.5, 3.5, 0, 0);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -377,7 +377,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Step_in_place(0.05, 0.5, 0.025);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -387,7 +387,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Right2();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 0, 3.5, 3.5, 0, 0);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -397,7 +397,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Go_Straight(0.05, res_distance, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -407,7 +407,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Huddle_Motion(0.22, 0.14, 0.05);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(4.5, 4.5, 4.5, 4.5, 4.5, -4.5);
+        IK_Ptr->Change_Angle_Compensation(4.5, 4.5,0, 4.5, 4.5, 4.5,0, -4.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -418,7 +418,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Freq_Change_Straight(0.05, 0.5, 0.05, 1);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(67);
         indext = 0;
     }
@@ -429,7 +429,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Go_Straight(0.01, 0.03, 0.025);
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -440,7 +440,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Right1();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -451,7 +451,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Left1();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 3.5, 3.5, 3.5, -3.5);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
@@ -510,10 +510,11 @@ void Callback::Write_Leg_Theta()
         else if (mode == Motion_Index::Forward_2step || mode == Motion_Index::Step_in_place || mode == Motion_Index::Forward_Nstep || mode == Motion_Index::Forward_Halfstep || mode == Motion_Index::Forward_1step)
         {
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
-            IK_Ptr->Angle_Compensation(indext);
+            IK_Ptr->Angle_Compensation(indext, trajectoryPtr->Ref_RL_x.cols());
             if (turn_left)
             {
                 IK_Ptr->LL_th[0] = trajectoryPtr->Turn_Trajectory(index_angle);
+                All_Theta[12] = IK_Ptr->LL_th[0];
                 index_angle += 1;
                 if (index_angle > walktime_n - 1)
                 {
@@ -525,6 +526,7 @@ void Callback::Write_Leg_Theta()
             if (turn_right)
             {
                 IK_Ptr->RL_th[0] = trajectoryPtr->Turn_Trajectory(index_angle);
+                All_Theta[12] = IK_Ptr->RL_th[0];
                 index_angle += 1;
                 if (index_angle > walktime_n - 1)
                 {
@@ -533,7 +535,7 @@ void Callback::Write_Leg_Theta()
                     srv_SendMotion.request.TA_finish = true;
                 }
             }
-        //  Check_FSR();
+         Check_FSR();
         }
         else if (mode == Motion_Index::Left_2step || mode == Motion_Index::Left_Halfstep)
         {

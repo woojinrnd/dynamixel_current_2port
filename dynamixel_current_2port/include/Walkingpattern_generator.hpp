@@ -252,11 +252,11 @@ public:
 	MatrixXd BRP_RL_Simulation(MatrixXd RFx, MatrixXd RFy, MatrixXd RFz);
 	MatrixXd BRP_LL_Simulation(MatrixXd RFx, MatrixXd RFy, MatrixXd RFz);
 	void BRP_Simulation(MatrixXd RFx, MatrixXd RFy, MatrixXd RFz, MatrixXd LFx, MatrixXd LFy, MatrixXd LFz, int time);
-	void Angle_Compensation(int indext);
+	void Angle_Compensation(int indext, int size);
 	void Fast_Angle_Compensation(int indext);
 	void Angle_Compensation_Huddle(int indext);
 	void Set_Angle_Compensation(int walktime_n);
-	void Change_Angle_Compensation(double RL_Support,double RL_Swing,double RL_Ankle,double LL_Support,double LL_Swing,double LL_Ankle);
+	void Change_Angle_Compensation(double RL_Support, double RL_Swing, double RL_Knee , double RL_Ankle, double LL_Support, double LL_Swing, double LL_Knee ,double LL_Ankle);
 	void Angle_Compensation_Leftwalk(int indext);
 	void Angle_Compensation_Rightwalk(int indext);
 	double RL_th[6] = { 0.,0.,-0.610865,1.22173,0.610865,0. }, LL_th[6] = { 0.,0.,-0.610865,1.22173,0.610865, 0.};

@@ -490,7 +490,7 @@ MatrixXd Trajectory::YComSimulation_Sidewalk_half(double a, double b, double c, 
 
 MatrixXd Trajectory::Huddle_Xcom()
 {
-	sim_n = walktime_n * 4;
+	sim_n = walktime_n * 5;
 	zmp_err_int = 0;
 	u_prev = 0;
 	PreviewGd();
@@ -504,13 +504,13 @@ MatrixXd Trajectory::Huddle_Xcom()
 		{
 			zmp_ref[i] = 0;
 		}
-		else if( i < 2.75 * float_walktime_n)
+		else if (i < 3.3 * float_walktime_n)
 		{
 			zmp_ref[i] = step;
 		}
 		else
 		{
-			zmp_ref[i] = 1.4*step;
+			zmp_ref[i] = 1.4 * step;
 		}
 	}
 
@@ -526,7 +526,7 @@ MatrixXd Trajectory::Huddle_Xcom()
 	zmp_ref_final.setZero();
 	CP.setZero();
 	XCom.setZero();
-	double w = sqrt(g / z_c);
+	double w = sqrt(g / z_c - 1.2 * 0.05);
 	for (int i = 0; i < sim_n + 19; i++)
 	{
 		for (int j = 0; j < NL; j++)
@@ -563,7 +563,7 @@ MatrixXd Trajectory::Huddle_Xcom()
 
 MatrixXd Trajectory::Huddle_Ycom()
 {
-	sim_n = walktime_n * 4;
+	sim_n = walktime_n * 5;
 	PreviewGd();
 	zmp_err_int = 0;
 	u_prev = 0;
@@ -581,11 +581,11 @@ MatrixXd Trajectory::Huddle_Ycom()
 		{
 			zmp_ref[i] = -0.06;
 		}
-		else if (i < 2.95 * float_walktime_n)
+		else if (i < 3.5 * float_walktime_n)
 		{
 			zmp_ref[i] = 0.06;
 		}
-		else if (i < 3.8 * float_walktime_n)
+		else if (i < 4.5 * float_walktime_n)
 		{
 			zmp_ref[i] = -0.06;
 		}
@@ -607,7 +607,7 @@ MatrixXd Trajectory::Huddle_Ycom()
 	zmp_ref_final.setZero();
 	CP.setZero();
 	YCom.setZero();
-	double w = sqrt(g / z_c);
+	double w = sqrt(g / z_c - 1.2 * 0.05);
 	for (int i = 0; i < sim_n + 19; i++)
 	{
 		for (int j = 0; j < NL; j++)
@@ -1361,24 +1361,24 @@ MatrixXd Trajectory::RF_ysimulation_leftwalk_halfstep()
 		double time = i * del_t;
 		if (time < 1.1 * walktime)
 		{
-			Footpos[i] = -step;
+			Footpos[i] = -0.06;
 		}
 		else if (time < 1.4 * walktime)
 		{
-			Footpos[i] = -step;
+			Footpos[i] = -0.06;
 		}
 		else if (time < 2.1 * walktime)
 		{
-			Footpos[i] = -step;
+			Footpos[i] = -0.06;
 		}
 		else if (time < 2.4 * walktime)
 		{
-			Footpos[i] = Step(time - 2.1 * walktime) - step;
+			Footpos[i] = Step(time - 2.1 * walktime) - 0.06;
 		}
 
 		else
 		{
-			Footpos[i] = 0;
+			Footpos[i] = step - 0.06;
 		}
 	};
 	return Footpos;
@@ -1397,15 +1397,15 @@ MatrixXd Trajectory::LF_ysimulation_leftwalk_halfstep()
 
 		if (time < 1.6 * walktime)
 		{
-			Footpos[i] = step;
+			Footpos[i] = 0.06;
 		}
 		else if (time < 1.9 * walktime)
 		{
-			Footpos[i] = Step(time - 1.6 * walktime) + step;
+			Footpos[i] = Step(time - 1.6 * walktime) + 0.06;
 		}
 		else
 		{
-			Footpos[i] = 2 * step;
+			Footpos[i] = step + 0.06;
 		}
 	};
 	return Footpos;
@@ -1504,15 +1504,15 @@ MatrixXd Trajectory::RF_ysimulation_rightwalk_halfstep()
 
 		if (time < 1.6 * walktime)
 		{
-			Footpos[i] = step;
+			Footpos[i] = -0.06;
 		}
 		else if (time < 1.9 * walktime)
 		{
-			Footpos[i] = Step(time - 1.6 * walktime) + step;
+			Footpos[i] = Step(time - 1.6 * walktime) - 0.06;
 		}
 		else
 		{
-			Footpos[i] = 2 * step;
+			Footpos[i] = -0.06 + step;
 		}
 	};
 	return Footpos;
@@ -1530,23 +1530,23 @@ MatrixXd Trajectory::LF_ysimulation_rightwalk_halfstep()
 		double time = i * del_t;
 		if (time < 1.1 * walktime)
 		{
-			Footpos[i] = -step;
+			Footpos[i] = 0.06;
 		}
 		else if (time < 1.4 * walktime)
 		{
-			Footpos[i] = -step;
+			Footpos[i] = 0.06;
 		}
 		else if (time < 2.1 * walktime)
 		{
-			Footpos[i] = -step;
+			Footpos[i] = 0.06;
 		}
 		else if (time < 2.4 * walktime)
 		{
-			Footpos[i] = Step(time - 2.1 * walktime) - step;
+			Footpos[i] = Step(time - 2.1 * walktime) + 0.06;
 		}
 		else
 		{
-			Footpos[i] = 0;
+			Footpos[i] = 0.06 + step;
 		}
 	};
 	return Footpos;
@@ -1634,8 +1634,8 @@ MatrixXd Trajectory::LF_zsimulation_rightwalk_halfstep()
 
 MatrixXd Trajectory::RF_xsimulation_huddle()
 {
-	XStep = Equation_solver(0, walktime * 0.5, 0, 1.4*step);
-	step_n = 4;
+	XStep = Equation_solver(0, walktime , 0, 1.4 * step);
+	step_n = 5;
 	sim_n = walktime_n * step_n;
 	double del_t = 1 / freq;
 	RowVectorXd Footpos(sim_n); // rightfoot motion
@@ -1646,13 +1646,13 @@ MatrixXd Trajectory::RF_xsimulation_huddle()
 		{
 			Footpos[i] = 0;
 		}
-		else if (time < 2.5 * walktime)
+		else if (time < 3 * walktime)
 		{
 			Footpos[i] = Step(time - 2 * walktime);
 		}
 		else
 		{
-			Footpos[i] = 1.4*step;
+			Footpos[i] = 1.4 * step;
 		}
 	};
 	return Footpos;
@@ -1662,7 +1662,7 @@ MatrixXd Trajectory::LF_xsimulation_huddle()
 {
 	XStep = Equation_solver(0, walktime * 0.5, 0, step);
 	XStride = Equation_solver(0, walktime * 0.3, 0, 0.4 * step);
-	step_n = 4;
+	step_n = 5;
 	sim_n = walktime_n * step_n;
 	double del_t = 1 / freq;
 	RowVectorXd Footpos(sim_n); // rightfoot motion
@@ -1677,17 +1677,17 @@ MatrixXd Trajectory::LF_xsimulation_huddle()
 		{
 			Footpos[i] = Step(time - 1 * walktime);
 		}
-		else if (time < 3.2 * walktime)
+		else if (time < 3.8 * walktime)
 		{
 			Footpos[i] = step;
 		}
-		else if (time < 3.5 * walktime)
+		else if (time < 4.1 * walktime)
 		{
-			Footpos[i] = Stride(time - 3.2 * walktime) + step;
+			Footpos[i] = Stride(time - 3.8 * walktime) + step;
 		}
 		else
 		{
-			Footpos[i] = 1.4*step;
+			Footpos[i] = 1.4 * step;
 		}
 	};
 	return Footpos;
@@ -1697,7 +1697,7 @@ MatrixXd Trajectory::RF_zsimulation_huddle(double h, double COM_h)
 {
 	XStep = Equation_solver(0, 0.2 * walktime, 0, h);
 	XStride = Equation_solver(0, 0.2 * walktime, h, 0);
-	sim_n = walktime_n * 4;
+	sim_n = walktime_n * 5;
 	double del_t = 1 / freq;
 	RowVectorXd Footpos(sim_n);
 	for (int i = 0; i < sim_n; i++)
@@ -1710,17 +1710,17 @@ MatrixXd Trajectory::RF_zsimulation_huddle(double h, double COM_h)
 		}
 		else if (time < 2 * walktime)
 		{
-			Footpos[i] = Step(time - 1.8 * walktime)+COM_h;
+			Footpos[i] = Step(time - 1.8 * walktime) + COM_h;
 		}
-		else if (time < 2.5 * walktime)
+		else if (time < 3 * walktime)
 		{
 			Footpos[i] = h + COM_h;
 		}
-		else if (time < 2.7 * walktime)
+		else if (time < 3.2 * walktime)
 		{
-			Footpos[i] = Stride(time - 2.5 * walktime)+COM_h;
+			Footpos[i] = Stride(time - 3 * walktime) + COM_h;
 		}
-		else if (time < 3 * walktime)
+		else if (time < 3.2* walktime)
 		{
 			Footpos[i] = COM_h;
 		}
@@ -1736,7 +1736,7 @@ MatrixXd Trajectory::LF_zsimulation_huddle(double h, double COM_h)
 {
 	XStep = Equation_solver(0, 0.2 * walktime, 0, h);
 	XStride = Equation_solver(0, 0.2 * walktime, h, 0);
-	step_n = 4;
+	step_n = 5;
 	sim_n = walktime_n * step_n;
 	double del_t = 1 / freq;
 	RowVectorXd Footpos(sim_n);
@@ -1754,27 +1754,27 @@ MatrixXd Trajectory::LF_zsimulation_huddle(double h, double COM_h)
 		}
 		else if (time < 1.5 * walktime)
 		{
-			Footpos[i] = h +COM_h;
+			Footpos[i] = h + COM_h;
 		}
 		else if (time < 1.7 * walktime)
 		{
 			Footpos[i] = Stride(time - 1.5 * walktime) + COM_h;
 		}
-		else if (time < 3.1 * walktime)
+		else if (time < 3.6 * walktime)
 		{
 			Footpos[i] = COM_h;
 		}
-		else if (time < 3.3 * walktime)
+		else if (time < 3.8 * walktime)
 		{
-			Footpos[i] = 0.2*Step(time - 3.1 * walktime) +COM_h;
+			Footpos[i] = 0.2 * Step(time - 3.6 * walktime) + COM_h;
 		}
-		else if (time < 3.5 * walktime)
+		else if (time < 4 * walktime)
 		{
-			Footpos[i] = 0.2*h + COM_h;
+			Footpos[i] = 0.2 * h + COM_h;
 		}
-		else if (time < 3.7 * walktime)
+		else if (time < 4.2 * walktime)
 		{
-			Footpos[i] = 0.2*Stride(time - 3.5 * walktime) + COM_h;
+			Footpos[i] = 0.2 * Stride(time - 4 * walktime) + COM_h;
 		}
 		else
 		{
@@ -1863,7 +1863,7 @@ MatrixXd Trajectory::RF_zsimulation_huddle1(double h)
 		{
 			Footpos[i] = Stride(time - 2.5 * walktime);
 		}
-		else if (time < 3*walktime)
+		else if (time < 3 * walktime)
 		{
 			Footpos[i] = 0;
 		}
@@ -1909,10 +1909,10 @@ MatrixXd Trajectory::LF_zsimulation_huddle1(double h)
 		}
 	};
 	return Footpos;
-
 };
 
-MatrixXd Trajectory::RF_zsimulation_sitdown(double h){
+MatrixXd Trajectory::RF_zsimulation_sitdown(double h)
+{
 	XStep = Equation_solver(0, 60, 0, h);
 	RowVectorXd Footpos(100);
 	for (int i = 0; i < 100; i++)
@@ -1937,7 +1937,8 @@ MatrixXd Trajectory::RF_zsimulation_sitdown(double h){
 	return Footpos;
 }
 
-MatrixXd Trajectory::LF_zsimulation_sitdown(double h){
+MatrixXd Trajectory::LF_zsimulation_sitdown(double h)
+{
 	XStep = Equation_solver(0, 60, 0, h);
 	RowVectorXd Footpos(100);
 	for (int i = 0; i < 100; i++)
@@ -1962,7 +1963,8 @@ MatrixXd Trajectory::LF_zsimulation_sitdown(double h){
 	return Footpos;
 }
 
-MatrixXd Trajectory::RF_zsimulation_standup(double h){
+MatrixXd Trajectory::RF_zsimulation_standup(double h)
+{
 	XStep = Equation_solver(0, 60, h, 0);
 	RowVectorXd Footpos(100);
 	for (int i = 0; i < 100; i++)
@@ -1987,7 +1989,8 @@ MatrixXd Trajectory::RF_zsimulation_standup(double h){
 	return Footpos;
 }
 
-MatrixXd Trajectory::LF_zsimulation_standup(double h){
+MatrixXd Trajectory::LF_zsimulation_standup(double h)
+{
 	XStep = Equation_solver(0, 60, h, 0);
 	RowVectorXd Footpos(100);
 	for (int i = 0; i < 100; i++)
@@ -2198,7 +2201,7 @@ void Trajectory::Huddle_Motion(double step, double height, double COM_h)
 	MatrixXd Temp_RL_x(Ref_RL_x_t.rows(), MatrixXd::Zero(1, 100).cols() + Ref_RL_x_t.cols() + MatrixXd::Zero(1, 100).cols());
 	MatrixXd Temp_LL_x(Ref_LL_x_t.rows(), MatrixXd::Zero(1, 100).cols() + Ref_LL_x_t.cols() + MatrixXd::Zero(1, 100).cols());
 	MatrixXd Temp_RL_y(Ref_RL_y_t.rows(), MatrixXd::Ones(1, 100).cols() + Ref_RL_y_t.cols() + MatrixXd::Ones(1, 100).cols());
-	MatrixXd Temp_LL_y(Ref_LL_y_t.rows(), MatrixXd::Ones(1, 100).cols() + Ref_LL_y_t.cols() +  MatrixXd::Ones(1, 100).cols());
+	MatrixXd Temp_LL_y(Ref_LL_y_t.rows(), MatrixXd::Ones(1, 100).cols() + Ref_LL_y_t.cols() + MatrixXd::Ones(1, 100).cols());
 	MatrixXd Temp_RL_z(Ref_RL_z_t.rows(), RF_zsimulation_sitdown(COM_h).cols() + Ref_RL_z_t.cols() + RF_zsimulation_standup(COM_h).cols());
 	MatrixXd Temp_LL_z(Ref_LL_z_t.rows(), LF_zsimulation_sitdown(COM_h).cols() + Ref_LL_z_t.cols() + LF_zsimulation_standup(COM_h).cols());
 	Temp_RL_x << MatrixXd::Zero(1, 100), Ref_RL_x_t, MatrixXd::Zero(1, 100);
@@ -2229,8 +2232,8 @@ void Trajectory::Huddle_Motion1(double step, double height)
 	Ref_LL_x = LF_xFoot - Xcom;
 	Ref_RL_y = RF_yFoot - Ycom;
 	Ref_LL_y = LF_yFoot - Ycom;
-	Ref_RL_z = RF_zsimulation_huddle(height , 50);
-	Ref_LL_z = LF_zsimulation_huddle(height , 50);
+	Ref_RL_z = RF_zsimulation_huddle(height, 50);
+	Ref_LL_z = LF_zsimulation_huddle(height, 50);
 }
 
 void Trajectory::Make_turn_trajectory(double angle)
@@ -2805,25 +2808,25 @@ void IK_Function::Set_Angle_Compensation(int walktime_n)
 	LL_Compensation_Support_ankle_down = traj.Equation_solver(0, walktime_n * 0.075, LL_Support_Ankle, 0);
 }
 
-void IK_Function::Change_Angle_Compensation(double RL_Support, double RL_Swing, double RL_Ankle, double LL_Support, double LL_Swing, double LL_Ankle)
+void IK_Function::Change_Angle_Compensation(double RL_Support, double RL_Swing, double RL_Knee , double RL_Ankle, double LL_Support, double LL_Swing, double LL_Knee ,double LL_Ankle)
 {
 	RL_Support_Leg = RL_Support * deg2rad;
 	RL_Swing_Leg = RL_Swing * deg2rad;
-	RL_Support_Knee = 0; //-5 * deg2rad;
+	RL_Support_Knee = RL_Knee * deg2rad; //-5 * deg2rad;
 	RL_Support_Ankle = RL_Ankle * deg2rad;
 
 	LL_Support_Leg = LL_Support * deg2rad;
 	LL_Swing_Leg = LL_Swing * deg2rad;
-	LL_Support_Knee = 0; //-5 * deg2rad;
+	LL_Support_Knee = LL_Knee * deg2rad; //-5 * deg2rad;
 	LL_Support_Ankle = LL_Ankle * deg2rad;
 }
 
-void IK_Function::Angle_Compensation(int indext)
+void IK_Function::Angle_Compensation(int indext, int size)
 {
 
 	double check_index = indext % walktime_n;
 	double dwalktime = walktime_n;
-	if (indext > 0.3 * walktime_n && indext < sim_n + walktime_n)
+	if (indext > 74 && indext < size + walktime_n)
 	{
 		if (check_index > 0.075 * dwalktime && check_index < 0.15 * dwalktime) // swing
 		{
@@ -3058,343 +3061,344 @@ double IK_Function::LL_Support_Ankle_Compensation_down(double t)
 void IK_Function::Angle_Compensation_Leftwalk(int indext)
 {
 	double dwalktime = walktime_n;
-	if (1.575 * dwalktime < indext && indext < 1.65 * dwalktime) // support
-	{
-		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext - 1.575 * dwalktime);
-		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext - 1.575 * dwalktime);
-		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_up(indext - 1.575 * dwalktime);
-		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_up(indext - 1.575 * dwalktime);
+		if (1.575 * dwalktime < indext && indext < 1.65 * dwalktime) // support
+		{
+			RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext - 1.575 * dwalktime);
+			RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext - 1.575 * dwalktime);
+			RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_up(indext - 1.575 * dwalktime);
+			RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_up(indext - 1.575 * dwalktime);
 
-		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_up(indext - 1.575 * dwalktime);
-	}
-	else if (1.65 * dwalktime < indext && indext < 1.85 * dwalktime) // support
-	{
-		RL_th[1] = RL_th[1] - RL_Support_Leg;
-		RL_th[3] = RL_th[3] - RL_Support_Knee;
-		RL_th[4] = RL_th[4] - RL_Support_Ankle;
-		RL_th[5] = RL_th[5] - RL_Support_Leg;
+			LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_up(indext - 1.575 * dwalktime);
+		}
+		else if (1.65 * dwalktime < indext && indext < 1.85 * dwalktime) // support
+		{
+			RL_th[1] = RL_th[1] - RL_Support_Leg;
+			RL_th[3] = RL_th[3] - RL_Support_Knee;
+			RL_th[4] = RL_th[4] - RL_Support_Ankle;
+			RL_th[5] = RL_th[5] - RL_Support_Leg;
 
-		LL_th[1] = LL_th[1] + LL_Swing_Leg;
-	}
-	else if (1.85 * dwalktime < indext && indext < 1.925 * dwalktime) // support
-	{
-		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 1.85 * dwalktime);
-		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 1.85 * dwalktime);
-		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_down(indext - 1.85 * dwalktime);
-		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_down(indext - 1.85 * dwalktime);
+			LL_th[1] = LL_th[1] + LL_Swing_Leg;
+		}
+		else if (1.85 * dwalktime < indext && indext < 1.925 * dwalktime) // support
+		{
+			RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 1.85 * dwalktime);
+			RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 1.85 * dwalktime);
+			RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_down(indext - 1.85 * dwalktime);
+			RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_down(indext - 1.85 * dwalktime);
 
-		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 1.85 * dwalktime);
-	}
+			LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 1.85 * dwalktime);
+		}
 
-	else if (2.075 * dwalktime < indext && indext < 2.15 * dwalktime)
-	{
-		RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_up(indext - 2.075 * dwalktime);
+		else if (2.075 * dwalktime < indext && indext < 2.15 * dwalktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_up(indext - 2.075 * dwalktime);
 
-		LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_up(indext - 2.075 * dwalktime);
-		LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_up(indext - 2.075 * dwalktime);
-		LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_up(indext - 2.075 * dwalktime);
-		LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_up(indext - 2.075 * dwalktime);
-	}
-	else if (2.15 * dwalktime < indext && indext < 2.35 * dwalktime)
-	{
-		RL_th[1] = RL_th[1] - RL_Swing_Leg;
+			LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_up(indext - 2.075 * dwalktime);
+			LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_up(indext - 2.075 * dwalktime);
+			LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_up(indext - 2.075 * dwalktime);
+			LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_up(indext - 2.075 * dwalktime);
+		}
+		else if (2.15 * dwalktime < indext && indext < 2.35 * dwalktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Swing_Leg;
 
-		LL_th[1] = LL_th[1] + LL_Support_Leg;
-		LL_th[3] = LL_th[3] + LL_Support_Knee;
-		LL_th[4] = LL_th[4] + LL_Support_Ankle;
-		LL_th[5] = LL_th[5] + LL_Support_Leg;
-	}
-	else if (2.35 * dwalktime < indext && indext < 2.425 * dwalktime)
-	{
-		RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_down(indext - 2.35 * dwalktime);
+			LL_th[1] = LL_th[1] + LL_Support_Leg;
+			LL_th[3] = LL_th[3] + LL_Support_Knee;
+			LL_th[4] = LL_th[4] + LL_Support_Ankle;
+			LL_th[5] = LL_th[5] + LL_Support_Leg;
+		}
+		else if (2.35 * dwalktime < indext && indext < 2.425 * dwalktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_down(indext - 2.35 * dwalktime);
 
-		LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_down(indext - 2.35 * dwalktime);
-		LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_down(indext - 2.35 * dwalktime);
-		LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_down(indext - 2.35 * dwalktime);
-		LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_down(indext - 2.35 * dwalktime);
-	}
-	else if (2.575 * dwalktime < indext && indext < 2.65 * dwalktime)
-	{
-		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext - 2.575 * dwalktime);
-		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext - 2.575 * dwalktime);
-		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_up(indext - 2.575 * dwalktime);
-		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_up(indext - 2.575 * dwalktime);
+			LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_down(indext - 2.35 * dwalktime);
+			LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_down(indext - 2.35 * dwalktime);
+			LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_down(indext - 2.35 * dwalktime);
+			LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_down(indext - 2.35 * dwalktime);
+		}
+		else if (2.575 * dwalktime < indext && indext < 2.65 * dwalktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext - 2.575 * dwalktime);
+			RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext - 2.575 * dwalktime);
+			RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_up(indext - 2.575 * dwalktime);
+			RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_up(indext - 2.575 * dwalktime);
 
-		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_up(indext - 2.575 * dwalktime);
-	}
-	else if (2.65 * dwalktime < indext && indext < 2.85 * dwalktime)
-	{
-		RL_th[1] = RL_th[1] - RL_Support_Leg;
-		RL_th[3] = RL_th[3] - RL_Support_Knee;
-		RL_th[4] = RL_th[4] - RL_Support_Ankle;
-		RL_th[5] = RL_th[5] - RL_Support_Leg;
+			LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_up(indext - 2.575 * dwalktime);
+		}
+		else if (2.65 * dwalktime < indext && indext < 2.85 * dwalktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Support_Leg;
+			RL_th[3] = RL_th[3] - RL_Support_Knee;
+			RL_th[4] = RL_th[4] - RL_Support_Ankle;
+			RL_th[5] = RL_th[5] - RL_Support_Leg;
 
-		LL_th[1] = LL_th[1] + LL_Swing_Leg;
-	}
-	else if (2.85 * dwalktime < indext && indext < 2.925 * dwalktime)
-	{
-		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 2.85 * dwalktime);
-		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 2.85 * dwalktime);
-		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_down(indext - 2.85 * dwalktime);
-		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_down(indext - 2.85 * dwalktime);
+			LL_th[1] = LL_th[1] + LL_Swing_Leg;
+		}
+		else if (2.85 * dwalktime < indext && indext < 2.925 * dwalktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 2.85 * dwalktime);
+			RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 2.85 * dwalktime);
+			RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_down(indext - 2.85 * dwalktime);
+			RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_down(indext - 2.85 * dwalktime);
 
-		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 2.85 * dwalktime);
-	}
-	else if (3.075 * dwalktime < indext && indext < 3.15 * dwalktime)
-	{
-		RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_up(indext - 3.075 * dwalktime);
+			LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 2.85 * dwalktime);
+		}
+		else if (3.075 * dwalktime < indext && indext < 3.15 * dwalktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_up(indext - 3.075 * dwalktime);
 
-		LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_up(indext - 3.075 * dwalktime);
-		LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_up(indext - 3.075 * dwalktime);
-		LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_up(indext - 3.075 * dwalktime);
-		LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_up(indext - 3.075 * dwalktime);
-	}
-	else if (3.15 * dwalktime < indext && indext < 3.35 * dwalktime)
-	{
-		RL_th[1] = RL_th[1] - RL_Swing_Leg;
+			LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_up(indext - 3.075 * dwalktime);
+			LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_up(indext - 3.075 * dwalktime);
+			LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_up(indext - 3.075 * dwalktime);
+			LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_up(indext - 3.075 * dwalktime);
+		}
+		else if (3.15 * dwalktime < indext && indext < 3.35 * dwalktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Swing_Leg;
 
-		LL_th[1] = LL_th[1] + LL_Support_Leg;
-		LL_th[3] = LL_th[3] + LL_Support_Knee;
-		LL_th[4] = LL_th[4] + LL_Support_Ankle;
-		LL_th[5] = LL_th[5] + LL_Support_Leg;
-	}
-	else if (3.35 * dwalktime < indext && indext < 3.425 * walktime)
-	{
-		RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_down(indext - 3.35 * dwalktime);
+			LL_th[1] = LL_th[1] + LL_Support_Leg;
+			LL_th[3] = LL_th[3] + LL_Support_Knee;
+			LL_th[4] = LL_th[4] + LL_Support_Ankle;
+			LL_th[5] = LL_th[5] + LL_Support_Leg;
+		}
+		else if (3.35 * dwalktime < indext && indext < 3.425 * walktime)
+		{
+			RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_down(indext - 3.35 * dwalktime);
 
-		LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_down(indext - 3.35 * dwalktime);
-		LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_down(indext - 3.35 * dwalktime);
-		LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_down(indext - 3.35 * dwalktime);
-		LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_down(indext - 3.35 * dwalktime);
-	}
+			LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_down(indext - 3.35 * dwalktime);
+			LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_down(indext - 3.35 * dwalktime);
+			LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_down(indext - 3.35 * dwalktime);
+			LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_down(indext - 3.35 * dwalktime);
+		}
 }
 
 void IK_Function::Angle_Compensation_Rightwalk(int indext)
 {
 	double dwalktime = walktime_n;
-	if (1.575 * dwalktime < indext && indext < 1.65 * dwalktime) // support
+	if (indext > 0.3 * walktime_n && indext < sim_n + walktime_n)
 	{
-		LL_th[1] = LL_th[1] - RL_Support_Leg_Compensation_up(indext - 1.575 * dwalktime);
-		LL_th[3] = LL_th[3] - RL_Support_Knee_Compensation_up(indext - 1.575 * dwalktime);
-		LL_th[4] = LL_th[4] - RL_Support_Ankle_Compensation_up(indext - 1.575 * dwalktime);
-		LL_th[5] = LL_th[5] - RL_Support_Leg_Compensation_up(indext - 1.575 * dwalktime);
+		if (1.575 * dwalktime < indext && indext < 1.65 * dwalktime) // support
+		{
+			LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_up(indext - 1.575 * dwalktime);
+			LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_up(indext - 1.575 * dwalktime);
+			LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_up(indext - 1.575 * dwalktime);
+			LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_up(indext - 1.575 * dwalktime);
 
-		RL_th[1] = RL_th[1] + LL_Swing_Leg_Compensation_up(indext - 1.575 * dwalktime);
-	}
-	else if (1.65 * dwalktime < indext && indext < 1.85 * dwalktime) // support
-	{
-		LL_th[1] = LL_th[1] - RL_Support_Leg;
-		LL_th[3] = LL_th[3] - RL_Support_Knee;
-		LL_th[4] = LL_th[4] - RL_Support_Ankle;
-		LL_th[5] = LL_th[5] - RL_Support_Leg;
+			RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_up(indext - 1.575 * dwalktime);
+		}
+		else if (1.65 * dwalktime < indext && indext < 1.85 * dwalktime) // support
+		{
+			LL_th[1] = LL_th[1] + LL_Support_Leg;
+			LL_th[3] = LL_th[3] + LL_Support_Knee;
+			LL_th[4] = LL_th[4] + LL_Support_Ankle;
+			LL_th[5] = LL_th[5] + LL_Support_Leg;
 
-		RL_th[1] = RL_th[1] + LL_Swing_Leg;
-	}
-	else if (1.85 * dwalktime < indext && indext < 1.925 * dwalktime) // support
-	{
-		LL_th[1] = LL_th[1] - RL_Support_Leg_Compensation_down(indext - 1.85 * dwalktime);
-		LL_th[3] = LL_th[3] - RL_Support_Knee_Compensation_down(indext - 1.85 * dwalktime);
-		LL_th[4] = LL_th[4] - RL_Support_Ankle_Compensation_down(indext - 1.85 * dwalktime);
-		LL_th[5] = LL_th[5] - RL_Support_Leg_Compensation_down(indext - 1.85 * dwalktime);
+			RL_th[1] = RL_th[1] - RL_Swing_Leg;
+		}
+		else if (1.85 * dwalktime < indext && indext < 1.925 * dwalktime) // support
+		{
+			LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_down(indext - 1.85 * dwalktime);
+			LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_down(indext - 1.85 * dwalktime);
+			LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_down(indext - 1.85 * dwalktime);
+			LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_down(indext - 1.85 * dwalktime);
 
-		RL_th[1] = RL_th[1] + LL_Swing_Leg_Compensation_down(indext - 1.85 * dwalktime);
-	}
+			RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_down(indext - 1.85 * dwalktime);
+		}
 
-	else if (2.075 * dwalktime < indext && indext < 2.15 * dwalktime)
-	{
-		LL_th[1] = LL_th[1] - RL_Swing_Leg_Compensation_up(indext - 2.075 * dwalktime);
+		else if (2.075 * dwalktime < indext && indext < 2.15 * dwalktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_up(indext - 2.075 * dwalktime);
 
-		RL_th[1] = RL_th[1] + LL_Support_Leg_Compensation_up(indext - 2.075 * dwalktime);
-		RL_th[3] = RL_th[3] + LL_Support_Knee_Compensation_up(indext - 2.075 * dwalktime);
-		RL_th[4] = RL_th[4] + LL_Support_Ankle_Compensation_up(indext - 2.075 * dwalktime);
-		RL_th[5] = RL_th[5] + LL_Support_Leg_Compensation_up(indext - 2.075 * dwalktime);
-	}
-	else if (2.15 * dwalktime < indext && indext < 2.35 * dwalktime)
-	{
-		LL_th[1] = LL_th[1] - RL_Swing_Leg;
+			RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext - 2.075 * dwalktime);
+			RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext - 2.075 * dwalktime);
+			RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_up(indext - 2.075 * dwalktime);
+			RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_up(indext - 2.075 * dwalktime);
+		}
+		else if (2.15 * dwalktime < indext && indext < 2.35 * dwalktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Swing_Leg;
 
-		RL_th[1] = RL_th[1] + LL_Support_Leg;
-		RL_th[3] = RL_th[3] + LL_Support_Knee;
-		RL_th[4] = RL_th[4] + LL_Support_Ankle;
-		RL_th[5] = RL_th[5] + LL_Support_Leg;
-	}
-	else if (2.35 * dwalktime < indext && indext < 2.425 * dwalktime)
-	{
-		LL_th[1] = LL_th[1] - RL_Swing_Leg_Compensation_down(indext - 2.35 * dwalktime);
+			RL_th[1] = RL_th[1] - RL_Support_Leg;
+			RL_th[3] = RL_th[3] - RL_Support_Knee;
+			RL_th[4] = RL_th[4] - RL_Support_Ankle;
+			RL_th[5] = RL_th[5] - RL_Support_Leg;
+		}
+		else if (2.35 * dwalktime < indext && indext < 2.425 * dwalktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 2.35 * dwalktime);
 
-		RL_th[1] = RL_th[1] + LL_Support_Leg_Compensation_down(indext - 2.35 * dwalktime);
-		RL_th[3] = RL_th[3] + LL_Support_Knee_Compensation_down(indext - 2.35 * dwalktime);
-		RL_th[4] = RL_th[4] + LL_Support_Ankle_Compensation_down(indext - 2.35 * dwalktime);
-		RL_th[5] = RL_th[5] + LL_Support_Leg_Compensation_down(indext - 2.35 * dwalktime);
-	}
-	else if (2.575 * dwalktime < indext && indext < 2.65 * dwalktime)
-	{
-		LL_th[1] = LL_th[1] - RL_Support_Leg_Compensation_up(indext - 2.575 * dwalktime);
-		LL_th[3] = LL_th[3] - RL_Support_Knee_Compensation_up(indext - 2.575 * dwalktime);
-		LL_th[4] = LL_th[4] - RL_Support_Ankle_Compensation_up(indext - 2.575 * dwalktime);
-		LL_th[5] = LL_th[5] - RL_Support_Leg_Compensation_up(indext - 2.575 * dwalktime);
+			RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 2.35 * dwalktime);
+			RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 2.35 * dwalktime);
+			RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_down(indext - 2.35 * dwalktime);
+			RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_down(indext - 2.35 * dwalktime);
+		}
+		else if (2.575 * dwalktime < indext && indext < 2.65 * dwalktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_up(indext - 2.575 * dwalktime);
+			LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_up(indext - 2.575 * dwalktime);
+			LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_up(indext - 2.575 * dwalktime);
+			LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_up(indext - 2.575 * dwalktime);
 
-		RL_th[1] = RL_th[1] + LL_Swing_Leg_Compensation_up(indext - 2.575 * dwalktime);
-	}
-	else if (2.65 * dwalktime < indext && indext < 2.85 * dwalktime)
-	{
-		LL_th[1] = LL_th[1] - RL_Support_Leg;
-		LL_th[3] = LL_th[3] - RL_Support_Knee;
-		LL_th[4] = LL_th[4] - RL_Support_Ankle;
-		LL_th[5] = LL_th[5] - RL_Support_Leg;
+			RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_up(indext - 2.575 * dwalktime);
+		}
+		else if (2.65 * dwalktime < indext && indext < 2.85 * dwalktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Support_Leg;
+			LL_th[3] = LL_th[3] + LL_Support_Knee;
+			LL_th[4] = LL_th[4] + LL_Support_Ankle;
+			LL_th[5] = LL_th[5] + LL_Support_Leg;
 
-		RL_th[1] = RL_th[1] + LL_Swing_Leg;
-	}
-	else if (2.85 * dwalktime < indext && indext < 2.925 * dwalktime)
-	{
-		LL_th[1] = LL_th[1] - RL_Support_Leg_Compensation_down(indext - 2.85 * dwalktime);
-		LL_th[3] = LL_th[3] - RL_Support_Knee_Compensation_down(indext - 2.85 * dwalktime);
-		LL_th[4] = LL_th[4] - RL_Support_Ankle_Compensation_down(indext - 2.85 * dwalktime);
-		LL_th[5] = LL_th[5] - RL_Support_Leg_Compensation_down(indext - 2.85 * dwalktime);
+			RL_th[1] = RL_th[1] - RL_Swing_Leg;
+		}
+		else if (2.85 * dwalktime < indext && indext < 2.925 * dwalktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_down(indext - 2.85 * dwalktime);
+			LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_down(indext - 2.85 * dwalktime);
+			LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_down(indext - 2.85 * dwalktime);
+			LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_down(indext - 2.85 * dwalktime);
 
-		RL_th[1] = RL_th[1] + LL_Swing_Leg_Compensation_down(indext - 2.85 * dwalktime);
-	}
-	else if (3.075 * dwalktime < indext && indext < 3.15 * dwalktime)
-	{
-		LL_th[1] = LL_th[1] - RL_Swing_Leg_Compensation_up(indext - 3.075 * dwalktime);
+			RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_down(indext - 2.85 * dwalktime);
+		}
+		else if (3.075 * dwalktime < indext && indext < 3.15 * dwalktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_up(indext - 3.075 * dwalktime);
 
-		RL_th[1] = RL_th[1] + LL_Support_Leg_Compensation_up(indext - 3.075 * dwalktime);
-		RL_th[3] = RL_th[3] + LL_Support_Knee_Compensation_up(indext - 3.075 * dwalktime);
-		RL_th[4] = RL_th[4] + LL_Support_Ankle_Compensation_up(indext - 3.075 * dwalktime);
-		RL_th[5] = RL_th[5] + LL_Support_Leg_Compensation_up(indext - 3.075 * dwalktime);
-	}
-	else if (3.15 * dwalktime < indext && indext < 3.35 * dwalktime)
-	{
-		LL_th[1] = LL_th[1] - RL_Swing_Leg;
+			RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext - 3.075 * dwalktime);
+			RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext - 3.075 * dwalktime);
+			RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_up(indext - 3.075 * dwalktime);
+			RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_up(indext - 3.075 * dwalktime);
+		}
+		else if (3.15 * dwalktime < indext && indext < 3.35 * dwalktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Swing_Leg;
 
-		RL_th[1] = RL_th[1] + LL_Support_Leg;
-		RL_th[3] = RL_th[3] + LL_Support_Knee;
-		RL_th[4] = RL_th[4] + LL_Support_Ankle;
-		RL_th[5] = RL_th[5] + LL_Support_Leg;
-	}
-	else if (3.35 * dwalktime < indext && indext < 3.425 * walktime)
-	{
-		LL_th[1] = LL_th[1] - RL_Swing_Leg_Compensation_down(indext - 3.35 * dwalktime);
+			RL_th[1] = RL_th[1] - RL_Support_Leg;
+			RL_th[3] = RL_th[3] - RL_Support_Knee;
+			RL_th[4] = RL_th[4] - RL_Support_Ankle;
+			RL_th[5] = RL_th[5] - RL_Support_Leg;
+		}
+		else if (3.35 * dwalktime < indext && indext < 3.425 * walktime)
+		{
+			LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 3.35 * dwalktime);
 
-		RL_th[1] = RL_th[1] + LL_Support_Leg_Compensation_down(indext - 3.35 * dwalktime);
-		RL_th[3] = RL_th[3] + LL_Support_Knee_Compensation_down(indext - 3.35 * dwalktime);
-		RL_th[4] = RL_th[4] + LL_Support_Ankle_Compensation_down(indext - 3.35 * dwalktime);
-		RL_th[5] = RL_th[5] + LL_Support_Leg_Compensation_down(indext - 3.35 * dwalktime);
+			RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 3.35 * dwalktime);
+			RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 3.35 * dwalktime);
+			RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_down(indext - 3.35 * dwalktime);
+			RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_down(indext - 3.35 * dwalktime);
+		}
 	}
 }
 
 void IK_Function::Angle_Compensation_Huddle(int indext)
 {
 	double dwalktime = walktime_n;
-	if (indext > 0.8 * dwalktime + 100 && indext < 0.875 * dwalktime+ 100) // swing
+	if (indext > 0.8 * dwalktime + 100 && indext < 0.875 * dwalktime + 100) // swing
 	{
 		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_up(indext - 0.8 * dwalktime - 100);
 		LL_th[5] = LL_th[5] - LL_Swing_Leg_Compensation_up(indext - 0.8 * dwalktime - 100);
 	}
-	else if (indext > 0.875 * dwalktime+ 100 && indext < 1.625 * dwalktime + 100)
+	else if (indext > 0.875 * dwalktime + 100 && indext < 1.625 * dwalktime + 100)
 	{
 		LL_th[1] = LL_th[1] + LL_Swing_Leg;
 		LL_th[5] = LL_th[5] - LL_Swing_Leg;
 	}
-	else if (indext > 1.625 * dwalktime+ 100 && indext < 1.7 * dwalktime+ 100)
+	else if (indext > 1.625 * dwalktime + 100 && indext < 1.7 * dwalktime + 100)
 	{
-		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 1.625 * dwalktime- 100);
-		LL_th[5] = LL_th[5] - LL_Swing_Leg_Compensation_down(indext - 1.625 * dwalktime- 100);
+		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 1.625 * dwalktime - 100);
+		LL_th[5] = LL_th[5] - LL_Swing_Leg_Compensation_down(indext - 1.625 * dwalktime - 100);
 	}
-	else if (indext > 1.8 * dwalktime+ 100 && indext < 1.875 * dwalktime+ 100) // support
+	else if (indext > 1.8 * dwalktime + 100 && indext < 1.875 * dwalktime + 100) // support
 	{
-		LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_up(indext - 1.8 * dwalktime- 100);
-		LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_up(indext - 1.8 * dwalktime- 100);
-		LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_up(indext - 1.8 * dwalktime- 100);
-		LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_up(indext - 1.8 * dwalktime- 100);
+		LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_up(indext - 1.8 * dwalktime - 100);
+		LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_up(indext - 1.8 * dwalktime - 100);
+		LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_up(indext - 1.8 * dwalktime - 100);
+		LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_up(indext - 1.8 * dwalktime - 100);
 	}
-	else if (indext > 1.875 * dwalktime + 100&& indext < 2.625 * dwalktime+ 100) // support
+	else if (indext > 1.875 * dwalktime + 100 && indext < 3.125 * dwalktime + 100) // support
 	{
 		LL_th[1] = LL_th[1] + LL_Support_Leg;
 		LL_th[3] = LL_th[3] + LL_Support_Knee;
 		LL_th[4] = LL_th[4] + LL_Support_Ankle;
 		LL_th[5] = LL_th[5] + LL_Support_Leg;
 	}
-	else if (indext > 2.625 * dwalktime+ 100 && indext < 2.7 * dwalktime+ 100) // support
+	else if (indext > 3.125 * dwalktime + 100 && indext < 3.2 * dwalktime + 100) // support
 	{
-		LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_down(indext - 2.625 * dwalktime- 100);
-		LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_down(indext - 2.625 * dwalktime- 100);
-		LL_th[4] = LL_th[4] + LL_Support_Knee_Compensation_down(indext - 2.625 * dwalktime- 100);
-		LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_down(indext - 2.625 * dwalktime- 100);
+		LL_th[1] = LL_th[1] + LL_Support_Leg_Compensation_down(indext - 3.125 * dwalktime - 100);
+		LL_th[3] = LL_th[3] + LL_Support_Knee_Compensation_down(indext - 3.125 * dwalktime - 100);
+		LL_th[4] = LL_th[4] + LL_Support_Ankle_Compensation_down(indext - 3.125 * dwalktime - 100);
+		LL_th[5] = LL_th[5] + LL_Support_Leg_Compensation_down(indext - 3.125 * dwalktime - 100);
 	}
-	else if (indext > 3.1 * dwalktime+ 100 && indext < 3.175 * dwalktime+ 100) // support
+	else if (indext > 3.6 * dwalktime + 100 && indext < 3.675 * dwalktime + 100) // support
 	{
-		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_up(indext - 3.1 * dwalktime- 100);
-		LL_th[5] = LL_th[5] - LL_Swing_Leg_Compensation_up(indext - 3.1 * dwalktime- 100);
+		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_up(indext - 3.6 * dwalktime - 100);
+		LL_th[5] = LL_th[5] - LL_Swing_Leg_Compensation_up(indext - 3.6 * dwalktime - 100);
 	}
-	else if (indext > 3.175 * dwalktime+ 100 && indext < 3.625* dwalktime+ 100)
+	else if (indext > 3.675 * dwalktime + 100 && indext < 4.125 * dwalktime + 100)
 	{
 		LL_th[1] = LL_th[1] + LL_Swing_Leg;
 		LL_th[5] = LL_th[5] - LL_Swing_Leg;
 	}
-	else if (indext > 3.625 * dwalktime+ 100 && indext < 3.7 * dwalktime+ 100)
+	else if (indext > 4.125 * dwalktime + 100 && indext < 4.2 * dwalktime + 100)
 	{
-		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 3.625 * dwalktime- 100);
-		LL_th[5] = LL_th[5] - LL_Swing_Leg_Compensation_down(indext - 3.625 * dwalktime- 100);
+		LL_th[1] = LL_th[1] + LL_Swing_Leg_Compensation_down(indext - 4.125 * dwalktime - 100);
+		LL_th[5] = LL_th[5] - LL_Swing_Leg_Compensation_down(indext - 4.125 * dwalktime - 100);
 	}
 
-	if (indext > 0.8 * dwalktime+ 100 && indext < 0.875 * dwalktime+ 100) // support
+	if (indext > 0.8 * dwalktime + 100 && indext < 0.875 * dwalktime + 100) // support
 	{
-		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext - 0.8 * dwalktime- 100);
-		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext - 0.8 * dwalktime- 100);
-		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_up(indext - 0.8 * dwalktime- 100);
-		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_up(indext - 0.8 * dwalktime- 100);
+		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext - 0.8 * dwalktime - 100);
+		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext - 0.8 * dwalktime - 100);
+		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_up(indext - 0.8 * dwalktime - 100);
+		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_up(indext - 0.8 * dwalktime - 100);
 	}
-	else if (indext > 0.875 * dwalktime+ 100 && indext < 1.625 * dwalktime+ 100)
+	else if (indext > 0.875 * dwalktime + 100 && indext < 1.625 * dwalktime + 100)
 	{
 		RL_th[1] = RL_th[1] - RL_Support_Leg;
 		RL_th[3] = RL_th[3] - RL_Support_Knee;
 		RL_th[4] = RL_th[4] - RL_Support_Ankle;
 		RL_th[5] = RL_th[5] - RL_Support_Leg;
 	}
-	else if (indext > 1.625 * dwalktime+ 100 && indext < 1.7 * dwalktime+ 100)
+	else if (indext > 1.625 * dwalktime + 100 && indext < 1.7 * dwalktime + 100)
 	{
-		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 1.625 * dwalktime- 100);
-		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 1.625 * dwalktime- 100);
-		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_down(indext - 1.625 * dwalktime- 100);
-		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_down(indext - 1.625 * dwalktime- 100);
+		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 1.625 * dwalktime - 100);
+		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 1.625 * dwalktime - 100);
+		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_down(indext - 1.625 * dwalktime - 100);
+		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_down(indext - 1.625 * dwalktime - 100);
 	}
-
-	else if (indext > 1.8 * dwalktime+ 100 && indext < 1.875 * dwalktime+ 100) // swing
+	else if (indext > 1.8 * dwalktime + 100 && indext < 1.875 * dwalktime + 100) // swing
 	{
-		RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_up(indext - 1.8 * dwalktime- 100);
-		RL_th[5] = RL_th[5] + RL_Swing_Leg_Compensation_up(indext - 1.8 * dwalktime- 100);
+		RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_up(indext - 1.8 * dwalktime - 100);
+		RL_th[5] = RL_th[5] + RL_Swing_Leg_Compensation_up(indext - 1.8 * dwalktime - 100);
 	}
-	else if (indext > 1.875 * dwalktime+ 100 && indext < 2.625 * dwalktime+ 100) // swing
+	else if (indext > 1.875 * dwalktime + 100 && indext < 3.125 * dwalktime + 100) // swing
 	{
 		RL_th[1] = RL_th[1] - RL_Swing_Leg;
 		RL_th[5] = RL_th[5] + RL_Swing_Leg;
 	}
-	else if (indext > 2.625 * dwalktime+ 100 && indext < 2.7 * dwalktime+ 100) // swing
+	else if (indext > 3.125 * dwalktime + 100 && indext < 3.2 * dwalktime + 100) // swing
 	{
-		RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_down(indext - 2.625 * dwalktime- 100);
-		RL_th[5] = RL_th[5] + RL_Swing_Leg_Compensation_down(indext - 2.625 * dwalktime- 100);
+		RL_th[1] = RL_th[1] - RL_Swing_Leg_Compensation_down(indext - 3.125 * dwalktime - 100);
+		RL_th[5] = RL_th[5] + RL_Swing_Leg_Compensation_down(indext - 3.125 * dwalktime - 100);
 	}
-
-	else if (indext > 3.1 * dwalktime+ 100 && indext < 3.175 * dwalktime+ 100) // support
+	else if (indext > 3.6 * dwalktime + 100 && indext < 3.675 * dwalktime + 100) // support
 	{
-		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext - 3.1 * dwalktime- 100);
-		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext - 3.1 * dwalktime- 100);
-		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_up(indext - 3.1 * dwalktime- 100);
-		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_up(indext - 3.1 * dwalktime- 100);
+		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_up(indext - 3.6 * dwalktime - 100);
+		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_up(indext - 3.6 * dwalktime - 100);
+		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_up(indext - 3.6 * dwalktime - 100);
+		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_up(indext - 3.6 * dwalktime - 100);
 	}
-	else if (indext > 3.175 * dwalktime+ 100 && indext < 3.625* dwalktime+ 100)
+	else if (indext > 3.675 * dwalktime + 100 && indext < 4.125 * dwalktime + 100)
 	{
 		RL_th[1] = RL_th[1] - RL_Support_Leg;
 		RL_th[3] = RL_th[3] - RL_Support_Knee;
 		RL_th[4] = RL_th[4] - RL_Support_Ankle;
 		RL_th[5] = RL_th[5] - RL_Support_Leg;
 	}
-	else if (indext > 3.625 * dwalktime+ 100 && indext < 3.7 * dwalktime+ 100)
+	else if (indext > 4.125 * dwalktime + 100 && indext < 4.2 * dwalktime + 100)
 	{
-		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 3.625 * dwalktime- 100);
-		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 3.625 * dwalktime- 100);
-		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_down(indext - 3.625 * dwalktime- 100);
-		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_down(indext - 3.625 * dwalktime- 100);
+		RL_th[1] = RL_th[1] - RL_Support_Leg_Compensation_down(indext - 4.125 * dwalktime - 100);
+		RL_th[3] = RL_th[3] - RL_Support_Knee_Compensation_down(indext - 4.125 * dwalktime - 100);
+		RL_th[4] = RL_th[4] - RL_Support_Ankle_Compensation_down(indext - 4.125 * dwalktime - 100);
+		RL_th[5] = RL_th[5] - RL_Support_Leg_Compensation_down(indext - 4.125 * dwalktime - 100);
 	}
 }

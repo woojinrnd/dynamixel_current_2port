@@ -100,6 +100,7 @@ public:
     int saturation_upper = 255;
     int value_lower = 0;
     int value_upper = 255;
+    int corner_count = 0;
 
     bool has_white_prev = false;
     bool has_yellow_prev = false;
@@ -117,7 +118,7 @@ public:
     cv::Scalar green_color = {0, 255, 0};
     cv::Scalar red_color = {0, 0, 255};
     cv::Scalar yellow_color = {0, 255, 255};
-    cv::Scalar white_color = {255, 255, 255};
+    cv::Scalar white_color = {200, 200, 200};
 
     cv::Scalar lower_bound_yellow = {20, 100, 100}; // HSV에서 노란색의 하한값
     cv::Scalar upper_bound_yellow = {40, 255, 255};
@@ -144,6 +145,7 @@ public:
     void create_threshold_trackbar_Y(const std::string &window_name);
     void create_threshold_trackbar_B(const std::string &window_name);
     void create_color_range_trackbar(const std::string &window_name);
+    std::tuple<cv::Mat, cv::Mat> ROI_Line(const cv::Mat& input_frame, const cv::Mat& ori_frame);
     cv::Mat ROI_Circle(const cv::Mat &input_frame);
     cv::Mat ROI_Rectangle(const cv::Mat &input_frame, int y_start, int y_end, int x_start, int x_end);
     std::tuple<cv::Mat, cv::Mat> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);

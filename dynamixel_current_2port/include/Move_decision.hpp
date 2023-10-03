@@ -29,7 +29,10 @@
 
 #define LINE_TURN 10
 
-#define CORNER_TURN 10
+#define CORNER_90TURN 8
+#define CORNER_TURN 5
+
+#define HUDDLE_TURN 5
 
 #define MARGIN_GRADIENT 20 // margin of straight line
 
@@ -170,7 +173,9 @@ public:
 
     void Motion_Info();
     void Send_Motion_Info(int8_t res_motion);
+    void Send_Info(int8_t motion_, double turn_angle_, double ud, double rl, bool emg);
     void Running_Info();
+    void CalculateQuotientAndRemainder(int dividend, int divisor, int &quotient, int &remainder);
 
     // ********************************************** GETTERS ************************************************** //
 
@@ -370,7 +375,7 @@ public:
 
     // corner shape ㅓ(1) / ㅜ(2)
     int8_t tmp_corner_shape = 0;
-    int8_t tmp_corner_seq = 0;
+    int8_t tmp_corner_seq = 3;
     bool corner_seq_finish = false;
 
     double corner_actual_angle = 0;
