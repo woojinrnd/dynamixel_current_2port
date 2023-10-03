@@ -375,7 +375,7 @@ public:
 
     // corner shape ㅓ(1) / ㅜ(2)
     int8_t tmp_corner_shape = 0;
-    int8_t tmp_corner_seq = 3;
+    int8_t tmp_corner_seq = 0;
     bool corner_seq_finish = false;
 
     double corner_actual_angle = 0;

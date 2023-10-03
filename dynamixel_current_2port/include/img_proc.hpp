@@ -149,7 +149,7 @@ public:
     cv::Mat ROI_Circle(const cv::Mat &input_frame);
     cv::Mat ROI_Rectangle(const cv::Mat &input_frame, int y_start, int y_end, int x_start, int x_end);
     std::tuple<cv::Mat, cv::Mat> extract_color(const cv::Mat &input_frame, const cv::Scalar &lower_bound, const cv::Scalar &upper_bound);
-    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int, std::vector<cv::Point>> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
+    std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Point, int, int, cv::Point, int, std::vector<cv::Point>, int> detect_Line_areas(const cv::Mat &input_frame, const cv::Mat &origin_frame, const cv::Scalar &contour_color, int threshold_value, bool check_disappearance = false, bool is_white_line = false);
     double Distance_Point(const rs2::depth_frame &depth, cv::Point center);
 
     // ********************************************** 3D THREAD************************************************** //
@@ -211,7 +211,7 @@ public:
     void Set_delta_x(double delta_x);
     void Set_wall_angle(double wall_angle);
     void Set_wall_distance(double wall_distance);
-    
+
     void Set_huddle_distance(double huddle_distance);
     void Set_huddle_angle(double huddle_angle);
     void Set_corner_angle(double corner_angle);

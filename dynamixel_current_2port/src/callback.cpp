@@ -535,7 +535,7 @@ void Callback::Write_Leg_Theta()
                     srv_SendMotion.request.TA_finish = true;
                 }
             }
-         Check_FSR();
+        //  Check_FSR();
         }
         else if (mode == Motion_Index::Left_2step || mode == Motion_Index::Left_Halfstep)
         {

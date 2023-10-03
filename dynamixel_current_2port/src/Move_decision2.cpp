@@ -74,10 +74,12 @@ void Move_Decision::process()
     // Set_UD_Neck_on_flg(true);
 
     // corner mode
-    Set_corner_det_flg_2d(true);
+    // Set_corner_det_flg_2d(true);
+    // Set_line_det_flg(true);
 
     // wall mode
     // tmp_img_proc_wall_det_flg_ = true;
+
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
 
     tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
@@ -88,16 +90,23 @@ void Move_Decision::process()
     tmp_img_proc_goal_det_flg_ = img_procPtr->Get_img_proc_goal_line_det();
     tmp_img_proc_corner_det_flg_2d_ = img_procPtr->Get_img_proc_corner_det_2d();
 
+    ROS_WARN("tmp_img_proc_line_det_flg_ : %d", tmp_img_proc_line_det_flg_);
+    ROS_WARN("tmp_img_proc_huddle_det_flg_2d_ : %d", tmp_img_proc_huddle_det_flg_2d_);
+    ROS_WARN("tmp_img_proc_corner_det_flg_2d_ : %d", tmp_img_proc_corner_det_flg_2d_);
+
     //////////////////////////////////////   LINE MODE    //////////////////////////////////////
 
     if (tmp_img_proc_line_det_flg_)
     {
         if (tmp_img_proc_huddle_det_flg_2d_)
         {
-            if (Get_huddle_det_stop_flg() && huddle_seq_finish)
+            if (Get_huddle_det_stop_flg() == true)
             {
-                Set_line_det_flg(true);
-                Set_huddle_det_flg_2d(false);
+                if (huddle_seq_finish)
+                {
+                    Set_line_det_flg(true);
+                    Set_huddle_det_flg_2d(false);
+                }
             }
 
             else
@@ -150,10 +159,13 @@ void Move_Decision::process()
     {
         if (tmp_img_proc_huddle_det_flg_2d_)
         {
-            if (Get_huddle_det_stop_flg() && huddle_seq_finish)
+            if (Get_huddle_det_stop_flg())
             {
-                Set_line_det_flg(true);
-                Set_huddle_det_flg_2d(false);
+                if (huddle_seq_finish)
+                {
+                    Set_no_line_det_flg(true);
+                    Set_huddle_det_flg_2d(false);
+                }
             }
 
             else
@@ -360,12 +372,12 @@ void Move_Decision::Running_Mode_Decision()
             running_mode_ = NO_LINE_MODE;
         }
 
-        else if (Get_line_det_flg() && !Get_corner_det_flg_2d())
+        else if (Get_line_det_flg() /* && !Get_corner_det_flg_2d() */)
         {
             running_mode_ = LINE_MODE;
         }
 
-        else if (Get_huddle_det_flg_3d() && !Get_huddle_det_stop_flg())
+        else if (Get_huddle_det_flg_2d() /* && !Get_huddle_det_stop_flg() */)
         {
             running_mode_ = HUDDLE_MODE;
         }
@@ -380,7 +392,7 @@ void Move_Decision::Running_Mode_Decision()
             running_mode_ = STOP_MODE;
         }
 
-        else if (Get_corner_det_flg_2d() && !Get_corner_det_stop_flg())
+        else if (Get_corner_det_flg_2d() /* && !Get_corner_det_stop_flg() */)
         {
             running_mode_ = CORNER_MODE;
         }
@@ -425,7 +437,13 @@ void Move_Decision::LINE_mode()
     // line_motion = Get_motion_index_();
     line_motion = Motion_Index::InitPose;
     line_ud_neckangle = Get_UD_NeckAngle();
-    Set_corner_det_stop_flg(false); // Initializing
+
+    // Initializing
+    corner_seq_finish = false;
+    Set_corner_det_stop_flg(false);
+
+    huddle_seq_finish = false;
+    Set_huddle_det_stop_flg(false);
 
     // If SM_req_finish = false -> InitPose
     // Straight Line
@@ -596,7 +614,13 @@ void Move_Decision::NOLINE_mode()
     tmp_delta_x = img_procPtr->Get_delta_x();
     noline_actual_angle = Get_turn_angle_();
     noline_motion = Get_motion_index_();
-    Set_corner_det_stop_flg(false); // Initializing
+
+    // Initializing
+    corner_seq_finish = false;
+    Set_corner_det_stop_flg(false);
+
+    huddle_seq_finish = false;
+    Set_huddle_det_stop_flg(false);
 
     if (tmp_delta_x < 0) // Right
     {
@@ -1538,7 +1562,7 @@ void Move_Decision::HUDDLE_mode2()
     else if (tmp_huddle_seq == 4)
     {
         ROS_ERROR(Str_HUDDLE2_SEQUENCE_3.c_str());
-        if (to_be_line_mode == 3)
+        if (to_be_line_mode == 1)
         {
             Set_huddle_det_stop_flg(true);
         }
