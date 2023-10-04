@@ -175,7 +175,8 @@ public:
     void Send_Motion_Info(int8_t res_motion);
     void Send_Info(int8_t motion_, double turn_angle_, double ud, double rl, bool emg);
     void Running_Info();
-    void CalculateQuotientAndRemainder(int dividend, int divisor, int &quotient, int &remainder);
+    int8_t Wall_Status(double distance_rect_);
+    // void CalculateQuotientAndRemainder(int dividend, int divisor, int &quotient, int &remainder);
 
     // ********************************************** GETTERS ************************************************** //
 
@@ -409,10 +410,22 @@ public:
 
     int8_t wall_motion = 0;
     int8_t img_wall_number_case = 0;
-    int8_t wall_number_seq = 0;
+
+    int8_t wall_number_seq_A = 0;
+    int8_t wall_number_seq_B = 0;
+    int8_t wall_number_seq_C = 0;
+
+
     double wall_neck_angle = 0;
     double wall_distance = 0;
-    double wall_gradient = 0;
+    double img_proc_wall_angle = 0;
+    double wall_actual_angle = 0;
+    bool wall_posture = false;
+    bool plane_mode = false; // LEFT PLANE : 0 , RIGHT PLANE : 1
+    int8_t wall_status = 0; // IN WALL_MODE
+    int8_t wall_status_ = 0; // IN wall_status_function
+
+    
     std::vector<double> wall_distance_save;
 
     /////////////////////// Sequence++ ///////////////////////
