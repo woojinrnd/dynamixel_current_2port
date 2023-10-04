@@ -44,7 +44,7 @@
 #define PROP_SATURATION 128
 
 #define LINE_AREA 300
-#define HUDDLE_AREA 500
+#define HUDDLE_AREA 200
 
 #define CORNER_X_MARGIN 45
 #define CORNER_Y_MARGIN 45
@@ -120,14 +120,14 @@ public:
     cv::Scalar yellow_color = {0, 255, 255};
     cv::Scalar white_color = {200, 200, 200};
 
-    cv::Scalar lower_bound_yellow = {20, 100, 100}; // HSV에서 노란색의 하한값
+    cv::Scalar lower_bound_yellow = {20, 20, 140}; // HSV에서 노란색의 하한값
     cv::Scalar upper_bound_yellow = {40, 255, 255};
 
-    cv::Scalar lower_bound_white = {0, 0, 0};
-    cv::Scalar upper_bound_white = {179, 255, 255};
+    cv::Scalar lower_bound_white = {130, 0, 140};
+    cv::Scalar upper_bound_white = {155, 30, 255};
 
-    cv::Scalar lower_bound_blue = {100, 100, 100};
-    cv::Scalar upper_bound_blue = {120, 255, 255};
+    cv::Scalar lower_bound_blue = {100, 200, 100};
+    cv::Scalar upper_bound_blue = {125, 255, 255};
 
     int corner_condition_count = 0;
     int line_condition_count = 0;
@@ -188,6 +188,8 @@ public:
     double Get_huddle_distance() const;
     double Get_huddle_angle() const;
     double Get_corner_angle() const;
+    bool Get_plane_mode() const;
+
 
     bool Get_contain_huddle_to_foot() const;
     bool Get_contain_corner_to_foot() const;
@@ -211,6 +213,8 @@ public:
     void Set_delta_x(double delta_x);
     void Set_wall_angle(double wall_angle);
     void Set_wall_distance(double wall_distance);
+    void Set_plane_mode(bool plane_mode);
+
 
     void Set_huddle_distance(double huddle_distance);
     void Set_huddle_angle(double huddle_angle);
@@ -285,8 +289,7 @@ private:
     double wall_distance_ = 0;     //  wall mode
     double huddle_distance_ = 0; // huddle distance
     double corner_angle_ = 0; //corner angle
-
-
+    bool plane_mode_ = 0;
 
     // No Line mode
     // delta_x : Center of window.x - Center of last captured line.x
@@ -315,12 +318,16 @@ private:
     mutable std::mutex mtx_img_proc_corner_number_;
 
     // Line Mode
+
     mutable std::mutex mtx_gradient;
+    
     // No Line Mode
     mutable std::mutex mtx_delta_x;
+    
     // Wall Mode
     mutable std::mutex mtx_wall_angle;
     mutable std::mutex mtx_wall_distance_;
+    mutable std::mutex mtx_plane_mode_;
 
     // Huddle Mode
     mutable std::mutex mtx_contain_huddle_to_foot;

@@ -156,6 +156,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
     float corner_angle = 0;
     int line_area = 0;
     int huddle_area = 0;
+    int blue_area = 0;
 
     cv::Point corner_center = cv::Point(0, 0);
     cv::Point huddle_center = cv::Point(0, 0);
@@ -177,7 +178,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
             huddle_area = cv::contourArea(contour);
         }
 
-        if (line_area > LINE_AREA || huddle_area > HUDDLE_AREA)
+        if (line_area > LINE_AREA || huddle_area > HUDDLE_AREA || (!is_white_line && !is_yellow_line))
         {
             cv::Moments m = cv::moments(contour);
             foundLargeContour = true;
@@ -206,7 +207,7 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
         }
     }
 
-    if (!top_contour.empty() && is_white_line)
+    if (!top_contour.empty())
     {
         top_contour_area = cv::contourArea(top_contour);
         cv::line(ori_frame, center_now, cv::Point(320, 480), contour_color, 2);
@@ -401,8 +402,8 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 huddle_center = min_area_rect.center;
                 // cout << top_contour_area << endl;
                 cv::circle(ori_frame, huddle_center, 2, contour_color, -1, 8);
-                cv::imshow("yellow binary", binary);
-                cv::moveWindow("yellow binary", 1000, 540);
+                //cv::imshow("yellow binary", binary);
+                //cv::moveWindow("yellow binary", 1000, 540);
                 // cout << "yellow area" << huddle_area << endl;
             }
         }
@@ -486,14 +487,18 @@ void Img_proc::webcam_thread()
     }
 
     // Threshold Trackbar (White / Yellow / Blue)
-    const std::string window_name_thresh_white = "hsv Frame_white";
-    const std::string window_name_thresh_blue = "hsv Frame_blue";
+    const std::string window_name_thresh_white = "thresh Frame_white";
+    const std::string window_name_thresh_blue = "thresh Frame_blue";
 
     cv::namedWindow(window_name_thresh_white);
     cv::namedWindow(window_name_thresh_blue);
 
     create_threshold_trackbar_W(window_name_thresh_white);
     create_threshold_trackbar_B(window_name_thresh_blue);
+
+    const std::string window_name_thresh_yellow = "thresh Frame_yellow";
+    cv::namedWindow(window_name_thresh_yellow);
+    create_threshold_trackbar_Y(window_name_thresh_yellow);
 
     cv::Mat frame, hsv_frame_white, hsv_frame_yellow, thresh_frame_white, thresh_frame_yellow, gray;
 
@@ -514,10 +519,11 @@ void Img_proc::webcam_thread()
         auto hsv_frame_yellow = extract_color(Roi_huddle, lower_bound_yellow, upper_bound_yellow);
         auto hsv_frame_blue = extract_color(frame, lower_bound_blue, upper_bound_blue);
 
+
         // Draw
         auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, yellow_color, threshold_value_yellow, true, false);
         auto thresh_frame_blue = detect_Line_areas(std::get<0>(hsv_frame_blue), frame, blue_color, threshold_value_blue, false, false);
-        auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), std::get<1>(Roi_Line), white_color, threshold_value_white, false, true);
+        auto thresh_frame_white = detect_Line_areas(std::get<0>(hsv_frame_white), frame, white_color, threshold_value_white, false, true);
 
         // Filled Area
         int WhiteColorDetected = 0;
@@ -531,10 +537,6 @@ void Img_proc::webcam_thread()
         if (YellowColorDetected > HUDDLE_AREA)
         {
             this->Set_img_proc_huddle_det_2d(true);
-
-            const std::string window_name_thresh_yellow = "hsv Frame_yellow";
-            cv::namedWindow(window_name_thresh_yellow);
-            create_threshold_trackbar_Y(window_name_thresh_yellow);
 
             double gradient = std::get<2>(thresh_frame_yellow);
             this->Set_gradient(gradient);
@@ -747,6 +749,7 @@ std::tuple<int, float, float> Img_proc::applyPCA(cv::Mat &color, const rs2::dept
             tmp_img_proc_wall_number = -1;
         }
     }
+
     else if (distance_rect > 0.4 && distance_rect < 0.75)
     {
 
@@ -759,6 +762,7 @@ std::tuple<int, float, float> Img_proc::applyPCA(cv::Mat &color, const rs2::dept
             tmp_img_proc_wall_number = -2;
         }
     }
+    
     else if (distance_rect <= 0.4)
     {
 
@@ -1668,6 +1672,12 @@ double Img_proc::Get_wall_distance() const
     return wall_distance_;
 }
 
+bool Img_proc::Get_plane_mode() const
+{
+    std::lock_guard<std::mutex> lock(mtx_plane_mode_);
+    return plane_mode_;
+}
+
 double Img_proc::Get_huddle_distance() const
 {
     std::lock_guard<std::mutex> lock(mtx_huddle_distance_);
@@ -1794,6 +1804,12 @@ void Img_proc::Set_wall_distance(double wall_distance)
 {
     std::lock_guard<std::mutex> lock(mtx_wall_distance_);
     this->wall_distance_ = wall_distance;
+}
+
+void Img_proc::Set_plane_mode(bool plane_mode)
+{
+    std::lock_guard<std::mutex> lock(mtx_plane_mode_);
+    this->plane_mode_ = plane_mode;
 }
 
 void Img_proc::Set_huddle_distance(double huddle_distance)

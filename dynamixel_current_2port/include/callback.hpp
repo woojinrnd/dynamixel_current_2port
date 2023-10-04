@@ -48,6 +48,7 @@ public:
     Right_Halfstep = 12,
     Back_Halfstep = 13,
     Forward_1step = 14,
+    START = 50,
     NONE = 99,
   };
 
@@ -66,6 +67,7 @@ public:
   string Str_Back_Halfstep = "Back_Halfstep";
   string Str_FWD_UP = "FWD_UP";
   string Str_BWD_UP = "BWD_UP";
+  string Str_START = "START";
   string Str_NONE = "NONE";
 
   Callback(Trajectory *trajectoryPtr, IK_Function *IK_Ptr, Dxl *dxlPtr);
@@ -104,10 +106,12 @@ public:
   ros::Subscriber joint_state_subscriber_;  ///< Gets joint states for writes
   ros::Subscriber FSR_L_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_L
   ros::Subscriber FSR_R_sensor_subscriber_; ///< Gets FSR Sensor data from Arduino FSR_R
+  ros::Subscriber Start_subscriber_;        ///< Start
 
   virtual void JointStatesCallback(const sensor_msgs::JointState::ConstPtr &joint_command);
   virtual void L_FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
   virtual void R_FSRsensorCallback(const std_msgs::UInt8::ConstPtr &FSR);
+  virtual void StartMode(const std_msgs::Bool::ConstPtr &start);
 
   /////////Service callbacek
   ros::ServiceClient client_SendMotion = nh.serviceClient<dynamixel_current_2port::SendMotion>("/Move_decision/SendMotion");
@@ -137,11 +141,11 @@ public:
   double vel_y = 0;
   double vel_z = 0;
 
-  //TEST
+  // TEST
   bool a = false;
   int b = 1;
-  
-  //PRINT
+
+  // PRINT
   int error_counter = 0;
   bool error_printed = false;
 
@@ -155,7 +159,7 @@ public:
   int stop_indext = 0;
   bool turn_left = false;
   bool turn_right = false;
-  int emergency = 0;
+  int emergency = 99;
   bool on_emergency = false;
   double angle = 0;
   int index_angle = 0;
@@ -180,7 +184,7 @@ public:
   MatrixXd LL_motion7;
   VectorXd All_Theta = MatrixXd::Zero(NUMBER_OF_DYNAMIXELS, 1);
 
-  //CP
+  // CP
   double Real_CP_Y = 0;
   double Real_CP_X = 0;
   double xZMP_from_CP = 0;

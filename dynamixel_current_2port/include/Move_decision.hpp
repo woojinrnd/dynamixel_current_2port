@@ -346,9 +346,9 @@ public:
 
     string Str_HUDDLE2_SEQUENCE_0 = "HUDDLE_SEQUENCE_0 : POSTURE CONTROL";
     string Str_HUDDLE2_SEQUENCE_1 = "HUDDLE_SEQUENCE_1 : POSITION CONTROL";
-    string Str_HUDDLE2_SEQUENCE_1_1 = "HUDDLE_SEQUENCE_1_1 : POSTURE CONTROL ONE MORE TIME";
-    string Str_HUDDLE2_SEQUENCE_2 = "HUDDLE_SEQUENCE_2 : HUDDLE JUMP";
-    string Str_HUDDLE2_SEQUENCE_3 = "HUDDLE_SEQUENCE_3 : INITIALIZING";
+    string Str_HUDDLE2_SEQUENCE_2 = "HUDDLE_SEQUENCE_2 : POSTURE CONTROL ONE MORE TIME";
+    string Str_HUDDLE2_SEQUENCE_3 = "HUDDLE_SEQUENCE_3 : HUDDLE JUMP";
+    string Str_HUDDLE2_SEQUENCE_4 = "HUDDLE_SEQUENCE_4 : INITIALIZING";
 
     /////////////////////// Corner Mode ///////////////////////
 
@@ -422,7 +422,8 @@ public:
     // check the variable sharing with multi thread
     int aaaa = 0;
     int ccc = 0;
-    int abc = 0;
+    int abb = 0;
+    int abc = 1;
     int b = aaaa % 2;
 
     int warning_counter = 0;

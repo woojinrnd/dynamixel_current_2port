@@ -90,6 +90,9 @@ void Move_Decision::process()
     tmp_img_proc_goal_det_flg_ = img_procPtr->Get_img_proc_goal_line_det();
     tmp_img_proc_corner_det_flg_2d_ = img_procPtr->Get_img_proc_corner_det_2d();
 
+    // tmp_img_proc_line_det_flg_ != abb;
+    // tmp_img_proc_huddle_det_flg_2d_ != abc;
+
     ROS_WARN("tmp_img_proc_line_det_flg_ : %d", tmp_img_proc_line_det_flg_);
     ROS_WARN("tmp_img_proc_huddle_det_flg_2d_ : %d", tmp_img_proc_huddle_det_flg_2d_);
     ROS_WARN("tmp_img_proc_corner_det_flg_2d_ : %d", tmp_img_proc_corner_det_flg_2d_);
@@ -144,6 +147,18 @@ void Move_Decision::process()
                 Set_line_det_flg(false);
                 Set_no_line_det_flg(false);
             }
+        }
+
+        // Keeping huddle mode
+        else if (tmp_huddle_seq == 1 && tmp_huddle_seq == 2 && tmp_huddle_seq == 3 && tmp_huddle_seq == 4)
+        {
+            Set_huddle_det_flg_2d(true);
+        }
+
+        // Keeping huddle mode
+        else if (tmp_corner_seq == 1 && tmp_corner_seq == 2 && tmp_corner_seq == 3 && tmp_corner_seq == 4)
+        {
+            Set_corner_det_flg_2d(true);
         }
 
         else
@@ -210,6 +225,12 @@ void Move_Decision::process()
             Set_goal_line_det_flg(true);
             Set_line_det_flg(false);
             Set_no_line_det_flg(false);
+        }
+
+        // Keeping huddle mode
+        else if (tmp_huddle_seq == 1 && tmp_huddle_seq == 2 && tmp_huddle_seq == 3 && tmp_huddle_seq == 4)
+        {
+            Set_huddle_det_flg_2d(true);
         }
 
         else
@@ -1403,13 +1424,37 @@ void Move_Decision::HUDDLE_mode2()
     ROS_ERROR("img_proc_huddle_angle : %lf", img_proc_huddle_angle);
     ROS_WARN("Get_foot_huddle_distance : %d", img_procPtr->Get_foot_huddle_distance());
 
-    // 0 : Pose Control (Posture(Gradient))
+    // 0 : InitPose (Dummy)
     if (tmp_huddle_seq == 0)
+    {
+        if (!Get_select_motion_on_flg())
+        {
+            huddle_motion = Motion_Index::InitPose;
+            Set_motion_index_(huddle_motion);
+            Set_select_motion_on_flg(true);
+        }
+
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            tmp_huddle_seq++;
+        }
+    }
+
+    // 1 : Pose Control (Posture(Gradient))
+    else if (tmp_huddle_seq == 1)
     {
         // Initializing
         huddle_seq_finish = false;
         Set_huddle_det_stop_flg(false);
         huddle_posture = false;
+
+        // Keeping Huddle mode
+        // Set_huddle_det_flg_2d(true);
+        // Set_line_det_flg(false);
+        // tmp_img_proc_huddle_det_flg_2d_ = true;
+        // tmp_img_proc_line_det_flg_ = false;
+
 
         ROS_ERROR(Str_HUDDLE2_SEQUENCE_0.c_str());
 
@@ -1452,9 +1497,15 @@ void Move_Decision::HUDDLE_mode2()
         }
     }
 
-    // 1 : Approach to the Huddle + Pose Control (Position)
-    else if (tmp_huddle_seq == 1)
+    // 2 : Approach to the Huddle + Pose Control (Position)
+    else if (tmp_huddle_seq == 2)
     {
+        // Keeping Huddle mode
+        // Set_huddle_det_flg_2d(true);
+        // Set_line_det_flg(false);
+        // tmp_img_proc_huddle_det_flg_2d_ = true;
+        // tmp_img_proc_line_det_flg_ = false;
+
         // img_proc_huddle_delta_x = img_procPtr->Get_delta_x();
         img_proc_contain_huddle_to_foot = img_procPtr->Get_contain_huddle_to_foot();
 
@@ -1490,14 +1541,19 @@ void Move_Decision::HUDDLE_mode2()
         }
     }
 
-    // 2 : Pose Control (Posture(Gradient))
-    else if (tmp_huddle_seq == 2)
+    // 3 : Pose Control (Posture(Gradient))
+    else if (tmp_huddle_seq == 3)
     {
-        huddle_posture = false;
+        // Keeping Huddle mode
+        // Set_huddle_det_flg_2d(true);
+        // Set_line_det_flg(false);
+        // tmp_img_proc_huddle_det_flg_2d_ = true;
+        // tmp_img_proc_line_det_flg_ = false;
 
+        huddle_posture = false;
         img_proc_huddle_angle = img_procPtr->Get_huddle_angle();
         ROS_ERROR("img_proc_huddle_angle : %lf", img_proc_huddle_angle);
-        ROS_ERROR(Str_HUDDLE2_SEQUENCE_1_1.c_str());
+        ROS_ERROR(Str_HUDDLE2_SEQUENCE_2.c_str());
 
         if (!Get_select_motion_on_flg())
         {
@@ -1538,30 +1594,36 @@ void Move_Decision::HUDDLE_mode2()
         }
     }
 
-    // 3 : Motion : HUDDLE_JUMP
-    else if (tmp_huddle_seq == 3)
+    // 4 : Motion : HUDDLE_JUMP
+    else if (tmp_huddle_seq == 4)
     {
-        ROS_ERROR(Str_HUDDLE2_SEQUENCE_2.c_str());
+        // Keeping Huddle mode
+        // Set_huddle_det_flg_2d(true);
+        // Set_line_det_flg(false);
+        // tmp_img_proc_huddle_det_flg_2d_ = true;
+        // tmp_img_proc_line_det_flg_ = false;
+        
+        ROS_ERROR(Str_HUDDLE2_SEQUENCE_3.c_str());
         if (!Get_select_motion_on_flg())
         {
             huddle_motion = Motion_Index::Huddle_Jump;
             Set_motion_index_(huddle_motion);
             Set_select_motion_on_flg(true);
-            to_be_line_mode++;
         }
 
         // Sequence++
         if (finish_past != Get_SM_req_finish())
         {
             tmp_huddle_seq++;
+            to_be_line_mode++;
         }
         ROS_ERROR("to_be_line_mode : %d", to_be_line_mode);
     }
 
-    // 4 : Initializing
-    else if (tmp_huddle_seq == 4)
+    // 5 : Initializing
+    else if (tmp_huddle_seq == 5)
     {
-        ROS_ERROR(Str_HUDDLE2_SEQUENCE_3.c_str());
+        ROS_ERROR(Str_HUDDLE2_SEQUENCE_4.c_str());
         if (to_be_line_mode == 1)
         {
             Set_huddle_det_stop_flg(true);
@@ -1611,8 +1673,30 @@ void Move_Decision::CORNER_mode()
     corner_ud_neck_angle = Get_UD_NeckAngle();
     corner_motion = Motion_Index::InitPose;
 
+    // 0 : InitPose (Dummy)
+    if (tmp_huddle_seq == 0)
+    {
+        if (!Get_select_motion_on_flg())
+        {
+            corner_motion = Motion_Index::InitPose;
+            Set_motion_index_(corner_motion);
+            Set_select_motion_on_flg(true);
+        }
+
+        // Sequence++
+        if (finish_past != Get_SM_req_finish())
+        {
+            tmp_corner_seq++;
+        }
+    }
+
+    else if (tmp_corner_seq == 0)
+    {
+
+    }
+
     // 0 : Approach to the Corner + Pose Control (Position)
-    if (tmp_corner_seq == 0)
+    else if (tmp_corner_seq == 1)
     {
         // Initializing
         corner_seq_finish = false;
@@ -1693,7 +1777,7 @@ void Move_Decision::CORNER_mode()
     }
 
     // 1 : Approach to the Corner + Pose Control (Position)
-    else if (tmp_corner_seq == 1)
+    else if (tmp_corner_seq == 2)
     {
         img_proc_corner_angle = img_procPtr->Get_corner_angle();
         ROS_ERROR("img_proc_corner_angle : %lf", img_proc_corner_angle);
@@ -1735,7 +1819,7 @@ void Move_Decision::CORNER_mode()
     }
 
     // 2 : Motion : Step in place + Turn Angle 90(ㅓ) or -90(ㅜ)
-    else if (tmp_corner_seq == 2)
+    else if (tmp_corner_seq == 3)
     {
         ROS_ERROR(Str_CORNER_SEQUENCE_2.c_str());
 
@@ -1819,7 +1903,7 @@ void Move_Decision::CORNER_mode()
     }
 
     // 3 : Initializing
-    else if (tmp_corner_seq == 3)
+    else if (tmp_corner_seq == 4)
     {
         ROS_ERROR(Str_CORNER_SEQUENCE_3.c_str());
         // tmp_corner_shape = img_procPtr->Get_img_proc_corner_number();
@@ -3294,7 +3378,9 @@ void Move_Decision::Running_Info()
         tmp_running = Str_CORNER_MODE;
         break;
     }
+    ROS_INFO("------------------------- RUNNING ----------------------------");
     ROS_INFO("Running_Mode : %s", tmp_running.c_str());
+    ROS_INFO("------------------------- RUNNING ----------------------------");
 }
 
 // void Move_Diecison::CalculateQuotientAndRemainder(int dividend, int divisor, int &quotient, int &remainder)
