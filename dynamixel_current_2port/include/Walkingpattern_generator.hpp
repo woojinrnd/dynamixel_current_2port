@@ -79,6 +79,7 @@ public:
 	MatrixXd XComSimulation();
 	MatrixXd YComSimulation_Sidewalk(double a, double b, double c, double d, double e, double f);
 	MatrixXd YComSimulation_Sidewalk_half(double a, double b, double c, double d);
+	MatrixXd YComSimulation_Sidewalk6(double step);
 	MatrixXd Huddle_Xcom();
 	MatrixXd Huddle_Ycom();
 	MatrixXd Huddle_Xcom1();
@@ -110,6 +111,15 @@ public:
 	MatrixXd RF_zsimulation_rightwalk_halfstep();
 	MatrixXd LF_zsimulation_rightwalk_halfstep();
 
+	MatrixXd RF_ysimulation_leftwalk6();
+	MatrixXd LF_ysimulation_leftwalk6();
+	MatrixXd RF_zsimulation_leftwalk6();
+	MatrixXd LF_zsimulation_leftwalk6();
+	MatrixXd RF_ysimulation_rightwalk6();
+	MatrixXd LF_ysimulation_rightwalk6();
+	MatrixXd RF_zsimulation_rightwalk6();
+	MatrixXd LF_zsimulation_rightwalk6();
+
 	MatrixXd RF_xsimulation_huddle();
 	MatrixXd LF_xsimulation_huddle();
 	MatrixXd RF_zsimulation_huddle(double h, double COM_h);
@@ -131,6 +141,8 @@ public:
 	void Freq_Change_Straight(double step, double distance, double height, double freq);
 	void Side_Left2();
 	void Side_Right2();
+	void Side_Left6();
+	void Side_Right6();
 	void Side_Left1();
 	void Side_Right1();
 	void Step_in_place(double step, double distance,double height);

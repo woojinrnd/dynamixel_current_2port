@@ -1,7 +1,7 @@
 #include "Move_decision.hpp"
 #include <numeric>
 
-// Constructor
+// 
 Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
@@ -74,25 +74,31 @@ void Move_Decision::process()
     // Set_UD_Neck_on_flg(true);
 
     // corner mode
+    // Set_no_line_det_flg(true);
     // Set_corner_det_flg_2d(true);
-    // Set_line_det_flg(true);
+
 
     // wall mode
     // tmp_img_proc_wall_det_flg_ = true;
+    // Set_wall_det_flg(true);
 
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
+
+    // AllModereset();
 
     tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
     tmp_img_proc_no_line_det_flg_ = img_procPtr->Get_img_proc_no_line_det();
     tmp_img_proc_huddle_det_flg_2d_ = img_procPtr->Get_img_proc_huddle_det_2d();
-    // tmp_img_proc_wall_det_flg_ = img_procPtr->Get_img_proc_wall_det();
-    tmp_img_proc_wall_det_flg_ = Get_wall_det_flg();
+    tmp_img_proc_wall_det_flg_ = img_procPtr->Get_img_proc_wall_det();
+    // tmp_img_proc_wall_det_flg_ = Get_wall_det_flg();
     tmp_img_proc_goal_det_flg_ = img_procPtr->Get_img_proc_goal_line_det();
     tmp_img_proc_corner_det_flg_2d_ = img_procPtr->Get_img_proc_corner_det_2d();
     
     ROS_WARN("tmp_img_proc_line_det_flg_ : %d", tmp_img_proc_line_det_flg_);
+    ROS_WARN("tmp_img_proc_no_line_det_flg_ : %d", tmp_img_proc_no_line_det_flg_);
     ROS_WARN("tmp_img_proc_huddle_det_flg_2d_ : %d", tmp_img_proc_huddle_det_flg_2d_);
     ROS_WARN("tmp_img_proc_corner_det_flg_2d_ : %d", tmp_img_proc_corner_det_flg_2d_);
+    ROS_WARN("tmp_img_proc_wall_det_flg_ : %d", tmp_img_proc_wall_det_flg_);
 
     //////////////////////////////////////   LINE MODE    //////////////////////////////////////
 
@@ -100,21 +106,38 @@ void Move_Decision::process()
     {
         if (tmp_img_proc_huddle_det_flg_2d_)
         {
-            if (Get_huddle_det_stop_flg() == true)
-            {
-                if (huddle_seq_finish)
-                {
-                    Set_line_det_flg(true);
-                    Set_huddle_det_flg_2d(false);
-                }
-            }
+            // if (Get_huddle_det_stop_flg() == true)
+            // {
+            //     if (huddle_seq_finish)
+            //     {
+            //         Set_line_det_flg(true);
+            //         Set_huddle_det_flg_2d(false);
+            //         ROS_WARN("djdkfjdkfjd");
+            //     }
+            // }
 
-            else
-            {
-                Set_huddle_det_flg_2d(true);
-                Set_line_det_flg(false);
-                Set_no_line_det_flg(false);
-            }
+            // else if (tmp_huddle_seq == 5 || huddle_seq_finish)
+            // {
+            //     Set_line_det_flg(true);
+            //     Set_huddle_det_flg_2d(false);
+            // }
+
+            // else if (0 <= tmp_huddle_seq <= 4)
+            // {
+            //     Set_line_det_flg(false);
+            //     Set_huddle_det_flg_2d(true);
+            // }
+
+            // else
+            // {
+            //     Set_huddle_det_flg_2d(true);
+            //     Set_line_det_flg(false);
+            //     Set_no_line_det_flg(false);
+            // }
+
+            Set_huddle_det_flg_2d(true);
+            Set_line_det_flg(false);
+            Set_no_line_det_flg(false);
         }
 
         else if (tmp_img_proc_goal_det_flg_)
@@ -126,7 +149,8 @@ void Move_Decision::process()
 
         else if (tmp_img_proc_corner_det_flg_2d_)
         {
-            if (Get_corner_det_stop_flg() && tmp_corner_shape == 1 && corner_seq_finish)
+            Set_huddle_det_flg_2d(false); //newwwwwww
+            if (Get_corner_det_stop_flg() && corner_seq_finish)
             {
                 Set_wall_det_flg(true);
                 Set_corner_det_flg_2d(false);
@@ -146,15 +170,21 @@ void Move_Decision::process()
             }
         }
 
-        // Keeping huddle mode
-        else if (tmp_huddle_seq == 1 || tmp_huddle_seq == 2 || tmp_huddle_seq == 3 || tmp_huddle_seq == 4)
+        else if (tmp_img_proc_wall_det_flg_)
+        {
+            Set_wall_det_flg(true);
+            Set_line_det_flg(false);
+        }
+        // // Keeping huddle mode
+        if (tmp_huddle_seq == 1 || tmp_huddle_seq == 2 || tmp_huddle_seq == 3 || tmp_huddle_seq == 4)
         {
             Set_huddle_det_flg_2d(true);
             Set_line_det_flg(false);
+            Set_no_line_det_flg(false);
         }
 
-        // Keeping huddle mode
-        else if (tmp_corner_seq == 1 || tmp_corner_seq == 2 || tmp_corner_seq == 3)
+        // // Keeping corner mode
+        if (tmp_corner_seq == 1 || tmp_corner_seq == 2 || tmp_corner_seq == 3)
         {
             Set_corner_det_flg_2d(true);
             Set_line_det_flg(false);
@@ -167,28 +197,56 @@ void Move_Decision::process()
         }
     }
 
+    if (tmp_img_proc_line_det_flg_ && tmp_img_proc_huddle_det_flg_2d_)
+    {
+        Set_huddle_det_flg_2d(true);
+        Set_line_det_flg(false);
+        Set_no_line_det_flg(false);
+    }
+
+    if (tmp_img_proc_corner_det_flg_2d_ && tmp_img_proc_line_det_flg_)
+    {
+        Set_corner_det_flg_2d(true);
+        Set_line_det_flg(false);
+        Set_no_line_det_flg(false);
+    }
+
+    // // Keeping huddle mode
+    if (tmp_huddle_seq == 2 || tmp_huddle_seq == 3 || tmp_huddle_seq == 4)
+    {
+        Set_huddle_det_flg_2d(true);
+        Set_line_det_flg(false);
+        Set_no_line_det_flg(false);
+    }
+
     //////////////////////////////////////   NO LINE MODE    //////////////////////////////////////
 
     else if (tmp_img_proc_no_line_det_flg_)
     {
         if (tmp_img_proc_huddle_det_flg_2d_)
         {
-            if (Get_huddle_det_stop_flg())
-            {
-                if (huddle_seq_finish)
-                {
-                    Set_no_line_det_flg(true);
-                    Set_huddle_det_flg_2d(false);
-                }
-            }
+            Set_huddle_det_flg_2d(true);
+            Set_no_line_det_flg(false);
+            Set_line_det_flg(false);
 
-            else
-            {
-                Set_huddle_det_flg_2d(true);
-                Set_line_det_flg(false);
-                Set_no_line_det_flg(false);
-            }
+            // if (Get_huddle_det_stop_flg())
+            // {
+            //     if (huddle_seq_finish)
+            //     {
+            //         Set_no_line_det_flg(true);
+            //         Set_huddle_det_flg_2d(false);
+            //     }
+            // }
+
+            // else
+            // {
+            //     Set_huddle_det_flg_2d(true);
+            //     Set_line_det_flg(false);
+            //     Set_no_line_det_flg(false);
+            // }
         }
+
+
 
         else if (tmp_img_proc_corner_det_flg_2d_)
         {
@@ -226,16 +284,39 @@ void Move_Decision::process()
             Set_no_line_det_flg(false);
         }
 
-        // Keeping huddle mode
-        else if (tmp_huddle_seq == 1 || tmp_huddle_seq == 2 || tmp_huddle_seq == 3 || tmp_huddle_seq == 4)
-        {
-            Set_huddle_det_flg_2d(true);
-        }
+        // // Keeping huddle mode
+        // else if (tmp_huddle_seq == 2 || tmp_huddle_seq == 3 || tmp_huddle_seq == 4)
+        // {
+        //     Set_huddle_det_flg_2d(true);
+        //     Set_line_det_flg(false);
+        // }
 
+        // // Keeping corner mode
+        if (tmp_corner_seq == 1 || tmp_corner_seq == 2 || tmp_corner_seq == 3)
+        {
+            ROS_INFO("KEEPING CORNER MODE");
+            Set_corner_det_flg_2d(true);
+            Set_line_det_flg(false);
+        }
+        
         else
         {
             Set_no_line_det_flg(true);
         }
+    }
+
+    if (tmp_img_proc_no_line_det_flg_ && tmp_img_proc_huddle_det_flg_2d_)
+    {
+        Set_huddle_det_flg_2d(true);
+        Set_line_det_flg(false);
+        Set_no_line_det_flg(false);
+    }
+
+    if (tmp_img_proc_no_line_det_flg_ && tmp_img_proc_wall_det_flg_)
+    {
+        Set_wall_det_flg(true);
+        Set_no_line_det_flg(false);
+        Set_line_det_flg(false);
     }
 
     //////////////////////////////////////   HUDDLE MODE    //////////////////////////////////////
@@ -245,18 +326,20 @@ void Move_Decision::process()
         if (tmp_img_proc_line_det_flg_)
         {
             Set_line_det_flg(false);
+            Set_huddle_det_flg_2d(true);
         }
 
         else if (tmp_img_proc_no_line_det_flg_)
         {
             Set_no_line_det_flg(false);
+            Set_huddle_det_flg_2d(true);
         }
 
-        if (Get_huddle_det_stop_flg() && huddle_seq_finish)
-        {
-            Set_line_det_flg(true);
-            Set_huddle_det_flg_2d(false);
-        }
+        // if (Get_huddle_det_stop_flg() && huddle_seq_finish)
+        // {
+        //     Set_line_det_flg(true);
+        //     Set_huddle_det_flg_2d(false);
+        // }
 
         else
         {
@@ -268,19 +351,30 @@ void Move_Decision::process()
 
     else if (tmp_img_proc_corner_det_flg_2d_)
     {
+        Set_no_line_det_flg(false);
+        Set_huddle_det_flg_2d(false); //newwwwww
         if (tmp_img_proc_line_det_flg_)
         {
             Set_line_det_flg(false);
+            Set_corner_det_flg_2d(true);
         }
 
         else if (tmp_img_proc_no_line_det_flg_)
         {
             Set_no_line_det_flg(false);
+            Set_corner_det_flg_2d(true);
         }
 
         else if (tmp_img_proc_wall_det_flg_)
         {
             Set_wall_det_flg(false);
+            Set_corner_det_flg_2d(true);
+        }
+        
+        else if (tmp_img_proc_huddle_det_flg_2d_)
+        {
+            Set_huddle_det_flg_2d(false);
+            Set_corner_det_flg_2d(true);
         }
 
         if (Get_corner_det_stop_flg() && tmp_corner_shape == 1 && corner_seq_finish)
@@ -293,6 +387,7 @@ void Move_Decision::process()
         {
             Set_line_det_flg(true);
             Set_corner_det_flg_2d(false);
+            Set_corner_det_flg_2d(true);
         }
 
         else
@@ -302,6 +397,28 @@ void Move_Decision::process()
     }
 
     //////////////////////////////////////   WALL MODE    //////////////////////////////////////
+
+    if (tmp_img_proc_wall_det_flg_ && tmp_img_proc_no_line_det_flg_)
+    {
+        Set_wall_det_flg(true);
+        Set_no_line_det_flg(false);
+        Set_line_det_flg(false);
+    }
+
+    if (tmp_img_proc_wall_det_flg_ && tmp_img_proc_line_det_flg_)
+    {
+        Set_wall_det_flg(true);
+        Set_no_line_det_flg(false);
+        Set_line_det_flg(false);
+    }
+
+    if (tmp_img_proc_wall_det_flg_ && tmp_img_proc_corner_det_flg_2d_)
+    {
+        Set_wall_det_flg(true);
+        Set_corner_det_flg_2d(false);
+        Set_no_line_det_flg(false);
+        Set_line_det_flg(false);
+    }
 
     else if (tmp_img_proc_wall_det_flg_)
     {
@@ -347,6 +464,14 @@ void Move_Decision::process()
     }
 }
 
+void Move_Decision::AllModereset()
+{
+    this->Set_corner_det_flg_2d(false);
+    this->Set_huddle_det_flg_2d(false);
+    this->Set_no_line_det_flg(false);
+    this->Set_line_det_flg(false);
+}
+
 void Move_Decision::processThread()
 {
     // set node loop rate
@@ -357,7 +482,16 @@ void Move_Decision::processThread()
     {
         // ROS_INFO("\n");
         // ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
-        process();
+        if (!wall_seq_start)
+        {
+            process();
+        }
+
+        else if (wall_seq_start)
+        {
+            Set_wall_det_flg(true);
+        }
+        
         // Running_Info();
         // Motion_Info();
         // ROS_INFO("Gradient : %f", img_procPtr->Get_gradient());
@@ -442,6 +576,7 @@ void Move_Decision::Running_Mode_Decision()
         break;
     case WALL_MODE:
         WALL_mode();
+        // WALL_MODE2();
         break;
     case CORNER_MODE:
         CORNER_mode();
@@ -1634,21 +1769,27 @@ void Move_Decision::HUDDLE_mode2()
         //     huddle_seq_finish = true;
         // }
 
-        // if (!Get_select_motion_on_flg())
-        // {
-        //     huddle_motion = Motion_Index::InitPose;
-        //     Set_motion_index_(huddle_motion);
-        //     Set_select_motion_on_flg(true);
-        // }
+        if (!Get_select_motion_on_flg())
+        {
+            huddle_motion = Motion_Index::InitPose;
+            Set_motion_index_(huddle_motion);
+            Set_select_motion_on_flg(true);
+
+            tmp_huddle_seq = 0;
+        }
 
         // Sequence++
         if (finish_past != Get_SM_req_finish())
         {
             tmp_huddle_seq = 0;
+
             contain_huddle_Y = false;
             huddle_posture = false;
+            huddle_seq_finish = true;
+
             Set_huddle_det_flg_2d(false);
             Set_line_det_flg(true);
+
         }
         // Running_Info();
     }
@@ -1769,50 +1910,50 @@ void Move_Decision::CORNER_mode()
         }
     }
 
-    // 1 : Approach to the Corner + Pose Control (Position)
-    else if (tmp_corner_seq == 2)
-    {
-        img_proc_corner_angle = img_procPtr->Get_corner_angle();
-        ROS_ERROR("img_proc_corner_angle : %lf", img_proc_corner_angle);
-        ROS_ERROR(Str_CORNER_SEQUENCE_1.c_str());
+    // // 1 : Approach to the Corner + Pose Control (Position)
+    // else if (tmp_corner_seq == 2)
+    // {
+    //     img_proc_corner_angle = img_procPtr->Get_corner_angle();
+    //     ROS_ERROR("img_proc_corner_angle : %lf", img_proc_corner_angle);
+    //     ROS_ERROR(Str_CORNER_SEQUENCE_1.c_str());
 
-        if (!Get_select_motion_on_flg())
-        {
-            corner_motion = Motion_Index::Step_in_place;
-            Set_motion_index_(corner_motion);
-            Set_select_motion_on_flg(true);
-        }
+    //     if (!Get_select_motion_on_flg())
+    //     {
+    //         corner_motion = Motion_Index::Step_in_place;
+    //         Set_motion_index_(corner_motion);
+    //         Set_select_motion_on_flg(true);
+    //     }
 
-        if (!Get_turn_angle_on_flg())
-        {
-            if (img_proc_corner_angle > 10 || img_proc_corner_angle < -10)
-            {
-                if (img_proc_corner_angle >= 15)
-                {
-                    corner_actual_angle = CORNER_TURN;
-                }
-                else if (img_proc_corner_angle <= -15)
-                {
-                    corner_actual_angle = -CORNER_TURN;
-                }
-                Set_turn_angle_(corner_actual_angle);
-                Set_turn_angle_on_flg(true);
-            }
-            else
-            {
-                corner_posture = true;
-            }
-        }
+    //     if (!Get_turn_angle_on_flg())
+    //     {
+    //         if (img_proc_corner_angle > 10 || img_proc_corner_angle < -10)
+    //         {
+    //             if (img_proc_corner_angle >= 15)
+    //             {
+    //                 corner_actual_angle = CORNER_TURN;
+    //             }
+    //             else if (img_proc_corner_angle <= -15)
+    //             {
+    //                 corner_actual_angle = -CORNER_TURN;
+    //             }
+    //             Set_turn_angle_(corner_actual_angle);
+    //             Set_turn_angle_on_flg(true);
+    //         }
+    //         else
+    //         {
+    //             corner_posture = true;
+    //         }
+    //     }
 
-        if (corner_posture == true)
-        {
-            tmp_corner_seq++;
-            corner_posture = false;
-        }
-    }
+    //     if (corner_posture == true)
+    //     {
+    //         tmp_corner_seq++;
+    //         corner_posture = false;
+    //     }
+    // }
 
     // 2 : Motion : Step in place + Turn Angle 90(ㅓ) or -90(ㅜ)
-    else if (tmp_corner_seq == 3)
+    else if (tmp_corner_seq == 2)
     {
         ROS_ERROR(Str_CORNER_SEQUENCE_2.c_str());
 
@@ -1824,7 +1965,7 @@ void Move_Decision::CORNER_mode()
 
             if (!Get_turn_angle_on_flg())
             {
-                Set_turn_angle_(CORNER_TURN);
+                Set_turn_angle_(CORNER_90TURN);
                 Set_turn_angle_on_flg(true);
             }
 
@@ -1842,7 +1983,7 @@ void Move_Decision::CORNER_mode()
 
             if (!Get_turn_angle_on_flg())
             {
-                Set_turn_angle_(CORNER_TURN);
+                Set_turn_angle_(CORNER_90TURN);
                 Set_turn_angle_on_flg(true);
             }
 
@@ -1860,7 +2001,7 @@ void Move_Decision::CORNER_mode()
 
             if (!Get_turn_angle_on_flg())
             {
-                Set_turn_angle_(CORNER_TURN);
+                Set_turn_angle_(CORNER_90TURN);
                 Set_turn_angle_on_flg(true);
             }
 
@@ -1878,7 +2019,7 @@ void Move_Decision::CORNER_mode()
 
             if (!Get_turn_angle_on_flg())
             {
-                Set_turn_angle_(CORNER_TURN);
+                Set_turn_angle_(CORNER_90TURN);
                 Set_turn_angle_on_flg(true);
             }
 
@@ -1888,7 +2029,61 @@ void Move_Decision::CORNER_mode()
             }
         }
 
-        else if (tmp_turn90 == 4)
+        else if (tmp_turn90 == 4 && !Get_select_motion_on_flg())
+        {
+            corner_motion = Motion_Index::Step_in_place;
+            Set_motion_index_(corner_motion);
+            Set_select_motion_on_flg(true);
+
+            if (!Get_turn_angle_on_flg())
+            {
+                Set_turn_angle_(CORNER_90TURN);
+                Set_turn_angle_on_flg(true);
+            }
+
+            if (finish_past != Get_SM_req_finish())
+            {
+                tmp_turn90++;
+            }
+        }
+
+        else if (tmp_turn90 == 5 && !Get_select_motion_on_flg())
+        {
+            corner_motion = Motion_Index::Step_in_place;
+            Set_motion_index_(corner_motion);
+            Set_select_motion_on_flg(true);
+
+            if (!Get_turn_angle_on_flg())
+            {
+                Set_turn_angle_(CORNER_90TURN);
+                Set_turn_angle_on_flg(true);
+            }
+
+            if (finish_past != Get_SM_req_finish())
+            {
+                tmp_turn90++;
+            }
+        }
+
+        else if (tmp_turn90 == 6 && !Get_select_motion_on_flg())
+        {
+            corner_motion = Motion_Index::Step_in_place;
+            Set_motion_index_(corner_motion);
+            Set_select_motion_on_flg(true);
+
+            if (!Get_turn_angle_on_flg())
+            {
+                Set_turn_angle_(CORNER_90TURN);
+                Set_turn_angle_on_flg(true);
+            }
+
+            if (finish_past != Get_SM_req_finish())
+            {
+                tmp_turn90++;
+            }
+        }
+
+        else if (tmp_turn90 == 7)
         {
             tmp_turn90 = 0;
             tmp_corner_seq++;
@@ -1896,11 +2091,11 @@ void Move_Decision::CORNER_mode()
     }
 
     // 3 : Initializing
-    else if (tmp_corner_seq == 4)
+    else if (tmp_corner_seq == 3)
     {
         ROS_ERROR(Str_CORNER_SEQUENCE_3.c_str());
         // tmp_corner_shape = img_procPtr->Get_img_proc_corner_number();
-        tmp_corner_shape = 1;
+        // tmp_corner_shape = 1;
         ROS_WARN("CORNER_SHAPE : %d", tmp_corner_shape);
 
         if (tmp_corner_shape == 1)
@@ -1911,6 +2106,7 @@ void Move_Decision::CORNER_mode()
             Set_corner_det_stop_flg(true);
             Set_corner_det_flg_2d(false);
             corner_seq_finish = true;
+            wall_seq_start = true;
             // Running_Info();
         }
 
@@ -2083,6 +2279,20 @@ void Move_Decision::WALL_mode()
             }
         }
 
+        // else if (!Get_select_motion_on_flg() && wall_number_seq_C == 1)
+        // {
+        //     wall_motion = Motion_Index::InitPose;
+        //     Set_motion_index_(wall_motion);
+        //     Set_select_motion_on_flg(true);
+
+        //     // Sequence++
+        //     if (finish_past != Get_SM_req_finish())
+        //     {
+        //         wall_number_seq_C = 1;
+        //     }
+        // }
+
+
         ROS_ERROR("FLAG 3 : LEFT");
         break;
 
@@ -2158,6 +2368,20 @@ void Move_Decision::WALL_mode()
                 wall_number_seq_C = 0;
             }
         }
+
+        // else if (!Get_select_motion_on_flg() && wall_number_seq_C == 1)
+        // {
+        //     wall_motion = Motion_Index::InitPose;
+        //     Set_motion_index_(wall_motion);
+        //     Set_select_motion_on_flg(true);
+
+        //     // Sequence++
+        //     if (finish_past != Get_SM_req_finish())
+        //     {
+        //         wall_number_seq_C = 1;
+        //     }
+        // }
+
         ROS_ERROR("FLAG -3 : RIGHT");
         break;
 
@@ -2210,6 +2434,9 @@ void Move_Decision::WALL_mode()
             if (finish_past != Get_SM_req_finish())
             {
                 wall_number_seq_A = 1;
+                tmp_corner_shape = 2;
+                wall_seq_start = false;
+
             }
         }
 
@@ -2274,6 +2501,11 @@ void Move_Decision::WALL_mode()
 
     default:
         Set_motion_index_(Motion_Index::InitPose);
+        Set_UD_NeckAngle(10);
+        Set_UD_Neck_on_flg(true);
+        // wall_number_seq_A = 0;
+        // wall_number_seq_B = 0;
+        // wall_number_seq_C = 0;
         break;
     }
 
@@ -2284,6 +2516,7 @@ void Move_Decision::WALL_mode()
     ROS_WARN("WALL_SEQ_C : %d", wall_number_seq_C);
     ROS_WARN("IMG_WALL_NUMBER_CASE : %d", wall_status);
 }
+
 
 /*
 void Move_Decision::CORNER_mode()
@@ -3072,7 +3305,7 @@ double Move_Decision::Move_UD_NeckAngle()
     double res_ud_neckangle = UD_CENTER;
     if (Get_running_mode_() == Running_Mode::WALL_MODE)
     {
-        res_ud_neckangle = 0;
+        res_ud_neckangle = 10;
         Set_UD_Neck_on_flg(false);
     }
 
@@ -3090,7 +3323,7 @@ double Move_Decision::Move_UD_NeckAngle()
     {
         if (Get_running_mode_() == Running_Mode::WALL_MODE)
         {
-            res_ud_neckangle = 0;
+            res_ud_neckangle = 20;
         }
         else
         {
@@ -3352,6 +3585,14 @@ void Move_Decision::Motion_Info()
         tmp_motion = Str_Forward_1step;
         break;
 
+    case Motion_Index::Right_6step:
+        tmp_motion = Right_6step;
+        break;
+
+    case Motion_Index::Left_6step:
+        tmp_motion = Left_6step;
+        break;
+
     case Motion_Index::NONE:
         tmp_motion = Str_NONE;
         break;
@@ -3430,11 +3671,11 @@ int8_t Move_Decision::Wall_Status(double distance_rect_)
 
         wall_number_seq_A = 0;
         plane_mode = img_procPtr->Get_plane_mode();
-        if (plane_mode == true)
+        if (plane_mode == false)
         {
             wall_status_ = 2; // RIGHT plane -> straight
         }
-        else if (plane_mode == false)
+        else if (plane_mode == true)
         {
             wall_status_ = -2; // LEFT plane -> straight
         }

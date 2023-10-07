@@ -29,8 +29,9 @@
 
 #define LINE_TURN 10
 
-#define CORNER_90TURN 8
+#define CORNER_90TURN 10
 #define CORNER_TURN 5
+#define Right_90TURN -10
 
 #define HUDDLE_TURN 5
 
@@ -58,6 +59,8 @@ public:
         Right_Halfstep = 12,
         Back_Halfstep = 13,
         Forward_1step = 14,
+        Left_6step = 15,
+        Right_6step = 16,
         NONE = 99,
     };
 
@@ -93,6 +96,8 @@ public:
     string Str_Left_Halfstep = "Left_Halfstep";
     string Str_Right_Halfstep = "Right_Halfstep";
     string Str_Back_Halfstep = "Back_Halfstep";
+    string Str_Left_6step = "Left_6step";
+    string Str_Right_6step = "Right_6step";
     string Str_FWD_UP = "FWD_UP";
     string Str_BWD_UP = "BWD_UP";
     string Str_NONE = "NONE";
@@ -125,6 +130,7 @@ public:
     void HUDDLE_mode();  // using realsense
     void HUDDLE_mode2(); // using webcam
     void WALL_mode();
+    void WALL_mode2();
     void CORNER_mode();
     // void CORNER_mode_debug();
     void Test_service();
@@ -179,6 +185,7 @@ public:
     // void CalculateQuotientAndRemainder(int dividend, int divisor, int &quotient, int &remainder);
 
     // ********************************************** GETTERS ************************************************** //
+    void AllModereset();
 
     bool Get_Emergency_() const;
     int8_t Get_motion_index_() const;
@@ -375,7 +382,7 @@ public:
     int8_t turn_30 = 0;
 
     // corner shape ㅓ(1) / ㅜ(2)
-    int8_t tmp_corner_shape = 0;
+    int8_t tmp_corner_shape = 1;
     int8_t tmp_corner_seq = 0;
     bool corner_seq_finish = false;
 
@@ -414,7 +421,7 @@ public:
     int8_t wall_number_seq_A = 0;
     int8_t wall_number_seq_B = 0;
     int8_t wall_number_seq_C = 0;
-
+    bool wall_seq_start = false;
 
     double wall_neck_angle = 0;
     double wall_distance = 0;

@@ -43,11 +43,11 @@
 #define PROP_CONTRAST 128
 #define PROP_SATURATION 128
 
-#define LINE_AREA 300
+#define LINE_AREA 200
 #define HUDDLE_AREA 200
 
-#define CORNER_X_MARGIN 45
-#define CORNER_Y_MARGIN 45
+#define CORNER_X_MARGIN 150
+#define CORNER_Y_MARGIN 180
 
 #define HUDDLE_X_MARGIN 50
 #define HUDDLE_Y_MARGIN 80
@@ -90,7 +90,7 @@ public:
     const int webcam_fps = 30;
     const int webcam_id = 0;
 
-    int threshold_value_white = 180;
+    int threshold_value_white = 110;
     int threshold_value_yellow = 130;
     int threshold_value_blue = 0;
     const int max_value = 255;
@@ -120,13 +120,13 @@ public:
     cv::Scalar yellow_color = {0, 255, 255};
     cv::Scalar white_color = {200, 200, 200};
 
-    cv::Scalar lower_bound_yellow = {20, 20, 140}; // HSV에서 노란색의 하한값
+    cv::Scalar lower_bound_yellow = {10, 50, 100}; // HSV에서 노란색의 하한값
     cv::Scalar upper_bound_yellow = {40, 255, 255};
 
-    cv::Scalar lower_bound_white = {130, 0, 140};
-    cv::Scalar upper_bound_white = {155, 30, 255};
+    cv::Scalar lower_bound_white = {0, 0, 100};
+    cv::Scalar upper_bound_white = {255, 50, 255};
 
-    cv::Scalar lower_bound_blue = {100, 200, 100};
+    cv::Scalar lower_bound_blue = {90, 170, 100};
     cv::Scalar upper_bound_blue = {125, 255, 255};
 
     int corner_condition_count = 0;
@@ -139,6 +139,7 @@ public:
 
     bool left = false;
     bool right = false;
+    bool plane_direction = true;
 
     static void on_trackbar(int, void *);
     void create_threshold_trackbar_W(const std::string &window_name);
@@ -154,13 +155,15 @@ public:
 
     // ********************************************** 3D THREAD************************************************** //
 
-    std::tuple<int, float, float> applyPCA(cv::Mat &color, const rs2::depth_frame &depth, int x1, int y1, int x2, int y2, int x3, int y3);
+    Eigen::Vector3f calculateNormalVector(const std::vector<Eigen::Vector3f>& points);
+    float calculateYRotationBetweenVectors(const Eigen::Vector3f& vec1, const Eigen::Vector3f& vec2);
+    float calculateDistanceFromPlaneToCamera(const Eigen::Vector3f& normal, const Eigen::Vector3f& centroid);
+    std::tuple<bool, float, float> applyPCA(cv::Mat &colorMat, cv::Mat depthMat, float depth_scale, cv::Mat depth_dist, rs2::depth_frame depth_frame, rs2_intrinsics intr, int startX, int startY, int endX, int endY);
     void realsense_thread();
     int8_t Athletics_FLAG = 0;
-    int8_t tmp_img_proc_wall_number = 0;
 
     // Cam set
-    const int realsense_width = 640;
+    const int realsense_width = 848;
     const int realsense_height = 480;
     const int realsense_color_fps = 30;
     const int realsense_depth_fps = 30;

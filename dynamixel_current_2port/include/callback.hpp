@@ -29,7 +29,8 @@ private:
   double g = 9.81;
   double omega_w;
   double _dt = 0.01;
-
+  MatrixXd Huddle_RL_theta;
+  MatrixXd Huddle_LL_theta;
 public:
   enum Motion_Index
   {
@@ -48,6 +49,8 @@ public:
     Right_Halfstep = 12,
     Back_Halfstep = 13,
     Forward_1step = 14,
+    Left_6step = 15,
+    Right_6step = 16,
     START = 50,
     NONE = 99,
   };
@@ -65,6 +68,8 @@ public:
   string Str_Left_Halfstep = "Left_Halfstep";
   string Str_Right_Halfstep = "Right_Halfstep";
   string Str_Back_Halfstep = "Back_Halfstep";
+  string Str_Left_6step = "Left_6step";
+  string Str_Right_6step = "Right_6step";
   string Str_FWD_UP = "FWD_UP";
   string Str_BWD_UP = "BWD_UP";
   string Str_START = "START";
