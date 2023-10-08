@@ -76,7 +76,7 @@ void Move_Decision::process()
     // corner mode
     // Set_no_line_det_flg(true);
     // Set_corner_det_flg_2d(true);
-
+    // Set_no_line_det_flg(true);
 
     // wall mode
     // tmp_img_proc_wall_det_flg_ = true;
@@ -89,9 +89,10 @@ void Move_Decision::process()
     tmp_img_proc_line_det_flg_ = img_procPtr->Get_img_proc_line_det();
     tmp_img_proc_no_line_det_flg_ = img_procPtr->Get_img_proc_no_line_det();
     tmp_img_proc_huddle_det_flg_2d_ = img_procPtr->Get_img_proc_huddle_det_2d();
-    tmp_img_proc_wall_det_flg_ = img_procPtr->Get_img_proc_wall_det();
-    // tmp_img_proc_wall_det_flg_ = Get_wall_det_flg();
-    tmp_img_proc_goal_det_flg_ = img_procPtr->Get_img_proc_goal_line_det();
+    // tmp_img_proc_wall_det_flg_ = img_procPtr->Get_img_proc_wall_det();
+    tmp_img_proc_wall_det_flg_ = Get_wall_det_flg();
+    // tmp_img_proc_goal_det_flg_ = img_procPtr->Get_img_proc_goal_line_det();
+    tmp_img_proc_goal_det_flg_ = Get_goal_line_det_flg();
     tmp_img_proc_corner_det_flg_2d_ = img_procPtr->Get_img_proc_corner_det_2d();
     
     ROS_WARN("tmp_img_proc_line_det_flg_ : %d", tmp_img_proc_line_det_flg_);
@@ -158,7 +159,7 @@ void Move_Decision::process()
 
             else if (Get_corner_det_stop_flg() && tmp_corner_shape == 2 && corner_seq_finish)
             {
-                Set_line_det_flg(true);
+                Set_goal_line_det_flg(true);
                 Set_corner_det_flg_2d(false);
             }
 
@@ -214,6 +215,7 @@ void Move_Decision::process()
     // // Keeping huddle mode
     if (tmp_huddle_seq == 2 || tmp_huddle_seq == 3 || tmp_huddle_seq == 4)
     {
+        ROS_INFO("KEEPING HUDDLE MODE");
         Set_huddle_det_flg_2d(true);
         Set_line_det_flg(false);
         Set_no_line_det_flg(false);
@@ -228,24 +230,7 @@ void Move_Decision::process()
             Set_huddle_det_flg_2d(true);
             Set_no_line_det_flg(false);
             Set_line_det_flg(false);
-
-            // if (Get_huddle_det_stop_flg())
-            // {
-            //     if (huddle_seq_finish)
-            //     {
-            //         Set_no_line_det_flg(true);
-            //         Set_huddle_det_flg_2d(false);
-            //     }
-            // }
-
-            // else
-            // {
-            //     Set_huddle_det_flg_2d(true);
-            //     Set_line_det_flg(false);
-            //     Set_no_line_det_flg(false);
-            // }
         }
-
 
 
         else if (tmp_img_proc_corner_det_flg_2d_)
@@ -258,7 +243,7 @@ void Move_Decision::process()
 
             if (Get_corner_det_stop_flg() && tmp_corner_shape == 2 && corner_seq_finish)
             {
-                Set_line_det_flg(true);
+                Set_goal_line_det_flg(true);
                 Set_corner_det_flg_2d(false);
             }
 
@@ -292,7 +277,7 @@ void Move_Decision::process()
         // }
 
         // // Keeping corner mode
-        if (tmp_corner_seq == 1 || tmp_corner_seq == 2 || tmp_corner_seq == 3)
+        if (tmp_corner_seq == 1 || tmp_corner_seq == 2)
         {
             ROS_INFO("KEEPING CORNER MODE");
             Set_corner_det_flg_2d(true);
@@ -385,7 +370,7 @@ void Move_Decision::process()
 
         if (Get_corner_det_stop_flg() && tmp_corner_shape == 2 && corner_seq_finish)
         {
-            Set_line_det_flg(true);
+            Set_goal_line_det_flg(true);
             Set_corner_det_flg_2d(false);
             Set_corner_det_flg_2d(true);
         }
@@ -464,33 +449,41 @@ void Move_Decision::process()
     }
 }
 
-void Move_Decision::AllModereset()
-{
-    this->Set_corner_det_flg_2d(false);
-    this->Set_huddle_det_flg_2d(false);
-    this->Set_no_line_det_flg(false);
-    this->Set_line_det_flg(false);
-}
-
 void Move_Decision::processThread()
 {
     // set node loop rate
     ros::Rate loop_rate(SPIN_RATE);
 
+
+
+
     // node loop
     while (ros::ok())
     {
         // ROS_INFO("\n");
-        // ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
+        ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
+        ROS_INFO("wall_seq_start : %d", wall_seq_start);
+        ROS_INFO("Go_to_Goal : %d", Go_to_Goal);
         if (!wall_seq_start)
         {
             process();
         }
 
-        else if (wall_seq_start)
+        if (!Go_to_Goal)
+        {
+            process();
+        }
+
+        if (wall_seq_start)
         {
             Set_wall_det_flg(true);
         }
+
+        if (Go_to_Goal)
+        {
+            Set_goal_line_det_flg(true);
+        }
+
         
         // Running_Info();
         // Motion_Info();
@@ -516,7 +509,7 @@ void Move_Decision::Running_Mode_Decision()
 
     else if (running_mode_ != WAKEUP_MODE)
     {
-        if (Get_goal_line_det_flg() && Get_line_det_flg()) // goal_line_detect_flg is true: goal_line detection mode
+        if (Get_goal_line_det_flg()) // goal_line_detect_flg is true: goal_line detection mode
         {
             running_mode_ = GOAL_MODE;
         }
@@ -902,7 +895,7 @@ void Move_Decision::WAKEUP_mode()
 
     else if (WakeUp_seq == 4)
     {
-        wakeup_running = Running_Mode::LINE_MODE;
+        wakeup_running = Get_running_mode_();
         Set_running_mode_(wakeup_running);
         WakeUp_seq = 0;
     }
@@ -912,17 +905,177 @@ void Move_Decision::WAKEUP_mode()
 
 void Move_Decision::GOAL_LINE_mode()
 {
-    // longer width 활용하고 싶음
-    if (!Get_select_motion_on_flg())
+    Set_corner_det_flg_2d(false);
+    Set_line_det_flg(false);
+    Set_huddle_det_flg_2d(false);
+    Set_wall_det_flg(false);
+    Set_goal_line_det_flg(true);
+
+    line_gradient = img_procPtr->Get_gradient();
+    StraightLineDecision(line_gradient, MARGIN_GRADIENT);
+    line_actual_angle = Get_turn_angle_();
+    // line_motion = Get_motion_index_();
+    line_motion = Motion_Index::InitPose;
+    line_ud_neckangle = Get_UD_NeckAngle();
+
+    // If SM_req_finish = false -> InitPose
+    // Straight Line
+    if (straightLine == true)
     {
-        Set_motion_index_(Motion_Index::Forward_2step);
-        Set_select_motion_on_flg(true);
+        if (!Get_turn_angle_on_flg())
+        {
+            // Left turn
+            // To be zero
+            if (line_actual_angle > 0)
+            {
+                // line_actual_angle -= 1;
+                // if (line_actual_angle < 0)
+                line_actual_angle = 0;
+                Set_turn_angle_(line_actual_angle);
+                Set_turn_angle_on_flg(true);
+            }
+
+            // Right turn
+            // To be zero
+            else if (line_actual_angle < 0)
+            {
+                // line_actual_angle += 1;
+                // if (line_actual_angle > 0)
+                line_actual_angle = 0;
+                Set_turn_angle_(line_actual_angle);
+                Set_turn_angle_on_flg(true);
+            }
+        }
+
+        if (!Get_select_motion_on_flg())
+        {
+            line_motion = Motion_Index::Forward_2step;
+            Set_motion_index_(line_motion);
+            Set_select_motion_on_flg(true);
+        }
+
+        if (!Get_UD_Neck_on_flg())
+        {
+            line_ud_neckangle = UD_CENTER;
+            Set_UD_NeckAngle(line_ud_neckangle);
+            Set_UD_Neck_on_flg(true);
+        }
+
+        ROS_ERROR("STRAIGHT LINE");
+
+        // TEST
+        //  Set_RL_Neck_on_flg(true);
+        //  Set_RL_NeckAngle(Actual_angle);
     }
 
-    if (!Get_UD_Neck_on_flg() && Get_UD_Neck_on_flg())
+    // Non Straight Line
+    else if (straightLine == false)
     {
-        Set_UD_NeckAngle(UD_CENTER);
-        Set_UD_Neck_on_flg(true);
+        if (!Get_turn_angle_on_flg())
+        {
+            // Increase Actual_angle more quickly for larger line_gradient values
+            // Counter Clock wise(+) (Turn Angle sign)
+            // Gradient : Angle from center of window.x to center of line.x
+            // LEFT TURN
+            if (line_gradient >= MARGIN_GRADIENT * 5)
+            {
+                increment = 4;
+                ROS_WARN("LEFT_TURN");
+            }
+            else if (line_gradient >= MARGIN_GRADIENT * 4)
+            {
+                increment = 3;
+                ROS_WARN("LEFT_TURN");
+            }
+            else if (line_gradient >= MARGIN_GRADIENT * 3)
+            {
+                increment = 2;
+                ROS_WARN("LEFT_TURN");
+            }
+            else if (line_gradient >= MARGIN_GRADIENT * 2)
+            {
+                increment = 2;
+                ROS_WARN("LEFT_TURN");
+            }
+            else if (line_gradient > MARGIN_GRADIENT * 1)
+            {
+                increment = 2;
+                ROS_WARN("LEFT_TURN");
+            }
+
+            // Decrease Actual_angle relatively slowly for smaller line_gradient values
+            // Right Turn
+            else if (line_gradient <= -MARGIN_GRADIENT * 5)
+            {
+                increment = -4;
+                ROS_WARN("RIGHT TURN");
+            }
+            else if (line_gradient <= -MARGIN_GRADIENT * 4)
+            {
+                increment = -3;
+                ROS_WARN("RIGHT TURN");
+            }
+            else if (line_gradient <= -MARGIN_GRADIENT * 3)
+            {
+                increment = -2;
+                ROS_WARN("RIGHT TURN");
+            }
+            else if (line_gradient <= -MARGIN_GRADIENT * 2)
+            {
+                increment = -2;
+                ROS_WARN("RIGHT TURN");
+            }
+            else if (line_gradient < -MARGIN_GRADIENT * 1)
+            {
+                increment = -2;
+                ROS_WARN("RIGHT TURN");
+            }
+            else
+            {
+                increment = 0;
+            }
+
+            line_actual_angle += increment;
+            if (line_actual_angle >= 15)
+            {
+                line_actual_angle = LINE_TURN;
+            }
+            else if (line_actual_angle <= -15)
+            {
+                line_actual_angle = -LINE_TURN;
+            }
+
+            Set_turn_angle_(line_actual_angle);
+            Set_turn_angle_on_flg(true);
+        }
+
+        if (!Get_select_motion_on_flg())
+        {
+            if (line_gradient > MARGIN_GRADIENT * 2 || line_gradient < -MARGIN_GRADIENT * 2)
+            {
+                line_motion = Motion_Index::Step_in_place;
+            }
+            else
+            {
+                line_motion = Motion_Index::Forward_2step;
+            }
+
+            Set_motion_index_(line_motion);
+            Set_select_motion_on_flg(true);
+        }
+
+        if (!Get_UD_Neck_on_flg())
+        {
+            line_ud_neckangle = UD_CENTER;
+            Set_UD_NeckAngle(line_ud_neckangle);
+            Set_UD_Neck_on_flg(true);
+        }
+
+        ROS_ERROR("NO STRAIGHT LINE");
+
+        // TEST
+        //  Set_RL_Neck_on_flg(true);
+        //  Set_RL_NeckAngle(Actual_angle);
     }
 }
 
@@ -1737,7 +1890,7 @@ void Move_Decision::HUDDLE_mode2()
         // tmp_img_proc_line_det_flg_ = false;
 
         ROS_ERROR(Str_HUDDLE2_SEQUENCE_3.c_str());
-        if (!Get_select_motion_on_flg())
+        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
         {
             huddle_motion = Motion_Index::Huddle_Jump;
             Set_motion_index_(huddle_motion);
@@ -2112,12 +2265,12 @@ void Move_Decision::CORNER_mode()
 
         else if (tmp_corner_shape == 2)
         {
-            tmp_corner_seq = 0;
             // tmp_corner_shape = 0;
-            Set_line_det_flg(true);
+            // Set_line_det_flg(true);
             Set_corner_det_stop_flg(true);
             Set_corner_det_flg_2d(false);
             corner_seq_finish = true;
+            Go_to_Goal = true;
             // Running_Info();
         }
     }
@@ -2434,6 +2587,7 @@ void Move_Decision::WALL_mode()
             if (finish_past != Get_SM_req_finish())
             {
                 wall_number_seq_A = 1;
+                // Set_corner_det_flg_2d(true);
                 tmp_corner_shape = 2;
                 wall_seq_start = false;
 
@@ -3697,6 +3851,14 @@ int8_t Move_Decision::Wall_Status(double distance_rect_)
         }
     }
     return wall_status_;
+}
+
+void Move_Decision::AllModereset()
+{
+    this->Set_corner_det_flg_2d(false);
+    this->Set_huddle_det_flg_2d(false);
+    this->Set_no_line_det_flg(false);
+    this->Set_line_det_flg(false);
 }
 
 // void Move_Diecison::CalculateQuotientAndRemainder(int dividend, int divisor, int &quotient, int &remainder)

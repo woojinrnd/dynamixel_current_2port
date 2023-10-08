@@ -856,12 +856,40 @@ std::tuple<bool, float, float> Img_proc::applyPCA(cv::Mat &colorMat, cv::Mat dep
 
         if (right_white_pixels < left_white_pixels)
         {
-            plane_direction = true;
+            if(prev_plane_direction != true)
+            {
+                consecutive_changes++;
+                if(consecutive_changes >= CHANGE_THRESHOLD)
+                {
+                    plane_direction = true;
+                    consecutive_changes = 0;  // 재설정
+                }
+            }
+            else
+            {
+                plane_direction = true;
+                consecutive_changes = 0;  // 재설정
+            }
         }
         else if(right_white_pixels > left_white_pixels)
         {
-            plane_direction = false;
+            if(prev_plane_direction != false)
+            {
+                consecutive_changes++;
+                if(consecutive_changes >= CHANGE_THRESHOLD)
+                {
+                    plane_direction = false;
+                    consecutive_changes = 0;  // 재설정
+                }
+            }
+            else
+            {
+                plane_direction = false;
+                consecutive_changes = 0;  // 재설정
+            }
         }
+
+        prev_plane_direction = plane_direction;
 
     }
 
@@ -878,6 +906,39 @@ std::tuple<bool, float, float> Img_proc::applyPCA(cv::Mat &colorMat, cv::Mat dep
         real_distance = distance_rect1;
     }
 
+    if (abs(real_distance - previous_real_distance) > DISTANCE_THRESHOLD) {
+        change_counter++;
+        if (change_counter < FRAME_THRESHOLD) {
+            // 연속된 변화가 FRAME_THRESHOLD보다 작으면 이전 값을 유지
+            real_distance = previous_real_distance;
+        } else {
+            // FRAME_THRESHOLD 이상의 연속된 변화가 있으면 값을 업데이트
+            previous_real_distance = real_distance;
+            change_counter = 0; // 카운터 초기화
+        }
+    }
+    else
+    {
+        // 임계값 이내의 변화가 감지되면 카운터 초기화 및 이전 값을 업데이트
+        previous_real_distance = real_distance;
+        change_counter = 0;
+    }
+
+    if (std::isnan(angle)) {
+        angle = previous_angle;
+    } else {
+        previous_angle = angle;
+    }
+
+    // ... (다른 코드들 사이에)
+
+    // real_distance 값이 nan인 경우 이전 값을 사용
+    if (std::isnan(real_distance)) {
+        real_distance = previous_real_distance;
+    } else {
+        previous_real_distance = real_distance;
+    }
+
     // 이미지에
     cv::putText(colorMat, "distance : " + std::to_string(real_distance), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
     cv::putText(colorMat, "Angle : " + std::to_string(angle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
@@ -889,7 +950,7 @@ std::tuple<bool, float, float> Img_proc::applyPCA(cv::Mat &colorMat, cv::Mat dep
     cv::rectangle(colorMat, {plane_rect_x1, plane_rect_y1}, {plane_rect_x2, plane_rect_y2}, cv::Scalar(0, 0, 255), 2);
 
 
-    return std::make_tuple(plane_direction, angle, distance_rect1);
+    return std::make_tuple(plane_direction, angle, real_distance);
 }
 
 double Img_proc::Distance_Point(const rs2::depth_frame &depth, cv::Point center)

@@ -289,10 +289,20 @@ private:
     double gradient_ = 0;     // Line_angle
     double wall_angle_ = 0;   // wall angle
     double huddle_angle_ = 0; // huddle angle
-    double wall_distance_ = 0;     //  wall mode
     double huddle_distance_ = 0; // huddle distance
     double corner_angle_ = 0; //corner angle
+
+    //  wall mode
+    double wall_distance_ = 0;
+    bool prev_plane_direction = false;
+    int consecutive_changes = 0;
+    const int CHANGE_THRESHOLD = 3;
     bool plane_mode_ = 0;
+    float previous_real_distance = 0.0f;
+    int change_counter = 0;
+    const int FRAME_THRESHOLD = 5;
+    const float DISTANCE_THRESHOLD = 0.5f;
+    float previous_angle = 0.0f;
 
     // No Line mode
     // delta_x : Center of window.x - Center of last captured line.x

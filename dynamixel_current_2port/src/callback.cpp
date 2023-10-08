@@ -54,7 +54,6 @@ void Callback::StartMode(const std_msgs::Bool::ConstPtr &start)
         
         emergency = 0;
         srv_SendMotion.request.TA_finish = true;
-        
     }
 }
 
@@ -406,10 +405,11 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Left2();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 0, 3.5, 3.5, 0, 0);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 50;
     }
+    
     else if (res_mode == Motion_Index::Step_in_place)
     {
         mode = Motion_Index::Step_in_place;
@@ -420,16 +420,18 @@ void Callback::SelectMotion()
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
+    
     else if (res_mode == Motion_Index::Right_2step)
     {
         mode = Motion_Index::Right_2step;
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Right2();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 0, 3.5, 3.5, 0, 0);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 50;
     }
+    
     else if (res_mode == Motion_Index::Forward_Nstep)
     {
         mode = Motion_Index::Forward_Nstep;
@@ -440,6 +442,7 @@ void Callback::SelectMotion()
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
+    
     else if (res_mode == Motion_Index::Huddle_Jump)
     {
         mode = Motion_Index::Huddle_Jump;
@@ -501,7 +504,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Right6();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 0, 3.5, 3.5, 0, 0);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 30;
     }
@@ -512,7 +515,7 @@ void Callback::SelectMotion()
         IK_Ptr->Change_Com_Height(30);
         trajectoryPtr->Side_Left6();
         IK_Ptr->Get_Step_n(trajectoryPtr->Return_Step_n());
-        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 0, 3.5, 3.5, 0, 0);
+        IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 30;
     }
@@ -619,17 +622,17 @@ void Callback::Write_Leg_Theta()
     }
 
     All_Theta[0] = -IK_Ptr->RL_th[0];
-    All_Theta[1] = IK_Ptr->RL_th[1] - 1 * DEG2RAD;
+    All_Theta[1] = IK_Ptr->RL_th[1] - 3 * DEG2RAD;
     All_Theta[2] = IK_Ptr->RL_th[2] - 10.74 * DEG2RAD;
     All_Theta[3] = -IK_Ptr->RL_th[3] + 38.34 * DEG2RAD;
     All_Theta[4] = -IK_Ptr->RL_th[4] + 24.22 * DEG2RAD;
-    All_Theta[5] = -IK_Ptr->RL_th[5];
+    All_Theta[5] = -IK_Ptr->RL_th[5] - 2 * DEG2RAD;
     All_Theta[6] = -IK_Ptr->LL_th[0];
     All_Theta[7] = IK_Ptr->LL_th[1] + 2 * DEG2RAD;
     All_Theta[8] = -IK_Ptr->LL_th[2] + 10.74 * DEG2RAD;
-    All_Theta[9] = IK_Ptr->LL_th[3] - 36.34 * DEG2RAD;
+    All_Theta[9] = IK_Ptr->LL_th[3] - 40.34 * DEG2RAD;
     All_Theta[10] = IK_Ptr->LL_th[4] - 24.22 * DEG2RAD;
-    All_Theta[11] = -IK_Ptr->LL_th[5];
+    All_Theta[11] = -IK_Ptr->LL_th[5] + 2 * DEG2RAD ;
 
 }
 

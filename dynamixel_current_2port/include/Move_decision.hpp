@@ -294,7 +294,7 @@ public:
     int8_t tmp_delta_x = 0;
     int8_t noline_motion = 0;
     double noline_actual_angle = 0;
-    double Angle_ToFindLine = 30; // max or min
+    double Angle_ToFindLine = 15; // max or min
     double noline_neckangle = 0;
 
     // Actural send turn angle
@@ -385,6 +385,7 @@ public:
     int8_t tmp_corner_shape = 1;
     int8_t tmp_corner_seq = 0;
     bool corner_seq_finish = false;
+    bool Go_to_Goal = false;
 
     double corner_actual_angle = 0;
     int8_t tmp_turn90 = 0;
@@ -402,6 +403,8 @@ public:
     bool contain_corner_X = false; // corner X Point
     bool contain_corner_Y = false; // corner Y Point
     bool corner_posture = false;   // corner gradient
+
+    
 
     string Str_CORNER_SEQUENCE_0 = "CORNER_SEQUENCE_0 : POSITION CONTROL";
     string Str_CORNER_SEQUENCE_1 = "CORNER_SEQUENCE_1 : POSTURE CONTROL";
