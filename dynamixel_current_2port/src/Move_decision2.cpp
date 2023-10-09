@@ -72,7 +72,6 @@ void Move_Decision::process(bool Switch_ON, bool wall_seq_start_, bool Go_to_Goa
     // Set_line_det_flg(true);
 
     // huddle mode
-    // Set_huddle_det_flg(true);
     // Set_UD_Neck_on_flg(true);
 
     // corner mode
@@ -81,7 +80,6 @@ void Move_Decision::process(bool Switch_ON, bool wall_seq_start_, bool Go_to_Goa
 
     // wall mode
     // tmp_img_proc_wall_det_flg_ = true;
-    // Set_wall_det_flg(true);
 
     //////////////////////////////////////   DEBUG WINDOW    //////////////////////////////////////
 
@@ -100,8 +98,10 @@ void Move_Decision::process(bool Switch_ON, bool wall_seq_start_, bool Go_to_Goa
 
         // tmp_img_proc_no_line_det_flg_ = true;
         // tmp_img_proc_line_det_flg_ = true;
-        // tmp_img_proc_corner_det_flg_2d_ = true;
         // tmp_img_proc_huddle_det_flg_2d_ = true;
+        tmp_img_proc_corner_det_flg_2d_ = true;
+        tmp_corner_seq = 3;
+
 
         ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
         ROS_WARN("tmp_img_proc_line_det_flg_ : %d", tmp_img_proc_line_det_flg_);
@@ -136,13 +136,13 @@ void Move_Decision::process(bool Switch_ON, bool wall_seq_start_, bool Go_to_Goa
 
     if (tmp_img_proc_line_det_flg_)
     {
-        if (tmp_img_proc_huddle_det_flg_2d_)
+        if (tmp_img_proc_huddle_det_flg_2d_ || tmp_huddle_seq == 1 || tmp_huddle_seq == 2 || tmp_huddle_seq == 3 || tmp_huddle_seq == 4)
         {
             ROS_INFO("1");
             AllModereset(Running_Mode::HUDDLE_MODE);
         }
 
-        else if (tmp_img_proc_corner_det_flg_2d_)
+        else if (tmp_img_proc_corner_det_flg_2d_ || tmp_corner_seq == 1 || tmp_corner_seq == 2)
         {
             Set_huddle_det_flg_2d(false); // newwwwwww
             if (Get_corner_det_stop_flg() && corner_seq_finish)
@@ -163,37 +163,12 @@ void Move_Decision::process(bool Switch_ON, bool wall_seq_start_, bool Go_to_Goa
             ROS_INFO("4");
             AllModereset(Running_Mode::WALL_MODE);
         }
-        // // Keeping huddle mode
-        if (tmp_huddle_seq == 1 || tmp_huddle_seq == 2 || tmp_huddle_seq == 3 || tmp_huddle_seq == 4)
-        {
-            ROS_INFO("5");
-            AllModereset(Running_Mode::HUDDLE_MODE);
-        }
-
-        // // Keeping corner mode
-        if (tmp_corner_seq == 1 || tmp_corner_seq == 2 || tmp_corner_seq == 3)
-        {
-            ROS_INFO("6");
-            AllModereset(Running_Mode::CORNER_MODE);
-        }
 
         else
         {
             ROS_INFO("7");
             AllModereset(Running_Mode::LINE_MODE);
         }
-    }
-
-    if (tmp_img_proc_line_det_flg_ && tmp_img_proc_huddle_det_flg_2d_)
-    {
-        ROS_INFO("8");
-        AllModereset(Running_Mode::HUDDLE_MODE);
-    }
-
-    if (tmp_img_proc_corner_det_flg_2d_ && tmp_img_proc_line_det_flg_)
-    {
-        ROS_INFO("9");
-        AllModereset(Running_Mode::CORNER_MODE);
     }
 
     // // Keeping huddle mode
@@ -208,13 +183,13 @@ void Move_Decision::process(bool Switch_ON, bool wall_seq_start_, bool Go_to_Goa
 
     else if (tmp_img_proc_no_line_det_flg_)
     {
-        if (tmp_img_proc_huddle_det_flg_2d_)
+        if (tmp_img_proc_huddle_det_flg_2d_ || tmp_huddle_seq == 2 || tmp_huddle_seq == 3 || tmp_huddle_seq == 4)
         {
             ROS_INFO("11");
             AllModereset(Running_Mode::HUDDLE_MODE);
         }
 
-        else if (tmp_img_proc_corner_det_flg_2d_)
+        else if (tmp_img_proc_corner_det_flg_2d_ || tmp_corner_seq == 1 || tmp_corner_seq == 2)
         {
             if (Get_corner_det_stop_flg() && tmp_corner_shape == 1 && corner_seq_finish)
             {
@@ -238,41 +213,12 @@ void Move_Decision::process(bool Switch_ON, bool wall_seq_start_, bool Go_to_Goa
             AllModereset(Running_Mode::WALL_MODE);
         }
 
-        // // Keeping huddle mode
-        else if (tmp_huddle_seq == 2 || tmp_huddle_seq == 3 || tmp_huddle_seq == 4)
-        {
-            ROS_INFO("15");
-
-            Set_huddle_det_flg_2d(true);
-            Set_line_det_flg(false);
-        }
-
-        // // Keeping corner mode
-        if (tmp_corner_seq == 1 || tmp_corner_seq == 2)
-        {
-            ROS_INFO("16");
-            AllModereset(Running_Mode::CORNER_MODE);
-        }
-
         else
         {
             ROS_INFO("17");
 
             AllModereset(Running_Mode::NO_LINE_MODE);
         }
-    }
-
-    if (tmp_img_proc_no_line_det_flg_ && tmp_img_proc_huddle_det_flg_2d_)
-    {
-        ROS_INFO("18");
-        AllModereset(Running_Mode::HUDDLE_MODE);
-    }
-
-    if (tmp_img_proc_no_line_det_flg_ && tmp_img_proc_wall_det_flg_)
-    {
-        ROS_INFO("19");
-
-        AllModereset(Running_Mode::WALL_MODE);
     }
 
     //////////////////////////////////////   HUDDLE MODE    //////////////////////////////////////
@@ -665,7 +611,7 @@ void Move_Decision::LINE_mode()
 
         if (!Get_select_motion_on_flg())
         {
-            if (line_gradient > MARGIN_GRADIENT * 2 || line_gradient < -MARGIN_GRADIENT * 2)
+            if (line_gradient > MARGIN_GRADIENT * 3 || line_gradient < -MARGIN_GRADIENT * 3)
             {
                 line_motion = Motion_Index::Step_in_place;
             }
@@ -1832,7 +1778,7 @@ void Move_Decision::HUDDLE_mode2()
         // tmp_img_proc_line_det_flg_ = false;
 
         ROS_ERROR(Str_HUDDLE2_SEQUENCE_3.c_str());
-        if (!Get_select_motion_on_flg() && Get_SM_req_finish())
+        if (!Get_select_motion_on_flg())
         {
             huddle_motion = Motion_Index::Huddle_Jump;
             Set_motion_index_(huddle_motion);
@@ -2233,8 +2179,8 @@ void Move_Decision::WALL_mode()
     // Case B (0.4 < Distance < 0.75)
     // Seq 0 : Pose Control
     // Seq 1 : Position Control (Forward_ 1step)
-    // 2 : RIGHT Plane
-    // -2 : LEFT Plane
+    // 2 : RIGHT Plane (false)
+    // -2 : LEFT Plane (true)
 
     // Case C (Distance < 0.4)
     // 3 -> Left_2Step
@@ -2242,9 +2188,12 @@ void Move_Decision::WALL_mode()
 
     wall_motion = Get_motion_index_();
     img_proc_wall_angle = img_procPtr->Get_wall_angle();
-    // wall_status = Wall_Status(img_procPtr->Get_wall_distance());
-    wall_status = 10;
     wall_distance = img_procPtr->Get_wall_distance();
+
+    double filter_distance = Relax_Distance(wall_distance);
+
+    wall_status = Wall_Status(wall_distance);
+    wall_status = Wall_Status(filter_distance);
 
     switch (wall_status)
     {
@@ -3849,6 +3798,39 @@ void Move_Decision::AllModereset(int8_t mode)
         Set_motion_index_(Motion_Index::InitPose);
         break;
     }
+}
+
+double Move_Decision::Relax_Distance(double distance_)
+{
+    huddle_distance_save.push_back(distance_);
+    ROS_WARN("huddle_distance_save SIZE : %d", huddle_distance_save.size());
+    if (huddle_distance_save.size() == SPIN_RATE * 2) // 3sec Mean Distance Value
+    {
+        // 거리 값 필터링
+        float threshold = 0.1f; // 필터링 임계값 설정
+        if (std::abs(distance_ - huddle_distance_save.back()) < threshold)
+        {
+            // 현재 값이 이전 값과 비교하여 임계값 이내인 경우
+            huddle_distance_save.push_back(distance_); // 현재 값을 벡터에 추가
+        }
+        else
+        {
+            // 튀는 값인 경우, 이전 값으로 대체
+            distance_ = huddle_distance_save.back();
+        }
+
+        // 벡터의 평균 계산
+        float sum = 0.0f;
+        for (const float &distance : huddle_distance_save)
+        {
+            sum += distance;
+        }
+        distance_ = sum / huddle_distance_save.size();
+        distance_ = std::floor(huddle_distance * 1000.0) / 1000.0;
+        huddle_distance_save.clear();
+    }
+
+    return distance_;
 }
 
 // void Move_Diecison::CalculateQuotientAndRemainder(int dividend, int divisor, int &quotient, int &remainder)

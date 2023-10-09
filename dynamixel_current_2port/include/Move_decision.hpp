@@ -182,6 +182,8 @@ public:
     void Running_Info();
     int8_t Wall_Status(double distance_rect_);
     void AllModereset(int8_t mode);
+    double Relax_Distance(double distance_);
+
     // void CalculateQuotientAndRemainder(int dividend, int divisor, int &quotient, int &remainder);
 
     // ********************************************** GETTERS ************************************************** //

@@ -118,6 +118,7 @@ target_link_libraries(dynamixel_current_2port ${catkin_LIBRARIES} ${OpenCV_LIBRA
 #Move_decision node
 add_executable(
   Move_decision_node
+  # src/main_2.cpp
   src/Move_decision_node.cpp
   # src/dynamixel.cpp ${dynamixel.hpp}
   # src/Move_decision.cpp ${Move_decision.hpp} 
@@ -136,7 +137,8 @@ target_link_libraries(Move_decision_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES}
 #Sensor node
 add_executable(
   Sensor_node
-  src/Sensor_node.cpp
+  src/main_2.cpp
+  # src/Sensor_node.cpp
   src/sensor.cpp ${sensor.hpp}
   # src/img_proc_basketball.cpp
   # src/dynamixel.cpp ${dynamixel.hpp}

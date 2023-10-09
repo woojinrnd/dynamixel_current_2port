@@ -31,6 +31,7 @@ private:
   double _dt = 0.01;
   MatrixXd Huddle_RL_theta;
   MatrixXd Huddle_LL_theta;
+
 public:
   enum Motion_Index
   {
