@@ -536,9 +536,9 @@ void Move_Decision::process(bool Switch_ON, bool wall_seq_start_, bool Go_to_Goa
         tmp_img_proc_goal_det_flg_ = Get_goal_line_det_flg();
         tmp_img_proc_corner_det_flg_2d_ = img_procPtr->Get_img_proc_corner_det_2d();
 
-        tmp_img_proc_no_line_det_flg_ = true;
+        // tmp_img_proc_no_line_det_flg_ = true;
         // tmp_img_proc_line_det_flg_ = true;
-        tmp_img_proc_corner_det_flg_2d_ = true;
+        // tmp_img_proc_corner_det_flg_2d_ = true;
         // tmp_img_proc_huddle_det_flg_2d_ = true;
 
         ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
