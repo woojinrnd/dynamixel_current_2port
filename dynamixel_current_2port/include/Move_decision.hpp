@@ -120,7 +120,7 @@ public:
 
     // ********************************************** PROCESS THREAD************************************************** //
 
-    void process();
+    void process(bool Switch_ON, bool wall_seq_start_, bool Go_to_Goal_);
     void processThread();
     void LINE_mode();
     void NOLINE_mode();
@@ -130,7 +130,6 @@ public:
     void HUDDLE_mode();  // using realsense
     void HUDDLE_mode2(); // using webcam
     void WALL_mode();
-    void WALL_mode2();
     void CORNER_mode();
     // void CORNER_mode_debug();
     void Test_service();
@@ -182,10 +181,10 @@ public:
     void Send_Info(int8_t motion_, double turn_angle_, double ud, double rl, bool emg);
     void Running_Info();
     int8_t Wall_Status(double distance_rect_);
+    void AllModereset(int8_t mode);
     // void CalculateQuotientAndRemainder(int dividend, int divisor, int &quotient, int &remainder);
 
     // ********************************************** GETTERS ************************************************** //
-    void AllModereset();
 
     bool Get_Emergency_() const;
     int8_t Get_motion_index_() const;

@@ -1030,7 +1030,6 @@ void Img_proc::realsense_thread()
             double angle_ = std::get<1>(pca);
             double distance_ = std::get<2>(pca);
 
-            // this->Set_img_proc_wall_number(plane_direction);
             this->Set_plane_mode(plane_direction);
             this->Set_wall_angle(angle_);
             this->Set_wall_distance(distance_);

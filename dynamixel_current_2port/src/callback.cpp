@@ -51,7 +51,7 @@ void Callback::StartMode(const std_msgs::Bool::ConstPtr &start)
         IK_Ptr->Change_Angle_Compensation(3.5, 3.5, 0, 3.5, 3.5, 3.5, 0, -3.5);
         IK_Ptr->Set_Angle_Compensation(135);
         trajectoryPtr->Stop_Trajectory_straightwalk(0.05);
-        
+
         emergency = 0;
         srv_SendMotion.request.TA_finish = true;
     }
@@ -109,7 +109,6 @@ void Callback::callbackThread()
     FSR_L_sensor_subscriber_ = nh.subscribe("/FSR_L", 1000, &Callback::L_FSRsensorCallback, this);
     FSR_R_sensor_subscriber_ = nh.subscribe("/FSR_R", 1000, &Callback::R_FSRsensorCallback, this);
     Start_subscriber_ = nh.subscribe("/START", 1000, &Callback::StartMode, this);
-
 
     srv_SendMotion.request.SM_finish = false;
     srv_SendMotion.request.TA_finish = false;
@@ -305,15 +304,15 @@ void Callback::Motion_Info()
         break;
 
     case Motion_Index::Forward_1step:
-        tmp_motion = Forward_1step;
+        tmp_motion = Str_Forward_1step;
         break;
 
     case Motion_Index::Right_6step:
-        tmp_motion = Right_6step;
+        tmp_motion = Str_Right_6step;
         break;
 
     case Motion_Index::Left_6step:
-        tmp_motion = Left_6step;
+        tmp_motion = Str_Left_6step;
         break;
 
         // case Motion_Index::START:
@@ -409,7 +408,7 @@ void Callback::SelectMotion()
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 50;
     }
-    
+
     else if (res_mode == Motion_Index::Step_in_place)
     {
         mode = Motion_Index::Step_in_place;
@@ -420,7 +419,7 @@ void Callback::SelectMotion()
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
-    
+
     else if (res_mode == Motion_Index::Right_2step)
     {
         mode = Motion_Index::Right_2step;
@@ -431,7 +430,7 @@ void Callback::SelectMotion()
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 50;
     }
-    
+
     else if (res_mode == Motion_Index::Forward_Nstep)
     {
         mode = Motion_Index::Forward_Nstep;
@@ -442,7 +441,7 @@ void Callback::SelectMotion()
         IK_Ptr->Set_Angle_Compensation(135);
         indext = 0;
     }
-    
+
     else if (res_mode == Motion_Index::Huddle_Jump)
     {
         mode = Motion_Index::Huddle_Jump;
@@ -578,7 +577,7 @@ void Callback::Write_Leg_Theta()
                     srv_SendMotion.request.TA_finish = true;
                 }
             }
-             Check_FSR();
+            // Check_FSR();
         }
         else if (mode == Motion_Index::Left_2step || mode == Motion_Index::Left_Halfstep || mode == Motion_Index::Left_6step)
         {
@@ -591,12 +590,14 @@ void Callback::Write_Leg_Theta()
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
             IK_Ptr->Angle_Compensation_Rightwalk(indext);
         }
+
         else if (mode == Motion_Index::Huddle_Jump)
         {
-           
+
             IK_Ptr->BRP_Simulation(trajectoryPtr->Ref_RL_x, trajectoryPtr->Ref_RL_y, trajectoryPtr->Ref_RL_z, trajectoryPtr->Ref_LL_x, trajectoryPtr->Ref_LL_y, trajectoryPtr->Ref_LL_z, indext);
             IK_Ptr->Angle_Compensation_Huddle(indext);
         }
+
         else if (mode == Motion_Index::ForWard_fast4step)
         {
 
@@ -632,8 +633,7 @@ void Callback::Write_Leg_Theta()
     All_Theta[8] = -IK_Ptr->LL_th[2] + 10.74 * DEG2RAD;
     All_Theta[9] = IK_Ptr->LL_th[3] - 40.34 * DEG2RAD;
     All_Theta[10] = IK_Ptr->LL_th[4] - 24.22 * DEG2RAD;
-    All_Theta[11] = -IK_Ptr->LL_th[5] + 2 * DEG2RAD ;
-
+    All_Theta[11] = -IK_Ptr->LL_th[5] + 2 * DEG2RAD;
 }
 
 void Callback::Write_Arm_Theta()
@@ -648,7 +648,6 @@ void Callback::Write_Arm_Theta()
     All_Theta[19] = 0 * DEG2RAD;
     All_Theta[20] = 0 * DEG2RAD;
 }
-
 
 void Callback::Set_Callback()
 {
