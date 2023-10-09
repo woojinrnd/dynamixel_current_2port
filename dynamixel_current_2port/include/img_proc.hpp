@@ -50,7 +50,7 @@
 #define CORNER_Y_MARGIN 180
 
 #define HUDDLE_X_MARGIN 50
-#define HUDDLE_Y_MARGIN 80
+#define HUDDLE_Y_MARGIN 50
 
 using namespace cv;
 using namespace std;
@@ -165,8 +165,8 @@ public:
     // Cam set
     const int realsense_width = 848;
     const int realsense_height = 480;
-    const int realsense_color_fps = 30;
-    const int realsense_depth_fps = 30;
+    const int realsense_color_fps = 15;
+    const int realsense_depth_fps = 15;
 
     double huddle_distance = 0;
 
@@ -296,11 +296,11 @@ private:
     double wall_distance_ = 0;
     bool prev_plane_direction = false;
     int consecutive_changes = 0;
-    const int CHANGE_THRESHOLD = 3;
+    const int CHANGE_THRESHOLD = 10;
     bool plane_mode_ = 0;
     float previous_real_distance = 0.0f;
     int change_counter = 0;
-    const int FRAME_THRESHOLD = 5;
+    const int FRAME_THRESHOLD = 200;
     const float DISTANCE_THRESHOLD = 0.5f;
     float previous_angle = 0.0f;
 

@@ -6,7 +6,7 @@ Move_Decision::Move_Decision(Img_proc *img_procPtr)
     : img_procPtr(img_procPtr),
       FALL_FORWARD_LIMIT(60),
       FALL_BACK_LIMIT(-60),
-      SPIN_RATE(1),
+      SPIN_RATE(30),
       stand_status_(Stand_Status::Stand),
       motion_index_(Motion_Index::NONE),
       stop_fallen_check_(false),
@@ -99,8 +99,8 @@ void Move_Decision::process(bool Switch_ON, bool wall_seq_start_, bool Go_to_Goa
         // tmp_img_proc_no_line_det_flg_ = true;
         // tmp_img_proc_line_det_flg_ = true;
         // tmp_img_proc_huddle_det_flg_2d_ = true;
-        tmp_img_proc_corner_det_flg_2d_ = true;
-        tmp_corner_seq = 3;
+        // tmp_img_proc_corner_det_flg_2d_ = true;
+        // tmp_corner_seq = 3;
 
 
         ROS_INFO("-------------------------PROCESSTHREAD----------------------------");
@@ -939,7 +939,7 @@ void Move_Decision::GOAL_LINE_mode()
 
         if (!Get_select_motion_on_flg())
         {
-            if (line_gradient > MARGIN_GRADIENT * 2 || line_gradient < -MARGIN_GRADIENT * 2)
+            if (line_gradient > MARGIN_GRADIENT * 3 || line_gradient < -MARGIN_GRADIENT * 3)
             {
                 line_motion = Motion_Index::Step_in_place;
             }

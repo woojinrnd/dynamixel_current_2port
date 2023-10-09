@@ -52,8 +52,8 @@ std::tuple<cv::Mat, cv::Mat> Img_proc::ROI_Line(const cv::Mat &input_frame, cons
     cv::circle(circleMask, cv::Point(320, 500), 500, cv::Scalar(255), -1);
     cv::bitwise_and(mask, circleMask, mask);
 
-    // cv::line(draw_frame, cv::Point(100, 480), cv::Point(100, 50), white_color, 3);
-    // cv::line(draw_frame, cv::Point(540, 480), cv::Point(540, 50), white_color, 3);
+    //cv::line(draw_frame, cv::Point(100, 480), cv::Point(100, 50), white_color, 3);
+    //cv::line(draw_frame, cv::Point(540, 480), cv::Point(540, 50), white_color, 3);
 
     int circle_center_x = 320;
     int circle_center_y = 500;
@@ -65,8 +65,8 @@ std::tuple<cv::Mat, cv::Mat> Img_proc::ROI_Line(const cv::Mat &input_frame, cons
         double y_positive = circle_center_y + std::sqrt(radius * radius - (x - circle_center_x) * (x - circle_center_x));
         double y_negative = circle_center_y - std::sqrt(radius * radius - (x - circle_center_x) * (x - circle_center_x));
 
-        // cv::circle(draw_frame, cv::Point(x, y_positive), 1, white_color, 2);
-        // cv::circle(draw_frame, cv::Point(x, y_negative), 1, white_color, 2);
+        //cv::circle(draw_frame, cv::Point(x, y_positive), 1, white_color, 2);
+       //cv::circle(draw_frame, cv::Point(x, y_negative), 1, white_color, 2);
     }
 
     cv::Mat roi;
@@ -402,9 +402,9 @@ std::tuple<cv::Mat, bool, int, int, bool, int8_t, cv::Point, cv::Point, cv::Poin
                 huddle_center = min_area_rect.center;
                 // cout << top_contour_area << endl;
                 cv::circle(ori_frame, huddle_center, 2, contour_color, -1, 8);
-                // cv::imshow("yellow binary", binary);
-                // cv::moveWindow("yellow binary", 1000, 540);
-                //  cout << "yellow area" << huddle_area << endl;
+                //cv::imshow("yellow binary", binary);
+                //cv::moveWindow("yellow binary", 1000, 540);
+                // cout << "yellow area" << huddle_area << endl;
             }
         }
 
@@ -516,12 +516,13 @@ void Img_proc::webcam_thread()
 
         auto Roi_Line = ROI_Line(Line_frame, frame);
 
-        cv::Mat Roi_huddle = ROI_Rectangle(frame, 0, 480, 10, 630);
+        cv::Mat Roi_huddle = ROI_Rectangle(frame, 0, 480, IMG_W / 2 - 100, IMG_W / 2 + 100);
 
         // HSV
         auto hsv_frame_white = extract_color(std::get<0>(Roi_Line), lower_bound_white, upper_bound_white);
         auto hsv_frame_yellow = extract_color(Roi_huddle, lower_bound_yellow, upper_bound_yellow);
         auto hsv_frame_blue = extract_color(frame, lower_bound_blue, upper_bound_blue);
+
 
         // Draw
         auto thresh_frame_yellow = detect_Line_areas(std::get<0>(hsv_frame_yellow), frame, yellow_color, threshold_value_yellow, true, false);
@@ -532,13 +533,14 @@ void Img_proc::webcam_thread()
         int WhiteColorDetected = 0;
         int YellowColorDetected = 0;
 
+
         WhiteColorDetected = std::get<10>(thresh_frame_white);
         YellowColorDetected = std::get<14>(thresh_frame_yellow);
 
         if (YellowColorDetected > HUDDLE_AREA)
         {
             Yellow_count++;
-            if (Yellow_count > 1)
+            if(Yellow_count > 1)
             {
                 noline_count = 0;
                 // this->Set_img_proc_line_det(false);
@@ -596,7 +598,7 @@ void Img_proc::webcam_thread()
                 cv::moveWindow("hsv Frame_yellow", 700, 0);
             }
         }
-        else if (YellowColorDetected < HUDDLE_AREA)
+        else if(YellowColorDetected < HUDDLE_AREA)
         {
             this->Set_img_proc_huddle_det_2d(false);
         }
@@ -604,7 +606,7 @@ void Img_proc::webcam_thread()
         if (WhiteColorDetected > LINE_AREA)
         {
             White_count++;
-            if (White_count > 30)
+            if(White_count > 30)
             {
                 noline_count = 0;
                 this->Set_img_proc_line_det(true);
@@ -681,15 +683,15 @@ void Img_proc::webcam_thread()
                 cv::moveWindow("hsv Frame_blue", 0, 540);
             }
         }
-
-        else if (WhiteColorDetected < LINE_AREA && YellowColorDetected < HUDDLE_AREA)
+        
+        else if(WhiteColorDetected < LINE_AREA && YellowColorDetected < HUDDLE_AREA)
         {
             noline_count++;
-            if (noline_count > 15)
+            if(noline_count > 15)
             {
                 double gradient = std::get<2>(thresh_frame_white);
                 double tmp_delta_x = std::get<5>(thresh_frame_white);
-
+                
                 this->Set_img_proc_no_line_det(true);
                 this->Set_img_proc_line_det(false);
                 if (this->Get_img_proc_line_det() == false)
@@ -713,18 +715,15 @@ void Img_proc::webcam_thread()
 
 // // ********************************************** 3D THREAD************************************************** //
 
-Eigen::Vector3f Img_proc::calculateNormalVector(const std::vector<Eigen::Vector3f> &points)
-{
+Eigen::Vector3f Img_proc::calculateNormalVector(const std::vector<Eigen::Vector3f>& points) {
     Eigen::Vector3f centroid = Eigen::Vector3f::Zero();
-    for (const auto &point : points)
-    {
+    for (const auto& point : points) {
         centroid += point;
     }
     centroid /= points.size();
 
     Eigen::MatrixXf centeredPoints(points.size(), 3);
-    for (size_t i = 0; i < points.size(); ++i)
-    {
+    for (size_t i = 0; i < points.size(); ++i) {
         centeredPoints.row(i) = points[i] - centroid;
     }
 
@@ -737,8 +736,7 @@ Eigen::Vector3f Img_proc::calculateNormalVector(const std::vector<Eigen::Vector3
 
 // 카메라와 평면 사이 각도 추출 -----------------------------------------------------------------------------------------
 
-float Img_proc::calculateYRotationBetweenVectors(const Eigen::Vector3f &vec1, const Eigen::Vector3f &vec2)
-{
+float Img_proc::calculateYRotationBetweenVectors(const Eigen::Vector3f& vec1, const Eigen::Vector3f& vec2) {
     // Project the vectors onto the XZ plane
     Eigen::Vector3f vec1_xz = vec1.normalized();
     vec1_xz.y() = 0;
@@ -754,23 +752,21 @@ float Img_proc::calculateYRotationBetweenVectors(const Eigen::Vector3f &vec1, co
     float angle = std::acos(cos_theta) * 180.0 / M_PI;
 
     // Determine the angle's sign based on the cross product's sign
-    if (cross_product < 0)
-    {
+    if (cross_product < 0) {
         angle = angle;
     }
-    if (angle > 90)
-    {
-        angle = angle - 180;
-        angle = angle;
+    if (angle > 90){
+       angle = angle - 180;
+       angle = angle;
     }
+
 
     return angle;
 }
 
 // PCA 평면과의 거리 추출 ------------------------------------------------------------------------------------------------
 
-float Img_proc::calculateDistanceFromPlaneToCamera(const Eigen::Vector3f &normal, const Eigen::Vector3f &centroid)
-{
+float Img_proc::calculateDistanceFromPlaneToCamera(const Eigen::Vector3f& normal, const Eigen::Vector3f& centroid) {
     Eigen::Vector3f camera_position(0, 0, 0);
     float distance = normal.dot(camera_position - centroid);
     return abs(distance);
@@ -778,23 +774,11 @@ float Img_proc::calculateDistanceFromPlaneToCamera(const Eigen::Vector3f &normal
 
 std::tuple<bool, float, float> Img_proc::applyPCA(cv::Mat &colorMat, cv::Mat depthMat, float depth_scale, cv::Mat depth_dist, rs2::depth_frame depth_frame, rs2_intrinsics intr, int startX, int startY, int endX, int endY)
 {
-    // cv::Mat gray, wall_binary;
-    // cv::cvtColor(depthMat, gray, cv::COLOR_BGR2GRAY);
-    // cv::threshold(gray, wall_binary, 200, 255, cv::THRESH_BINARY);
-
-    ////update
     cv::Mat gray, wall_binary;
-    cv::Mat filtered_depth_image;
+    cv::cvtColor(depthMat, gray, cv::COLOR_BGR2GRAY);
+    cv::threshold(gray, wall_binary, 240, 255, cv::THRESH_BINARY);
 
-    // 미디언 필터 적용
-    cv::medianBlur(depthMat, filtered_depth_image, 5); // 미디언 필터 크기 조정 가능
-
-    // 그레이스케일 변환
-    cv::cvtColor(filtered_depth_image, gray, cv::COLOR_BGR2GRAY);
-
-    // 이진화
-    cv::threshold(gray, wall_binary, 200, 255, cv::THRESH_BINARY);
-    ////update
+    cv::Mat wall_plane_det_img = ROI_Rectangle(wall_binary, 150, 350, 0, 848);
 
     imshow("plane_detect", wall_binary);
 
@@ -802,17 +786,14 @@ std::tuple<bool, float, float> Img_proc::applyPCA(cv::Mat &colorMat, cv::Mat dep
 
     std::vector<Eigen::Vector3f> points;
 
-    int plane_rect_x1 = 300, plane_rect_y1 = 150, plane_rect_x2 = 548, plane_rect_y2 = 320;
+    int plane_rect_x1 = 350, plane_rect_y1 = 250, plane_rect_x2 = 498, plane_rect_y2 = 350;
 
-    for (int y = plane_rect_y1; y < plane_rect_y2; ++y)
-    {
-        for (int x = plane_rect_x1; x < plane_rect_x2; ++x)
-        {
+    for (int y = plane_rect_y1; y < plane_rect_y2; ++y) {
+        for (int x = plane_rect_x1; x < plane_rect_x2; ++x) {
             float depth = depth_dist.at<uint16_t>(y, x) * depth_scale;
 
             // Set a depth threshold
-            if (depth > 0.2 && depth < 2.0)
-            {
+            if (depth > 0.2 && depth < 2.0) {
                 float pixel[2] = {static_cast<float>(x), static_cast<float>(y)};
                 float point[3];
                 rs2_deproject_pixel_to_point(point, &intr, pixel, depth);
@@ -825,20 +806,17 @@ std::tuple<bool, float, float> Img_proc::applyPCA(cv::Mat &colorMat, cv::Mat dep
     // PCA 영역안 평면 거리 ------------------------------------------------------------------------------------------------
 
     Eigen::Vector3f normal = calculateNormalVector(points);
-    // std::cout << "Normal vector: " << normal.transpose() << std::endl;
+    //std::cout << "Normal vector: " << normal.transpose() << std::endl;
 
     Eigen::Vector3f camera_z_axis(0, 0, -1);
     float angle = calculateYRotationBetweenVectors(normal, camera_z_axis);
-    // std::cout << "Angle between normal vector and camera Z-axis: " << angle << " degrees" << std::endl;
+    //std::cout << "Angle between normal vector and camera Z-axis: " << angle << " degrees" << std::endl;
 
     std::vector<Eigen::Vector3f> points_rect1;
-    for (int y = 150; y < 320; ++y)
-    {
-        for (int x = 200; x < 400; ++x)
-        {
+    for (int y = 150; y < 320; ++y) {
+        for (int x = 200; x < 400; ++x) {
             float depth = depth_dist.at<uint16_t>(y, x) * depth_scale;
-            if (depth > 0.2 && depth < 2.0)
-            {
+            if (depth > 0.2 && depth < 2.0) {
                 float pixel[2] = {static_cast<float>(x), static_cast<float>(y)};
                 float point[3];
                 rs2_deproject_pixel_to_point(point, &intr, pixel, depth);
@@ -848,167 +826,90 @@ std::tuple<bool, float, float> Img_proc::applyPCA(cv::Mat &colorMat, cv::Mat dep
     }
     Eigen::Vector3f normal_rect1 = calculateNormalVector(points_rect1);
     Eigen::Vector3f centroid_rect1 = Eigen::Vector3f::Zero();
-    for (const auto &point : points_rect1)
-    {
+    for (const auto& point : points_rect1) {
         centroid_rect1 += point;
     }
     centroid_rect1 /= points_rect1.size();
 
     float distance_rect1 = calculateDistanceFromPlaneToCamera(normal_rect1, centroid_rect1);
-    float distance_right_wall = depth_frame.get_distance(750, 240);
-    float distance_left_wall = depth_frame.get_distance(100, 240);
+    float distance_right_wall = depth_frame.get_distance(828, 240);
+    float distance_left_wall = depth_frame.get_distance(20, 240);
+    float distance_wall_center = depth_frame.get_distance(424, 240);
 
-    if (distance_rect1 > 0.3 && distance_rect1 < 0.7)
+    if(distance_rect1 > 0.5 && distance_rect1 < 0.7)
     {
-
-        ////update
-        int image_width = wall_binary.cols;
-        int image_height = wall_binary.rows;
-        int left_end_x = image_width / 4;      // 화면 왼쪽 1/4 부분
-        int right_end_x = 3 * image_width / 4; // 화면 오른쪽 1/4 부분
+        int center_x = wall_plane_det_img.cols / 2;
         int left_white_pixels = 0;
         int right_white_pixels = 0;
 
-        for (int y = 0; y < image_height; y++)
+        for (int y = 0; y < wall_plane_det_img.rows; y++)
         {
-            for (int x = 0; x < left_end_x; x++)
+            for (int x = 0; x < center_x; x++)
             {
-                if (wall_binary.at<uchar>(y, x) == 255) // 왼쪽 끝 영역 흰색 픽셀 확인
+                if (wall_plane_det_img.at<uchar>(y, x) == 255)  // 왼쪽 영역 흰색 픽셀 확인
                     left_white_pixels++;
             }
 
-            for (int x = right_end_x; x < image_width; x++)
+            for (int x = center_x; x < wall_plane_det_img.cols; x++)
             {
-                if (wall_binary.at<uchar>(y, x) == 255) // 오른쪽 끝 영역 흰색 픽셀 확인
+                if (wall_plane_det_img.at<uchar>(y, x) == 255)  // 오른쪽 영역 흰색 픽셀 확인
                     right_white_pixels++;
             }
         }
 
         if (right_white_pixels * 1.5 < left_white_pixels)
         {
-            if (prev_plane_direction != true)
-            {
-                consecutive_changes++;
-                if (consecutive_changes >= CHANGE_THRESHOLD)
-                {
-                    plane_direction = true;
-                    consecutive_changes = 0; // 재설정
-                }
-            }
-            else
+            if(consecutive_changes >= CHANGE_THRESHOLD)
             {
                 plane_direction = true;
-                consecutive_changes = 0; // 재설정
-            }
-        }
-        else if (right_white_pixels > left_white_pixels * 1.5)
-        {
-            if (prev_plane_direction != false)
-            {
-                consecutive_changes++;
-                if (consecutive_changes >= CHANGE_THRESHOLD)
-                {
-                    plane_direction = false;
-                    consecutive_changes = 0; // 재설정
-                }
+                consecutive_changes = 0;
             }
             else
             {
+                consecutive_changes++;
+            }
+        }
+        else if(right_white_pixels > left_white_pixels * 1.5)
+        {
+            if(consecutive_changes >= CHANGE_THRESHOLD)
+            {
                 plane_direction = false;
-                consecutive_changes = 0; // 재설정
+                consecutive_changes = 0;
+            }
+            else
+            {
+                consecutive_changes++;
             }
         }
 
-        else
-        {
-            cout << "dklfsdlkfj" << endl;
-            consecutive_changes = 0; // 재설정
-        }
-
-        ////update
-
-        // int center_x = wall_binary.cols / 2;
-        // int left_white_pixels = 0;
-        // int right_white_pixels = 0;
-        // for (int y = 0; y < wall_binary.rows; y++)
-        // {
-        //     for (int x = 0; x < center_x; x++)
-        //     {
-        //         if (wall_binary.at<uchar>(y, x) == 255)  // 왼쪽 영역 흰색 픽셀 확인
-        //             left_white_pixels++;
-        //     }
-
-        //     for (int x = center_x; x < wall_binary.cols; x++)
-        //     {
-        //         if (wall_binary.at<uchar>(y, x) == 255)  // 오른쪽 영역 흰색 픽셀 확인
-        //             right_white_pixels++;
-        //     }
-        // }
-
-        // if (right_white_pixels < left_white_pixels)
-        // {
-        //     if (prev_plane_direction != true)
-        //     {
-        //         consecutive_changes++;
-        //         if (consecutive_changes >= CHANGE_THRESHOLD)
-        //         {
-        //             plane_direction = true;
-        //             consecutive_changes = 0; // 재설정
-        //         }
-        //     }
-        //     else
-        //     {
-        //         plane_direction = true;
-        //         consecutive_changes = 0; // 재설정
-        //     }
-        // }
-        // else if (right_white_pixels > left_white_pixels)
-        // {
-        //     if (prev_plane_direction != false)
-        //     {
-        //         consecutive_changes++;
-        //         if (consecutive_changes >= CHANGE_THRESHOLD)
-        //         {
-        //             plane_direction = false;
-        //             consecutive_changes = 0; // 재설정
-        //         }
-        //     }
-        //     else
-        //     {
-        //         plane_direction = false;
-        //         consecutive_changes = 0; // 재설정
-        //     }
-        // }
-
         prev_plane_direction = plane_direction;
+
     }
 
-    if (distance_rect1 > (distance_right_wall * 2))
-    {
-        real_distance = distance_right_wall;
-    }
-    else if (distance_rect1 > (distance_left_wall * 2))
-    {
-        real_distance = distance_left_wall;
-    }
-    else
-    {
-        real_distance = distance_rect1;
-    }
+//    if(distance_rect1 > (distance_right_wall * 2))
+//    {
+//        real_distance = distance_right_wall;
+//    }
+//    else if(distance_rect1 > (distance_left_wall * 2))
+//    {
+//        real_distance = distance_left_wall;
+//    }
+//    else
+//    {
+//        real_distance = distance_rect1;
+//    }
 
-    if (abs(real_distance - previous_real_distance) > DISTANCE_THRESHOLD)
-    {
+    real_distance = distance_wall_center;
+
+    if (abs(real_distance - previous_real_distance) > DISTANCE_THRESHOLD) {
         change_counter++;
-        if (change_counter < FRAME_THRESHOLD)
-        {
+        if (change_counter < FRAME_THRESHOLD) {
             // 연속된 변화가 FRAME_THRESHOLD보다 작으면 이전 값을 유지
             real_distance = previous_real_distance;
-        }
-        else
-        {
+        } else {
             // FRAME_THRESHOLD 이상의 연속된 변화가 있으면 값을 업데이트
             previous_real_distance = real_distance;
-            change_counter = 0; // 카운터 초기화
+            change_counter = 0;
         }
     }
     else
@@ -1018,38 +919,30 @@ std::tuple<bool, float, float> Img_proc::applyPCA(cv::Mat &colorMat, cv::Mat dep
         change_counter = 0;
     }
 
-    if (std::isnan(angle))
-    {
+    if (std::isnan(angle)) {
         angle = previous_angle;
-    }
-    else
-    {
+    } else {
         previous_angle = angle;
     }
 
-    // ... (다른 코드들 사이에)
-
     // real_distance 값이 nan인 경우 이전 값을 사용
-    if (std::isnan(real_distance))
-    {
+    if (std::isnan(real_distance)) {
         real_distance = previous_real_distance;
-    }
-    else
-    {
+    } else {
         previous_real_distance = real_distance;
     }
 
-    // 이미지에
     cv::putText(colorMat, "distance : " + std::to_string(real_distance), cv::Point(10, 25), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
-    cv::putText(colorMat, "Angle : " + std::to_string(angle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
+    cv::putText(colorMat, "Angle : " + std::to_string(-angle), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
     cv::putText(colorMat, "plane : " + std::to_string(plane_direction), cv::Point(10, 100), cv::FONT_HERSHEY_SIMPLEX, 0.7, cv::Scalar{0, 255, 0}, 2);
 
-    cv::circle(colorMat, cv::Point(700, 240), 3, -1);
-    cv::circle(colorMat, cv::Point(150, 240), 3, -1);
+    cv::circle(colorMat, cv::Point(828, 240), 5, red_color, -1);
+    cv::circle(colorMat, cv::Point(20, 240), 5, red_color, -1);
 
     cv::rectangle(colorMat, {plane_rect_x1, plane_rect_y1}, {plane_rect_x2, plane_rect_y2}, cv::Scalar(0, 0, 255), 2);
 
-    return std::make_tuple(plane_direction, angle, real_distance);
+
+    return std::make_tuple(plane_direction, -angle, real_distance);
 }
 
 double Img_proc::Distance_Point(const rs2::depth_frame &depth, cv::Point center)
@@ -1065,13 +958,11 @@ double Img_proc::Distance_Point(const rs2::depth_frame &depth, cv::Point center)
 
 void Img_proc::realsense_thread()
 {
-    // 148522071908
     rs2::colorizer color_map;
     rs2::pipeline pipe;
     rs2::config cfg;
     cfg.enable_stream(RS2_STREAM_COLOR, realsense_width, realsense_height, RS2_FORMAT_BGR8, realsense_color_fps);
     cfg.enable_stream(RS2_STREAM_DEPTH, realsense_width, realsense_height, RS2_FORMAT_Z16, realsense_depth_fps);
-
 
     try
     {
@@ -1131,12 +1022,14 @@ void Img_proc::realsense_thread()
             double angle_ = std::get<1>(pca);
             double distance_ = std::get<2>(pca);
 
+            // this->Set_img_proc_wall_number(plane_direction);
             this->Set_plane_mode(plane_direction);
             this->Set_wall_angle(angle_);
             this->Set_wall_distance(distance_);
 
             cv::imshow(window_name, depthMat);
             cv::imshow(window_name_color, colorMat);
+
         }
     }
 
